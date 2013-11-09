@@ -56,7 +56,7 @@ def main ():
     )
     shutil.copy(
             os.path.join(appDir, "myscripts", "misc", "vimFiles", "_gvimrc sample place in Documents Folder"),
-            os.path.join(os.path.expanduser("~"), "_gvimrc")
+            os.path.join(os.path.expanduser("~"), ".vimrc")
     )
 
 if __name__ == "__main__":
