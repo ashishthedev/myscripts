@@ -88,6 +88,8 @@ class Shipment(object):
         self.courier.StoreSnapshot()
         self._markAsDeliveredAndSaveInDB()
 
+
+
     def _markAsDeliveredAndSaveInDB(self):
         if not IsDeliveredAssessFromStatus(self.status):
             raise Exception("Algorithm says undelivered but you are trying to save it as delivered. The original status was: \n{}".format(self.status))

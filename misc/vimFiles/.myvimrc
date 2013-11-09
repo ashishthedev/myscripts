@@ -10,26 +10,29 @@ set nocompatible
 source $VIMRUNTIME/mswin.vim
 behave mswin
 
-"Remove all autocommands in case it is sourced twice
 :autocmd!
+"Remove all autocommands in case it is sourced twice
 
-:function! GetAPPDIR()
-:if expand($APPDIR)==""
-:   return "c:\\users\\Ichigo\\Dropbox\\SDATDocs"
-:else
-:   return expand($APPDIR)
-:endfunction
 
 python << EOF
-import os
+EOF
 
+function! GetAPPDIR()
+python << endpython
+import vim
+import os
 def GetAPPDIR():
     if "APPDIR" in os.environ:
-        appPath = os.path.normpath(os.environ["appdir"])
+        return os.path.normpath(os.environ["appdir"])
     else:
-        appPath = os.path.normpath("c:\\users\\ichigo\\Dropbox\\SDATDocs")
-    return appPath
-EOF
+        return os.path.normpath("c:\\users\\ichigo\\Dropbox\\SDATDocs\\")
+
+retcmd = "return '{}'".format(GetAPPDIR())
+vim.command(retcmd)# return from the Vim function!
+endpython
+endfunction
+
+
 
 "1. VIM Customizations
 "_________________________________________________________________________________
@@ -133,13 +136,15 @@ endif
 " 2. PYTHON CUSTOMIZATIONS STARTS
 "______________________________________________________________________________
 " Source http://sontek.net/blog/detail/turning-vim-into-a-modern-python-ide
-"call pathogen#infect()
-"call pathogen#runtime_append_all_bundles()
+execute "source "GetAPPDIR()."\\myscripts\\misc\\vimFiles\\vim\\autoload\\pathogen.vim"
+let bundlePath=GetAPPDIR()."\\myscripts\\misc\\vimFiles\\vim\\bundle\\{}"
+call pathogen#infect('bundle/{}', bundlePath)
 "call pathogen#incubate()
 "call pathogen#helptags()
 
 
 "DO NOT TOUCH - Necessary for pathogen to work
+syntax enable
 filetype off
 filetype on                 "Try to detect filetypes
 filetype plugin on
@@ -151,7 +156,7 @@ set foldnestmax=2
 set foldmethod=indent
 
 "http://sontek.net/blog/detail/turning-vim-into-a-modern-python-ide
-let g:pyflakes_use_quickfix = 0
+let g:pyflakes_use_quickfix = 1
 let g:pep8_map='<leader>8'
 let g:pydoc_cmd = 'python -m pydoc'
 "noremap <leader>g :GundoToggle<CR>
@@ -390,13 +395,10 @@ if has("gui_running")
     set guioptions-=T "c=No menus and e=
     set guioptions-=r "c=No menus and e=
 endif
-syntax enable
 set background=dark
-execute "source " GetAPPDIR()."\\myscripts\\misc\\vimFiles\\solarized.vim"
+"execute "source "GetAPPDIR()."\\myscripts\\misc\\vimFiles\\solarized.vim"
+colorscheme solarized
 
-"colorscheme solarized
-"let g:solarized_termcolors=256
-"let g:solarized_bold=1
 
 "5. Third party scripts
 "_________________________________________________________________________________
@@ -542,7 +544,7 @@ function! DistractionFreeWriting()
     set linebreak
     set formatoptions+=t
     set textwidth=79
-    au BufRead *.txt setlocal spell
+    setlocal spell
 endfunction
 
 autocmd Bufenter,BufNewFile,BufRead,BufWritePost *.py set formatoptions-=t
@@ -588,3 +590,4 @@ set cursorcolumn
 "zug — undo the addition of a word to the dictionary
 "z= — view spelling suggestions for a mispelled word
 ""
+
