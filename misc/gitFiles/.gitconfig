@@ -1,0 +1,7 @@
+[user]
+	email = ashishthedev@gmail.com
+	name = Ashish Anand
+[color "diff"]
+	meta = blue black bold
+	old = red bold
+	new = yellow bold

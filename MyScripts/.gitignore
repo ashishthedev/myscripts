@@ -1,0 +1,17 @@
+__pycache__
+__pycache__\*
+PhoneBookMerge/*.vcf
+*/.ropeproject/*
+*.pyc
+*.png
+*.dot
+*.pkl
+keyl/DisplayDriver.exe
+keyl/log.txt
+keyl/build*
+keyl/bin*
+keyl/dist*
+keyl/*.spec
+keyl/*.log
+a.txt
+privoxy.log

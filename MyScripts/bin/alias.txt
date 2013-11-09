@@ -1,0 +1,180 @@
+;= Shortcuts to ease out the repetitive tasks in windows
+;=
+;= @echo off
+; = Invoke it like this:
+;= 1. D:\Windows\System32\cmd.exe /k setenv.bat
+;= 2. doskey /MACROFILE="%APPDIR%\MyScripts\bin\alias.txt"
+;= rem Call DOSKEY and use this file as the macrofile
+;= %SystemRoot%\system32\doskey /listsize=1000 /macrofile=%0%
+;= rem In batch mode, jump to the end of the file
+;= goto end
+;= rem ******************************************************************
+;= rem *   Filename: aliases.bat
+;= rem *    Version: 1.0
+;= rem *     Author: Ben Burnett <me@cs.wisc.edu>
+;= rem *    Purpose: Simple, but useful aliases; this can be done by
+;= rem *             other means--of course--but this is dead simple and
+;= rem *             works on EVERY Windows machine on the planet.
+;= rem *    History:
+;= rem * 26/11/2012: File Created
+;= rem ******************************************************************
+
+
+
+
+
+
+
+gitclean = git gc --aggressive --prune
+re=doskey /Macrofile=%APPDIR%\myscripts\bin\alias.txt
+..=cd..
+...=cd..\..
+
+idle = %APPDIR%\myscripts\bin\idle.lnk
+mv=move $*
+al=gvim %APPDIR%\myscripts\bin\alias.txt
+cfg=gvim %APPDIR%\pycrm.cfg
+g=gvim $*
+z=start /w %VIM_EXE_DIR%\gvim.exe $*
+ff=@echo "Finding for file name" && where /T /R . *$**
+fs=findstr /i /s /n $*
+ls=dir /x $*
+lw=dir /w $*
+la=dir /x /a $*
+cp=copy $*
+mv=move $*
+cd=pushd $*
+
+egs = start /w "%USERPROFILE%\AppData\Local\Google\Chrome\Application\chrome.exe" "https://www.google.com/#q=$*"
+
+gds=pushd b:\desktop
+gtest = pushd b:\desktop && pushd test
+gms=pushd %APPDIR%\myscripts
+gbin=pushd %APPDIR%\myscripts\bin
+ghome = pushd %HOMEPATH%
+gwp  = pushd %APPDIR%\MyScripts\whopaid
+ggoogle = pushd "%PROGRAMFILES%\Google\google_appengine"
+gpm  = pushd %APPDIR%\MyScripts\PythonModules
+gbundle = pushd "d:\users\Ichigo\vimfiles\bundle\"
+doc = pushd %APPDIR%
+gdoc = pushd %APPDIR%
+gsony= pushd %APPDIR%\MyScripts\SonyPhoneBookMerge
+gmisc = pushd %APPDIR%\MyScripts\misc
+gahk = pushd %APPDIR%\MyScripts\AHK
+gtools = pushd "b:\tools\"
+gread = pushd b:\read
+gkeyl = pushd %APPDIR%\MyScripts\keyl
+gff = pushd %APPDIR%\FrequentFliers
+gydl = pushd "B:\\YoutubeVideosDownloaded\\"
+rollbacksdat = pushd %WEBDIR%\ && appcfg.py rollback . --no_cookies --email="developer@standarddiesandtools.com" $*
+golivesdat = %WEBDIR%\scripts\push.py --version="live" --email="developer@standarddiesandtools.com" $*
+godevsdat = %WEBDIR%\scripts\push.py --version="dev" --email="developer@standarddiesandtools.com" $*
+golivephungsuk = %PHUNGSUKDIR%\scripts\push.py --version="live" --email="developer@phungsukjibabo.mygbiz.com"
+godevphungsuk = %PHUNGSUKDIR%\scripts\push.py --version="dev" --email="developer@phungsukjibabo.mygbiz.com"
+rollbackphungsuk = pushd %PHUNGSUKDIR% && appcfg.py rollback . --no_cookies --email="developer@phungsukjibabo.mygbiz.com" $*
+gphungsuk = pushd %PHUNGSUKDIR%
+utw = %WEBDIR%\Scripts\unittests.py
+gweb = pushd "%WEBDIR%"
+gwb = pushd "%WEBDIR%"
+gcss = pushd %WEBDIR%\static\stylesheets
+gimg = pushd %WEBDIR%\static\images
+ghtml = pushd %WEBDIR%\templates
+elwsf = start %ComSpec% /k dev_appserver.py --skip_sdk_update_check True "%WEBDIR%"
+elws = start %ComSpec% /k dev_appserver.py "%WEBDIR%"
+phserver = "B:\Tools\PhantomJS\phantomjs-1.9.1-windows\phantomjs.exe" --proxy=127.0.0.1:8118 $*
+ph = "B:\Tools\PhantomJS\phantomjs-1.9.1-windows\phantomjs.exe" $*
+gpyt = pushd "B:\\py_test\\"
+gplib = pushd "B:\\Python27\\Lib\\"
+
+analyze = pushd %APPDIR%\\myscripts\\misc\\PhoneBillAnalysis && AnalyzeBill.py $*
+pick = %APPDIR%\\myscripts\\misc\\pick.py
+
+trs = pushd %APPDIR%\MyScripts\whopaid && track_shipments.py $* && pushd %APPDIR%\..\DocketPODs && start. && popd
+pods = pushd %APPDIR%\DocketPODs && start. && popd
+gpods = pushd %APPDIR%\DocketPODs
+opybk = "B:\Read\Python\The Quick Python Book 2e - Vernon Ceder - Manning (2010).pdf"
+ogaebk2 = "b:\Read\Google App Engine\Programming GAE V2.pdf"
+ogaebk = "b:\Read\Google App Engine\Oreilly - Programming Google Apps Engine (12-2009) (ATTiCA).pdf"
+ojinjabk = "b:\Read\Jinja2\Jinja-docs.pdf
+oprogitbk = "b:\Read\Git\progit.en.pdf"
+ogitbk = "b:\Read\Git\progit.en.pdf"
+orefactoringbk = "b:\Read\Refactoring\Refactoring Improving the Design of Existing Code - Fowler-Beck-Brant-Opdyke-Roberts.chm"
+kmp = start %APPDIR%\"SDAT\KennametalAll\KennaMetalPayment"
+recent=dir /s /b /a:-d /t:w /o:-d|less
+
+fip=@echo "Finding inside .py files" && findstr /i /s /n $* *.py
+fit=@echo "Finding inside .txt files" && findstr /i /s /n $* *.txt
+fih=@echo "Finding inside .html files" && findstr /i /s /n $* *.html
+fia=@echo "Finding inside all files" && findstr /i /s /n $* *
+
+q=exit
+pyprof = %APPDIR%\MyScripts\bin\pyprofile.py "$*"
+
+er = pushd %APPDIR%\myscripts\whopaid && EmailReminders.py $* && popd
+era = pushd %APPDIR%\myscripts\whopaid && EmailReminders.py --allCompanies $* && popd
+erad = pushd %APPDIR%\myscripts\whopaid && EmailReminders.py --allCompanies --demo $* && popd
+eradol = pushd %APPDIR%\myscripts\whopaid && EmailReminders.py --allCompanies --only-list-no-send --demo $* && popd
+erd = pushd %APPDIR%\myscripts\whopaid && EmailReminders.py --demo $* && popd
+fcr  = pushd %APPDIR%\myscripts\whopaid && FormCRequest.py -o $* && popd
+fcrl = pushd %APPDIR%\myscripts\whopaid && FormCRequest.py -o --letterHead --desktopOnly $* && popd
+fcrd = pushd %APPDIR%\myscripts\whopaid && FormCRequest.py -o --demo $* && popd
+fcre = pushd %APPDIR%\myscripts\whopaid && FormCRequest.py --email $* && popd
+rpr  = pushd %APPDIR%\myscripts\whopaid && RoadPermitRequest.py $* && popd
+rprd = pushd %APPDIR%\myscripts\whopaid && RoadPermitRequest.py --demo $* && popd
+dis  = pushd %APPDIR%\myscripts\whopaid && ShipmentDetailsEmail.py $* && popd
+dis10= pushd %APPDIR%\myscripts\whopaid && ShipmentDetailsEmail.py --days=10 $* && popd
+disd  = pushd %APPDIR%\myscripts\whopaid && ShipmentDetailsEmail.py --demo $* && popd
+rgb = %APPDIR%\myscripts\misc\rgb2hex.py $*
+info = gvim %APPDIR%\FrequentFliers\Info.txt
+etrv = %APPDIR%\myscripts\misc\TaxReturnLocalValidation.py
+eret = gvim %APPDIR%\SalesTaxReturnFiles\eReturnInfo.txt
+tre = start %APPDIR%\SalesTaxReturnFiles\
+gtre = pushd %APPDIR%\SalesTaxReturnFiles\
+fm = "D:\Program Files\FreeMind\Freemind.exe"
+lc = %APPDIR%\MyScripts\LineCount.py
+dup = %APPDIR%\MyScripts\misc\FindDuplicateFiles.py
+stmt = pushd %APPDIR%\myscripts\whopaid && Statement.py $* && popd
+h = doskey /history
+
+;= Take Email backup with tkbkem (TaKe BacKup = tkbk)
+tkbk = %APPDIR%\MyScripts\Backup\InitiateEmailBackup.py
+chk  = %APPDIR%\MyScripts\whopaid\SanityChecks.py
+
+;= rem Test Observer
+to   = %APPDIR%\MyScripts\web\UberObserver.pyk
+kdd  = taskkill /F /IM DisplayDriver.exe
+tc   = dev_appserver.py b:\gaetest\clock
+
+wpold = pushd %APPDIR%\myscripts\whopaid && DepricatedWhoPaid.py $* && popd
+wp    = pushd %APPDIR%\MyScripts\whopaid && whopaidInstantFindOut.py $* && popd
+wpi   = pushd %APPDIR%\MyScripts\whopaid && whopaidInstantFindOut.py $* && popd
+wpf   = pushd %APPDIR%\MyScripts\whopaid && whopaidInstantFindOut.py --fresh $* && popd
+
+;= Fraud Detection
+efd   = %APPDIR%\Myscripts\ymail\FraudDetection.py $*
+efdv  = %APPDIR%\Myscripts\ymail\FraudDetection.py $*
+efdnv = %APPDIR%\Myscripts\ymail\FraudDetection.py -nv $*
+efdt  = %APPDIR%\Myscripts\ymail\FraudDetection.py -t $*
+efdtnv = %APPDIR%\Myscripts\ymail\FraudDetection.py -nv -t $*
+
+
+pypy = B:\Tools\pypy-2.0-beta2\pypy.exe $*
+
+eydl = start %APPDIR%\Myscripts\misc\ydl.py
+oydl = gvim b:\YoutubeVideosDownloaded\YoutubeURLsQueue.txt
+edelta = %APPDIR%\MyScripts\SonyPhoneBookMerge\Delta.py
+
+eCleanMp3 = %APPDIR%\MyScripts\misc\SanitizeMp3Names.py
+
+fgmail = gvim %APPDIR%\MyScripts\misc\gmailAttachmentSizeLabels.py
+fgmutil = gvim %APPDIR%\Myscripts\PythonModules\UtilGmail.py
+
+readab = pushd %APPDIR%\MyScripts\misc\readability && Scripts\activate.bat
+tree = b:\Tools\TreeSize\TreeSizeFree.exe
+;= :end
+;= rem ******************************************************************
+;= rem * EOF - Don't remove the following line.  It clears out the ';'
+;= rem * macro. Were using it because there is no support for comments
+;= rem * in a DOSKEY macro file.
+;= rem ******************************************************************
+;=

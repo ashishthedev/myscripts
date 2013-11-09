@@ -1,0 +1,145 @@
+DATA_STARTS_AT_ROW = 2
+#######################################################
+## Author: Ashish Anand
+## Date: 25-Dec-2012
+## Intent: To read bills.xlsx and store company info
+## Requirement: Python Interpretor must be installed
+## Openpyxl must be installed
+#######################################################
+import os
+from UtilMisc import GetPickledObject
+from UtilConfig import GetOption, GetAppDir
+
+
+class CustomerInfoCol:
+    """
+    This class is used as Enum.
+    If and when the format of excel file changes just change the column bindings in this class
+    """
+    CompanyFriendlyNameCol = "A"
+    BillingAddressCol = "B"
+    TinNumberCol = "C"
+    PhoneNumberCol = "D"
+    RateCol = "E"
+    CasingCol = "F"
+    CompanyOfficialNameCol = "G"
+    CourierAddressCol = "H"
+    CityCol = "I"
+    EmailCol = "J"
+    KindAttentionCol = "K"
+    TrustCol = "L"
+    IncludeDaysCol = "M"
+    CreditLimitCol = "N"
+    SendAutomaticMails = "O"
+    MinDaysGapCol = "P"
+    CompanyCodeCol = "Q"
+
+
+def CreateSingleCustomerInfo(row):
+    c = SingleCompanyInfo()
+    for cell in row:
+        col = cell.column
+        val = cell.internal_value
+
+        if col == CustomerInfoCol.CompanyFriendlyNameCol:
+            c.companyFriendlyName = val
+        elif col == CustomerInfoCol.BillingAddressCol:
+            c.billingAddress = val
+        elif col == CustomerInfoCol.TinNumberCol:
+            c.tinNumber = val
+        elif col == CustomerInfoCol.PhoneNumberCol:
+            c.phoneNumber = val
+        elif col == CustomerInfoCol.RateCol:
+            c.rate = val
+        elif col == CustomerInfoCol.CasingCol:
+            c.casing = val
+        elif col == CustomerInfoCol.CompanyOfficialNameCol:
+            c.companyOfficialName = val
+        elif col == CustomerInfoCol.CourierAddressCol:
+            c.courierAddress = val
+        elif col == CustomerInfoCol.CityCol:
+            c.city = val
+        elif col == CustomerInfoCol.EmailCol:
+            c.email = val
+        elif col == CustomerInfoCol.KindAttentionCol:
+            c.kindAttentionPerson = val
+        elif col == CustomerInfoCol.TrustCol:
+            c.trust = val
+        elif col == CustomerInfoCol.IncludeDaysCol:
+            c.includeDays = val
+        elif col == CustomerInfoCol.CreditLimitCol:
+            c.creditLimit = val
+        elif col == CustomerInfoCol.SendAutomaticMails:
+            c.includeInAutomaticMails = val
+        elif col == CustomerInfoCol.CompanyCodeCol:
+            c.companyCode = val
+        elif col == CustomerInfoCol.MinDaysGapCol:
+            c.minDaysGapBetweenAutomaticMails = val
+    return c
+
+
+class SingleCompanyInfo():
+    """This represents a single row in Cust sheet of Bills.xlsx"""
+    pass
+
+
+class _AllCustomersInfo(dict):
+    """Base Class which is basically a dictionary. Key is compName and Value is a list of info"""
+    def __init__(self, custDBwbPath):
+        super(_AllCustomersInfo, self).__init__(dict())
+        from UtilExcelReader import LoadIterableWorkbook
+        wb = LoadIterableWorkbook(custDBwbPath)
+        ws = wb.get_sheet_by_name(GetOption("CONFIG_SECTION", "NameOfCustSheet"))
+        MAX_ROW = ws.get_highest_row()
+        rowNumber = 0
+        for row in ws.iter_rows():
+            rowNumber += 1
+            if rowNumber < DATA_STARTS_AT_ROW:
+                continue
+            if rowNumber >= MAX_ROW:
+                break
+            c = CreateSingleCustomerInfo(row)
+            self[c.companyFriendlyName] = c
+
+    def GetTrustForCustomer(self, compName):
+        return self[compName].trust
+
+    def GetCreditLimitForCustomer(self, compName):
+        return self[compName].creditLimit
+
+    def GetCompanyOfficialName(self, compName):
+        return self[compName].companyOfficialName
+
+    def GetCustomerCity(self, compName):
+        return self[compName].city
+
+    def GetCustomerEmail(self, compName):
+        return self[compName].email
+
+    def GetCustomerKindAttentionPerson(self, compName):
+        return self[compName].kindAttentionPerson
+
+    def GetIncludeDaysOrNot(self, compName):
+        return self[compName].includeDays
+
+    def IncludeCustInAutomaticMails(self, compName):
+        val = self[compName].includeInAutomaticMails
+        return val.lower() in ["yes", "y"]
+
+    def GetMinDaysGapBetweenMails(self, compName):
+        return self[compName].minDaysGapBetweenAutomaticMails
+
+    def GetEmailAsListForCustomer(self, compName):
+        toMailStr = self.GetCustomerEmail(compName)
+        if not toMailStr: return None
+        toMailList = toMailStr.replace(';', ',').replace(' ', '').split(',')
+        #Remove spaces from eachMail in the list and create a new list
+        return [eachMail.replace(' ', '') for eachMail in toMailList]
+
+
+
+def GetAllCustomersInfo():
+    custDBwbPath = os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "CustDBRelativePath"))
+    def _CreateAllCustomersInfoObject(custDBwbPath):
+        return _AllCustomersInfo(custDBwbPath)
+    return GetPickledObject(custDBwbPath, createrFunction=_CreateAllCustomersInfoObject)

@@ -1,0 +1,18 @@
+""""""""""""""""""""""""""""""""""""""""
+" Windows based .myvimrc file
+"
+" Author: Ashish Anand
+"
+"""""""""""""""""""""""""""""""""""""""
+
+set nocompatible
+
+source $VIMRUNTIME/mswin.vim
+behave mswin
+:function! GetAPPDIR()
+:if expand($APPDIR)==""
+:   return "c:\\users\\Ichigo\\Dropbox\\SDATDocs"
+:else
+:   return expand($APPDIR)
+:endfunction
+execute "source " GetAPPDIR()."\\MyScripts\\misc\\vimFiles\\.myvimrc"
