@@ -200,7 +200,7 @@ class SingleBill:
     @property
     def uid_string(self):
         #Assumption: A particular bill number and invoice date are enough to single out any bill and they will never produce a collision
-        return DD_MM_YYYY(self.invoiceDate)+str(int(self.billNumber))
+        return "{}{}{}".format(str(self.billNumber), DD_MM_YYYY(self.invoiceDate), str(self.docketNumber))
 
 
 def GetAllBillsInLastNDays(nDays):

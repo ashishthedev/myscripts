@@ -10,14 +10,13 @@ class Courier():
     If a new courier gets added, implement that class and instantiate in __init__
     """
     def __init__(self, b):
-        cn = b.courierName.lower()
-        if cn.startswith("overn"):
+        if b.courierName.lower().startswith("overn"):
             self.courier = OverniteCourier(b)
-        elif cn.startswith("trac"):
+        elif b.courierName.lower().startswith("trac"):
             self.courier = TrackonCourier(b)
         else:
             print("We do not know how to track this courier: {}. Will mark it as delivered".format(b.courierName))
-            self.courier  = DummyCourier(b)
+            self.courier = DummyCourier(b)
 
     def GetStatus(self):
         return self.courier.GetStatus()
@@ -30,7 +29,7 @@ class DummyCourier():
         self.b = b
 
     def GetStatus(self):
-        return "Delivered"
+        return "Dummy Courier is delivered" #This status should have the word delivered
 
     def StoreSnapshot(self):
         return None
@@ -49,7 +48,8 @@ class TrackonCourier():
         html = resp.read()
         if resp.code != 200 :
             raise Exception("Got {} reponse from server for bill: {}".format(resp.code, self.bill))
-        return self._get_status_from_html_resp(html)
+        res =  self._get_status_from_html_resp(html)
+        return res
 
     def _get_status_from_html_resp(self, html):
         class MLStripper(HTMLParser):
@@ -109,9 +109,7 @@ class OverniteCourier():
         self.bill = bill
 
     def GetStatus(self):
-        FORM_DATA="""
-    __EVENTTARGET=&__EVENTARGUMENT=&__VIEWSTATE=%2FwEPDwUKLTEzMzczODYzNw9kFgJmD2QWAgIDD2QWAgIHD2QWBgIBD2QWAgIBD2QWBAIMD2QWAmYPZBYCAgEPPCsADQBkAhIPDxYCHgdWaXNpYmxlaGRkAgIPDxYCHgRUZXh0ZWRkAgMPDxYCHwFlZGQYAwUeX19Db250cm9sc1JlcXVpcmVQb3N0QmFja0tleV9fFgEFJ2N0bDAwJENudFBsYWNlSG9sZGVyRGV0YWlscyRpbWdidG5UcmFjawUmY3RsMDAkQ250UGxhY2VIb2xkZXJEZXRhaWxzJE11bHRpVmlldzEPD2RmZAUpY3RsMDAkQ250UGxhY2VIb2xkZXJEZXRhaWxzJEdyaWRWaWV3T3V0ZXIPZ2SAkijFHV4KgROH1qrBTpCqvZmq3g%3D%3D&__EVENTVALIDATION=%2FwEWBwL%2BooGlCQL49YzrBwL59YzrBwL3mqaFCwLjvLD3DQLX57OEBgKA6qoFNsCA5ggSoenQgEGOxo3BYbrplIs%3D&ctl00%24CntPlaceHolderDetails%24rdbListTrackType=1&ctl00%24CntPlaceHolderDetails%24txtAWB={docket}&ctl00%24CntPlaceHolderDetails%24ValidatorCalloutExtender6_ClientState=&ctl00%24CntPlaceHolderDetails%24imgbtnTrack.x=24&ctl00%24CntPlaceHolderDetails%24imgbtnTrack.y=3
-    """.format(docket=self.bill.docketNumber)
+        FORM_DATA="""__EVENTTARGET=&__EVENTARGUMENT=&__VIEWSTATE=%2FwEPDwUINjI1NjcyOTQPZBYCZg9kFgICAw9kFgICCQ9kFgYCAQ9kFgICAQ9kFgQCDA9kFgJmD2QWAgIBDzwrAA0AZAISDw8WAh4HVmlzaWJsZWhkZAICDw8WAh4EVGV4dGVkZAIDDw8WAh8BZWRkGAMFHl9fQ29udHJvbHNSZXF1aXJlUG9zdEJhY2tLZXlfXxYBBSdjdGwwMCRDbnRQbGFjZUhvbGRlckRldGFpbHMkaW1nYnRuVHJhY2sFJmN0bDAwJENudFBsYWNlSG9sZGVyRGV0YWlscyRNdWx0aVZpZXcxDw9kZmQFKWN0bDAwJENudFBsYWNlSG9sZGVyRGV0YWlscyRHcmlkVmlld091dGVyD2dkyjnzKNlK1F0lha2VPD203I0wnWY%3D&__EVENTVALIDATION=%2FwEWBwL5m5XfBgL49YzrBwL59YzrBwL3mqaFCwLjvLD3DQLX57OEBgKA6qoFptDBWKLK0LmchCP7GBi3QkiQbAA%3D&ctl00%24CntPlaceHolderDetails%24rdbListTrackType=1&ctl00%24CntPlaceHolderDetails%24txtAWB={docket}&ctl00%24CntPlaceHolderDetails%24ValidatorCalloutExtender6_ClientState=&ctl00%24CntPlaceHolderDetails%24imgbtnTrack.x=29&ctl00%24CntPlaceHolderDetails%24imgbtnTrack.y=7""".format(docket=self.bill.docketNumber)
 
         req = urllib2.Request("http://www.overnitenet.com/WebTrack.aspx")
         req.add_header("Content-Type" , "application/x-www-form-urlencoded")
@@ -121,22 +119,10 @@ class OverniteCourier():
         html = resp.read()
         if resp.code != 200 :
             raise Exception("Got {} reponse from server for bill: {}".format(resp.code, self.bill))
-        return self._get_status_from_html_resp(html)
+        res =  self._get_status_from_html_resp(html)
+        return res
 
     def _get_status_from_html_resp(self, html):
-        def StripHTMLTags(html):
-            class MLStripper(HTMLParser):
-                def __init__(self):
-                    self.reset()
-                    self.fed = []
-                def handle_data(self, d):
-                    self.fed.append(d)
-                def get_data(self):
-                    return ''.join(self.fed)
-
-            s = MLStripper()
-            s.feed(html)
-            return s.get_data()
 
         resultsId = "ctl00_CntPlaceHolderDetails_GridViewOuter_ctl02_lblStatus"
         for eachLine in html.split("\n"):
@@ -149,7 +135,7 @@ class OverniteCourier():
         b = self.bill
         #TODO: Remove hardcoding of path
         PHANTOM = "B:\\Tools\\PhantomJS\\phantomjs-1.9.1-windows\\phantomjs.exe"
-        SCRIPT = "Courier\\overnite_snapshot.js"
+        SCRIPT = "courier\\overnite_snapshot.js"
         PREFERRED_FILEFORMAT = ".jpeg"
         fileName = "{date}_{compName}_BillNo#{billNumber}_{docketNumber}".format(date=YYYY_MM_DD(b.docketDate),
                 compName=b.compName, billNumber=b.billNumber, docketNumber = b.docketNumber)
@@ -172,6 +158,19 @@ class OverniteCourier():
 
         return
 
+def StripHTMLTags(html):
+    class MLStripper(HTMLParser):
+        def __init__(self):
+            self.reset()
+            self.fed = []
+        def handle_data(self, d):
+            self.fed.append(d)
+        def get_data(self):
+            return ''.join(self.fed)
+
+    s = MLStripper()
+    s.feed(html)
+    return s.get_data()
 
 if __name__ == '__main__':
     DOCKET = "8037705270"

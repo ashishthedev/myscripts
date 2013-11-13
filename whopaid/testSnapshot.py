@@ -1,20 +1,24 @@
-from Courier.courier_status import Shipment
+from Shipments import PersistentShipment
 from SanityChecks import CreateATestBill
 
 def main():
     b = CreateATestBill()
     b.courierName = "Overnite Courier"
-    b.docketNumber = "8037705270"
-    s = Shipment(b)
-    s.status = "Delivered to someone"
-    s.saveAsDeliveredWithSnapshot()
+    b.docketNumber = "8039920840"
+    s = PersistentShipment(b)
+    s.Track()
 
-    b2 = CreateATestBill()
-    b2.courierName = "Trackon Courier"
-    b2.docketNumber = "351288100"
-    s2 = Shipment(b2)
-    s2.status = "Delivered to someone"
-    s2.saveAsDeliveredWithSnapshot()
+    #b2 = CreateATestBill()
+    #b2.courierName = "Trackon Courier"
+    #b2.docketNumber = "364308506"
+    #s2 = PersistentShipment(b2)
+    #s2.Track()
+
+    b3 = CreateATestBill()
+    b3.courierName = "Overnite Courier"
+    b3.docketNumber = "8039413572"
+    s3 = PersistentShipment(b3)
+    s3.Track()
 
 
 
