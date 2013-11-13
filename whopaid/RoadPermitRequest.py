@@ -161,7 +161,7 @@ def PrepareMailContentForThisComp(compName, allCompaniesDict, args):
     dictVal = dict()
     dictVal["Bill#"] = int(args.billNumber)
     dictVal["Invoice Date"] = DD_MM_YYYY(args.invoiceDate)
-    dictVal["Amount"] = "Rs." + args.billAmount
+    dictVal["Amount after Tax"] = "Rs." + args.billAmount
     dictVal["Material"]= args.materialDesc
     tableRows = TableHeaderCol(MyColors["BLACK"],
             MyColors["SOLARIZED_GREY"],
