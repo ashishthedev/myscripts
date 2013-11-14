@@ -27,8 +27,8 @@ IS_DEMO = True
 
 #Shipment
 # |-ShipmentMail
-# |-ShipmentCourier #TODO: Unplug the courier functionality from within shipment
-#                          into a different class called ShipmentCourier
+# |-ShipmentCourier
+
 class ShipmentException(Exception):
     pass
 
@@ -139,7 +139,7 @@ class PersistentShipment(object):
         self._track.markAsDelivered()
 
     def TakeNewSnapshot(self):
-        self._track.TakeNewSnapshot(self)
+        self._track.TakeNewSnapshot()
 
     def ShouldWeTrackThis(self):
         return self._track.ShouldWeTrackThis()
@@ -211,7 +211,7 @@ class PersistentShipment(object):
 
 
 def SendMaterialDispatchDetails(bill, ctxt):
-    ctxt.emailSubject = ctxt.emailSubject or "Dispatch Details - Date: {} Bill#".format(bill.docketDate.strftime("%d-%b-%Y"), str(int(bill.billNumber)))
+    ctxt.emailSubject = ctxt.emailSubject or "Dispatch Details - Date: {} Bill#{}".format(bill.docketDate.strftime("%d-%b-%Y"), str(int(bill.billNumber)))
 
     print("Churning more data...")
 
@@ -420,9 +420,8 @@ def _RemoveDocketFromIndex(docketNumber):
         print("Could not find the docket {}".format(docketNumber))
 
 def _NewSnapshotForDocket(docketNumber):
-    us = PersistentShipment.GetAllStoredShipments()
     print("About to take a new snapshot for docket: {}".format(docketNumber))
-    for s in us:
+    for s in PersistentShipment.GetAllStoredShipments():
         if s.bill.docketNumber == docketNumber:
             print("Taking snapshot for docket {}".format(docketNumber))
             s.TakeNewSnapshot()
@@ -464,6 +463,7 @@ def SendMailToAllComapnies(args):
     shipments = PersistentShipment.GetAllStoredShipments()
     shipments = [s for s in shipments if s.ShouldWeTrackThis()] #Filter our deliverd shipments
     shipments = [s for s in shipments if not s.wasShipmentMailEverSent()]
+    shipments = [s for s in shipments if s.daysPassed > MAX_IN_TRANSIT_DAYS]
     shipments.sort(key=lambda s: s.bill.docketDate, reverse=True)
 
 
