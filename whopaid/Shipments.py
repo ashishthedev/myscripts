@@ -463,7 +463,7 @@ def SendMailToAllComapnies(args):
     shipments = PersistentShipment.GetAllStoredShipments()
     shipments = [s for s in shipments if s.ShouldWeTrackThis()] #Filter our deliverd shipments
     shipments = [s for s in shipments if not s.wasShipmentMailEverSent()]
-    shipments = [s for s in shipments if s.daysPassed > MAX_IN_TRANSIT_DAYS]
+    shipments = [s for s in shipments if s.daysPassed < MAX_IN_TRANSIT_DAYS]
     shipments.sort(key=lambda s: s.bill.docketDate, reverse=True)
 
 
