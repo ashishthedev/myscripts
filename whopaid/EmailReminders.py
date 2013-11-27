@@ -365,7 +365,7 @@ def PrepareMailContentForThisComp(compName, allCompaniesDict, allCustomersInfo, 
         <br>
         $tFirstLine
         $tSecondLine
-        You are requested to make the payment for following bills:
+        Please find below the list of pending invoices for the supplies made till date. You are requested to kindly arrange the payment for due bills:
         <table border=1 cellpadding=5>
         $tTableRows
         </table>

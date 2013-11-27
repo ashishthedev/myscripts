@@ -1,6 +1,6 @@
 import xml.dom.minidom, os, unittest
 from UtilConfig import GetAppDir
-FOLDER_NAME             = "2013-08"
+FOLDER_NAME             = "2013-10"
 BASEPATH                = os.path.join(GetAppDir(), "SalesTaxReturnFiles", "2013-2014")
 ANNEXUREA               = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureA.xml")
 ANNEXUREB               = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureB.xml")
@@ -178,9 +178,6 @@ class TestFunctions(unittest.TestCase):
         """
         Tests whether sum of purchase mentioned in Annexure A Part 1 matches the value mentioned in Vat_non_vat sheet
         """
-        if getAmountFromVatNonVatSheet('1', 'v', 'p') == 0:
-            return
-
         totalTaxableGoodsPurchased = 0
 
         for eachEntry in GetAllNodesByNameFromFile(ANNEXUREA, "TaxGood"):
@@ -219,8 +216,10 @@ class TestFunctions(unittest.TestCase):
         for eachTax in GetAllNodesByNameFromFile(CST_TURNOVER_FORM, "sale_tax_amount"):
             totalCSTTax += float(getText(eachTax.childNodes))
 
+        itcAdjustment = getFloatValueFromXmlFile(CST_MAIN_FORM, "itc_adjustment")
+
         values = list()
-        values.append(totalCSTTax)
+        values.append(totalCSTTax-itcAdjustment)
         values.append(getFloatValueFromXmlFile(CST_TAX_PAID_FORM, "amount"))
         values.append(getFloatValueFromXmlFile(CST_MAIN_FORM, "tax_payable"))
 

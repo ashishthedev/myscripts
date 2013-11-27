@@ -20,6 +20,7 @@ from UtilPythonMail import SendMail
 from UtilHTML import UnderLine, Bold, PastelOrangeText
 import os
 from string import Template
+from SanityChecks import CheckConsistency
 
 from courier.couriers import Courier
 MAX_IN_TRANSIT_DAYS = 15
@@ -339,7 +340,7 @@ def PrepareShipmentEmailForThisBill(bill, ctxt):
       <br>
       $tFirstLine
       $tSecondLine
-      Your material has been dispatched. Please find the details below::
+      Please find below the details of the dispatched material:
       <table border=1 cellpadding=5>
       $tTableRows
       </table>
@@ -506,4 +507,5 @@ def TrackAllShipments(args):
             #Print the exception and move on to next shipment
 
 if __name__ == '__main__':
+    CheckConsistency()
     main()
