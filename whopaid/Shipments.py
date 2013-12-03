@@ -212,11 +212,17 @@ class PersistentShipment(object):
 
 
 def SendMaterialDispatchDetails(bill, ctxt):
-    ctxt.emailSubject = ctxt.emailSubject or "Dispatch Details - Date: {} Bill#{}".format(bill.docketDate.strftime("%d-%b-%Y"), str(int(bill.billNumber)))
+    allCustInfo = GetAllCustomersInfo()
+
+    optionalAmount = ""
+    if allCustInfo.IncludeBillAmountInEmails(bill.compName):
+        optionalAmount = " Rs." + str(int(bill.billAmount)) + "/-"
+
+    ctxt.emailSubject = ctxt.emailSubject or "Dispatch Details-{} Bill#{} {amt}".format(bill.docketDate.strftime("%d-%b-%Y"), str(int(bill.billNumber)), amt=optionalAmount)
+
 
     print("Churning more data...")
 
-    allCustInfo = GetAllCustomersInfo()
     toMailStr = allCustInfo.GetCustomerEmail(bill.compName)
     if not ctxt.kaPerson:
         #If no person was specified at command line then pick one from the database.
@@ -277,23 +283,23 @@ def PrepareShipmentEmailForThisBill(bill, ctxt):
     if not companyCity:
         raise ShipmentException("\nM/s {} doesnt have a displayable 'city'. Please feed it in the database".format(bill.compName))
 
+    includeAmount = allCustInfo.IncludeBillAmountInEmails(bill.compName)
+    tableHeadersArgs = ["Bill#", "Dispatched Through", "Tracking Number", "Shipping Date", "Material Description"]
+    tableDataRowArgs = [ str(int(bill.billNumber)), str(bill.courierName), str(bill.docketNumber), DD_MM_YYYY(bill.docketDate), bill.materialDesc]
+
+    if includeAmount:
+        tableHeadersArgs.append("Bill Amount")
+        tableDataRowArgs.append("Rs.{}/-".format(str(int(bill.billAmount))))
+
     tableRows = TableHeaderRow(
             MyColors["BLACK"],
             MyColors["SOLARIZED_GREY"],
-            "Bill No.",
-            "Dispatched Through",
-            "Tracking Number",
-            "Shipping Date",
-            "Material Description",)
+            *tableHeadersArgs)
 
     tableRows += TableDataRow(
             MyColors["BLACK"],
             MyColors["WHITE"],
-            str(int(bill.billNumber)),
-            str(bill.courierName),
-            str(bill.docketNumber),
-            DD_MM_YYYY(bill.docketDate),
-            bill.materialDesc)
+            *tableDataRowArgs)
 
     def constant_factory(value):
         from itertools import repeat

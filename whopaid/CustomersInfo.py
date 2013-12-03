@@ -32,7 +32,8 @@ class CustomerInfoCol:
     CreditLimitCol = "N"
     SendAutomaticMails = "O"
     MinDaysGapCol = "P"
-    CompanyCodeCol = "Q"
+    IncludeBillAmountInEmails = "Q"
+    CompanyCodeCol = "R"
 
 
 def CreateSingleCustomerInfo(row):
@@ -75,6 +76,8 @@ def CreateSingleCustomerInfo(row):
             c.companyCode = val
         elif col == CustomerInfoCol.MinDaysGapCol:
             c.minDaysGapBetweenAutomaticMails = val
+        elif col == CustomerInfoCol.IncludeBillAmountInEmails:
+            c.includeBillAmountinEmails = val
     return c
 
 
@@ -121,6 +124,10 @@ class _AllCustomersInfo(dict):
 
     def GetIncludeDaysOrNot(self, compName):
         return self[compName].includeDays
+
+    def IncludeBillAmountInEmails(self, compName):
+        val = self[compName].includeBillAmountinEmails
+        return val.lower() in ["yes", "y"]
 
     def IncludeCustInAutomaticMails(self, compName):
         val = self[compName].includeInAutomaticMails
