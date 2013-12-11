@@ -317,6 +317,8 @@ noremap - <c-w>w <CR> <bar> :set winheight=998<CR>
 "Use :sb <Tab> to switch between open buffers
 
 
+:execute "noremap ,torc   :e b:\\Tools\\tor\\Data\\Tor\\torrc<CR>"
+:execute "noremap ,priv   :e b:\\Tools\\PrivoxyInstalled\\config.txt<CR>"
 :execute "noremap ,logins   :e ".GetAPPDIR()."\\FrequentFliers\\logins.txt<CR>"
 :execute "noremap ,banks    :e ".GetAPPDIR()."\\FrequentFliers\\banks.txt<CR>"
 :execute "noremap ,info   :e ".GetAPPDIR()."\\FrequentFliers\\Info.txt<CR>"

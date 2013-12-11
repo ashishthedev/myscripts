@@ -173,6 +173,10 @@ fgmutil = gvim %APPDIR%\Myscripts\PythonModules\UtilGmail.py
 
 readab = pushd %APPDIR%\MyScripts\misc\readability && Scripts\activate.bat
 tree = b:\Tools\TreeSize\TreeSizeFree.exe
+gch = pushd %APPDIR%\..\chess
+
+privoxy = pushd b:\tools\PrivoxyInstalled\ && start privoxy.exe && popd
+torsdat = pushd b:\tools\PrivoxyInstalled\ && start privoxy.exe && popd && %APPDIR%\MyScripts\misc\TorPython.py --url "http://www.standarddiesandtools.com/about" --interval 20
 ;= :end
 ;= rem ******************************************************************
 ;= rem * EOF - Don't remove the following line.  It clears out the ';'
