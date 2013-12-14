@@ -199,6 +199,4 @@ if __name__ == '__main__':
     if not args.noProxy:
         PrintInBox("Using Proxy:{}".format(PROXY_URL))
         RegisterProxy()
-    #ProcessOneWebsite("http://www.standarddiesandtools.com")
-    #ProcessOneWebsite("http://www.standarddiesandtools.com/contact-us.html")
     ProcessOneWebsite("http://localhost:8080/contact-us.html")
