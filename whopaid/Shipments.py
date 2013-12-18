@@ -223,7 +223,7 @@ def SendMaterialDispatchDetails(bill, ctxt):
 
     print("Churning more data...")
 
-    toMailStr = allCustInfo.GetCustomerEmail(bill.compName)
+    toMailStr = allCustInfo.GetPaymentReminderEmailsForCustomer(bill.compName)
     if not ctxt.kaPerson:
         #If no person was specified at command line then pick one from the database.
         personFromDB = allCustInfo.GetCustomerKindAttentionPerson(bill.compName)

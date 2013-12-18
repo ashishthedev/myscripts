@@ -321,16 +321,12 @@ def GenerateFORMCForCompany(compName, args):
     if ShouldSendEmail(args):
         mailBody = formC.GenerateFORMCMailContent(args)
         print("Sending mail...")
-        toMailList = GetAllCustomersInfo().GetCustomerEmail(compName)
+        #First prefrence to FormCEmails. If not present use payment emails.
+        toMailList = GetAllCustomersInfo().GetFormCEmailAsListForCustomer(compName) or GetAllCustomersInfo().GetPaymentReminderEmailAsListForCustomer(compName)
         if not toMailList:
             raise  Exception("\nNo mail feeded. Please insert a proper email in 'Cust' sheet of 'Bills.xlsx'")
 
-        print("Sending to: " + toMailList)
-
-        flattendToMails = toMailList.split(';')
-
-        #Remove spaces from eachMail in the list
-        flattendToMails = [eachMail.replace(' ', '') for eachMail in flattendToMails]
+        print("Sending to: " + str(toMailList))
 
         section = "EMAIL_REMINDER_SECTION"
         emailSubject = "FORM-C request - M/s {}".format(companyOfficialName)
@@ -339,7 +335,7 @@ def GenerateFORMCForCompany(compName, args):
                 GetOption(section, 'Server'),
                 GetOption(section, 'Port'),
                 GetOption(section, 'FromEmailAddress'),
-                flattendToMails,
+                toMailList,
                 GetOption(section, 'CCEmailList').split(','),
                 GetOption(section, 'Mpass'),
                 mailBody,

@@ -25,15 +25,16 @@ class CustomerInfoCol:
     CompanyOfficialNameCol = "G"
     CourierAddressCol = "H"
     CityCol = "I"
-    EmailCol = "J"
+    EmailForPayment = "J"
     KindAttentionCol = "K"
-    TrustCol = "L"
-    IncludeDaysCol = "M"
-    CreditLimitCol = "N"
-    SendAutomaticMails = "O"
-    MinDaysGapCol = "P"
-    IncludeBillAmountInEmails = "Q"
-    CompanyCodeCol = "R"
+    EmailForFormC = "L"
+    TrustCol = "M"
+    IncludeDaysCol = "N"
+    CreditLimitCol = "O"
+    SendAutomaticMails = "P"
+    MinDaysGapCol = "Q"
+    IncludeBillAmountInEmails = "R"
+    CompanyCodeCol = "S"
 
 
 def CreateSingleCustomerInfo(row):
@@ -60,8 +61,10 @@ def CreateSingleCustomerInfo(row):
             c.courierAddress = val
         elif col == CustomerInfoCol.CityCol:
             c.city = val
-        elif col == CustomerInfoCol.EmailCol:
-            c.email = val
+        elif col == CustomerInfoCol.EmailForPayment:
+            c.emailForPayment = val
+        elif col == CustomerInfoCol.EmailForFormC:
+            c.emailForFormC = val
         elif col == CustomerInfoCol.KindAttentionCol:
             c.kindAttentionPerson = val
         elif col == CustomerInfoCol.TrustCol:
@@ -116,8 +119,11 @@ class _AllCustomersInfo(dict):
     def GetCustomerCity(self, compName):
         return self[compName].city
 
-    def GetCustomerEmail(self, compName):
-        return self[compName].email
+    def GetPaymentReminderEmailsForCustomer(self, compName):
+        return self[compName].emailForPayment
+
+    def GetFormCEmailsForCustomer(self, compName):
+        return self[compName].emailForFormC
 
     def GetCustomerKindAttentionPerson(self, compName):
         return self[compName].kindAttentionPerson
@@ -136,12 +142,19 @@ class _AllCustomersInfo(dict):
     def GetMinDaysGapBetweenMails(self, compName):
         return self[compName].minDaysGapBetweenAutomaticMails
 
-    def GetEmailAsListForCustomer(self, compName):
-        toMailStr = self.GetCustomerEmail(compName)
+    def GetFormCEmailAsListForCustomer(self, compName):
+        toMailStr = self.GetFormCEmailsForCustomer(compName)
         if not toMailStr: return None
         toMailList = toMailStr.replace(';', ',').replace(' ', '').split(',')
         #Remove spaces from eachMail in the list and create a new list
-        return [eachMail.replace(' ', '') for eachMail in toMailList]
+        return [x for x in toMailList if x]
+
+    def GetPaymentReminderEmailAsListForCustomer(self, compName):
+        toMailStr = self.GetPaymentReminderEmailsForCustomer(compName)
+        if not toMailStr: return None
+        toMailList = toMailStr.replace(';', ',').replace(' ', '').split(',')
+        #Remove spaces from eachMail in the list and create a new list
+        return [x for x in toMailList if x]
 
 
 

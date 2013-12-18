@@ -99,7 +99,7 @@ def SendRoadPermitRequest(compName, allCompaniesDict, args):
     print("Churning more data...")
 
     allCustInfo = GetAllCustomersInfo()
-    toMailStr = allCustInfo.GetCustomerEmail(compName)
+    toMailStr = allCustInfo.GetPaymentReminderEmailsForCustomer(compName)
     if not args.kaPerson:
         #If no person was specified at command line then pick one from the database.
         personFromDB = allCustInfo.GetCustomerKindAttentionPerson(compName)

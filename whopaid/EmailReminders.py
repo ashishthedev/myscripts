@@ -149,7 +149,7 @@ def ShouldWeSendEmail(compName, allCompaniesDict, allCustomersInfo):
         return False
 
     #Email present
-    if not allCustomersInfo.GetEmailAsListForCustomer(compName):
+    if not allCustomersInfo.GetPaymentReminderEmailAsListForCustomer(compName):
         return False
 
     daysSinceOldestUnpaidBill = max([b.daysOfCredit for b in unpaidBillList])
@@ -178,7 +178,7 @@ def SendReminderToCompany(compName, allCompaniesDict, allCustomersInfo,  args):
     if totalDue <= MINIMUM_AMOUNT_DUE:
         raise MyException("\nM/s {} has Rs.{} as ADVANCE towards us".format(compName, totalDue))
 
-    toMailList = allCustomersInfo.GetEmailAsListForCustomer(compName)
+    toMailList = allCustomersInfo.GetPaymentReminderEmailAsListForCustomer(compName)
     if not toMailList:
         raise MyException("\nNo mail feeded. Please insert a proper email in 'Cust' sheet of 'Bills.xlsx'")
 
