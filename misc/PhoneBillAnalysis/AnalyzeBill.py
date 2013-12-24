@@ -55,34 +55,53 @@ def CreateRecordFromThisString(record):
         raise Exception("Trying to feed an invalid record")
 
     def isCallRecord(record):
-        thirtyFirstChar = record[31]
+        thirtyFirstChar = record[46]
         return thirtyFirstChar == ":"
 
     def isMsgRecord(record):
-        thirtyFirstChar = record[31]
-        twentyNinthChar = record[29]
+        thirtyFirstChar = record[46]
+        twentyNinthChar = record[44]
         return (thirtyFirstChar == "." and twentyNinthChar == "1")
 
     if isCallRecord(record):
-        date = record[0:11]
-        time = record[11:19]
-        number= record[19:29]
-        duration = record[29:34]
-        amount = record[34:38]
+        date = record[Semantics.DATE_FROM:Semantics.DATE_TO]
+        time = record[Semantics.TIME_FROM : Semantics.TIME_TO]
+        number = record[Semantics.NUMBER_FROM : Semantics.NUMBER_TO]
+        duration = record[Semantics.DURATION_FROM: Semantics.DURATION_TO]
+        amount = record[Semantics.AMOUNT_FROM: Semantics.AMOUNT_TO]
         personName = FindName(number)
         return CallRecord(number, date, time, duration, amount, personName)
 
     elif isMsgRecord(record):
-        date = record[0:11]
-        time = record[11:19]
-        number= record[19:29]
-        duration = record[29]
-        amount = record[30:34]
+        date = record[Semantics.DATE_FROM:Semantics.DATE_TO]
+        time = record[Semantics.TIME_FROM : Semantics.TIME_TO]
+        number = record[Semantics.NUMBER_FROM : Semantics.NUMBER_TO]
+        duration = record[Semantics.DURATION_FROM: Semantics.DURATION_TO]
+        amount = record[Semantics.AMOUNT_FROM: Semantics.AMOUNT_TO]
         personName = FindName(number)
         return CallRecord(number, date, time, duration, amount, personName)
     else:
         print("Cannot understand what is: '{}'".format(record))
         return None
+
+class Semantics:
+    """
+18-nov-201318:58:59airtel-up(east)993514779500:471.0035
+    """
+    LENGTH_OF_RECORD=53
+    DATE_FROM = 0
+    DATE_TO = 11
+    TIME_FROM = 11
+    TIME_TO = 19
+    ARE_FROM = 19
+    AREA_TO = 34
+    NUMBER_FROM = 34
+    NUMBER_TO = 44
+    DURATION_FROM = 44
+    DURATION_TO = 49
+    AMOUNT_FROM = 49
+    AMOUNT_TO = 53
+
 
 def process_text_and_get_list_of_records(text):
     text = text.lower()
@@ -95,7 +114,7 @@ def process_text_and_get_list_of_records(text):
 
         while pos != -1:
             #Continue until you cannot find any more instances of this pivot
-            record = text[pos-3:pos+35]
+            record = text[pos-3:pos-3+Semantics.LENGTH_OF_RECORD]
             #Sample record is given below
             #Call = 09-Aug-201315:55:34XXXXXXXXXX00:470.00
             #msg  = 12-Aug-201310:39:31997160277710.30**XX

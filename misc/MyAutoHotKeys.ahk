@@ -212,9 +212,9 @@ return
 }
 #t::
 {
-TorDir:="b:\tools\Tor\"
+TorDir:="b:\tools\TorL\"
 SetWorkingDir, %TorDir%
-Run b:\Tools\Tor\Start Tor Browser.exe
+Run %TorDir%\Start Tor Browser.exe
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 return
 }

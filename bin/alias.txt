@@ -87,6 +87,7 @@ phserver = "B:\Tools\PhantomJS\phantomjs-1.9.1-windows\phantomjs.exe" --proxy=12
 ph = "B:\Tools\PhantomJS\phantomjs-1.9.1-windows\phantomjs.exe" $*
 gpyt = pushd "B:\\py_test\\"
 gplib = pushd "B:\\Python27\\Lib\\"
+gpod = pushd %APPDIR%\\..\\DocketPODs
 
 analyze = pushd %APPDIR%\\myscripts\\misc\\PhoneBillAnalysis && AnalyzeBill.py $*
 pick = %APPDIR%\\myscripts\\misc\\pick.py
