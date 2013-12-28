@@ -88,6 +88,7 @@ ph = "B:\Tools\PhantomJS\phantomjs-1.9.1-windows\phantomjs.exe" $*
 gpyt = pushd "B:\\py_test\\"
 gplib = pushd "B:\\Python27\\Lib\\"
 gpod = pushd %APPDIR%\\..\\DocketPODs
+cust2odat = copy c:\users\Ichigo\Dropbox\SDATDocs\Bills\Cust.xlsx c:\users\Ichigo\Dropbox\ODATDocs\Bills\Cust.xlsx
 
 analyze = pushd %APPDIR%\\myscripts\\misc\\PhoneBillAnalysis && AnalyzeBill.py $*
 pick = %APPDIR%\\myscripts\\misc\\pick.py
