@@ -50,7 +50,7 @@ class ShipmentTrack(object):
         self.isDelivered = False
         pass
 
-    def isDelivered(self):
+    def isDeliveredFn(self):
         return self.isDelivered
 
     def markAsDelivered(self):
@@ -127,14 +127,20 @@ class PersistentShipment(object):
         self._mail = ShipmentMail(self, bill)
         self._track = ShipmentTrack(self, bill)
 
+
+
     def wasShipmentMailEverSent(self):
         return self._mail.wasShipmentMailEverSent()
 
     def sendMailForThisShipment(self):
         return self._mail.sendMailForThisShipment()
 
+    @property
     def isDelivered(self):
-        return self._track.isDelivered()
+        return self._track.isDelivered
+
+    def isUndelivered(self):
+        return not self.isDelivered
 
     def markAsDelivered(self):
         self._track.markAsDelivered()
@@ -164,7 +170,7 @@ class PersistentShipment(object):
     @classmethod
     def GetAllUndeliveredShipments(cls):
         allShipments = cls.GetAllStoredShipments()
-        return [shipment for shipment in allShipments if not shipment.isDelivered]
+        return [s for s in allShipments if s.isUndelivered()]
 
     @property
     def uid_string(self):
@@ -372,6 +378,9 @@ def PrepareShipmentEmailForThisBill(bill, ctxt):
 def ParseOptions():
     parser = argparse.ArgumentParser()
 
+    parser.add_argument("--show-undelivered", dest='showUndelivered', action="store_true", default=False,
+            help="If present, show undelivered parcels on screen")
+
     parser.add_argument("-d", "--days", dest='days', type=int, default=MAX_IN_TRANSIT_DAYS,
             help="Last N days in which courier status will be checked.")
 
@@ -409,7 +418,7 @@ def IsDeliveredAssessFromStatus(status):
 def _ForceMarkDocketAsDelivered(docketNumber):
     for s in PersistentShipment.GetAllUndeliveredShipments():
         if s.bill.docketNumber == docketNumber:
-            s.status = "This shipment was force marked as delivered on {}".format(DD_MM_YYYY(datetime.datetime.today()))
+            s.status = "This shipment was force marked as delivered on {}".format(DD_MM_YYYY(datetime.date.today()))
             print(s.status)
             s.markAsDelivered()
             s.saveInDB()
@@ -436,6 +445,22 @@ def _NewSnapshotForDocket(docketNumber):
     else:
         print("Could not find the docket {}".format(docketNumber))
 
+def ShowUndeliveredOnScreen():
+    print("Following parcels are still underlivered as on {}".format(DD_MM_YYYY(datetime.date.today())))
+    shipments = PersistentShipment.GetAllUndeliveredShipments()
+    shipments.sort(key=lambda s: s.bill.docketDate, reverse=False)
+    coll = set()
+    for s in shipments:
+        coll.add(s.bill.courierName)
+
+    for c in coll:
+        PrintInBox(c)
+        print("Kindly provide scanned copy of PODs for following parcels:\n")
+        for s in shipments:
+            if s.bill.courierName == c:
+                print(" - ".join([DD_MM_YYYY(s.bill.docketDate), s.bill.docketNumber, s.bill.compName]))
+
+
 def main():
     args = ParseOptions()
 
@@ -445,6 +470,10 @@ def main():
     if args.clearDB:
         PrintInBox("Starting afresh")
         os.remove(PersistentShipment.shelfFileName)
+
+    if args.showUndelivered:
+        ShowUndeliveredOnScreen()
+        return
 
     if args.forceMarkDeliveredDocket:
         _ForceMarkDocketAsDelivered(args.forceMarkDeliveredDocket)
