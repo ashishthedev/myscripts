@@ -94,6 +94,7 @@ analyze = pushd %APPDIR%\\myscripts\\misc\\PhoneBillAnalysis && AnalyzeBill.py $
 pick = %APPDIR%\\myscripts\\misc\\pick.py
 
 trs = pushd %APPDIR%\MyScripts\whopaid && Shipments.py --track $* && pushd %APPDIR%\..\DocketPODs && start. && popd
+undelivered = pushd %APPDIR%\MyScripts\whopaid && Shipments.py --show-undelivered && popd
 pods = pushd %APPDIR%\DocketPODs && start. && popd
 gpods = pushd %APPDIR%\DocketPODs
 opybk = "B:\Read\Python\The Quick Python Book 2e - Vernon Ceder - Manning (2010).pdf"
