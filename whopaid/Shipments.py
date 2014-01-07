@@ -458,7 +458,23 @@ def ShowUndeliveredOnScreen():
         print("Kindly provide scanned copy of PODs for following parcels:\n")
         for s in shipments:
             if s.bill.courierName == c:
-                print(" - ".join([DD_MM_YYYY(s.bill.docketDate), s.bill.docketNumber, s.bill.compName]))
+                print()
+                allCustInfo = GetAllCustomersInfo()
+                companyOfficialName = allCustInfo.GetCompanyOfficialName(s.bill.compName) or "NA"
+                address = allCustInfo.GetCustomerDeliveryAddress(s.bill.compName) or "NA"
+                phNo = allCustInfo.GetCustomerPhoneNumber(s.bill.compName) or "NA"
+                print("_"*70)
+                print(s.bill.compName)
+                print(DD_MM_YYYY(s.bill.docketDate))
+                print(address)
+
+                print("\n".join([
+                    "Docket Date: " + DD_MM_YYYY(s.bill.docketDate),
+                    "Docket: " + str(s.bill.docketNumber),
+                    "CompName: " + companyOfficialName,
+                    "Address: " + address,
+                    "Ph: " + str(phNo),
+                    ]))
 
 
 def main():

@@ -116,6 +116,12 @@ class _AllCustomersInfo(dict):
     def GetCompanyOfficialName(self, compName):
         return self[compName].companyOfficialName
 
+    def GetCustomerPhoneNumber(self, compName):
+        return self[compName].phoneNumber
+
+    def GetCustomerDeliveryAddress(self, compName):
+        return self[compName].courierAddress
+
     def GetCustomerCity(self, compName):
         return self[compName].city
 
