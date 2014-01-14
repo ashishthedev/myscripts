@@ -119,15 +119,11 @@ class ShipmentMail(object):
 class PersistentShipment(object):
     shelfFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"),
             GetOption("CONFIG_SECTION", "ShipmentStatus"))
-    shelfFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"),
-            "Test2.db")
 
     def __init__(self, bill):
         self.bill = bill
         self._mail = ShipmentMail(self, bill)
         self._track = ShipmentTrack(self, bill)
-
-
 
     def wasShipmentMailEverSent(self):
         return self._mail.wasShipmentMailEverSent()

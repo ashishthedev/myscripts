@@ -10,12 +10,14 @@ class Courier():
     If a new courier gets added, implement that class and instantiate in __init__
     """
     def __init__(self, b):
-        if b.courierName.lower().startswith("overn"):
+        if b.courierName.lower().strip().startswith("overn"):
             self.courier = OverniteCourier(b)
-        elif b.courierName.lower().startswith("trac"):
+        elif b.courierName.lower().strip().startswith("trac"):
             self.courier = TrackonCourier(b)
+        elif b.courierName.lower().strip().startswith("bluedart"):
+            self.courier = BluedartCourier(b)
         else:
-            print("We do not know how to track this courier: {}. Will mark it as delivered".format(b.courierName))
+            print("We do not know how to track: {}. Will mark it as delivered".format(b.courierName))
             self.courier = DummyCourier(b)
 
     def GetStatus(self):
@@ -47,11 +49,11 @@ class TrackonCourier():
         resp = urllib2.urlopen(req, FORM_DATA)
         html = resp.read()
         if resp.code != 200 :
-            raise Exception("Got {} reponse from server for bill: {}".format(resp.code, self.bill))
-        res =  self._get_status_from_html_resp(html)
+            raise Exception("Got {} reponse from Trackon server for bill: {}".format(resp.code, self.bill))
+        res =  self._get_status_from_trackon_html_resp(html)
         return res
 
-    def _get_status_from_html_resp(self, html):
+    def _get_status_from_trackon_html_resp(self, html):
         class MLStripper(HTMLParser):
             def __init__(self):
                 self.reset()
@@ -103,6 +105,66 @@ class TrackonCourier():
             raise Exception("Could not store the snapshot at location: {}".format(DESTINATION_FILE))
 
         return
+class BluedartCourier():
+    def __init__(self, bill):
+        self.bill = bill
+
+    def GetStatus(self):
+        FORM_DATA="""handler=tnt&action=awbquery&awb=awb&numbers={docket}""".format(docket=self.bill.docketNumber)
+        req = urllib2.Request("http://www.bluedart.com/servlet/RoutingServlet")
+        req.add_header("Content-Type" , "application/x-www-form-urlencoded")
+        req.add_header('Referer', 'http://www.bluedart.com/')
+        req.add_header('Origin', 'http://www.bluedart.com')
+        resp = urllib2.urlopen(req, FORM_DATA)
+        html = resp.read()
+        if resp.code != 200 :
+            raise Exception("Got {} reponse from Bluedart server for bill: {}".format(resp.code, self.bill))
+        res =  self._get_status_from_bluedart_html_resp(html)
+        return res
+
+    def _get_status_from_bluedart_html_resp(self, html):
+        #Logic: We are going to parse the stripped html
+        #1. Find word status
+        #2. All following lines are status till line having phrase "your email id"
+        recordingStatus = False
+        status = ""
+        for eachLine in html.split("\n"):
+            bareLine = StripHTMLTags(eachLine.strip())
+            if bareLine.lower() == "status":
+                recordingStatus = True
+            if bareLine.lower().startswith("your email id"):
+                return status
+            if recordingStatus:
+                status += " " + bareLine
+
+        raise Exception("Cannot parse bluedart response for bill: {}".format(self.bill))
+
+    def StoreSnapshot(self):
+        b = self.bill
+        bluedartScreenshotUrl = """http://www.bluedart.com/servlet/RoutingServlet?handler=image&action=image&awb=awb&displaytype=Awb&numbers={}&ndc=0""".format(b.docketNumber)
+        PREFERRED_FILEFORMAT = ".jpeg"
+        fileName = "{date}_{compName}_BillNo#{billNumber}_{docketNumber}".format(date=YYYY_MM_DD(b.docketDate),
+                compName=b.compName, billNumber=b.billNumber, docketNumber = b.docketNumber)
+
+        fileName.replace(" ", "_")
+        fileName = "".join([x for x in fileName if x.isalnum() or x in['_', '-']])
+        fileName = fileName + PREFERRED_FILEFORMAT
+        DESTINATION_FILE = os.path.normpath(os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "DocketSnapshotsRelPath"),fileName))
+
+        if os.path.exists(DESTINATION_FILE):
+            i = DESTINATION_FILE.rfind(".")
+            DESTINATION_FILE ="{}_new{}".format(DESTINATION_FILE[:i], DESTINATION_FILE[i:])
+
+
+        page = urllib2.urlopen(bluedartScreenshotUrl)
+        with open(DESTINATION_FILE,'wb') as f:
+            f.write(page.read())
+
+
+        if not os.path.exists(DESTINATION_FILE):
+            raise Exception("Could not store the snapshot at location: {}".format(DESTINATION_FILE))
+
+        return
 
 class OverniteCourier():
     def __init__(self, bill):
@@ -118,11 +180,11 @@ class OverniteCourier():
         resp = urllib2.urlopen(req, FORM_DATA)
         html = resp.read()
         if resp.code != 200 :
-            raise Exception("Got {} reponse from server for bill: {}".format(resp.code, self.bill))
-        res =  self._get_status_from_html_resp(html)
+            raise Exception("Got {} reponse from Overnite server for bill: {}".format(resp.code, self.bill))
+        res =  self._get_status_from_overnite_html_resp(html)
         return res
 
-    def _get_status_from_html_resp(self, html):
+    def _get_status_from_overnite_html_resp(self, html):
 
         resultsId = "ctl00_CntPlaceHolderDetails_GridViewOuter_ctl02_lblStatus"
         for eachLine in html.split("\n"):

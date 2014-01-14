@@ -6,6 +6,7 @@ PhoneBookMerge/*.vcf
 *.png
 *.dot
 *.pkl
+*.netrwhist
 keyl/DisplayDriver.exe
 keyl/log.txt
 keyl/build*

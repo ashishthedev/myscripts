@@ -88,6 +88,7 @@ ph = "B:\Tools\PhantomJS\phantomjs-1.9.1-windows\phantomjs.exe" $*
 gpyt = pushd "B:\\py_test\\"
 gplib = pushd "B:\\Python27\\Lib\\"
 gpod = pushd %APPDIR%\\..\\DocketPODs
+gpods = pushd %APPDIR%\\..\\DocketPODs
 cust2odat = copy c:\users\Ichigo\Dropbox\SDATDocs\Bills\Cust.xlsx c:\users\Ichigo\Dropbox\ODATDocs\Bills\Cust.xlsx
 
 analyze = pushd %APPDIR%\\myscripts\\misc\\PhoneBillAnalysis && AnalyzeBill.py $*
@@ -95,8 +96,6 @@ pick = %APPDIR%\\myscripts\\misc\\pick.py
 
 trs = pushd %APPDIR%\MyScripts\whopaid && Shipments.py --track $* && pushd %APPDIR%\..\DocketPODs && start. && popd
 undelivered = pushd %APPDIR%\MyScripts\whopaid && Shipments.py --show-undelivered && popd
-pods = pushd %APPDIR%\DocketPODs && start. && popd
-gpods = pushd %APPDIR%\DocketPODs
 opybk = "B:\Read\Python\The Quick Python Book 2e - Vernon Ceder - Manning (2010).pdf"
 ogaebk2 = "b:\Read\Google App Engine\Programming GAE V2.pdf"
 ogaebk = "b:\Read\Google App Engine\Oreilly - Programming Google Apps Engine (12-2009) (ATTiCA).pdf"
