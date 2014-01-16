@@ -2,6 +2,7 @@ __pycache__
 __pycache__\*
 PhoneBookMerge/*.vcf
 */.ropeproject/*
+*.netrwhist
 *.pyc
 *.png
 *.dot

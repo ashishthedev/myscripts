@@ -9,6 +9,7 @@ from UtilException import MyException
 from UtilConfig import GetOption, GetAppDir
 from UtilExcelReader import LoadIterableWorkbook
 from UtilMisc import GetPickledObject, ParseDateFromString, DD_MM_YYYY
+from CustomersInfo import GetAllCustomersInfo
 
 import os
 import shelve
@@ -302,6 +303,27 @@ def CreateSingleBillForRow(row):
                 b.formCReceivingDate = val
     return b
 
+
+def GuessCompanyGroupName(token):
+    """Take a small string from user and try to guess the companyGroupName.
+    Return None if it doesn't exist"""
+    allCustomersInfo = GetAllCustomersInfo()
+    allCompaniesDict = GetAllCompaniesDict()
+    uniqueCompGrpNames = [allCustomersInfo.GetCompanyGroupName(eachComp) for eachComp in allCompaniesDict]
+
+    if not token:
+        token = raw_input("Enter company name:")
+
+    token.replace(' ', '')
+    uniqueCompGrpNames = [u for u in uniqueCompGrpNames if u]
+    uniqueCompGrpNames = list(set(uniqueCompGrpNames))
+    for eachGrp in uniqueCompGrpNames:
+        #if not eachGrp: continue #TODO:Hack. Find out where
+        if eachGrp.lower().replace(' ', '').find(token.lower()) != -1:
+            if raw_input("You mean: {0}\n(y/n):".format(eachGrp)).lower() == 'y':
+                return eachGrp
+    else:
+        raise MyException("{} does not exist. Try a shorter string".format(token))
 
 def GuessCompanyName(token):
     """Take a small string from user and try to guess the companyName.

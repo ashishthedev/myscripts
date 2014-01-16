@@ -34,7 +34,8 @@ class CustomerInfoCol:
     SendAutomaticMails = "P"
     MinDaysGapCol = "Q"
     IncludeBillAmountInEmails = "R"
-    CompanyCodeCol = "S"
+    CompanyGroupCol = "S"
+    CompanyCodeCol = "T"
 
 
 def CreateSingleCustomerInfo(row):
@@ -81,6 +82,8 @@ def CreateSingleCustomerInfo(row):
             c.minDaysGapBetweenAutomaticMails = val
         elif col == CustomerInfoCol.IncludeBillAmountInEmails:
             c.includeBillAmountinEmails = val
+        elif col == CustomerInfoCol.CompanyGroupCol:
+            c.companyGroupName = val
     return c
 
 
@@ -107,6 +110,13 @@ class _AllCustomersInfo(dict):
             c = CreateSingleCustomerInfo(row)
             self[c.companyFriendlyName] = c
 
+    def GetListOfCompNamesForThisGrp(self, grpName):
+        res = []
+        for compName in self:
+            if self[compName].companyGroupName == grpName:
+                res.append(compName)
+        return res
+
     def GetTrustForCustomer(self, compName):
         return self[compName].trust
 
@@ -115,6 +125,9 @@ class _AllCustomersInfo(dict):
 
     def GetCompanyOfficialName(self, compName):
         return self[compName].companyOfficialName
+
+    def GetCompanyGroupName(self, compName):
+        return self[compName].companyGroupName
 
     def GetCustomerPhoneNumber(self, compName):
         return self[compName].phoneNumber
@@ -161,7 +174,6 @@ class _AllCustomersInfo(dict):
         toMailList = toMailStr.replace(';', ',').replace(' ', '').split(',')
         #Remove spaces from eachMail in the list and create a new list
         return [x for x in toMailList if x]
-
 
 
 def GetAllCustomersInfo():
