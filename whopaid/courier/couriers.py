@@ -141,7 +141,9 @@ class BluedartCourier():
 
     def StoreSnapshot(self):
         b = self.bill
-        bluedartScreenshotUrl = """http://www.bluedart.com/servlet/RoutingServlet?handler=image&action=image&awb=awb&displaytype=Awb&numbers={}&ndc=0""".format(b.docketNumber)
+        #TODO: Remove hardcoding of path
+        PHANTOM = "B:\\Tools\\PhantomJS\\phantomjs-1.9.1-windows\\phantomjs.exe"
+        SCRIPT = "courier\\bluedart_snapshot.js"
         PREFERRED_FILEFORMAT = ".jpeg"
         fileName = "{date}_{compName}_BillNo#{billNumber}_{docketNumber}".format(date=YYYY_MM_DD(b.docketDate),
                 compName=b.compName, billNumber=b.billNumber, docketNumber = b.docketNumber)
@@ -155,11 +157,11 @@ class BluedartCourier():
             i = DESTINATION_FILE.rfind(".")
             DESTINATION_FILE ="{}_new{}".format(DESTINATION_FILE[:i], DESTINATION_FILE[i:])
 
+        for p in [PHANTOM, SCRIPT]:
+            if not os.path.exists(p): raise Exception("Path not present : {}".format(p))
 
-        page = urllib2.urlopen(bluedartScreenshotUrl)
-        with open(DESTINATION_FILE,'wb') as f:
-            f.write(page.read())
-
+        args = [PHANTOM, SCRIPT, DESTINATION_FILE, b.docketNumber]
+        subprocess.check_call(args)
 
         if not os.path.exists(DESTINATION_FILE):
             raise Exception("Could not store the snapshot at location: {}".format(DESTINATION_FILE))

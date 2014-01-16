@@ -22,7 +22,8 @@ def main():
 
     b4 = CreateATestBill()
     b4.courierName = "Bluedart Courier"
-    b4.docketNumber = "50256358073"
+    b4.docketNumber = "50256358073" #WNW
+    b4.docketNumber = "50250786972" #Sys
     s4 = PersistentShipment(b4)
     s4.Track()
 
