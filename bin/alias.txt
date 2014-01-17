@@ -26,6 +26,7 @@
 
 
 gitclean = git gc --aggressive --prune
+gitamend = git commit --amend --no-edit
 re=doskey /Macrofile=%APPDIR%\myscripts\bin\alias.txt
 ..=cd..
 ...=cd..\..
