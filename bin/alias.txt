@@ -77,11 +77,12 @@ godevphungsuk = %PHUNGSUKDIR%\scripts\push.py --version="dev" --email="developer
 rollbackphungsuk = pushd %PHUNGSUKDIR% && appcfg.py rollback . --no_cookies --email="developer@phungsukjibabo.mygbiz.com" $*
 gphungsuk = pushd %PHUNGSUKDIR%
 utw = %WEBDIR%\Scripts\unittests.py
+gimg = pushd %WEBDIR%\static\images
 gweb = pushd "%WEBDIR%"
 gwb = pushd "%WEBDIR%"
-gcss = pushd %WEBDIR%\static\stylesheets
-gimg = pushd %WEBDIR%\static\images
 ghtml = pushd %WEBDIR%\templates
+gjs = pushd %WEBDIR%\static\js
+gcss = pushd %WEBDIR%\static\stylesheets
 elwsf = start %ComSpec% /k dev_appserver.py --skip_sdk_update_check True "%WEBDIR%"
 elws = start %ComSpec% /k dev_appserver.py "%WEBDIR%"
 phserver = "B:\Tools\PhantomJS\phantomjs-1.9.1-windows\phantomjs.exe" --proxy=127.0.0.1:8118 $*

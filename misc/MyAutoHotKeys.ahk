@@ -20,8 +20,12 @@ ENVGET, PROGRAMFILES_ENV, PROGRAMFILES
 GVIM = %WINDIR_ENV%\gvim.bat
 
 ::sdatdesc::Standard Dies And Tools manufactures wire drawing dies. Our product range includes wire drawing dies for MIG wire, MS wire, HC Wire, LC wire, flux coating TC dies, diamond dies, diamond powder, diamond paste.
+::fcmtc::CM Trading Co
+::fcmta::F-163, Sector 1, Bawana Ind. Area, New Delhi.
+::fcmts::Delhi
+::fcmtt::07340235510
 ::btw::by the way
-::;br::;<br> 
+::;br ::;<br> 
 ::f501::501, Old Arya Nagar, Ghaziabad, UP
 ::fkil::Kennametal India Limited
 ::fkmil::Kennametal India Limited
