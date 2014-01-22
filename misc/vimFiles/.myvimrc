@@ -32,6 +32,7 @@ vim.command(retcmd)# return from the Vim function!
 endpython
 endfunction
 
+let WEBSITE_DIR = GetAPPDIR()."\\..\\website\\"
 
 
 "1. VIM Customizations
@@ -75,6 +76,8 @@ autocmd bufwritepost .myvimrc source <sfile> "When this file changes resource it
 execute "noremap <leader>v :e   ".GetAPPDIR()."\\MyScripts\\misc\\vimFiles\\.myvimrc"."<CR>"
 execute "noremap <leader>nv :sp ".GetAPPDIR()."\\MyScripts\\misc\\vimFiles\\.myvimrc"."<CR>"
 execute "noremap ,re :source ".GetAPPDIR()."\\MyScripts\\misc\\vimFiles\\.myvimrc"."<CR>"
+
+
 
 set ignorecase
 set cmdheight=1
@@ -314,6 +317,8 @@ noremap <Space> /
 
 "Use '-' to switch between splited windows.
 noremap - <c-w>w <CR> <bar> :set winheight=998<CR>
+"Use '-' to switch between splited windows.
+noremap - gt
 "Use :sb <Tab> to switch between open buffers
 
 
@@ -532,6 +537,21 @@ runtime macros/matchit.vim
 
 
 autocmd BufRead,BufWritePost *.txt call DistractionFreeWriting()
+
+map <leader>con :call OpenFilesInTabs([
+            \WEBSITE_DIR."\\static\\js\\emailController.js",
+            \WEBSITE_DIR."\\templates\\contactus.html",
+            \WEBSITE_DIR."\\static\\stylesheets\\main.css",
+            \WEBSITE_DIR."\\api.py",
+            \])<CR>
+
+function! OpenFilesInTabs(...)
+    for firstArg in a:000
+        for nextFile in firstArg
+            :execute "tabedit ".l:nextFile
+        endfor
+    endfor
+endfunction
 
 function! DistractionFreeWriting()
     "colorscheme iawriter

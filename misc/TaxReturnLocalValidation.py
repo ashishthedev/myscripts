@@ -1,6 +1,6 @@
 import xml.dom.minidom, os, unittest
 from UtilConfig import GetAppDir
-FOLDER_NAME             = "2013-10"
+FOLDER_NAME             = "2013-12"
 BASEPATH                = os.path.join(GetAppDir(), "SalesTaxReturnFiles", "2013-2014")
 ANNEXUREA               = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureA.xml")
 ANNEXUREB               = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureB.xml")
@@ -12,11 +12,15 @@ UPVAT_VAT_NONVAT_FILE   = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "F
 CST_MAIN_FORM           = os.path.join(BASEPATH, FOLDER_NAME, "CST",   "XML", "FormCSTMainForm.xml")
 CST_TAX_PAID_FORM       = os.path.join(BASEPATH, FOLDER_NAME, "CST",   "XML", "FormCSTTaxPaid.xml")
 CST_TURNOVER_FORM       = os.path.join(BASEPATH, FOLDER_NAME, "CST",   "XML", "FormCSTTurnover.xml")
+CST_LOISS_FORM          = os.path.join(BASEPATH, FOLDER_NAME, "CST",   "XML", "FormCST_ListofInterstateSales.xml")
 
 PREVALING_VAT_RATE='14'  # in percent
 PREVALING_CST_RATE='2'   # in percent
 PREVALING_EXPORT_RATE='0'   # in percent
 TOLERANCE_IN_RUPEES=1
+
+def SumFloat(fileName, nodeName):
+    return sum([float(getText(eachNode.childNodes)) for eachNode in GetAllNodesByNameFromFile(fileName, nodeName)])
 
 def GetAllNodesByNameFromFile(filePath, tagName):
     """
@@ -81,6 +85,7 @@ def TestSameness(testCaseInstance, fileName_ValueToLookFor_Dict):
             values.append(getText(n.childNodes))
 
     for x in values:
+        if x != values[0]: print("These are not equal: {}".format(values))
         testCaseInstance.assertEqual(values[0], x)
 
 
@@ -88,17 +93,12 @@ class TestFunctions(unittest.TestCase):
 
     def test_UPVATInputTaxCrossCheck(self):
         #This test asserts that the sum value as defined in Annexure A is equal to the value defined in MainForm
+        #TODO: What if Annexure A is not present? Check for file presence maybe?
         UPVATInputInMainForm = getFloatValueFromXmlFile(UPVAT_MAINFORM_FILE, "P_OwnAc")
         if UPVATInputInMainForm == 0:
             return
 
-        totalInputTaxAnnxA = 0
-
-        for eachTax in GetAllNodesByNameFromFile(ANNEXUREA, "TaxCharged"):
-            totalInputTaxAnnxA += float(getText(eachTax.childNodes))
-
-        for eachTax in GetAllNodesByNameFromFile(ANNEXUREA, "SatCharged"):
-            totalInputTaxAnnxA += float(getText(eachTax.childNodes))
+        totalInputTaxAnnxA = SumFloat(ANNEXUREA, "TaxCharged") + SumFloat(ANNEXUREA, "SatCharged")
 
         self.assertTrue(abs(totalInputTaxAnnxA-UPVATInputInMainForm)<TOLERANCE_IN_RUPEES,
                 "Total UPVAT Input is different in UPVATMainForm and Annexure A")
@@ -114,6 +114,7 @@ class TestFunctions(unittest.TestCase):
                 CST_MAIN_FORM:"month1",
                 CST_TAX_PAID_FORM: "month1",
                 CST_TURNOVER_FORM: "Month",
+                CST_LOISS_FORM: "Month",
                 ANNEXUREA: "Month",
                 ANNEXUREB: "Month",
                 ANNEXUREC: "Month",
@@ -127,27 +128,19 @@ class TestFunctions(unittest.TestCase):
         """
         Tests whether ANNEXUREB values(summation) is properly cross referenced in various places
         """
-        totalOutputTaxAnnxB = 0
-
-        for eachTax in GetAllNodesByNameFromFile(ANNEXUREB, "TaxCharged"):
-            totalOutputTaxAnnxB += float(getText(eachTax.childNodes))
-
-        for eachTax in GetAllNodesByNameFromFile(ANNEXUREB, "SatCharged"):
-            totalOutputTaxAnnxB += float(getText(eachTax.childNodes))
+        totalOutputTaxAnnxB = SumFloat(ANNEXUREB, "TaxCharged") + SumFloat(ANNEXUREB, "SatCharged")
 
         self.assertEqual(
                 totalOutputTaxAnnxB,
                 getFloatValueFromXmlFile(UPVAT_MAINFORM_FILE, "totaltax"),
-                "Payble UP VAT Tax is not same in UPVAT Main Form and AnnexureB")
+                "Payble UP VAT Tax is not same in UPVAT Main Form and ANNEXUREB")
 
         self.assertEqual(
                 getFloatValueFromXmlFile(UPVAT_MAINFORM_FILE, "tot_tax_on_sale"),
                 getFloatValueFromXmlFile(UPVAT_MAINFORM_FILE, "totaltax"),
                 "Payble UP VAT Tax is not consistent in UPVAT Main Form")
 
-        totalTaxableGoodsSoldinAnnexB = 0
-        for eachEntry in GetAllNodesByNameFromFile(ANNEXUREB, "TaxGood"):
-            totalTaxableGoodsSoldinAnnexB += float(getText(eachEntry.childNodes))
+        totalTaxableGoodsSoldinAnnexB = SumFloat(ANNEXUREB, "TaxGood")
 
         self.assertEqual(totalTaxableGoodsSoldinAnnexB, getAmountFromVatNonVatSheet('1', 'v', 's'), "UP Sale in Annexure B is different from UP Sale in Form24 VAT_NON_VAT sheet")
         self.assertEqual(totalTaxableGoodsSoldinAnnexB, getFloatValueFromXmlFile(UPVAT_TAX_DETAIL_SALE, "SaleAmount"), "UP Sale in Annexure B is different from UP Sale in Form24 Sale sheet.")
@@ -178,10 +171,7 @@ class TestFunctions(unittest.TestCase):
         """
         Tests whether sum of purchase mentioned in Annexure A Part 1 matches the value mentioned in Vat_non_vat sheet
         """
-        totalTaxableGoodsPurchased = 0
-
-        for eachEntry in GetAllNodesByNameFromFile(ANNEXUREA, "TaxGood"):
-            totalTaxableGoodsPurchased += float(getText(eachEntry.childNodes))
+        totalTaxableGoodsPurchased = SumFloat(ANNEXUREA, "TaxGood")
 
         self.assertEqual(getAmountFromVatNonVatSheet('1', 'v', 'p'), totalTaxableGoodsPurchased, "UP purchase in Annexure A Part 1 is different from UP Purchase in Vat-Non-Vat sheet in Form24")
         return
@@ -191,9 +181,7 @@ class TestFunctions(unittest.TestCase):
         Tests whether sum of purchase mentioned in Annexure C matches the value mentioned in VAT_NON_VAT sheet
         """
         VNV_FormCPurchase = getAmountFromVatNonVatSheet('7a', 'os', 'p')
-        totalPurchaseAgstFORMC = 0
-        for eachEntry in GetAllNodesByNameFromFile(ANNEXUREC, "Tot_Inv"):
-            totalPurchaseAgstFORMC += float(getText(eachEntry.childNodes))
+        totalPurchaseAgstFORMC = SumFloat(ANNEXUREC, "Tot_Inv")
 
         TOLERANCE_IN_RUPEES=1
         isDifferenceTolerable = (abs(VNV_FormCPurchase - totalPurchaseAgstFORMC)<TOLERANCE_IN_RUPEES)
@@ -211,17 +199,16 @@ class TestFunctions(unittest.TestCase):
         """
         This test will check for CST tax paid and payble consitency in FORM 1 at all the places it is mentioned.
         """
-        totalCSTTax = 0
-
-        for eachTax in GetAllNodesByNameFromFile(CST_TURNOVER_FORM, "sale_tax_amount"):
-            totalCSTTax += float(getText(eachTax.childNodes))
+        totalCSTTax = SumFloat(CST_TURNOVER_FORM, "sale_tax_amount")
 
         itcAdjustment = getFloatValueFromXmlFile(CST_MAIN_FORM, "itc_adjustment")
 
-        values = list()
-        values.append(totalCSTTax-itcAdjustment)
-        values.append(getFloatValueFromXmlFile(CST_TAX_PAID_FORM, "amount"))
-        values.append(getFloatValueFromXmlFile(CST_MAIN_FORM, "tax_payable"))
+        values = [
+            totalCSTTax-itcAdjustment,
+            getFloatValueFromXmlFile(CST_TAX_PAID_FORM, "amount"),
+            getFloatValueFromXmlFile(CST_MAIN_FORM, "tax_payable"),
+            abs(SumFloat(CST_LOISS_FORM, "AmmountOfTaxCharged")-itcAdjustment),
+            ]
 
         for x in values:
             self.assertEqual(x, values[0])
@@ -246,6 +233,7 @@ class TestFunctions(unittest.TestCase):
                 CST_MAIN_FORM:"assessment_year",
                 CST_TAX_PAID_FORM: "assessment_year",
                 CST_TURNOVER_FORM: "AssYear",
+                CST_LOISS_FORM: "AssYear",
                 ANNEXUREA: "AssYear",
                 ANNEXUREB: "AssYear",
                 ANNEXUREC: "AssYear",
@@ -264,21 +252,18 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(getAmountFromVatNonVatSheet('5', 'v', 's'),
                 GetCentralSaleByRate(PREVALING_VAT_RATE),
                 "Central sale without FORM-C is different in VAT_NON_VAT_Sheet and CSTTurnOver sheet.\nIf this is some previous years report then this might be a false negative as VAT rate might have been different at that time.")
-        self.assertEqual((
-            GetCentralSaleByRate(PREVALING_CST_RATE) +
-            GetCentralSaleByRate(PREVALING_VAT_RATE) +
-            GetCentralSaleByRate(PREVALING_EXPORT_RATE)),
-            getFloatValueFromXmlFile(CST_MAIN_FORM, "giss"))
 
-        self.assertEqual((
-            GetCentralSaleByRate(PREVALING_CST_RATE) +
-            GetCentralSaleByRate(PREVALING_VAT_RATE)),
-            getFloatValueFromXmlFile(CST_MAIN_FORM, "net_inter_state_sale"))
+        cstAndVatAndExport = GetCentralSaleByRate(PREVALING_CST_RATE) + GetCentralSaleByRate(PREVALING_VAT_RATE) + GetCentralSaleByRate(PREVALING_EXPORT_RATE)
+        l = [
+            cstAndVatAndExport,
+            getFloatValueFromXmlFile(CST_MAIN_FORM, "giss"),
+            getFloatValueFromXmlFile(CST_MAIN_FORM, "net_inter_state_sale"),
+            SumFloat(CST_LOISS_FORM, "SalesValueOfGoods"),
+            ]
+        for x in l:
+          if x != l[0]:
+            print("This values are different: {}".format(l))
 
-        self.assertEqual((
-            getFloatValueFromXmlFile(CST_MAIN_FORM, "net_inter_state_sale") +
-            GetCentralSaleByRate(PREVALING_EXPORT_RATE)),
-            getFloatValueFromXmlFile(CST_MAIN_FORM, "giss"))
         return
 
 if __name__=="__main__":
