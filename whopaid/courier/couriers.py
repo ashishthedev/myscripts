@@ -19,6 +19,8 @@ class Courier():
             self.courier = BluedartCourier(b)
         elif b.courierName.lower().strip().startswith("first"):
             self.courier = FirstFlightCourier(b)
+        elif b.courierName.lower().strip().startswith("profess"):
+            self.courier = ProfessionalCourier(b)
         else:
             print("We do not know how to track: {}. Will mark it as delivered".format(b.courierName))
             self.courier = DummyCourier(b)
@@ -107,6 +109,33 @@ class TrackonCourier():
 
     def StoreSnapshot(self):
         StoreSnapshotWithPhantomScript(self.bill, "courier\\trackon_snapshot.js")
+
+class ProfessionalCourier():
+    def __init__(self, bill):
+        self.bill = bill
+
+    def GetStatus(self):
+        req = urllib2.Request("""http://www.tpcindia.com/Tracking.aspx?id={docket}&type=0""".format(docket=self.bill.docketNumber.strip()))
+        req.add_header('Host', 'www.tpcindia.com')
+        req.add_header('Referer', 'http://www.tpcindia.com/')
+        resp = urllib2.urlopen(req)
+        html = resp.read()
+        if resp.code != 200 :
+            raise Exception("Got {} reponse from Professinal server for bill: {}".format(resp.code, self.bill))
+        res =  self._get_status_from_professional_html_resp(html)
+        return res
+
+    def _get_status_from_professional_html_resp(self, html):
+        #Logic: The bareline with resultsId will have the status
+        resultsId = "ctl00_ContentPlaceHolder1_lbl_track"
+        for eachLine in html.split("\n"):
+            if eachLine.find(resultsId) != -1:
+                return StripHTMLTags(eachLine.strip())
+        else:
+            raise Exception("Cannot parse ProfessionalCourier response for bill: {}".format(self.bill))
+
+    def StoreSnapshot(self):
+        StoreSnapshotWithPhantomScript(self.bill, "courier\\professional_snapshot.js")
 
 class FirstFlightCourier():
     def __init__(self, bill):

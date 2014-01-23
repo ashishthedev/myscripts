@@ -3,12 +3,11 @@ from SanityChecks import CreateATestBill
 
 def main():
     b = CreateATestBill()
-    b.courierName = "First Flight"
-    b.docketNumber = "W92200040714"
-    b.docketNumber = "W991B0248002"
+    b.courierName = "Professional Courier"
+    b.docketNumber = "NDA3290046"
     s = PersistentShipment(b)
     s.Track()
-    print("Status = {}".format(s.status))
+    s._removeFromDB()
 
     #b2 = CreateATestBill()
     #b2.courierName = "Trackon Courier"
