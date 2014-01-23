@@ -87,10 +87,12 @@ class _AllCompaniesDict(CompaniesDict):
         wb = LoadIterableWorkbook(workbookPath)
         ws = wb.get_sheet_by_name(GetOption("CONFIG_SECTION", "NameOfSaleSheet"))
         MAX_ROW = ws.get_highest_row()
+        MIN_ROW = int(GetOption("CONFIG_SECTION", "DataStartsAtRow"))
         rowNumber = 0
         for row in ws.iter_rows():
+            #TODO: Can we give a range to it with MIN_ROW and MAX_ROW?
             rowNumber += 1
-            if rowNumber < int(GetOption("CONFIG_SECTION", "DataStartsAtRow")):
+            if rowNumber < MIN_ROW:
                 continue
             if rowNumber >= MAX_ROW:
                 break
