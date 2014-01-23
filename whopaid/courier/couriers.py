@@ -8,6 +8,7 @@ import os
 class Courier():
     """
     If a new courier gets added, implement that class and instantiate in __init__
+    All the sublclasses will implement methods. Ideally it should be an ABC
     """
     def __init__(self, b):
         if b.courierName.lower().strip().startswith("overn"):
@@ -16,6 +17,8 @@ class Courier():
             self.courier = TrackonCourier(b)
         elif b.courierName.lower().strip().startswith("bluedart"):
             self.courier = BluedartCourier(b)
+        elif b.courierName.lower().strip().startswith("first"):
+            self.courier = FirstFlightCourier(b)
         else:
             print("We do not know how to track: {}. Will mark it as delivered".format(b.courierName))
             self.courier = DummyCourier(b)
@@ -35,6 +38,31 @@ class DummyCourier():
 
     def StoreSnapshot(self):
         return None
+
+def StoreSnapshotWithPhantomScript(b, scriptPath):
+    #TODO: Remove hardcoding of path
+    PHANTOM = "B:\\Tools\\PhantomJS\\phantomjs-1.9.1-windows\\phantomjs.exe"
+    PREFERRED_FILEFORMAT = ".jpeg"
+    fileName = "{date}_{compName}_BillNo#{billNumber}_{docketNumber}".format(date=YYYY_MM_DD(b.docketDate),
+            compName=b.compName, billNumber=b.billNumber, docketNumber = b.docketNumber)
+
+    fileName.replace(" ", "_")
+    fileName = "".join([x for x in fileName if x.isalnum() or x in['_', '-']])
+    fileName = fileName + PREFERRED_FILEFORMAT
+    DESTINATION_FILE = os.path.normpath(os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "DocketSnapshotsRelPath"),fileName))
+
+    if os.path.exists(DESTINATION_FILE):
+        i = DESTINATION_FILE.rfind(".")
+        DESTINATION_FILE ="{}_new{}".format(DESTINATION_FILE[:i], DESTINATION_FILE[i:])
+
+    for p in [PHANTOM, scriptPath]:
+        if not os.path.exists(p): raise Exception("Path not present : {}".format(p))
+
+    args = [PHANTOM, scriptPath, DESTINATION_FILE, b.docketNumber]
+    subprocess.check_call(args)
+
+    if not os.path.exists(DESTINATION_FILE):
+        raise Exception("Could not store the snapshot at location: {}".format(DESTINATION_FILE))
 
 class TrackonCourier():
     def __init__(self, bill):
@@ -78,33 +106,42 @@ class TrackonCourier():
         return s.get_data()
 
     def StoreSnapshot(self):
-        b = self.bill
-        #TODO: Remove hardcoding of path
-        PHANTOM = "B:\\Tools\\PhantomJS\\phantomjs-1.9.1-windows\\phantomjs.exe"
-        SCRIPT = "Courier\\trackon_snapshot.js"
-        PREFERRED_FILEFORMAT = ".jpeg"
-        fileName = "{date}_{compName}_BillNo#{billNumber}_{docketNumber}".format(date=YYYY_MM_DD(b.docketDate),
-                compName=b.compName, billNumber=b.billNumber, docketNumber = b.docketNumber)
+        StoreSnapshotWithPhantomScript(self.bill, "courier\\trackon_snapshot.js")
 
-        fileName.replace(" ", "_")
-        fileName = "".join([x for x in fileName if x.isalnum() or x in['_', '-']])
-        fileName = fileName + PREFERRED_FILEFORMAT
-        DESTINATION_FILE = os.path.normpath(os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "DocketSnapshotsRelPath"),fileName))
+class FirstFlightCourier():
+    def __init__(self, bill):
+        self.bill = bill
 
-        if os.path.exists(DESTINATION_FILE):
-            i = DESTINATION_FILE.rfind(".")
-            DESTINATION_FILE ="{}_new{}".format(DESTINATION_FILE[:i], DESTINATION_FILE[i:])
+    def GetStatus(self):
+        req = urllib2.Request("""http://www.firstflight.net/n_contrac_new_12Digit_New.asp?tracking1={docket}""".format(docket=self.bill.docketNumber.strip()))
+        req.add_header('Host', 'www.firstflight.net')
+        resp = urllib2.urlopen(req)
+        html = resp.read()
+        if resp.code != 200 :
+            raise Exception("Got {} reponse from First Flight server for bill: {}".format(resp.code, self.bill))
+        res =  self._get_status_from_first_flight_html_resp(html)
+        return res
 
-        for p in [PHANTOM, SCRIPT]:
-            if not os.path.exists(p): raise Exception("Path not present : {}".format(p))
+    def _get_status_from_first_flight_html_resp(self, html):
+        #Logic: We are going to parse the stripped html
+        #1. Find docket number
+        #2. All following lines are status till line having </tr>
+        recordingStatus = False
+        status = ""
+        for eachLine in html.split("\n"):
+            bareLine = StripHTMLTags(eachLine.strip())
+            if bareLine.lower().find(self.bill.docketNumber.lower()) != -1:
+                recordingStatus = True
+            if recordingStatus and eachLine.lower().strip().find("</tr>") != -1:
+                return status
+            if recordingStatus:
+                status += " " + bareLine
 
-        args = [PHANTOM, SCRIPT, DESTINATION_FILE, b.docketNumber]
-        subprocess.check_call(args)
+        raise Exception("Cannot parse firstflight response for bill: {}".format(self.bill))
 
-        if not os.path.exists(DESTINATION_FILE):
-            raise Exception("Could not store the snapshot at location: {}".format(DESTINATION_FILE))
+    def StoreSnapshot(self):
+        StoreSnapshotWithPhantomScript(self.bill, "courier\\firstflight_snapshot.js")
 
-        return
 class BluedartCourier():
     def __init__(self, bill):
         self.bill = bill
@@ -140,33 +177,7 @@ class BluedartCourier():
         raise Exception("Cannot parse bluedart response for bill: {}".format(self.bill))
 
     def StoreSnapshot(self):
-        b = self.bill
-        #TODO: Remove hardcoding of path
-        PHANTOM = "B:\\Tools\\PhantomJS\\phantomjs-1.9.1-windows\\phantomjs.exe"
-        SCRIPT = "courier\\bluedart_snapshot.js"
-        PREFERRED_FILEFORMAT = ".jpeg"
-        fileName = "{date}_{compName}_BillNo#{billNumber}_{docketNumber}".format(date=YYYY_MM_DD(b.docketDate),
-                compName=b.compName, billNumber=b.billNumber, docketNumber = b.docketNumber)
-
-        fileName.replace(" ", "_")
-        fileName = "".join([x for x in fileName if x.isalnum() or x in['_', '-']])
-        fileName = fileName + PREFERRED_FILEFORMAT
-        DESTINATION_FILE = os.path.normpath(os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "DocketSnapshotsRelPath"),fileName))
-
-        if os.path.exists(DESTINATION_FILE):
-            i = DESTINATION_FILE.rfind(".")
-            DESTINATION_FILE ="{}_new{}".format(DESTINATION_FILE[:i], DESTINATION_FILE[i:])
-
-        for p in [PHANTOM, SCRIPT]:
-            if not os.path.exists(p): raise Exception("Path not present : {}".format(p))
-
-        args = [PHANTOM, SCRIPT, DESTINATION_FILE, b.docketNumber]
-        subprocess.check_call(args)
-
-        if not os.path.exists(DESTINATION_FILE):
-            raise Exception("Could not store the snapshot at location: {}".format(DESTINATION_FILE))
-
-        return
+        StoreSnapshotWithPhantomScript(self.bill, "courier\\bluedart_snapshot.js")
 
 class OverniteCourier():
     def __init__(self, bill):
@@ -196,31 +207,7 @@ class OverniteCourier():
             raise Exception("Cannot parse overnite response for bill: {}".format(self.bill))
 
     def StoreSnapshot(self):
-        b = self.bill
-        #TODO: Remove hardcoding of path
-        PHANTOM = "B:\\Tools\\PhantomJS\\phantomjs-1.9.1-windows\\phantomjs.exe"
-        SCRIPT = "courier\\overnite_snapshot.js"
-        PREFERRED_FILEFORMAT = ".jpeg"
-        fileName = "{date}_{compName}_BillNo#{billNumber}_{docketNumber}".format(date=YYYY_MM_DD(b.docketDate),
-                compName=b.compName, billNumber=b.billNumber, docketNumber = b.docketNumber)
-
-        fileName.replace(" ", "_")
-        fileName = "".join([x for x in fileName if x.isalnum() or x in['_', '-']])
-        fileName = fileName + PREFERRED_FILEFORMAT
-        DESTINATION_FILE = os.path.normpath(os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "DocketSnapshotsRelPath"),fileName))
-        if os.path.exists(DESTINATION_FILE):
-            i = DESTINATION_FILE.rfind(".")
-            DESTINATION_FILE ="{}_new{}".format(DESTINATION_FILE[:i], DESTINATION_FILE[i:])
-
-        for p in [PHANTOM, SCRIPT]:
-            if not os.path.exists(p): raise Exception("Path not present : {}".format(p))
-
-        args = [PHANTOM, SCRIPT, DESTINATION_FILE, b.docketNumber]
-        subprocess.check_call(args)
-        if not os.path.exists(DESTINATION_FILE):
-            raise Exception("Could not store the snapshot at location: {}".format(DESTINATION_FILE))
-
-        return
+        StoreSnapshotWithPhantomScript(self.bill, "courier\\overnite_snapshot.js")
 
 def StripHTMLTags(html):
     class MLStripper(HTMLParser):
