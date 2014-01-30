@@ -119,6 +119,15 @@ def CheckCourierStatusAssessmentIsCorrect():
         if expectedDeliveryStatus != IsDeliveredAssessFromStatus(eachStr):
             raise Exception("Our algorithm is faulty for the following string:\n{}".format(eachStr))
 
+class TestShipment():
+    def __init__(self):
+        from Shipments import PersistentShipment
+        self.s = PersistentShipment(CreateATestBill())
+    def __enter__(self):
+        return self.s
+    def __exit__(self, type, value, traceback):
+        self.s._removeFromDB()
+
 def CreateATestBill():
     from UtilWhoPaid import SingleBill
     import datetime

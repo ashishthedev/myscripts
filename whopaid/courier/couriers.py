@@ -21,6 +21,8 @@ class Courier():
             self.courier = FirstFlightCourier(b)
         elif b.courierName.lower().strip().startswith("profess"):
             self.courier = ProfessionalCourier(b)
+        elif b.courierName.lower().strip().startswith("lalji"):
+            self.courier = LaljiMuljiTransport(b)
         else:
             print("We do not know how to track: {}. Will mark it as delivered".format(b.courierName))
             self.courier = DummyCourier(b)
@@ -137,6 +139,31 @@ class ProfessionalCourier():
     def StoreSnapshot(self):
         StoreSnapshotWithPhantomScript(self.bill, "courier\\professional_snapshot.js")
 
+class LaljiMuljiTransport():
+    def __init__(self, bill):
+        self.bill = bill
+
+    def GetStatus(self):
+        req = urllib2.Request("""http://lmterp.com/ivcargo/Ajax.do?pageId=9&eventId=3&wayBillNumber={docket}&accountGroupId=201""" .format(docket=self.bill.docketNumber.strip()))
+        req.add_header('Host', 'lmterp.com')
+        req.add_header('Referer', 'http://lmtco.com/')
+        resp = urllib2.urlopen(req)
+        html = resp.read()
+        if resp.code != 200 :
+            raise Exception("Got {} reponse from LaljiMuljiTransport server for bill: {}".format(resp.code, self.bill))
+        res =  self._get_status_from_lalajiMuljiTr_html_resp(html)
+        return res
+
+    def _get_status_from_lalajiMuljiTr_html_resp(self, html):
+        #Logic: Everything is status
+        status=""
+        for eachLine in html.split("\n"):
+            status += " " + StripHTMLTags(eachLine.strip())
+        return status
+
+    def StoreSnapshot(self):
+        StoreSnapshotWithPhantomScript(self.bill, "courier\\laljimulji_snapshot.js")
+
 class FirstFlightCourier():
     def __init__(self, bill):
         self.bill = bill
@@ -196,9 +223,9 @@ class BluedartCourier():
         status = ""
         for eachLine in html.split("\n"):
             bareLine = StripHTMLTags(eachLine.strip())
-            if bareLine.lower() == "status":
+            if bareLine.strip().lower() == "status":
                 recordingStatus = True
-            if bareLine.lower().startswith("your email id"):
+            if bareLine.lower().strip().startswith("your email id"):
                 return status
             if recordingStatus:
                 status += " " + bareLine
@@ -244,7 +271,7 @@ def StripHTMLTags(html):
             self.reset()
             self.fed = []
         def handle_data(self, d):
-            self.fed.append(d)
+            self.fed.append(" " + d)
         def get_data(self):
             return ''.join(self.fed)
 

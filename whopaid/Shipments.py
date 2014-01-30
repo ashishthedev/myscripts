@@ -138,6 +138,9 @@ class PersistentShipment(object):
     def isUndelivered(self):
         return not self.isDelivered
 
+    def markShipmentMailAsSent(self):
+        self._mail.markShipmentMailAsSent()
+
     def markAsDelivered(self):
         self._track.markAsDelivered()
 
@@ -374,6 +377,9 @@ def PrepareShipmentEmailForThisBill(bill, ctxt):
 def ParseOptions():
     parser = argparse.ArgumentParser()
 
+    parser.add_argument("-mmas", "--mark-mail-as-sent", dest='markMailAsSentForDocket', type=str, default=None,
+            help="Mark the mail as sent.")
+
     parser.add_argument("--show-undelivered", dest='showUndelivered', action="store_true", default=False,
             help="If present, show undelivered parcels on screen")
 
@@ -409,6 +415,16 @@ def IsDeliveredAssessFromStatus(status):
     no_words = ( status.lower().find("not") != -1 or status.lower().find("undelivered") != -1)
     delivered = yes_words and not no_words #If has the word delivered but not the word not
     return delivered
+
+
+def _FormceMarkShipmentMailAsSent(docketNumber):
+    us = PersistentShipment.GetAllStoredShipments()
+    for s in us:
+        print(s.bill.docketNumber)
+        if s.bill.docketNumber == docketNumber:
+            s.markShipmentMailAsSent()
+            s.saveInDB()
+            print("Marking the mail as sent for docket#: {}".format(docketNumber))
 
 
 def _ForceMarkDocketAsDelivered(docketNumber):
@@ -482,6 +498,10 @@ def main():
     if args.clearDB:
         PrintInBox("Starting afresh")
         os.remove(PersistentShipment.shelfFileName)
+
+    if args.markMailAsSentForDocket:
+        _FormceMarkShipmentMailAsSent(args.markMailAsSentForDocket)
+        return
 
     if args.showUndelivered:
         ShowUndeliveredOnScreen()
