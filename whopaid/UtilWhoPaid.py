@@ -260,25 +260,19 @@ def CreateSingleBillForRow(row):
 
         if col == BillsCol.BillAmount: b.billAmount = val
         elif col == BillsCol.BillingCategory: b.billingCategory = val
-        elif col == BillsCol.BillNumber:
-            if val:
-                b.billNumber = str(int(val))
-            else:
-                b.billNumber = val
+        elif col == BillsCol.BillNumber: b.billNumber = str(int(val))
         elif col == BillsCol.CompanyFriendlyNameCol:
-            if val:
-                b.compName = val
-            else:
-                raise Exception("Row:{} seems empty. Please fix the database".format(cell.row))
+            if not val: raise Exception("Row:{} seems empty. Please fix the database".format(cell.row))
+            b.compName = val
         elif col == BillsCol.Courier: b.courier = val
         elif col == BillsCol.InvoiceDate:
-            if val:
+            if val is not None:
                 b.invoiceDate = ParseDateFromString(val)
             else:
                 b.invoiceDate = val
         elif col == BillsCol.GoodsValue: b.goodsValue = val
         elif col == BillsCol.PaymentReceivingDate:
-            if val:
+            if val is not None:
                 b.paymentReceivingDate = ParseDateFromString(val)
             else:
                 b.paymentReceivingDate = val
@@ -299,7 +293,7 @@ def CreateSingleBillForRow(row):
         elif col == BillsCol.CourierName: b.courierName = val
         elif col == BillsCol.MaterialDesc: b.materialDesc = val
         elif col == BillsCol.FormCReceivingDate:
-            if val:
+            if val is not None:
                 b.formCReceivingDate = ParseDateFromString(val)
             else:
                 b.formCReceivingDate = val
@@ -320,7 +314,6 @@ def GuessCompanyGroupName(token):
     uniqueCompGrpNames = [u for u in uniqueCompGrpNames if u]
     uniqueCompGrpNames = list(set(uniqueCompGrpNames))
     for eachGrp in uniqueCompGrpNames:
-        #if not eachGrp: continue #TODO:Hack. Find out where
         if eachGrp.lower().replace(' ', '').find(token.lower()) != -1:
             if raw_input("You mean: {0}\n(y/n):".format(eachGrp)).lower() == 'y':
                 return eachGrp
