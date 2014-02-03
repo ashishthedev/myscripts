@@ -139,15 +139,17 @@ class QuarterlyClubbedFORMC(object):
             d['headerBackgroundColor'] = MyColors["WHITE"]
             d['fontColor'] = MyColors["BLACK"]
             html = Template("""
-            <TABLE border="1" cellpadding=5>
-                <tr style="background-color:$headerBackgroundColor; color:$fontColor">
-                    <th>Info</th>
-                    <th>Bill#</th>
-                    <th>Date</th>
-                    <th>Amount</th>
-                </tr>
-                $tTableData
-            </TABLE>
+<TABLE border="1" cellpadding=5>
+    <thead>
+    <tr style="background-color:$headerBackgroundColor; color:$fontColor">
+        <th>Info</th>
+        <th>Bill#</th>
+        <th>Date</th>
+        <th>Amount</th>
+    </tr>
+    </thead>
+    $tTableData
+</TABLE>
             """)
             return html.substitute(d)
 

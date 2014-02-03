@@ -3,7 +3,7 @@ from SanityChecks import TestShipment
 def main():
 
     with TestShipment() as s:
-        s.bill.courierName = "Bluedart"
+        s.bill.courierName = "Bluedart Express"
         s.bill.docketNumber = "50256453052"
         s.Track()
         print("status: {}".format(s.status))

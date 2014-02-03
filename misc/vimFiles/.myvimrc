@@ -308,6 +308,7 @@ noremap <silent> <leader>a :python AppendTaskInFrequentFliers("actions.txt")<CR>
 noremap <silent> <leader>pintu :python AppendTaskInFrequentFliers("Pintu.txt")<CR>
 noremap <silent> <leader>pal :python AppendTaskInFrequentFliers("Expenses.txt")<CR>
 noremap <silent> <leader>exp :python AppendTaskInFrequentFliers("Expenses.txt")<CR>
+noremap <silent> <leader>hom :python AppendTaskInFrequentFliers("Homework.txt")<CR>
 noremap <silent> <leader>tally :python AppendTaskInFrequentFliers("Tally.txt")<CR>
 noremap <silent> <leader>i :python AppendTaskInFrequentFliers("Info.txt")<CR>
 noremap <silent> <leader>pass :python AppendTaskInFrequentFliers("NewPublicPasswords.txt")<CR>
@@ -373,6 +374,7 @@ noremap <silent> <F5> :silent :!%<CR>
 
 "Sanitize HTML to some extent
 noremap <F6> :retab\|%s/></>\r</g<CR>
+noremap <F7> :retab\|%s/{[^\r].*}/&\r}/g<CR>
 
 "Remove trailing spaces
 noremap <F8> :retab\|%s/\s\+$//e<CR>
@@ -538,6 +540,10 @@ runtime macros/matchit.vim
 
 autocmd BufRead,BufWritePost *.txt call DistractionFreeWriting()
 
+map <leader>dieseq :call OpenFilesInTabs([
+            \WEBSITE_DIR."\\templates\\dieseqcalculations.html",
+            \WEBSITE_DIR."\\static\\stylesheets\\main.css",
+            \])<CR>
 map <leader>con :call OpenFilesInTabs([
             \WEBSITE_DIR."\\static\\js\\emailController.js",
             \WEBSITE_DIR."\\templates\\contactus.html",

@@ -21,6 +21,7 @@ from UtilHTML import UnderLine, Bold, PastelOrangeText
 import os
 from string import Template
 from SanityChecks import CheckConsistency
+import urllib2
 
 from courier.couriers import Courier
 MAX_IN_TRANSIT_DAYS = 15
@@ -79,7 +80,10 @@ class ShipmentTrack(object):
         if self.isDelivered:
             return # No need to do anything else
 
-        self.status = self.courier.GetStatus()
+        try:
+            self.status = self.courier.GetStatus()
+        except urllib2.URLError:
+            raise ShipmentException("URL Error")
         self.isDelivered  = IsDeliveredAssessFromStatus(self.status)
 
         if self.isDelivered:
@@ -560,7 +564,7 @@ def TrackAllShipments(args):
             new_status = shipment.Track()  #One shipment per bill
 
             if old_status != new_status:
-                PrintInBox("New status: {}".format(new_status))
+                PrintInBox("New status: {}".format(new_status), outliner=">")
 
             if not shipment.isDelivered and shipment.daysPassed > MAX_IN_TRANSIT_DAYS :
                 raise ShipmentException("{} days back the following material was shipped but still not delivered\n{}".format(
@@ -568,6 +572,7 @@ def TrackAllShipments(args):
             sleep(2)
 
         except ShipmentException as ex:
+            PrintInBox(str(ex), outliner="X")
             pass
             #PrintInBox(str(ex))
             #print(traceback.format_exc())

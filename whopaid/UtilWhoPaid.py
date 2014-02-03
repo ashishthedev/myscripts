@@ -291,7 +291,11 @@ def CreateSingleBillForRow(row):
             else:
                 b.docketDate = val
         elif col == BillsCol.CourierName: b.courierName = val
-        elif col == BillsCol.MaterialDesc: b.materialDesc = val
+        elif col == BillsCol.MaterialDesc:
+            if val is not None:
+                b.materialDesc = val
+            else:
+                b.materialDesc = "--"
         elif col == BillsCol.FormCReceivingDate:
             if val is not None:
                 b.formCReceivingDate = ParseDateFromString(val)

@@ -108,9 +108,9 @@ def ParseDateFromString(foo):
     return dateObject
 
 
-def GetMsgInBox(msg, myWidth=79):
+def GetMsgInBox(msg, myWidth=79, outliner="_"):
     import textwrap
-    outline = "_" * myWidth
+    outline = outliner * myWidth
 
     wrapper = textwrap.TextWrapper()
     wrapper.replace_whitespace = False
@@ -126,10 +126,10 @@ def GetMsgInBox(msg, myWidth=79):
     finalText += "\n"
     return finalText
 
-def PrintInBox(msg, waitForEnterKey=False, myWidth=79, fl=sys.stdout):
+def PrintInBox(msg, waitForEnterKey=False, myWidth=79, fl=sys.stdout, outliner="_"):
     """Print a msg in box for greater focus"""
 
-    finalText = GetMsgInBox(msg, myWidth)
+    finalText = GetMsgInBox(msg, myWidth, outliner)
     fl.write(finalText)
 
     sys.stdout.flush()
