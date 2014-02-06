@@ -145,10 +145,13 @@ call pathogen#infect('bundle/{}', bundlePath)
 "call pathogen#incubate()
 "call pathogen#helptags()
 
+"Add go plugins to runtime path
 
 "DO NOT TOUCH - Necessary for pathogen to work
 syntax enable
 filetype off
+filetype plugin indent off
+set runtimepath+=%GOROOT%/misc/vim
 filetype on                 "Try to detect filetypes
 filetype plugin on
 filetype plugin indent on   "Enable loading indent file for filetype

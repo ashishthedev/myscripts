@@ -15,7 +15,7 @@ SOURCES = [("C:\\Users\\Ichigo\\Dropbox\\", "Dropbox"),
 
 def main():
     DESTINATION_DRIVE="D:\\" #TODO: Read programatically?
-    if raw_input("Take backup to {} (y/n)?".format(DESTINATION_DRIVE)).lower() != 'y':
+    if raw_input("Take backup of \n{}\nto {} (y/n)?".format(SOURCES, DESTINATION_DRIVE)).lower() != 'y':
         DESTINATION_DRIVE = raw_input("Enter drive letter (without colon): ")
         if len(DESTINATION_DRIVE) != 1:
             raise Exception("Please provide a single letter drive without ':'")
