@@ -1,12 +1,14 @@
-from SanityChecks import TestShipment
+from SanityChecks import TestShipment, CreateATestBill
 
 def main():
 
-    with TestShipment() as s:
-        s.bill.courierName = "Bluedart Express"
-        s.bill.docketNumber = "50256453052"
-        s.Track()
-        print("status: {}".format(s.status))
+
+    bill = CreateATestBill()
+    bill.courierName = "Lalji mulji"
+    bill.docketNumber = "10246635"
+    with TestShipment(bill) as ts:
+        ts.Track()
+        print("Status: {}".format(ts.status))
         #s.TakeNewSnapshot()
 
 

@@ -28,6 +28,7 @@ try {
             phantom.exit(1);
         }
 
+        console.log("Saving Snapshot for docket: " + docket);
         window.setTimeout( function(){
             page.render(destinationFile);
             page.close();

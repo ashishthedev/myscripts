@@ -31,8 +31,8 @@ try {
         'JSESSIONID' : 'AAABC21CA9AE706377FCC12D81C9AA10',
         };
 
+        console.log("Saving Snapshot for docket: " + docket);
         page.evaluate(function(docket){
-            console.log("Searching for docket: " + docket);
             document.querySelector('input[name=FieldData]').value = docket;
             document.querySelector('input[name=sameButton]').click()
         }, docket);

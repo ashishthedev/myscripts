@@ -120,13 +120,14 @@ def CheckCourierStatusAssessmentIsCorrect():
             raise Exception("Our algorithm is faulty for the following string:\n{}".format(eachStr))
 
 class TestShipment():
-    def __init__(self):
+    def __init__(self, testBill):
         from Shipments import PersistentShipment
-        self.s = PersistentShipment(CreateATestBill())
+        self.ps = PersistentShipment(testBill)
+        self.ps.saveInDB()
     def __enter__(self):
-        return self.s
+        return self.ps
     def __exit__(self, type, value, traceback):
-        self.s._removeFromDB()
+        self.ps._removeFromDB()
 
 def CreateATestBill():
     from UtilWhoPaid import SingleBill

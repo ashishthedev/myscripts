@@ -155,10 +155,17 @@ class LaljiMuljiTransport():
         return res
 
     def _get_status_from_lalajiMuljiTr_html_resp(self, html):
-        #Logic: Everything is status
+        #Logic: Find line having "lr status"
         status=""
+        sentinel = "lr status".lower()
         for eachLine in html.split("\n"):
-            status += " " + StripHTMLTags(eachLine.strip())
+            eachLine = StripHTMLTags(eachLine).lower()
+            recording = False
+            for x in eachLine.split(":"):
+                if x.find(sentinel) != -1:
+                    recording = True
+                if recording:
+                    status += x
         return status
 
     def StoreSnapshot(self):

@@ -32,6 +32,7 @@ try {
             ev.initEvent("click", true, true);
             el.dispatchEvent(ev);
         });
+        console.log("Saving Snapshot for docket: " + docket);
         window.setTimeout( function(){
             page.render(destinationFile);
             page.close();

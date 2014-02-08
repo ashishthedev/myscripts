@@ -33,6 +33,7 @@ endpython
 endfunction
 
 let WEBSITE_DIR = GetAPPDIR()."\\..\\website\\"
+let WHOPAID_DIR = GetAPPDIR()."\\myscripts\\whopaid\\"
 
 
 "1. VIM Customizations
@@ -543,6 +544,13 @@ runtime macros/matchit.vim
 
 autocmd BufRead,BufWritePost *.txt call DistractionFreeWriting()
 
+map <leader>courier :call OpenFilesInTabs([
+            \WHOPAID_DIR."\\Shipments.py",
+            \WHOPAID_DIR."\\courier\\couriers.py",
+            \WHOPAID_DIR."\\testSnapshot.py",
+            \WHOPAID_DIR."\\SanityChecks.py",
+            \])<CR>
+
 map <leader>dieseq :call OpenFilesInTabs([
             \WEBSITE_DIR."\\templates\\dieseqcalculations.html",
             \WEBSITE_DIR."\\static\\stylesheets\\main.css",
@@ -595,6 +603,7 @@ imap ,li <li></li><ESC>bba
 imap ,an <a href=""></a><ESC>bbla
 imap ,jb {% block  %}<CR>{% endblock %}<ESC>khhhi
 map ,cb O<!--<ESC>jo--><ESC>
+map ,pdb Oimport pdb; pdb.set_trace()<ESC>
 
 
 :let sol_yellow="#b58900"

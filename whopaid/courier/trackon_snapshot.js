@@ -25,6 +25,7 @@ try {
             phantom.exit(1);
         }
 
+        console.log("Saving Snapshot for docket: " + docket);
         //Wait for 10 seconds and take a snapshot
         window.setTimeout( function(){
             page.render(destinationFile);
