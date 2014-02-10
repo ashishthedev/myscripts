@@ -1,6 +1,6 @@
 import urllib2
 from HTMLParser import HTMLParser
-from UtilMisc import YYYY_MM_DD
+from UtilMisc import YYYY_MM_DD, StripHTMLTags
 from UtilConfig import GetAppDir, GetOption
 import subprocess
 import os
@@ -271,20 +271,6 @@ class OverniteCourier():
 
     def StoreSnapshot(self):
         StoreSnapshotWithPhantomScript(self.bill, "courier\\overnite_snapshot.js")
-
-def StripHTMLTags(html):
-    class MLStripper(HTMLParser):
-        def __init__(self):
-            self.reset()
-            self.fed = []
-        def handle_data(self, d):
-            self.fed.append(" " + d)
-        def get_data(self):
-            return ''.join(self.fed)
-
-    s = MLStripper()
-    s.feed(html)
-    return s.get_data()
 
 if __name__ == '__main__':
     DOCKET = "8037705270"

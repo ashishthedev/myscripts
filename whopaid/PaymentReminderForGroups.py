@@ -203,6 +203,9 @@ def SendReminderToGrp(grpName, allCompaniesDict, allCustomersInfo, args):
         raise MyException("\nM/s {} has Rs.{} which is less than MINIMUM_AMOUNT_DUE".format(grpName, totalDue))
 
     toMailList = []
+    ccMailList = GetOption("EMAIL_REMINDER_SECTION", 'CCEmailList').replace(';', ',').split(','),
+    bccMailList = GetOption("EMAIL_REMINDER_SECTION", 'BCCEmailList').replace(';', ',').split(','),
+
     for eachComp in compsInGrp:
         toMailList += allCustomersInfo.GetPaymentReminderEmailAsListForCustomer(eachComp)
 
@@ -232,7 +235,9 @@ def SendReminderToGrp(grpName, allCompaniesDict, allCustomersInfo, args):
         print("Preparing mail for group M/s {}".format(grpName))
         emailSubject = "Payment Request (Rs.{})".format(str(totalDue))
         if args.isDemo:
-            toMailList = GetOption("EMAIL_REMINDER_SECTION", "TestMailList").split(',')
+            toMailList = GetOption("EMAIL_REMINDER_SECTION", "TestMailList").replace(';', ',').split(',')
+            ccMailList = None
+            bccMailList = None
             emailSubject = "[Testing{}]: {}".format(str(random.randint(1, 10000)), emailSubject)
 
         print("Sending to: {}".format(str(toMailList)))
@@ -245,7 +250,8 @@ def SendReminderToGrp(grpName, allCompaniesDict, allCustomersInfo, args):
                 GetOption(section, 'Port'),
                 GetOption(section, 'FromEmailAddress'),
                 toMailList,
-                GetOption(section, 'CCEmailList').split(','),
+                ccMailList,
+                bccMailList,
                 GetOption(section, 'Mpass'),
                 mailBody,
                 textType="html",
