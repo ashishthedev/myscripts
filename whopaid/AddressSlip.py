@@ -10,7 +10,6 @@ from UtilWhoPaid import GuessCompanyName
 from UtilException import MyException
 from UtilMisc import PrintInBox, OpenFileForViewing
 from CustomersInfo import GetAllCustomersInfo
-from UtilDecorators import timeThisFunction
 from SanityChecks import CheckConsistency
 from UtilConfig import GetOption
 
@@ -23,10 +22,12 @@ def ParseOptions():
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--comp", dest='comp', type=str, default=None,
             help="Company name or part of it.")
+    parser.add_argument("-n", dest='num', type=int, default=2,
+            help="Number of times an address has to be printed.")
     return parser.parse_args()
 
 
-def GenerateAddressSlipForThisCompany(compName):
+def GenerateAddressSlipForThisCompany(compName, args):
     allCustInfo = GetAllCustomersInfo()
     companyOfficialName = allCustInfo.GetCompanyOfficialName(compName)
     if not companyOfficialName:
@@ -53,32 +54,36 @@ def GenerateAddressSlipForThisCompany(compName):
     d['tcompanyDeliveryPhNo'] = companyDeliveryPhNo
     d['tcompanyPinCode'] = companyPinCode
 
-    addressSnippet = Template("""
+    singleAddressSnippet = Template("""
+    <div id="mydiv">
     <table>
     <tr><td><strong>$tCompanyOfficialName</strong></td></tr>
     <tr><td>$tCompanyDeliveryAddress - PIN - $tcompanyPinCode</td></tr>
     <tr><td>$tcompanyDeliveryPhNo</td></tr>
     </table>
+    </div>
     """).substitute(d)
 
+    finalAddressSnippet = singleAddressSnippet
+    for i in range(1, args.num):
+        finalAddressSnippet += "<br><br>" + singleAddressSnippet
 
-    d['tAddressSnippet'] = addressSnippet
-
-    html = Template("""
-    <html>
-    <head>
+    d['tStyle'] = Template("""
     <style>
     #mydiv {
      width: $tAddWidth;
      border:1px solid black;
     }
     </style>
-    </head>
+    """).substitute(d)
+
+    d['tfinalAddressSnippet'] = finalAddressSnippet
+
+    html = Template("""
+    <html>
+    <head> $tStyle </head>
     <body onload="window.print()">
-    <div id="mydiv"> $tAddressSnippet </div>
-    <br>
-    <br>
-    <div id="mydiv"> $tAddressSnippet </div>
+    $tfinalAddressSnippet
     </body>
     </html>
     """).substitute(d)
@@ -89,12 +94,11 @@ def GenerateAddressSlipForThisCompany(compName):
     OpenFileForViewing(tempPath)
 
 
-@timeThisFunction
 def main():
 
     args = ParseOptions()
     chosenComp = GuessCompanyName(args.comp)
-    GenerateAddressSlipForThisCompany(chosenComp)
+    GenerateAddressSlipForThisCompany(chosenComp, args)
     return
 
 if __name__ == '__main__':
