@@ -55,9 +55,9 @@ def GenerateAddressSlipForThisCompany(compName):
 
     addressSnippet = Template("""
     <table>
-    <tr><td>Name</td><td><strong>$tCompanyOfficialName</strong></td></tr>
-    <tr><td>Address:</td><td>$tCompanyDeliveryAddress - PIN - $tcompanyPinCode</td></tr>
-    <tr><td>Phone</td><td>$tcompanyDeliveryPhNo</td></tr>
+    <tr><td><strong>$tCompanyOfficialName</strong></td></tr>
+    <tr><td>$tCompanyDeliveryAddress - PIN - $tcompanyPinCode</td></tr>
+    <tr><td>$tcompanyDeliveryPhNo</td></tr>
     </table>
     """).substitute(d)
 
@@ -74,8 +74,9 @@ def GenerateAddressSlipForThisCompany(compName):
     }
     </style>
     </head>
-    <body>
+    <body onload="window.print()">
     <div id="mydiv"> $tAddressSnippet </div>
+    <br>
     <br>
     <div id="mydiv"> $tAddressSnippet </div>
     </body>
@@ -95,7 +96,6 @@ def main():
     chosenComp = GuessCompanyName(args.comp)
     GenerateAddressSlipForThisCompany(chosenComp)
     return
->>>>>>> addSlip
 
 if __name__ == '__main__':
     try:
