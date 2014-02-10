@@ -201,3 +201,8 @@ def StripHTMLTags(html):
     s = MLStripper()
     s.feed(html)
     return s.get_data()
+
+def GetConfirmation():
+    if raw_input("Proceed: (y/n)").lower() != "y":
+        raise Exception()
+

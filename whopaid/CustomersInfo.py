@@ -20,22 +20,23 @@ class CustomerInfoCol:
     BillingAddressCol = "B"
     TinNumberCol = "C"
     PhoneNumberCol = "D"
-    RateCol = "E"
+    DeliveryPhoneNumberCol = "E"
     CasingCol = "F"
     CompanyOfficialNameCol = "G"
     CourierAddressCol = "H"
-    CityCol = "I"
-    EmailForPayment = "J"
-    KindAttentionCol = "K"
-    EmailForFormC = "L"
-    TrustCol = "M"
-    IncludeDaysCol = "N"
-    CreditLimitCol = "O"
-    SendAutomaticMails = "P"
-    MinDaysGapCol = "Q"
-    IncludeBillAmountInEmails = "R"
-    CompanyGroupCol = "S"
-    CompanyCodeCol = "T"
+    DeliveryPinCodeCol = "I"
+    CityCol = "J"
+    EmailForPayment = "K"
+    KindAttentionCol = "L"
+    EmailForFormC = "M"
+    TrustCol = "N"
+    IncludeDaysCol = "O"
+    CreditLimitCol = "P"
+    SendAutomaticMails = "Q"
+    MinDaysGapCol = "S"
+    IncludeBillAmountInEmails = "T"
+    CompanyGroupCol = "U"
+    CompanyCodeCol = "V"
 
 
 def CreateSingleCustomerInfo(row):
@@ -52,8 +53,10 @@ def CreateSingleCustomerInfo(row):
             c.tinNumber = val
         elif col == CustomerInfoCol.PhoneNumberCol:
             c.phoneNumber = val
-        elif col == CustomerInfoCol.RateCol:
-            c.rate = val
+        elif col == CustomerInfoCol.DeliveryPinCodeCol:
+            c.deliveryPinCode = val
+        elif col == CustomerInfoCol.DeliveryPhoneNumberCol:
+            c.deliveryPhNo = val
         elif col == CustomerInfoCol.CasingCol:
             c.casing = val
         elif col == CustomerInfoCol.CompanyOfficialNameCol:
@@ -128,6 +131,12 @@ class _AllCustomersInfo(dict):
 
     def GetCompanyGroupName(self, compName):
         return self[compName].companyGroupName
+
+    def GetDeliveryPinCode(self, compName):
+        return self[compName].deliveryPinCode
+
+    def GetDeliveryPhoneNumber(self, compName):
+        return self[compName].deliveryPhNo
 
     def GetCustomerPhoneNumber(self, compName):
         return self[compName].phoneNumber
