@@ -118,8 +118,8 @@ def SendRoadPermitRequest(compName, allCompaniesDict, args):
 
     #Remove spaces from eachMail in the list and create a new list
     toMailList = [eachMail.replace(' ', '') for eachMail in toMailList]
-    ccMailList = GetOption("EMAIL_REMINDER_SECTION", 'CCEmailList').replace(';').split(','),
-    bccMailList = GetOption("EMAIL_REMINDER_SECTION", 'BCCEmailList').replace(';').split(','),
+    ccMailList = GetOption("EMAIL_REMINDER_SECTION", 'CCEmailList').replace(';', ',').split(','),
+    bccMailList = GetOption("EMAIL_REMINDER_SECTION", 'BCCEmailList').replace(';', ',').split(','),
 
     print("Preparing mail...")
     mailBody = PrepareMailContentForThisComp(compName, allCompaniesDict, args)
@@ -129,8 +129,6 @@ def SendRoadPermitRequest(compName, allCompaniesDict, args):
         ccMailList = None
         bccMailList = None
         args.emailSubject = "[Testing{}]: {}".format(str(random.randint(1, 10000)), args.emailSubject)
-
-    print("Sending to: " + str(toMailList))
 
     section = "EMAIL_REMINDER_SECTION"
     SendMail(args.emailSubject,
