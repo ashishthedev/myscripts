@@ -251,12 +251,16 @@ def SendMaterialDispatchDetails(bill, ctxt):
 
     #Remove spaces from eachMail in the list and create a new list
     toMailList = [eachMail.replace(' ', '') for eachMail in toMailList]
+    ccMailList = GetOption("EMAIL_REMINDER_SECTION", 'CCEmailList').replace(';', ',').split(','),
+    bccMailList = GetOption("EMAIL_REMINDER_SECTION", 'BCCEmailList').replace(';', ',').split(','),
 
     print("Preparing mail...")
     mailBody = PrepareShipmentEmailForThisBill(bill, ctxt)
 
     if ctxt.isDemo:
         toMailList = GetOption("EMAIL_REMINDER_SECTION", "TestMailList").split(',')
+        ccMailList = None
+        bccMailList = None
         ctxt.emailSubject = "[Testing{}]: {}".format(str(random.randint(1, 10000)), ctxt.emailSubject)
 
     print("Sending to: " + str(toMailList))
@@ -268,7 +272,8 @@ def SendMaterialDispatchDetails(bill, ctxt):
             GetOption(section, 'Port'),
             GetOption(section, 'FromEmailAddress'),
             toMailList,
-            GetOption(section, 'CCEmailList').split(','),
+            ccMailList,
+            bccMailList,
             GetOption(section, 'Mpass'),
             mailBody,
             textType="html",

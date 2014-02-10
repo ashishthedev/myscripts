@@ -116,12 +116,7 @@ fia=@echo "Finding inside all files" && findstr /i /s /n $* *
 q=exit
 pyprof = %APPDIR%\MyScripts\bin\pyprofile.py "$*"
 
-er = pushd %APPDIR%\myscripts\whopaid && EmailReminders.py $* && popd
 er = pushd %APPDIR%\myscripts\whopaid && PaymentReminderForGroups.py $* && popd
-era = pushd %APPDIR%\myscripts\whopaid && EmailReminders.py --allCompanies $* && popd
-erad = pushd %APPDIR%\myscripts\whopaid && EmailReminders.py --allCompanies --demo $* && popd
-eradol = pushd %APPDIR%\myscripts\whopaid && EmailReminders.py --allCompanies --only-list-no-send --demo $* && popd
-erd = pushd %APPDIR%\myscripts\whopaid && EmailReminders.py --demo $* && popd
 erd = pushd %APPDIR%\myscripts\whopaid && PaymentReminderForGroups.py --demo $* && popd
 fcr  = pushd %APPDIR%\myscripts\whopaid && FormCRequest.py -o $* && popd
 fcrl = pushd %APPDIR%\myscripts\whopaid && FormCRequest.py -o --letterHead --desktopOnly $* && popd

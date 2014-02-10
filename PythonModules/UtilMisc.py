@@ -175,3 +175,29 @@ def MakeSureDirExists(path):
         finalPath = os.path.dirname(path)
     os.makedirs(path)
 
+def flattenList(seq):
+    if seq is None: return None
+
+    res = []
+    for item in seq:
+        if isinstance(item, (list, tuple)):
+            res.extend(flattenList(item))
+        else:
+            res.append(item)
+    return res
+
+def StripHTMLTags(html):
+    from HTMLParser import HTMLParser
+    class MLStripper(HTMLParser):
+        def __init__(self):
+            self.reset()
+            self.fed = []
+        def handle_data(self, d):
+            self.fed.append(d)
+        def get_data(self):
+            SPACE = ' '
+            return SPACE.join(self.fed)
+
+    s = MLStripper()
+    s.feed(html)
+    return s.get_data()

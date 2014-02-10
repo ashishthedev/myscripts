@@ -7,9 +7,10 @@
 ##########################################################################
 TESTING = False
 from UtilDecorators import RetryFor5TimesIfFailed
+from UtilMisc import flattenList
 
 @RetryFor5TimesIfFailed
-def SendMail(emailSubject, zfilename, SMTP_SERVER, SMTP_PORT, FROM_EMAIL, TO_EMAIL_LIST, CC_EMAIL_LIST, MPASS, BODYTEXT="File Attached", textType="plain", fromDisplayName="Hello"):
+def SendMail(emailSubject, zfilename, SMTP_SERVER, SMTP_PORT, FROM_EMAIL, TO_EMAIL_LIST, CC_EMAIL_LIST, BCC_EMAIL_LIST, MPASS, BODYTEXT="File Attached", textType="plain", fromDisplayName="Hello"):
     from email.mime.base import MIMEBase
     from email.mime.text import MIMEText
     from email import encoders
@@ -23,27 +24,26 @@ def SendMail(emailSubject, zfilename, SMTP_SERVER, SMTP_PORT, FROM_EMAIL, TO_EMA
 
     finalReciepients = list()
 
+    #Support both: python list as well as comma separated lists
+    flattenedToList = flattenList(TO_EMAIL_LIST)
+    flattenedCCList = flattenList(CC_EMAIL_LIST)
+    flattenedBCCList = flattenList(BCC_EMAIL_LIST) # At this point we are sure either these are None or a valid list
+
     msg['From'] = fromDisplayName + "<" + FROM_EMAIL + ">"
 
-    if TO_EMAIL_LIST:
-        #Support both: python list as well as comma separated lists
-        #TODO: Duplicate code. Refactor later.
-        if isinstance(TO_EMAIL_LIST, list):
-            msg['To'] = COMMASPACE.join(TO_EMAIL_LIST)
-            finalReciepients.extend(TO_EMAIL_LIST)
-        elif isinstance(TO_EMAIL_LIST, basestring):
-            msg['To'] = TO_EMAIL_LIST
-            finalReciepients.extend(TO_EMAIL_LIST.split(','))
+    if flattenedToList:
+        msg['To'] = COMMASPACE.join(flattenedToList)
+        finalReciepients.extend(flattenedToList)
+    if flattenedCCList:
+        msg['CC'] = COMMASPACE.join(flattenedCCList)
+        finalReciepients.extend(flattenedCCList)
+    if flattenedBCCList:
+        msg['BCC'] = COMMASPACE.join(flattenedBCCList)
+        finalReciepients.extend(flattenedBCCList)
 
-
-    if CC_EMAIL_LIST:
-        #Support both: python list as well as comma separated lists
-        if isinstance(CC_EMAIL_LIST, list):
-            msg['CC'] = COMMASPACE.join(CC_EMAIL_LIST)
-            finalReciepients.extend(CC_EMAIL_LIST)
-        elif isinstance(CC_EMAIL_LIST, basestring):
-            msg['CC'] = CC_EMAIL_LIST
-            finalReciepients.extend(CC_EMAIL_LIST.split(','))
+    print("TO  | {}".format(msg['To']))
+    print("CC  | {}".format(msg['CC']))
+    print("BCC | {}".format(msg['BCC']))
 
     msg['Subject'] = emailSubject
 
