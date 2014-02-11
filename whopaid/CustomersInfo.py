@@ -33,9 +33,9 @@ class CustomerInfoCol:
     IncludeDaysCol = "O"
     CreditLimitCol = "P"
     SendAutomaticMails = "Q"
-    MinDaysGapCol = "S"
-    IncludeBillAmountInEmails = "T"
-    CompanyGroupCol = "U"
+    MinDaysGapCol = "R"
+    IncludeBillAmountInEmails = "S"
+    CompanyGroupCol = "T"
     CompanyCodeCol = "V"
 
 
