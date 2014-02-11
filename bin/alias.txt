@@ -116,6 +116,8 @@ fia=@echo "Finding inside all files" && findstr /i /s /n $* *
 q=exit
 pyprof = %APPDIR%\MyScripts\bin\pyprofile.py "$*"
 
+slip1 = pushd %APPDIR%\myscripts\whopaid && AddressSlip.py -n1 $* && popd
+slip2 = pushd %APPDIR%\myscripts\whopaid && AddressSlip.py -n2 $* && popd
 slip = pushd %APPDIR%\myscripts\whopaid && AddressSlip.py $* && popd
 er = pushd %APPDIR%\myscripts\whopaid && PaymentReminderForGroups.py $* && popd
 erd = pushd %APPDIR%\myscripts\whopaid && PaymentReminderForGroups.py --demo $* && popd
@@ -139,6 +141,12 @@ lc = %APPDIR%\MyScripts\LineCount.py
 dup = %APPDIR%\MyScripts\misc\FindDuplicateFiles.py
 stmt = pushd %APPDIR%\myscripts\whopaid && Statement.py $* && popd
 h = doskey /history
+
+;======================================================
+;= Match Horoscopes
+ghoro = pushd %HORODIR%\
+golivehoro = %HORODIR%\scripts\push.py --version="live" --email="developer@matchhoroscope.com" $*
+godevhoro = %HORODIR%\scripts\push.py --version="dev" --email="developer@matchhoroscope.com" $*
 
 ;= Take Email backup with tkbkem (TaKe BacKup = tkbk)
 tkbk = %APPDIR%\MyScripts\Backup\InitiateEmailBackup.py

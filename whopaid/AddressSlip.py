@@ -8,7 +8,7 @@
 
 from UtilWhoPaid import GuessCompanyName
 from UtilException import MyException
-from UtilMisc import PrintInBox, OpenFileForViewing
+from UtilMisc import PrintInBox, OpenFileForViewing, MakeSureDirExists
 from CustomersInfo import GetAllCustomersInfo
 from SanityChecks import CheckConsistency
 from UtilConfig import GetOption
@@ -45,7 +45,8 @@ def GenerateAddressSlipForThisCompany(compName, args):
     if not companyDeliveryPhNo:
         raise MyException("\nM/s {} doesnt have a pin code. Please feed it in the database".format(compName))
 
-    tempPath = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), companyOfficialName + ".html")
+    tempPath = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), "AddressSlips", companyOfficialName + ".html")
+    MakeSureDirExists(os.path.dirname(tempPath))
 
     d = dict()
     d['tAddWidth'] = "10.0cm"
@@ -57,9 +58,9 @@ def GenerateAddressSlipForThisCompany(compName, args):
     singleAddressSnippet = Template("""
     <div id="mydiv">
     <table>
-    <tr><td><strong>$tCompanyOfficialName</strong></td></tr>
+    <tr><td><strong>M/s $tCompanyOfficialName</strong></td></tr>
     <tr><td>$tCompanyDeliveryAddress - PIN - $tcompanyPinCode</td></tr>
-    <tr><td>$tcompanyDeliveryPhNo</td></tr>
+    <tr><td>Ph# $tcompanyDeliveryPhNo</td></tr>
     </table>
     </div>
     """).substitute(d)

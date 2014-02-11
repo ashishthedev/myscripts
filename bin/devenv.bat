@@ -9,6 +9,7 @@ REM If the structure of APPDIR changes, a smiliar change in this file will also 
 set APPDIR=%~dp0..\..
 set WEBDIR=%APPDIR%\..\website
 set PHUNGSUKDIR=%APPDIR%\..\phungsuk_jibabo\detect_change_app
+set HORODIR=%APPDIR%\..\matchhoro
 set RELATIVEPATH=\Myscripts\bin\alias.txt
 
 
