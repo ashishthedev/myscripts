@@ -309,7 +309,7 @@ def GuessCompanyGroupName(token):
     Return None if it doesn't exist"""
     allCustomersInfo = GetAllCustomersInfo()
     allCompaniesDict = GetAllCompaniesDict()
-    uniqueCompGrpNames = [allCustomersInfo.GetCompanyGroupName(eachComp) for eachComp in allCompaniesDict]
+    uniqueCompGrpNames = [allCustomersInfo.GetCompanyGroupName(eachComp) for eachComp in allCustomersInfo]
 
     if not token:
         token = raw_input("Enter company name:")
@@ -328,8 +328,9 @@ def GuessCompanyName(token):
     """Take a small string from user and try to guess the companyName.
     Return None if it doesn't exist"""
 
-    allCompaniesDict = GetAllCompaniesDict()
-    uniqueCompNames = set([eachComp for eachComp in allCompaniesDict])
+    allCustomersInfo = GetAllCustomersInfo()
+    uniqueCompNames = [allCustomersInfo.GetCompanyOfficialName(eachComp) for eachComp in allCustomersInfo]
+    uniqueCompNames = [x for x in uniqueCompNames if x]
 
     if not token:
         token = raw_input("Enter company name:")

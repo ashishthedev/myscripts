@@ -553,6 +553,7 @@ map <leader>courier :call OpenFilesInTabs([
 
 map <leader>dieseq :call OpenFilesInTabs([
             \WEBSITE_DIR."\\templates\\dieseqcalculations.html",
+            \WEBSITE_DIR."\\static\\js\\controllers.js",
             \WEBSITE_DIR."\\static\\stylesheets\\main.css",
             \])<CR>
 map <leader>con :call OpenFilesInTabs([
@@ -603,7 +604,8 @@ imap ,li <li></li><ESC>bba
 imap ,an <a href=""></a><ESC>bbla
 imap ,jb {% block  %}<CR>{% endblock %}<ESC>khhhi
 map ,cb O<!--<ESC>jo--><ESC>
-map ,pdb Oimport pdb; pdb.set_trace()<ESC>
+map ,pdb Oimport pdb; from pprint import pprint; pdb.set_trace()<ESC>
+map ,pprint Ofrom pprint import pprint<ESC>
 
 
 :let sol_yellow="#b58900"
