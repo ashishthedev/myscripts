@@ -633,3 +633,5 @@ set cursorcolumn
 "z= — view spelling suggestions for a mispelled word
 ""
 
+"JSLint for errors
+"https://github.com/hallettj/jslint.vim

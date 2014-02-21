@@ -260,7 +260,9 @@ def CreateSingleBillForRow(row):
 
         if col == BillsCol.BillAmount: b.billAmount = val
         elif col == BillsCol.BillingCategory: b.billingCategory = val
-        elif col == BillsCol.BillNumber: b.billNumber = str(int(val))
+        elif col == BillsCol.BillNumber:
+            if not val: raise Exception("Row:{} seems not to have any bill number.".format(cell.row))
+            b.billNumber = str(int(val))
         elif col == BillsCol.CompanyFriendlyNameCol:
             if not val: raise Exception("Row:{} seems empty. Please fix the database".format(cell.row))
             b.compName = val
@@ -329,8 +331,7 @@ def GuessCompanyName(token):
     Return None if it doesn't exist"""
 
     allCustomersInfo = GetAllCustomersInfo()
-    uniqueCompNames = [allCustomersInfo.GetCompanyOfficialName(eachComp) for eachComp in allCustomersInfo]
-    uniqueCompNames = [x for x in uniqueCompNames if x]
+    uniqueCompNames = [x for x in allCustomersInfo if x]
 
     if not token:
         token = raw_input("Enter company name:")
@@ -340,8 +341,10 @@ def GuessCompanyName(token):
         if eachComp.lower().replace(' ', '').find(token.lower()) != -1:
             if raw_input("You mean: {0}\n(y/n):".format(eachComp)).lower() == 'y':
                 return eachComp
+                return eachComp
     else:
         raise MyException("{} does not exist. Try a shorter string".format(token))
+
 
 def TotalAmountDueForThisCompany(allCompaniesDict, compName):
     """Returns the sum of total unpaid amount for this company"""

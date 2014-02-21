@@ -109,6 +109,7 @@ RunAppserverForPath(path)
 #F1::
 {
     path = %APPDIR_ENV%\..\website
+    StartMailServer()
     RunAppserverForPath(path)
     return
 }

@@ -75,6 +75,9 @@ def ParseOptions():
     parser.add_argument("-fl", "--first-line", dest='first_line', type=str,
             default=None, help="If present, emails will be sent with this as "
             "first line.")
+    parser.add_argument("-flb", "--first-line-bold", dest='first_line_bold', type=str,
+            default=None, help="If present, emails will be sent with this as "
+            "first line.")
     parser.add_argument("-sl", "--second-line", dest='second_line', type=str,
             default=None, help="If present, emails will be sent with this as "
             "second line.")
@@ -381,6 +384,9 @@ def PrepareMailContentForThisGrp(grpName, allCompaniesDict, allCustomersInfo, ar
 
     if args.first_line:
         d['tFirstLine'] = args.first_line + '<br><br>'
+
+    if args.first_line_bold:
+        d['tFirstLine'] = Bold(args.first_line_bold) + '<br><br>'
 
     if args.second_line:
         d['tSecondLine'] = args.second_line + '<br><br>'
