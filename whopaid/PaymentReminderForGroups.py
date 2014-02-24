@@ -84,6 +84,9 @@ def ParseOptions():
     parser.add_argument("-ll", "--last-line", dest='last_line', type=str,
             default=None, help="If present, emails will be sent with this as "
             "last line.")
+    parser.add_argument("-llb", "--last-line-bold", dest='last_line_bold', type=str,
+            default=None, help="If present, emails will be sent with this as "
+            "last line.")
     parser.add_argument("-ol", "--only-list-no-send", dest="onlyListNoSend",
             default=False, action="store_true", help="Only list names, do not "
             "send. To be used with automatic reminders")
@@ -393,6 +396,9 @@ def PrepareMailContentForThisGrp(grpName, allCompaniesDict, allCustomersInfo, ar
 
     if args.last_line:
         d['tLastLine'] = args.last_line + '<br><br>'
+
+    if args.last_line_bold:
+        d['tLastLine'] = Bold(args.last_line_bold) + '<br><br>'
 
     if args.kaPerson:
         d['tPerson'] = Bold("Kind Attention: " + args.kaPerson + '<br><br>')

@@ -75,6 +75,11 @@ godevsdat = %WEBDIR%\scripts\push.py --version="dev" --email="developer@standard
 golivephungsuk = %PHUNGSUKDIR%\scripts\push.py --version="live" --email="developer@phungsukjibabo.mygbiz.com"
 godevphungsuk = %PHUNGSUKDIR%\scripts\push.py --version="dev" --email="developer@phungsukjibabo.mygbiz.com"
 rollbackphungsuk = pushd %PHUNGSUKDIR% && appcfg.py rollback . --no_cookies --email="developer@phungsukjibabo.mygbiz.com" $*
+
+gcl = java -jar %WEBDIR%\scripts\bin\GoogleClosureCompiler\compiler.jar $*
+gcladv = java -jar %WEBDIR%\scripts\bin\GoogleClosureCompiler\compiler.jar --compilation_level ADVANCED_OPTIMIZATIONS --js $1 --js_output_file $2
+gclsim = java -jar %WEBDIR%\scripts\bin\GoogleClosureCompiler\compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS   --js $1 --js_output_file $2
+gclwhite = java -jar %WEBDIR%\scripts\bin\GoogleClosureCompiler\compiler.jar --compilation_level WHITESPACE_ONLY      --js $1 --js_output_file $2
 gphungsuk = pushd %PHUNGSUKDIR%
 utw = %WEBDIR%\Scripts\unittests.py
 gimg = pushd %WEBDIR%\static\images
