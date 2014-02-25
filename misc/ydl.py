@@ -89,7 +89,10 @@ def YoutubeDownload(args, onlyAudio=False):
         YDLPATH = os.path.join("B:\\", "Tools", "Youtubedl", "youtube-dl.exe")
         #http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
         QUALITY = "-f 18/22/82/83/85/84/133/134/135/136/137"
-        FINAL_NAME_FORMAT = "-o " + os.path.join("B:\\", "YoutubeVideosDownloaded") + os.path.sep + "%(title)s-%(id)s.%(ext)s"
+        playlistInfo = ""
+        if newUrl.find("playlist") != -1:
+            playlistInfo = "%(playlist)s" + "-" + "_%(playlist_index)s_"
+        FINAL_NAME_FORMAT = "-o " + os.path.join("B:\\", "YoutubeVideosDownloaded") + os.path.sep + playlistInfo + "%(title)s-%(id)s.%(ext)s"
         ydlParametersList = ["--restrict-filenames", "--continue", "--console-title", FINAL_NAME_FORMAT]
         if args.rate:
             YLog("Setting the ratelimit to {}".format(args.rate))

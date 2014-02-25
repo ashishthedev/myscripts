@@ -80,6 +80,7 @@ gcl = java -jar %WEBDIR%\scripts\bin\GoogleClosureCompiler\compiler.jar $*
 gcladv = java -jar %WEBDIR%\scripts\bin\GoogleClosureCompiler\compiler.jar --compilation_level ADVANCED_OPTIMIZATIONS --js $1 --js_output_file $2
 gclsim = java -jar %WEBDIR%\scripts\bin\GoogleClosureCompiler\compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS   --js $1 --js_output_file $2
 gclwhite = java -jar %WEBDIR%\scripts\bin\GoogleClosureCompiler\compiler.jar --compilation_level WHITESPACE_ONLY      --js $1 --js_output_file $2
+gprog = pushd %ProgramFiles%
 gphungsuk = pushd %PHUNGSUKDIR%
 utw = %WEBDIR%\Scripts\unittests.py
 gimg = pushd %WEBDIR%\static\images

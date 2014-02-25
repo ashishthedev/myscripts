@@ -54,6 +54,10 @@ def ParseArguments():
             default=False, help="If present email will be sent to company else"
             " a file will be saved to desktop.")
 
+    p.add_argument("-rem", "--remarks-column", dest='remarksColumn',
+            action="store_true", default=False, help="If present, an additional"
+            "column for remarks will be added")
+
     p.add_argument("-d", "--demo", "--desktopOnly", "--noEmail", dest='isDemo',
             action="store_true", default=False, help="If present, no email"
             "will be sent. This option will override email option.")
@@ -127,10 +131,10 @@ class QuarterlyClubbedFORMC(object):
                 }
         return "Quarter" + d[str(bill.invoiceDate.month)]
 
-    def SpitTableHTML(self):
+    def SpitTableHTML(self, args):
         """Will return the full html for form-C"""
 
-        def MakeTable(tableData):
+        def MakeTable(tableHeadersList, tableData):
             #TODO: Take Column name as parameters
             """Wraps a boilerplate HTML for table around given data"""
             d = dict()
@@ -138,14 +142,15 @@ class QuarterlyClubbedFORMC(object):
             #Change all the multiple choices to a single final choice
             d['headerBackgroundColor'] = MyColors["WHITE"]
             d['fontColor'] = MyColors["BLACK"]
+            tableHeadersString = ""
+            for x in tableHeadersList:
+                tableHeadersString += "<th>{}</th>".format(x)
+            d['tTableHeaders'] = tableHeadersString
             html = Template("""
 <TABLE border="1" cellpadding=5>
     <thead>
     <tr style="background-color:$headerBackgroundColor; color:$fontColor">
-        <th>Info</th>
-        <th>Bill#</th>
-        <th>Date</th>
-        <th>Amount</th>
+        $tTableHeaders
     </tr>
     </thead>
     $tTableData
@@ -158,12 +163,18 @@ class QuarterlyClubbedFORMC(object):
         #1 table = 1 FORMC
         #And we can requrest multiple FORMCs too! Therefore an uber html containing we defined tables
         allTablesHTML = ""
+        tableHeadersList = ["Info", "Bill#", "Date", "Amount"]
+        tTdRemarks = ""
+        if args.remarksColumn:
+            tableHeadersList.append("Remarks")
+            tTdRemarks = "<td></td>"
         rowTemplate = Template("""
         <tr>
             $qh
             <td>$bn</td>
             <td>$idate</td>
             <td>Rs.$ba/-</td>
+            $tTdRemarks
         </tr>
         """)
 
@@ -190,19 +201,22 @@ class QuarterlyClubbedFORMC(object):
                     rowDict['bn'] = int(eachBill.billNumber)
                     rowDict['idate'] = eachBill.invoiceDate.strftime("%d-%b-%y")
                     rowDict['ba'] = int(eachBill.billAmount)
+                    rowDict['tTdRemarks'] = tTdRemarks
                     tableHTML += rowTemplate.substitute(rowDict)
 
                 totalRowTemplate = Template("""
                 <tr>
                     <td colspan="2" align="center"><B>TOTAL</B></td>
                     <td><B>Rs.$quarterTotalAmount/-</B></td>
+                    $tTdRemarks
                 </tr>
                 """)
                 totalRowDict = dict()
                 totalRowDict['quarterTotalAmount'] = int(sum([eachBill.billAmount for eachBill in billList]))
+                totalRowDict['tTdRemarks'] = tTdRemarks
                 tableHTML += totalRowTemplate.substitute(totalRowDict)
 
-                allTablesHTML += MakeTable(tableHTML) + "<BR>" * 3
+                allTablesHTML += MakeTable(tableHeadersList, tableHTML) + "<BR>" * 3
 
         return allTablesHTML
 
@@ -235,7 +249,7 @@ class QuarterlyClubbedFORMC(object):
         else:
             d['tOptAdditionalLine'] = ""
 
-        d['tTable'] = self.SpitTableHTML()
+        d['tTable'] = self.SpitTableHTML(args)
         d['tLetterDate'] = letterDate
         d['tCompanyName'] = companyOfficialName
         d['tCompanyCity'] = companyCity
@@ -332,15 +346,16 @@ def GenerateFORMCForCompany(compName, args):
 
         section = "EMAIL_REMINDER_SECTION"
         emailSubject = "FORM-C request - M/s {}".format(companyOfficialName)
-        SendMail(emailSubject,
-                None,
-                GetOption(section, 'Server'),
-                GetOption(section, 'Port'),
-                GetOption(section, 'FromEmailAddress'),
-                toMailList,
-                GetOption(section, 'CCEmailList').split(','),
-                GetOption(section, 'Mpass'),
-                mailBody,
+        SendMail(emailSubject=emailSubject,
+                zfilename=None,
+                SMTP_SERVER=GetOption(section, 'Server'),
+                SMTP_PORT=GetOption(section, 'Port'),
+                FROM_EMAIL=GetOption(section, 'FromEmailAddress'),
+                TO_EMAIL_LIST=toMailList,
+                CC_EMAIL_LIST=GetOption(section, 'CCEmailList').split(','),
+                BCC_EMAIL_LIST=GetOption(section, 'BCCEmailList').split(','),
+                MPASS=GetOption(section, 'Mpass'),
+                BODYTEXT=mailBody,
                 textType="html",
                 fromDisplayName = GetOption(section, "formCRequest")
                 )
