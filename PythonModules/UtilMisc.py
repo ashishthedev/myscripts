@@ -177,6 +177,7 @@ def MakeSureDirExists(path):
 
 def flattenList(seq):
     if seq is None: return None
+    if seq is str: return seq
 
     res = []
     for item in seq:

@@ -82,6 +82,7 @@ def Backup(backupLocations, ignorePatternList=None):
                 c.FROM_EMAIL,
                 c.SUCCESS_NOTIFICATION_MAIL,
                 None,
+                None,
                 c.MPASS,
                 BODYTEXT=backupLocations.successMsg,
                 fromDisplayName = c.fromDisplayName

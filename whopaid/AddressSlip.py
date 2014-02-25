@@ -24,6 +24,9 @@ def ParseOptions():
             help="Company name or part of it.")
     parser.add_argument("-n", dest='num', type=int, default=2,
             help="Number of times an address has to be printed.")
+    parser.add_argument("-noms", dest="noms", action="store_true",
+            default=False, help="Do not print M/s")
+
     return parser.parse_args()
 
 
@@ -50,6 +53,8 @@ def GenerateAddressSlipForThisCompany(compName, args):
 
     d = dict()
     d['tAddWidth'] = "10.0cm"
+    if not args.noms:
+        companyOfficialName = "M/s " + companyOfficialName
     d['tCompanyOfficialName'] = companyOfficialName
     d['tCompanyDeliveryAddress'] = companyDeliveryAddress
     d['tcompanyDeliveryPhNo'] = companyDeliveryPhNo
@@ -58,7 +63,7 @@ def GenerateAddressSlipForThisCompany(compName, args):
     singleAddressSnippet = Template("""
     <div id="mydiv">
     <table>
-    <tr><td><strong>M/s $tCompanyOfficialName</strong></td></tr>
+    <tr><td><strong>$tCompanyOfficialName</strong></td></tr>
     <tr><td>$tCompanyDeliveryAddress - PIN - $tcompanyPinCode</td></tr>
     <tr><td>Ph# $tcompanyDeliveryPhNo</td></tr>
     </table>
