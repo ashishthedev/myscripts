@@ -29,11 +29,14 @@ def _GetConfigFilePath(currentPath):
 
     if not result:
         raise MyException("Fatal: Not a pyCrm repository. No %s found in any of the ancestors of %s" % (CONFIG_FILE_NAME, savedOriginalPath))
-    return result
+    return os.path.abspath(result)
 
 def GetAppDir():
     #Assumption: The pycrm.cfg is always one level down of APPDIR
     return os.path.dirname(_GetConfigFilePath(os.getcwd()))
+
+def GetAppDirPath():
+    return GetAppDir()
 
 def GetConfigFilePath():
     return _GetConfigFilePath(os.getcwd())
