@@ -133,9 +133,9 @@ fcrd = pushd %APPDIR%\myscripts\whopaid && FormCRequest.py -o --demo $* && popd
 fcre = pushd %APPDIR%\myscripts\whopaid && FormCRequest.py --email $* && popd
 rpr  = pushd %APPDIR%\myscripts\whopaid && RoadPermitRequest.py $* && popd
 rprd = pushd %APPDIR%\myscripts\whopaid && RoadPermitRequest.py --demo $* && popd
-dis  = pushd %APPDIR%\myscripts\whopaid && Shipments.py --mail $* && popd
-dis10= pushd %APPDIR%\myscripts\whopaid && Shipments.py --mail --days=10 $* && popd
-disd  = pushd %APPDIR%\myscripts\whopaid && Shipments.py --mail --demo $* && popd
+dis   = pushd %APPDIR%\myscripts\whopaid && Shipments.py --mail --dispatch-sms-all $* && popd
+dis10 = pushd %APPDIR%\myscripts\whopaid && Shipments.py --mail --dispatch-sms-all --days=10 $* && popd
+disd  = pushd %APPDIR%\myscripts\whopaid && Shipments.py --mail --dispatch-sms-all --demo $* && popd
 rgb = %APPDIR%\myscripts\misc\rgb2hex.py $*
 info = gvim %APPDIR%\FrequentFliers\Info.txt
 etrv = %APPDIR%\myscripts\misc\TaxReturnLocalValidation.py

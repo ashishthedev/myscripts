@@ -21,7 +21,7 @@ class CustomerInfoCol:
     TinNumberCol = "C"
     PhoneNumberCol = "D"
     DeliveryPhoneNumberCol = "E"
-    CasingCol = "F"
+    SmsDispatchNumberCol = "F"
     CompanyOfficialNameCol = "G"
     CourierAddressCol = "H"
     DeliveryPinCodeCol = "I"
@@ -55,10 +55,10 @@ def CreateSingleCustomerInfo(row):
             c.phoneNumber = val
         elif col == CustomerInfoCol.DeliveryPinCodeCol:
             c.deliveryPinCode = val
+        elif col == CustomerInfoCol.SmsDispatchNumberCol:
+            c.smsDispatchNo = val
         elif col == CustomerInfoCol.DeliveryPhoneNumberCol:
             c.deliveryPhNo = val
-        elif col == CustomerInfoCol.CasingCol:
-            c.casing = val
         elif col == CustomerInfoCol.CompanyOfficialNameCol:
             c.companyOfficialName = val
         elif col == CustomerInfoCol.CourierAddressCol:
@@ -134,6 +134,9 @@ class _AllCustomersInfo(dict):
 
     def GetDeliveryPinCode(self, compName):
         return self[compName].deliveryPinCode
+
+    def GetSmsDispatchNumber(self, compName):
+        return self[compName].smsDispatchNo
 
     def GetDeliveryPhoneNumber(self, compName):
         return self[compName].deliveryPhNo

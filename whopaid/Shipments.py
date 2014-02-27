@@ -22,6 +22,7 @@ import os
 from string import Template
 from SanityChecks import CheckConsistency
 import urllib2
+from UtilSms import SendSms
 
 from courier.couriers import Courier
 MAX_IN_TRANSIT_DAYS = 15
@@ -30,6 +31,7 @@ IS_DEMO = True
 #Shipment
 # |-ShipmentMail
 # |-ShipmentCourier
+# |-ShipmentSms
 
 class ShipmentException(Exception):
     pass
@@ -94,6 +96,28 @@ class ShipmentTrack(object):
         return self.status
 
 
+class ShipmentSms(object):
+    def __init__(self, shipment, bill):
+        self.bill = bill
+        self.shipment = shipment #Back reference to parent shipment object
+        self.shipmentSmsSent = False
+
+    def markShipmentSmsAsSent(self):
+        self.shipmentSmsSent = True
+
+    def wasShipmentSmsEverSent(self):
+        return self.shipmentSmsSent
+
+    def sendSmsForThisShipment(self):
+        if self.wasShipmentSmsEverSent():
+            if str(raw_input("A shipment sms has already been sent to {}. Do you want to send again(y/n)?".format(self.bill.compName))).lower() != 'y':
+                print("Not sending sms")
+                return
+        SendMaterialDispatchSms(self.bill)
+        if not IS_DEMO:
+            self.markShipmentSmsAsSent()
+            self.shipment.saveInDB()
+
 class ShipmentMail(object):
     def __init__(self, shipment, bill):
         self.bill = bill
@@ -102,7 +126,7 @@ class ShipmentMail(object):
         pass
 
     def markShipmentMailAsSent(self):
-        self.shipmentMailSent = True #Store all the state-attributes in parent object
+        self.shipmentMailSent = True
 
     def wasShipmentMailEverSent(self):
         return self.shipmentMailSent
@@ -114,7 +138,7 @@ class ShipmentMail(object):
                 return
         ctxt = DispatchMailContext()
         ctxt.isDemo = IS_DEMO
-        SendMaterialDispatchDetails(self.bill, ctxt)
+        SendMaterialDispatchMail(self.bill, ctxt)
         if not IS_DEMO:
             self.markShipmentMailAsSent()
             self.shipment.saveInDB()
@@ -128,12 +152,29 @@ class PersistentShipment(object):
         self.bill = bill
         self._mail = ShipmentMail(self, bill)
         self._track = ShipmentTrack(self, bill)
+        self._sms = ShipmentSms(self, bill)
 
     def wasShipmentMailEverSent(self):
         return self._mail.wasShipmentMailEverSent()
 
     def sendMailForThisShipment(self):
         return self._mail.sendMailForThisShipment()
+
+    def wasShipmentSmsEverSent(self):
+        if not hasattr(self, "_sms"):
+            #TODO: Remove once porting is over
+            self._sms = ShipmentSms(self, self.bill)
+            self.saveInDB()
+
+        return self._sms.wasShipmentSmsEverSent()
+
+    def CanSMSBeSent(self):
+        if GetAllCustomersInfo().GetSmsDispatchNumber(self.bill.compName):
+            return True
+        return False
+
+    def sendSmsForThisShipment(self):
+        return self._sms.sendSmsForThisShipment()
 
     @property
     def isDelivered(self):
@@ -220,7 +261,55 @@ class PersistentShipment(object):
 
 
 
-def SendMaterialDispatchDetails(bill, ctxt):
+def SendMaterialDispatchSms(bill):
+    allCustInfo = GetAllCustomersInfo()
+    compName = bill.compName
+    smsNo = allCustInfo.GetSmsDispatchNumber(compName)
+    if not smsNo:
+        raise Exception("No sms no. feeded for customer: {}".format(compName))
+
+    optionalAmount = ""
+    if allCustInfo.IncludeBillAmountInEmails(compName):
+        optionalAmount = "Amount: Rs." + str(int(bill.billAmount)) + "/-"
+
+    companyOfficialName = allCustInfo.GetCompanyOfficialName(compName)
+    if not companyOfficialName:
+        raise Exception("\nM/s {} doesnt have a displayable 'name'. Please feed it in the database".format(compName))
+
+    d = dict()
+
+    d["tFromName"] = "From: {}".format(GetOption("SMS_SECTION", 'FromDisplayName'))
+    d["toName"] = "To: {}".format(companyOfficialName)
+    d["tDocketNumber"] = bill.docketNumber
+    d["tDocketDate"] = bill.docketDate
+    d["tThrough"] = bill.courierName
+    d["tMaterialDescription"] = bill.materialDesc
+    d["tAmount"] = optionalAmount
+
+    smsTemplate = Template("""$tFromName
+_____
+
+$toName
+Waybill#: $tDocketNumber
+Date: $tDocketDate
+Through: $tThrough
+Material: $tMaterialDescription
+$tAmount
+Thanks.
+""")
+    smsContents = smsTemplate.substitute(d)
+
+    smsNo = smsNo.replace(';', ',').strip()
+    COMMA = ","
+    listOfNos = [x.strip() for x in smsNo.split(COMMA)]
+    for x in listOfNos:
+        SendSms(x, smsContents)
+
+    return
+
+
+
+def SendMaterialDispatchMail(bill, ctxt):
     allCustInfo = GetAllCustomersInfo()
 
     optionalAmount = ""
@@ -410,6 +499,9 @@ def ParseOptions():
     parser.add_argument("--mail", dest="sendMailToAllCompanies", action="store_true",
             default=False, help="Send shipment mail to eligible companies")
 
+    parser.add_argument("-sms", "--dispatch-sms-all", dest='sendDispatchSms', action="store_true", default=False,
+            help="Send the sms to parties about dispatches.")
+
     parser.add_argument("--track", dest="trackAllUndeliveredCouriers", action="store_true",
             default=False, help="Track all undelivered couriers")
 
@@ -510,31 +602,48 @@ def main():
 
     if args.markMailAsSentForDocket:
         _FormceMarkShipmentMailAsSent(args.markMailAsSentForDocket)
-        return
 
     if args.showUndelivered:
         ShowUndeliveredOnScreen()
-        return
 
     if args.forceMarkDeliveredDocket:
         _ForceMarkDocketAsDelivered(args.forceMarkDeliveredDocket)
-        return
 
     if args.removeTrackingForDocket:
         _RemoveDocketFromIndex(args.removeTrackingForDocket)
-        return
 
     if args.newSnapshotForDocket:
         _NewSnapshotForDocket(args.newSnapshotForDocket)
-        return
 
     if args.sendMailToAllCompanies:
         SendMailToAllComapnies(args)
-        return
+
+    if args.sendDispatchSms:
+       SendDispatchSMSToAllCompanies(args)
 
     if args.trackAllUndeliveredCouriers:
         TrackAllShipments(args)
 
+def SendDispatchSMSToAllCompanies(args):
+    [PersistentShipment.GetOrCreateShipmentForBill(b) for b in GetAllBillsInLastNDays(args.days) if b.docketDate]
+    shipments = PersistentShipment.GetAllStoredShipments()
+    shipments = [s for s in shipments if s.ShouldWeTrackThis()] #Filter our deliverd shipments
+    shipments = [s for s in shipments if not s.wasShipmentSmsEverSent()]
+    shipments = [s for s in shipments if s.CanSMSBeSent()]
+    shipments = [s for s in shipments if s.daysPassed < MAX_IN_TRANSIT_DAYS]
+    shipments.sort(key=lambda s: s.bill.docketDate, reverse=True)
+
+    try:
+        for eachShipment in shipments:
+            print("_"*70)
+            if 'y' == raw_input("Send sms for {} (y/n)?".format(eachShipment)).lower():
+                eachShipment.sendSmsForThisShipment()
+            else:
+                print("Not sending sms...")
+    except ShipmentException as ex:
+        print(ex)
+        #eat the exception after printing. We have printed our custom exception, its good enough.
+    return
 def SendMailToAllComapnies(args):
     [PersistentShipment.GetOrCreateShipmentForBill(b) for b in GetAllBillsInLastNDays(args.days) if b.docketDate]
     shipments = PersistentShipment.GetAllStoredShipments()
@@ -542,7 +651,6 @@ def SendMailToAllComapnies(args):
     shipments = [s for s in shipments if not s.wasShipmentMailEverSent()]
     shipments = [s for s in shipments if s.daysPassed < MAX_IN_TRANSIT_DAYS]
     shipments.sort(key=lambda s: s.bill.docketDate, reverse=True)
-
 
     try:
         for eachShipment in shipments:
