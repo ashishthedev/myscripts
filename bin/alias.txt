@@ -127,6 +127,7 @@ slip2 = pushd %APPDIR%\myscripts\whopaid && AddressSlip.py -n2 $* && popd
 slip = pushd %APPDIR%\myscripts\whopaid && AddressSlip.py $* && popd
 er = pushd %APPDIR%\myscripts\whopaid && PaymentReminderForGroups.py $* && popd
 erd = pushd %APPDIR%\myscripts\whopaid && PaymentReminderForGroups.py --demo $* && popd
+erol = pushd %APPDIR%\myscripts\whopaid && PaymentReminderForGroups.py --allCompanies --only-list-no-send --demo $* && popd
 fcr  = pushd %APPDIR%\myscripts\whopaid && FormCRequest.py -o $* && popd
 fcrl = pushd %APPDIR%\myscripts\whopaid && FormCRequest.py -o --letterHead --desktopOnly $* && popd
 fcrd = pushd %APPDIR%\myscripts\whopaid && FormCRequest.py -o --demo $* && popd

@@ -128,10 +128,10 @@ def SendAutomaticReminderToAllCompanies(args):
 def OnlyListCompaniesOnScreen(args):
     allCompaniesDict = GetAllCompaniesDict()
     allCustomersInfo = GetAllCustomersInfo()
-    uniqueCompNames = set([eachCompName for eachCompName in allCompaniesDict])
-    for eachCompName in uniqueCompNames:
-        if ShouldWeSendEmailToComp(eachCompName, allCompaniesDict, allCustomersInfo):
-            print("We should send mail to {}".format(eachCompName))
+    uniqueCompGrpNames = set([allCustomersInfo.GetCompanyGroupName(eachComp) for eachComp in allCompaniesDict])
+    for eachGrp in uniqueCompGrpNames:
+        if ShouldWeSendAutomaticEmailForGroup(eachGrp, allCompaniesDict, allCustomersInfo):
+            print("We should send mail to {}".format(eachGrp))
 
 
 
@@ -140,21 +140,24 @@ def main():
 
     args = ParseOptions()
 
+    if args.onlyListNoSend:
+        OnlyListCompaniesOnScreen(args)
+        return
+
     if args.allCompanies:
-        if args.onlyListNoSend:
-            OnlyListCompaniesOnScreen(args)
-        elif not args.onlyListNoSend:
-            SendAutomaticReminderToAllCompanies(args)
+        SendAutomaticReminderToAllCompanies(args)
         return
 
     AskQuestionsFromUserAndSendMail(args)
 
 def ShouldWeSendAutomaticEmailForGroup(grpName, allCompaniesDict, allCustomersInfo):
-    #TODO: Buggy.
     compsInGrp = allCustomersInfo.GetListOfCompNamesForThisGrp(grpName)
-    firstCompInGrp = compsInGrp[0] #TODO: Remove usage of firstCompInGrp as this is a hack. We are working on groups now.
+    firstCompInGrp = compsInGrp[0]
     unpaidBillList = []
     for compName in compsInGrp:
+        if not compName in allCompaniesDict:
+            #print("{compName} has no issued bills till date. Ignoring it.".format(compName=compName))
+            continue
         unpaidBillList += SelectUnpaidBillsFrom(allCompaniesDict[compName])
 
     #Unpaid Bills check
@@ -178,11 +181,11 @@ def ShouldWeSendAutomaticEmailForGroup(grpName, allCompaniesDict, allCustomersIn
     if daysSinceOldestUnpaidBill <= allowedDaysOfCredit:
         return False
 
-    lastDate = EarlierSentOnDateForThisGrp(grpName)
+    lastDate = EarlierSentOnDateForThisGrp(firstCompInGrp)
     if lastDate:
         #Perform this check only when an email was ever sent to this company and this is not a demo.
         timeDelta = datetime.date.today() - lastDate
-        minDaysGap = int(allCustomersInfo.GetMinDaysGapBetweenMails(grpName))
+        minDaysGap = int(allCustomersInfo.GetMinDaysGapBetweenMails(firstCompInGrp))
         if timeDelta.days < minDaysGap:
             return False
 
@@ -194,7 +197,6 @@ def SendReminderToGrp(grpName, allCompaniesDict, allCustomersInfo, args):
     import pprint
     PrintInBox("Preparing mails for following companies:")
     pprint.pprint(compsInGrp)
-    GetConfirmation()
     firstCompInGrp = compsInGrp[0] #TODO: Remove usage of firstCompInGrp as this is a hack. We are working on groups now.
     unpaidBillList = []
     for eachComp in compsInGrp:
@@ -220,7 +222,7 @@ def SendReminderToGrp(grpName, allCompaniesDict, allCustomersInfo, args):
         raise MyException("\nNo mail feeded. Please insert a proper email in 'Cust' sheet of 'Bills.xlsx'")
 
     goAhead = True
-    lastDate = EarlierSentOnDateForThisGrp(grpName)
+    lastDate = EarlierSentOnDateForThisGrp(firstCompInGrp)
     if lastDate and not args.isDemo:
         #Perform this check only when an email was ever sent to this company and this is not a demo.
         timeDelta = datetime.date.today() - lastDate
@@ -264,9 +266,9 @@ def SendReminderToGrp(grpName, allCompaniesDict, allCustomersInfo, args):
 
         if not args.isDemo:
             print("Saving date...")
-            SaveSentOnDateForThisGrp(grpName)
+            SaveSentOnDateForThisGrp(firstCompInGrp)
     else:
-        PrintInBox("Not sending any email for comp {}".format(grpName))
+        PrintInBox("Not sending any email for group {}".format(grpName))
     return
 
 

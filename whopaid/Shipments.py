@@ -305,8 +305,6 @@ Thanks.
     anyAdditionalSmsNo = GetOption("SMS_SECTION", "CC_NO")
     if anyAdditionalSmsNo:
         listOfNos.append(anyAdditionalSmsNo)
-    print("List of nos: {}".format(listOfNos))
-    raw_input("...") #TODO
 
     for x in listOfNos:
         SendSms(x, smsContents)
@@ -625,11 +623,8 @@ def main():
         SendMailToAllComapnies(args)
 
     if args.sendDispatchSms:
-        if CanSendSmsAsOfNow():
-            SendDispatchSMSToAllCompanies(args)
-        else:
-            raise Exception("Sorry. SMSes cannot be sent as of now. The phone might not be available or not paired.")
-
+        PrintInBox("Preparing to send SMS now")
+        SendDispatchSMSToAllCompanies(args)
 
     if args.trackAllUndeliveredCouriers:
         TrackAllShipments(args)
@@ -642,6 +637,12 @@ def SendDispatchSMSToAllCompanies(args):
     shipments = [s for s in shipments if s.isSMSNoAvailable()]
     shipments = [s for s in shipments if s.daysPassed < MAX_IN_TRANSIT_DAYS]
     shipments.sort(key=lambda s: s.bill.docketDate, reverse=True)
+
+    if len(shipments) != 0:
+        if not CanSendSmsAsOfNow():
+            raise Exception("Sorry. SMS cannot be sent as of now. The phone might not be nearby or not paired with this computer.")
+    else:
+        PrintInBox("All sms that could have been sent has been sent.")
 
     try:
         for eachShipment in shipments:
