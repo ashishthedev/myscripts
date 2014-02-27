@@ -22,7 +22,7 @@ import os
 from string import Template
 from SanityChecks import CheckConsistency
 import urllib2
-from UtilSms import SendSms
+from UtilSms import SendSms, CanSendSmsAsOfNow
 
 from courier.couriers import Courier
 MAX_IN_TRANSIT_DAYS = 15
@@ -168,7 +168,7 @@ class PersistentShipment(object):
 
         return self._sms.wasShipmentSmsEverSent()
 
-    def CanSMSBeSent(self):
+    def isSMSNoAvailable(self):
         if GetAllCustomersInfo().GetSmsDispatchNumber(self.bill.compName):
             return True
         return False
@@ -302,6 +302,12 @@ Thanks.
     smsNo = smsNo.replace(';', ',').strip()
     COMMA = ","
     listOfNos = [x.strip() for x in smsNo.split(COMMA)]
+    anyAdditionalSmsNo = GetOption("SMS_SECTION", "CC_NO")
+    if anyAdditionalSmsNo:
+        listOfNos.append(anyAdditionalSmsNo)
+    print("List of nos: {}".format(listOfNos))
+    raw_input("...") #TODO
+
     for x in listOfNos:
         SendSms(x, smsContents)
 
@@ -619,7 +625,11 @@ def main():
         SendMailToAllComapnies(args)
 
     if args.sendDispatchSms:
-       SendDispatchSMSToAllCompanies(args)
+        if CanSendSmsAsOfNow():
+            SendDispatchSMSToAllCompanies(args)
+        else:
+            raise Exception("Sorry. SMSes cannot be sent as of now. The phone might not be available or not paired.")
+
 
     if args.trackAllUndeliveredCouriers:
         TrackAllShipments(args)
@@ -629,7 +639,7 @@ def SendDispatchSMSToAllCompanies(args):
     shipments = PersistentShipment.GetAllStoredShipments()
     shipments = [s for s in shipments if s.ShouldWeTrackThis()] #Filter our deliverd shipments
     shipments = [s for s in shipments if not s.wasShipmentSmsEverSent()]
-    shipments = [s for s in shipments if s.CanSMSBeSent()]
+    shipments = [s for s in shipments if s.isSMSNoAvailable()]
     shipments = [s for s in shipments if s.daysPassed < MAX_IN_TRANSIT_DAYS]
     shipments.sort(key=lambda s: s.bill.docketDate, reverse=True)
 
