@@ -36,7 +36,7 @@ def SendSms(toThisNumber, smsContents):
     PrintInBox("Sending sms to {}:\n{}".format(toThisNumber, smsContents))
 
     fPath = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), "smsContents.txt")
-    os.remove(fPath)
+    if os.path.exists(fPath): os.remove(fPath)
     with open(fPath,"w") as f:
         f.write(smsContents)
 
