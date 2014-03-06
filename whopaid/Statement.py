@@ -70,7 +70,7 @@ def ShowStatementOnTerminal(compName, allCompaniesDict, args):
         billList = SelectBillsBeforeDate(billList, edateObject)
 
     if not billList:
-        raise MyException("\nM/s {} has no bill in between '{}' and '{}'FORM-C due after date: {}".format(compName, sdateObject, edateObject))
+        raise MyException("\nM/s {} has no bill in between '{}' and '{}'".format(compName, sdateObject, edateObject))
 
     for b in billList:
         header.append(str(b))

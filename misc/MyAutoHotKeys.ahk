@@ -56,7 +56,7 @@ GVIM = %WINDIR_ENV%\gvim.bat
 ::bodat::Omega Dies And Tools{enter}ICICI Ac No: 125605500120{enter}RTGS/NEFT Code: ICIC0001256{enter}Branch: Plot No-270, Ambedkar Road, Choudhary More, Ghaziabad
 ::bsdat::HDFC A/c No: 05732560000238{enter}RTGS No: HDFC0000573{enter}Branch: 35 Ambedkar Road, Gandhinagar, Ghaziabad.
 
-::b178::ICICI A/c No: 125605500178{enter}Name: Vishal Anand{enter}Branch: Razzapur, Ghaziabad.{enter}IFSC Code: ICIC0001256
+::b178::ICICI A/c No: 125605500178{enter}Name: Vishal Anand{enter}Branch: Ambedkar Road, Ghaziabad.{enter}IFSC Code: ICIC0001256
 ::buco::UCO A/c No: 08500100002243{enter}Name: Ashok Anand{enter}Branch: Rakesh Marg, Ghaziabad.
 
 

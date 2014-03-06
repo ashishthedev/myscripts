@@ -26,6 +26,8 @@ def ParseOptions():
             help="Number of times an address has to be printed.")
     parser.add_argument("-noms", dest="noms", action="store_true",
             default=False, help="Do not print M/s")
+    parser.add_argument("-noComp", dest="noComp", action="store_true",
+            default=False, help="Do not print company name")
 
     return parser.parse_args()
 
@@ -45,17 +47,23 @@ def GenerateAddressSlipForThisCompany(compName, args):
         raise MyException("\nM/s {} doesnt have a phone number. Please feed it in the database".format(compName))
 
     companyPinCode = allCustInfo.GetDeliveryPinCode(compName)
-    if not companyDeliveryPhNo:
+    if not companyPinCode:
         raise MyException("\nM/s {} doesnt have a pin code. Please feed it in the database".format(compName))
 
     tempPath = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), "AddressSlips", companyOfficialName + ".html")
     MakeSureDirExists(os.path.dirname(tempPath))
 
-    d = dict()
+    def constant_factory(value):
+        from itertools import repeat
+        return repeat(value).next
+
+    from collections import defaultdict
+    d = defaultdict(constant_factory(""))
     d['tAddWidth'] = "10.0cm"
-    if not args.noms:
-        companyOfficialName = "M/s " + companyOfficialName
-    d['tCompanyOfficialName'] = companyOfficialName
+    if not args.noComp:
+        if not args.noms:
+            companyOfficialName = "M/s " + companyOfficialName
+        d['tCompanyOfficialName'] = companyOfficialName
     d['tCompanyDeliveryAddress'] = companyDeliveryAddress
     d['tcompanyDeliveryPhNo'] = companyDeliveryPhNo
     d['tcompanyPinCode'] = companyPinCode
