@@ -368,6 +368,7 @@ map <C-F1> mxgg=G`x
 
 "Remove all lines containig tab click or enter
 noremap <F2> :g/click\\|enter\\|tab/d<CR>
+noremap <F2> :%s/<C-R><C-W>/<C-R><C-W>/gc
 
 "Fuzz out the word under cursor when F3 is pressed.
 noremap <F3> g?iw

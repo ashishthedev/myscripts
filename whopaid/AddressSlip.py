@@ -87,7 +87,7 @@ def GenerateAddressSlipForThisCompany(compName, args):
     #mydiv {
      width: $tAddWidth;
      border:1px solid black;
-     margin-left: 100px;
+     margin-left: 300px;
     }
     </style>
     """).substitute(d)

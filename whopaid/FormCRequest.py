@@ -251,10 +251,11 @@ class QuarterlyClubbedFORMC(object):
 
         d['tTable'] = self.SpitTableHTML(args)
         d['tLetterDate'] = letterDate
-        d['tCompanyName'] = companyOfficialName
+        d['tCompanyName'] = Bold("M/s " + companyOfficialName)
         d['tCompanyCity'] = companyCity
         d['tSignature'] = GetOption("EMAIL_REMINDER_SECTION", "Signature")
-        d['tBodySubject'] = PastelOrangeText(Bold(UnderLine("Subject: FORM-C request")))
+        requestingCompanyName = GetOption("CONFIG_SECTION", 'CompName')
+        d['tBodySubject'] = PastelOrangeText(Bold(UnderLine("Subject: FORM-C required by M/s {}".format(requestingCompanyName))))
 
         htmlTemplate = Template(
             """
@@ -271,7 +272,7 @@ class QuarterlyClubbedFORMC(object):
             $tLetterDate<br>
             <br>
             To,<br>
-            M/s $tCompanyName,<br>
+            $tCompanyName,<br>
             $tCompanyCity.<br>
             <br>
             $tBodySubject<br>

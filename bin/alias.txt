@@ -122,6 +122,9 @@ fia=@echo "Finding inside all files" && findstr /i /s /n $* *
 q=exit
 pyprof = %APPDIR%\MyScripts\bin\pyprofile.py "$*"
 
+rgc = rgrun v2New.py v5New.py > log.txt
+rgc = rgrun v2New.py v5AvoidCollision.py --game-seed 439560545 > log.txt
+grobot = pushd %APPDIR%\..\ve_robot && scripts\activate && cd app
 slip1 = pushd %APPDIR%\myscripts\whopaid && AddressSlip.py -n1 $* && popd
 slip2 = pushd %APPDIR%\myscripts\whopaid && AddressSlip.py -n2 $* && popd
 slip = pushd %APPDIR%\myscripts\whopaid && AddressSlip.py $* && popd
