@@ -27,7 +27,9 @@ def SendSms(toThisNumber, smsContents):
     """
     Uses gnokii to send messages.
     """
-    gnokiiCmd = GNOKII_PATH + " --sendsms " + toThisNumber
+    configPath = os.path.join(os.path.dirname(GNOKII_PATH), "gnokii.ini")
+    configParams = " --config {}".format(configPath)
+    gnokiiCmd = GNOKII_PATH + configParams + " --sendsms " + toThisNumber
 
     from types import StringTypes
     if not isinstance(smsContents, StringTypes):
