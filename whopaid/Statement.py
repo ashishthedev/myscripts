@@ -51,6 +51,9 @@ def GetMinusOneBills(billList):
 
 def ShowStatementOnTerminal(compName, allCompaniesDict, args):
     header = [compName]
+    if not compName in allCompaniesDict:
+        raise Exception("No bill is issued to M/s {}".format(compName))
+
     billList = allCompaniesDict[compName]
 
     if args.onlyUnpaid:

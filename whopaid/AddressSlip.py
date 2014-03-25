@@ -26,6 +26,8 @@ def ParseOptions():
             help="Number of times an address has to be printed.")
     parser.add_argument("-noms", dest="noms", action="store_true",
             default=False, help="Do not print M/s")
+    parser.add_argument("-fa", "--from-address", dest="fromAddress", action="store_true",
+            default=False, help="Print from address too")
     parser.add_argument("-noComp", dest="noComp", action="store_true",
             default=False, help="Do not print company name")
 

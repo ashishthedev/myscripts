@@ -66,9 +66,9 @@ def CreateSingleCustomerInfo(row):
         elif col == CustomerInfoCol.CityCol:
             c.city = val
         elif col == CustomerInfoCol.EmailForPayment:
-            c.emailForPayment = val
+            c.emailForPayment = val.replace("\n","") if val else val
         elif col == CustomerInfoCol.EmailForFormC:
-            c.emailForFormC = val
+            c.emailForFormC = val.replace("\n", "") if val else val
         elif col == CustomerInfoCol.KindAttentionCol:
             c.kindAttentionPerson = val
         elif col == CustomerInfoCol.TrustCol:

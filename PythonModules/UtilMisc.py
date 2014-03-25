@@ -168,12 +168,9 @@ def GetSizeOfFileInMB(path):
     return os.path.getsize(path)/(1024*1024)
 
 def MakeSureDirExists(path):
-    if os.path.exists(path):
-        return
-    finalPath = path
-    if os.path.isfile(path):
-        finalPath = os.path.dirname(path)
-    os.makedirs(path)
+    if not os.path.exists(path):
+        os.makedirs(path)
+    return
 
 def flattenList(seq):
     if seq is None: return None

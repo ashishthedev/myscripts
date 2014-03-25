@@ -307,6 +307,7 @@ noremap <silent> <leader>yte :python AddToYoutubeDownloadQueue(mode="last")<CR>
 noremap <silent> <leader>ytb :python AddToYoutubeDownloadQueue(mode="beginning")<CR>
 
 "Press these shortcuts and information will be appended in the respective files
+noremap <silent> <leader>blog :python AppendTaskInFrequentFliers("blogs.txt")<CR>
 noremap <silent> <leader>proj :python AppendTaskInFrequentFliers("sideprojects.txt")<CR>
 noremap <silent> <leader>a :python AppendTaskInFrequentFliers("actions.txt")<CR>
 noremap <silent> <leader>pintu :python AppendTaskInFrequentFliers("Pintu.txt")<CR>
@@ -332,6 +333,7 @@ noremap - gt
 :execute "noremap ,logins   :e ".GetAPPDIR()."\\FrequentFliers\\logins.txt<CR>"
 :execute "noremap ,banks    :e ".GetAPPDIR()."\\FrequentFliers\\banks.txt<CR>"
 :execute "noremap ,info   :e ".GetAPPDIR()."\\FrequentFliers\\Info.txt<CR>"
+:execute "noremap ,blog   :e ".GetAPPDIR()."\\FrequentFliers\\blogs.txt<CR>"
 :execute "noremap ,comp   :e ".GetAPPDIR()."\\FrequentFliers\\compList.txt<CR>"
 :execute "noremap ,eret   :e ".GetAPPDIR()."\\SalesTaxReturnFiles\\eReturnInfo.txt<CR>"
 :execute "noremap ,act    :e ".GetAPPDIR()."\\FrequentFliers\\actions.txt<CR>"
