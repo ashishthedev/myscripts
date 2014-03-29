@@ -75,7 +75,6 @@ def UploadPmtData():
     e = 'moc.slootdnaseiddradnats@repoleved'
     v='dev'
     cmd = "python {pushFile} --email={e} --version={v} --oauth2".format(pushFile=pushFile, e=e[::-1], v=v)
-    print("cmd=\n{}".format(cmd))
     subprocess.check_call(cmd)
 
 
