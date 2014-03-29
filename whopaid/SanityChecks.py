@@ -17,8 +17,10 @@ from collections import defaultdict
 
 def SendHeartBeat():
     CheckConsistency()
-    from OutstandingPmtJsonDBGeneration import DumpJSONDB
+    from OutstandingPmtJsonDBGeneration import DumpJSONDB, UploadPmtData
     DumpJSONDB()
+    UploadPmtData()
+
 
 def CheckConsistency():
     functionList = [
