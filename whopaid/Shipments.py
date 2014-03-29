@@ -20,7 +20,7 @@ from UtilPythonMail import SendMail
 from UtilHTML import UnderLine, Bold, PastelOrangeText
 import os
 from string import Template
-from SanityChecks import CheckConsistency
+from SanityChecks import SendHeartBeat
 import urllib2
 from UtilSms import SendSms, CanSendSmsAsOfNow
 
@@ -320,7 +320,7 @@ def SendMaterialDispatchMail(bill, ctxt):
     if allCustInfo.IncludeBillAmountInEmails(bill.compName):
         optionalAmount = " Rs." + str(int(bill.billAmount)) + "/-"
 
-    ctxt.emailSubject = ctxt.emailSubject or "Dispatch Details-{} Bill#{} {amt}".format(bill.docketDate.strftime("%d-%b-%Y"), str(int(bill.billNumber)), amt=optionalAmount)
+    ctxt.emailSubject = ctxt.emailSubject or "Dispatch Details: {} Bill#{} {amt}".format(bill.docketDate.strftime("%d-%b-%Y"), str(int(bill.billNumber)), amt=optionalAmount)
 
 
     print("Churning more data...")
@@ -703,5 +703,5 @@ def TrackAllShipments(args):
             #Print the exception and move on to next shipment
 
 if __name__ == '__main__':
-    CheckConsistency()
+    SendHeartBeat()
     main()

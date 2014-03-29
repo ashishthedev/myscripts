@@ -43,7 +43,7 @@ class DummyCourier():
     def StoreSnapshot(self):
         return None
 
-def StoreSnapshotWithPhantomScript(b, scriptPath):
+def StoreSnapshotWithPhantomScript(b, scriptPath, formData):
     #TODO: Remove hardcoding of path
     PHANTOM = "B:\\Tools\\PhantomJS\\phantomjs-1.9.1-windows\\phantomjs.exe"
     PREFERRED_FILEFORMAT = ".jpeg"
@@ -62,7 +62,7 @@ def StoreSnapshotWithPhantomScript(b, scriptPath):
     for p in [PHANTOM, scriptPath]:
         if not os.path.exists(p): raise Exception("Path not present : {}".format(p))
 
-    args = [PHANTOM, scriptPath, DESTINATION_FILE, b.docketNumber]
+    args = [PHANTOM, scriptPath, DESTINATION_FILE, b.docketNumber, formData]
     subprocess.check_call(args)
 
     if not os.path.exists(DESTINATION_FILE):
@@ -71,14 +71,13 @@ def StoreSnapshotWithPhantomScript(b, scriptPath):
 class TrackonCourier():
     def __init__(self, bill):
         self.bill = bill
+        self.FORM_DATA="""__VIEWSTATE=%2FwEPDwUKMTM2ODMyNjQ5NA9kFgJmD2QWAgICD2QWCAIFDw8WAh4HVmlzaWJsZWhkZAIHDw8WAh8AaGRkAgkPDxYCHgRUZXh0ZWRkAgsPZBYEAgEPZBYCAgEPFgIeA3NyYwUafi9pbWFnZXMvdHJhY2tTaGlwbWVudC5qcGdkAgMPFgIeC18hSXRlbUNvdW50AgEWAgIBD2QWBGYPFQQJMzQ1MTM4MDAwCURFTElWRVJFRAswMSBKdWwgMjAxMw53aXRoIFNJR05BVFVSRWQCAQ8WAh8DAgMWBgIBD2QWAmYPFQYJR0hBWklBQkFEABFERUxISSBIRUFEIE9GRklDRQwxMDAzNDA5NDkxNDkKMjkvMDYvMjAxMwUxOTozOWQCAg9kFgJmDxUGCkRFTEhJIEguTy4AFVBBVEhBTktPVC0wMTg2MjIzNDM1MgwxMDAwMzA0MTIyMjAKMzAvMDYvMjAxMwUyMDowN2QCAw9kFgJmDxUGCVBBVEhBTktPVAAFICAtICABMAowMS8wNy8yMDEzBTE1OjA2ZBgBBR5fX0NvbnRyb2xzUmVxdWlyZVBvc3RCYWNrS2V5X18WAQUdY3RsMDAkTG9naW4yJGltZ3RyYWNrb25TdWJtaXRTjdVBMrmra84ziY%2F00Eqw1oHLhA%3D%3D&ctl00%24Login2%24txtUsername=&ctl00%24Login2%24txtPassword=&ctl00%24ContentPlaceHolder1%24Tracking1%24hidAWB=1{docket}&ctl00%24ContentPlaceHolder1%24Tracking1%24trackno={docket}&ctl00%24ContentPlaceHolder1%24Tracking1%24trackonSubmit=&ctl00%24ContentPlaceHolder1%24Tracking1%24primetrackno=&__EVENTVALIDATION=%2FwEWCQLUq4iMCAK00vXCBwLx3cW8DwKtpJblAwL4ya2YBgK5jN%2BIBgL8nsXZCgLCs5bTDALIlpeaCdsVYmlvDIpNyXh9yAT0H9sQIYi4""".format(docket=self.bill.docketNumber)
     def GetStatus(self):
-        FORM_DATA="""__VIEWSTATE=%2FwEPDwUKMTM2ODMyNjQ5NA9kFgJmD2QWAgICD2QWCAIFDw8WAh4HVmlzaWJsZWhkZAIHDw8WAh8AaGRkAgkPDxYCHgRUZXh0ZWRkAgsPZBYEAgEPZBYCAgEPFgIeA3NyYwUafi9pbWFnZXMvdHJhY2tTaGlwbWVudC5qcGdkAgMPFgIeC18hSXRlbUNvdW50AgEWAgIBD2QWBGYPFQQJMzQ1MTM4MDAwCURFTElWRVJFRAswMSBKdWwgMjAxMw53aXRoIFNJR05BVFVSRWQCAQ8WAh8DAgMWBgIBD2QWAmYPFQYJR0hBWklBQkFEABFERUxISSBIRUFEIE9GRklDRQwxMDAzNDA5NDkxNDkKMjkvMDYvMjAxMwUxOTozOWQCAg9kFgJmDxUGCkRFTEhJIEguTy4AFVBBVEhBTktPVC0wMTg2MjIzNDM1MgwxMDAwMzA0MTIyMjAKMzAvMDYvMjAxMwUyMDowN2QCAw9kFgJmDxUGCVBBVEhBTktPVAAFICAtICABMAowMS8wNy8yMDEzBTE1OjA2ZBgBBR5fX0NvbnRyb2xzUmVxdWlyZVBvc3RCYWNrS2V5X18WAQUdY3RsMDAkTG9naW4yJGltZ3RyYWNrb25TdWJtaXRTjdVBMrmra84ziY%2F00Eqw1oHLhA%3D%3D&ctl00%24Login2%24txtUsername=&ctl00%24Login2%24txtPassword=&ctl00%24ContentPlaceHolder1%24Tracking1%24hidAWB=1{docket}&ctl00%24ContentPlaceHolder1%24Tracking1%24trackno={docket}&ctl00%24ContentPlaceHolder1%24Tracking1%24trackonSubmit=&ctl00%24ContentPlaceHolder1%24Tracking1%24primetrackno=&__EVENTVALIDATION=%2FwEWCQLUq4iMCAK00vXCBwLx3cW8DwKtpJblAwL4ya2YBgK5jN%2BIBgL8nsXZCgLCs5bTDALIlpeaCdsVYmlvDIpNyXh9yAT0H9sQIYi4
-        """.format(docket=self.bill.docketNumber)
         req = urllib2.Request("http://trackoncourier.com/TrackonConsignment.aspx")
         req.add_header("Content-Type" , "application/x-www-form-urlencoded")
         req.add_header('Referer', 'http://trackoncourier.com/Default.aspx')
         req.add_header('Origin', 'http://trackoncourier.com')
-        resp = urllib2.urlopen(req, FORM_DATA)
+        resp = urllib2.urlopen(req, self.FORM_DATA)
         html = resp.read()
         if resp.code != 200 :
             raise Exception("Got {} reponse from Trackon server for bill: {}".format(resp.code, self.bill))
@@ -110,11 +109,12 @@ class TrackonCourier():
         return s.get_data()
 
     def StoreSnapshot(self):
-        StoreSnapshotWithPhantomScript(self.bill, "courier\\trackon_snapshot.js")
+        StoreSnapshotWithPhantomScript(self.bill, "courier\\trackon_snapshot.js", self.FORM_DATA)
 
 class ProfessionalCourier():
     def __init__(self, bill):
         self.bill = bill
+        self.FORM_DATA = None
 
     def GetStatus(self):
         req = urllib2.Request("""http://www.tpcindia.com/Tracking.aspx?id={docket}&type=0""".format(docket=self.bill.docketNumber.strip()))
@@ -137,11 +137,12 @@ class ProfessionalCourier():
             raise Exception("Cannot parse ProfessionalCourier response for bill: {}".format(self.bill))
 
     def StoreSnapshot(self):
-        StoreSnapshotWithPhantomScript(self.bill, "courier\\professional_snapshot.js")
+        StoreSnapshotWithPhantomScript(self.bill, "courier\\professional_snapshot.js", self.FORM_DATA)
 
 class LaljiMuljiTransport():
     def __init__(self, bill):
         self.bill = bill
+        self.FORM_DATA = None
 
     def GetStatus(self):
         req = urllib2.Request("""http://lmterp.com/ivcargo/Ajax.do?pageId=9&eventId=3&wayBillNumber={docket}&accountGroupId=201""" .format(docket=self.bill.docketNumber.strip()))
@@ -169,11 +170,12 @@ class LaljiMuljiTransport():
         return status
 
     def StoreSnapshot(self):
-        StoreSnapshotWithPhantomScript(self.bill, "courier\\laljimulji_snapshot.js")
+        StoreSnapshotWithPhantomScript(self.bill, "courier\\laljimulji_snapshot.js", self.FORM_DATA)
 
 class FirstFlightCourier():
     def __init__(self, bill):
         self.bill = bill
+        self.FORM_DATA = None
 
     def GetStatus(self):
         req = urllib2.Request("""http://www.firstflight.net/n_contrac_new_12Digit_New.asp?tracking1={docket}""".format(docket=self.bill.docketNumber.strip()))
@@ -203,19 +205,19 @@ class FirstFlightCourier():
         raise Exception("Cannot parse firstflight response for bill: {}".format(self.bill))
 
     def StoreSnapshot(self):
-        StoreSnapshotWithPhantomScript(self.bill, "courier\\firstflight_snapshot.js")
+        StoreSnapshotWithPhantomScript(self.bill, "courier\\firstflight_snapshot.js", self.FORM_DATA)
 
 class BluedartCourier():
     def __init__(self, bill):
         self.bill = bill
+        self.FORM_DATA="""handler=tnt&action=awbquery&awb=awb&numbers={docket}""".format(docket=self.bill.docketNumber)
 
     def GetStatus(self):
-        FORM_DATA="""handler=tnt&action=awbquery&awb=awb&numbers={docket}""".format(docket=self.bill.docketNumber)
         req = urllib2.Request("http://www.bluedart.com/servlet/RoutingServlet")
         req.add_header("Content-Type" , "application/x-www-form-urlencoded")
         req.add_header('Referer', 'http://www.bluedart.com/')
         req.add_header('Origin', 'http://www.bluedart.com')
-        resp = urllib2.urlopen(req, FORM_DATA)
+        resp = urllib2.urlopen(req, self.FORM_DATA)
         html = resp.read()
         if resp.code != 200 :
             raise Exception("Got {} reponse from Bluedart server for bill: {}".format(resp.code, self.bill))
@@ -240,20 +242,20 @@ class BluedartCourier():
         raise Exception("Cannot parse bluedart response for bill: {}".format(self.bill))
 
     def StoreSnapshot(self):
-        StoreSnapshotWithPhantomScript(self.bill, "courier\\bluedart_snapshot.js")
+        StoreSnapshotWithPhantomScript(self.bill, "courier\\bluedart_snapshot.js", self.FORM_DATA)
 
 class OverniteCourier():
     def __init__(self, bill):
         self.bill = bill
+        self.FORM_DATA = """__EVENTTARGET=&__EVENTARGUMENT=&__VIEWSTATE=%2FwEPDwULLTE1NDYzMTY4ODIPZBYCZg9kFgICAw9kFgICCQ9kFgYCAQ9kFgICAQ9kFgQCDA9kFgJmD2QWAgIBDzwrAA0AZAISDw8WAh4HVmlzaWJsZWhkZAICDw8WAh4EVGV4dGVkZAIDDw8WAh8BZWRkGAMFHl9fQ29udHJvbHNSZXF1aXJlUG9zdEJhY2tLZXlfXxYBBSdjdGwwMCRDbnRQbGFjZUhvbGRlckRldGFpbHMkaW1nYnRuVHJhY2sFJmN0bDAwJENudFBsYWNlSG9sZGVyRGV0YWlscyRNdWx0aVZpZXcxDw9kZmQFKWN0bDAwJENudFBsYWNlSG9sZGVyRGV0YWlscyRHcmlkVmlld091dGVyD2dkMSE0LqZK0ZL38hBQ3Gv6wMSkxZM%3D&__EVENTVALIDATION=%2FwEWBwKl555GAvj1jOsHAvn1jOsHAveapoULAuO8sPcNAtfns4QGAoDqqgXeq2tHc%2FT29q2XzNumidYjUn%2F9MQ%3D%3D&ctl00%24CntPlaceHolderDetails%24rdbListTrackType=1&ctl00%24CntPlaceHolderDetails%24txtAWB={docket}&ctl00%24CntPlaceHolderDetails%24ValidatorCalloutExtender6_ClientState=&ctl00%24CntPlaceHolderDetails%24imgbtnTrack.x=20&ctl00%24CntPlaceHolderDetails%24imgbtnTrack.y=9""".format(docket=self.bill.docketNumber)
 
     def GetStatus(self):
-        FORM_DATA="""__EVENTTARGET=&__EVENTARGUMENT=&__VIEWSTATE=%2FwEPDwUINjI1NjcyOTQPZBYCZg9kFgICAw9kFgICCQ9kFgYCAQ9kFgICAQ9kFgQCDA9kFgJmD2QWAgIBDzwrAA0AZAISDw8WAh4HVmlzaWJsZWhkZAICDw8WAh4EVGV4dGVkZAIDDw8WAh8BZWRkGAMFHl9fQ29udHJvbHNSZXF1aXJlUG9zdEJhY2tLZXlfXxYBBSdjdGwwMCRDbnRQbGFjZUhvbGRlckRldGFpbHMkaW1nYnRuVHJhY2sFJmN0bDAwJENudFBsYWNlSG9sZGVyRGV0YWlscyRNdWx0aVZpZXcxDw9kZmQFKWN0bDAwJENudFBsYWNlSG9sZGVyRGV0YWlscyRHcmlkVmlld091dGVyD2dkyjnzKNlK1F0lha2VPD203I0wnWY%3D&__EVENTVALIDATION=%2FwEWBwL5m5XfBgL49YzrBwL59YzrBwL3mqaFCwLjvLD3DQLX57OEBgKA6qoFptDBWKLK0LmchCP7GBi3QkiQbAA%3D&ctl00%24CntPlaceHolderDetails%24rdbListTrackType=1&ctl00%24CntPlaceHolderDetails%24txtAWB={docket}&ctl00%24CntPlaceHolderDetails%24ValidatorCalloutExtender6_ClientState=&ctl00%24CntPlaceHolderDetails%24imgbtnTrack.x=29&ctl00%24CntPlaceHolderDetails%24imgbtnTrack.y=7""".format(docket=self.bill.docketNumber)
 
         req = urllib2.Request("http://www.overnitenet.com/WebTrack.aspx")
         req.add_header("Content-Type" , "application/x-www-form-urlencoded")
         req.add_header('Referer', 'http://www.overnitenet.com/WebTrack.aspx')
         req.add_header('Origin', 'http://www.overnitenet.com')
-        resp = urllib2.urlopen(req, FORM_DATA)
+        resp = urllib2.urlopen(req, self.FORM_DATA)
         html = resp.read()
         if resp.code != 200 :
             raise Exception("Got {} reponse from Overnite server for bill: {}".format(resp.code, self.bill))
@@ -270,7 +272,7 @@ class OverniteCourier():
             raise Exception("Cannot parse overnite response for bill: {}".format(self.bill))
 
     def StoreSnapshot(self):
-        StoreSnapshotWithPhantomScript(self.bill, "courier\\overnite_snapshot.js")
+        StoreSnapshotWithPhantomScript(self.bill, "courier\\overnite_snapshot.js", self.FORM_DATA)
 
 if __name__ == '__main__':
     DOCKET = "8037705270"

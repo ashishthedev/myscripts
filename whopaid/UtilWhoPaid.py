@@ -310,7 +310,6 @@ def GuessCompanyGroupName(token):
     """Take a small string from user and try to guess the companyGroupName.
     Return None if it doesn't exist"""
     allCustomersInfo = GetAllCustomersInfo()
-    allCompaniesDict = GetAllCompaniesDict()
     uniqueCompGrpNames = [allCustomersInfo.GetCompanyGroupName(eachComp) for eachComp in allCustomersInfo]
 
     if not token:

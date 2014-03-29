@@ -8,6 +8,7 @@ REM We are assuming the appdir is two levels above this file.
 REM If the structure of APPDIR changes, a smiliar change in this file will also be required
 set APPDIR=%~dp0..\..
 set WEBDIR=%APPDIR%\..\website
+set PMTAPPDIR=%APPDIR%\..\pmtsdat
 set PHUNGSUKDIR=%APPDIR%\..\phungsuk_jibabo\detect_change_app
 set HORODIR=%APPDIR%\..\matchhoro
 set RELATIVEPATH=\Myscripts\bin\alias.txt

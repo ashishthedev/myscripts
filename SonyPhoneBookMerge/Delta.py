@@ -20,10 +20,16 @@ _JOHNBACKUPDIR = os.path.join(GetAppDir(), "Personal\\Phone\\Nano Phone Naite ba
 _KOSHIBACKUPDIR = os.path.join(GetAppDir(), "Personal\\Phone\\Koshi Phone Backup")
 
 _DELTAFILE = "b:\\desktop\\delta.vcf"
-_CONTACT_FILE = "contacts.vcf"
+
 
 
 def PrintDelta(JohnBackupDir, KoshiBackupDir, deltaFile):
+    _CONTACT_FILE = "contacts.vcf"
+    johnFile = os.path.join("b:\\desktop","c", "m", _CONTACT_FILE)
+    koshiFile = os.path.join("b:\\desktop","c", "p", _CONTACT_FILE)
+    PrintContactsToFile(deltaFile, FindMissingContactsInJohnsBook(johnFile, koshiFile))
+    return
+
     johnBackupFile = LatestFilePathUnderThisDirectory(JohnBackupDir)
     koshiBackupFile = LatestFilePathUnderThisDirectory(KoshiBackupDir)
 
@@ -38,6 +44,13 @@ def PrintDelta(JohnBackupDir, KoshiBackupDir, deltaFile):
     johnFile = ExtractFileIntoTempDirFromZippedFile(johnBackupFile, _CONTACT_FILE)
     koshiFile = ExtractFileIntoTempDirFromZippedFile(koshiBackupFile, _CONTACT_FILE)
 
+    _KOSHIBACKUPDIR = os.path.join("b:\\desktop","c", "p")
+
+    _DELTAFILE = "b:\\desktop\\delta.vcf"
+    _CONTACT_FILE = "contacts.vcf"
+
+    johnFile = os.path.join(_JOHNBACKUPDIR, _CONTACT_FILE)
+    koshiFile = os.path.join(_KOSHIBACKUPDIR, _CONTACT_FILE)
 
     PrintContactsToFile(deltaFile, FindMissingContactsInJohnsBook(johnFile, koshiFile))
 

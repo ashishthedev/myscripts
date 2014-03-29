@@ -71,7 +71,7 @@ rollbacksdat = pushd %WEBDIR%\ && appcfg.py rollback . --no_cookies --email="dev
 rollbacksdatlive = pushd %WEBDIR%\ && appcfg.py rollback . --no_cookies --email="developer@standarddiesandtools.com" --version="live" $*
 rollbacksdatdev = pushd %WEBDIR%\ && appcfg.py rollback . --no_cookies --email="developer@standarddiesandtools.com" --version="dev" $*
 golivesdat = %WEBDIR%\scripts\push.py --version="live" --email="developer@standarddiesandtools.com" $*
-godevsdat = %WEBDIR%\scripts\push.py --version="dev" --email="developer@standarddiesandtools.com" $*
+godevsdat = %WEBDIR%\scripts\push.py --version="dev" --email="developer@standarddiesandtools.com" --oauth2 $*
 golivephungsuk = %PHUNGSUKDIR%\scripts\push.py --version="live" --email="developer@phungsukjibabo.mygbiz.com"
 godevphungsuk = %PHUNGSUKDIR%\scripts\push.py --version="dev" --email="developer@phungsukjibabo.mygbiz.com"
 rollbackphungsuk = pushd %PHUNGSUKDIR% && appcfg.py rollback . --no_cookies --email="developer@phungsukjibabo.mygbiz.com" $*
@@ -97,6 +97,7 @@ gpyt = pushd "B:\\py_test\\"
 gplib = pushd "B:\\Python27\\Lib\\"
 gpod = pushd %APPDIR%\\..\\DocketPODs
 gpods = pushd %APPDIR%\\..\\DocketPODs
+fpod =  pushd %APPDIR%\\..\\DocketPODs && where /T /R . *$**
 cust2odat = copy c:\users\Ichigo\Dropbox\SDATDocs\Bills\Cust.xlsx c:\users\Ichigo\Dropbox\ODATDocs\Bills\Cust.xlsx
 
 analyze = pushd %APPDIR%\\myscripts\\misc\\PhoneBillAnalysis && AnalyzeBill.py $*
@@ -205,3 +206,6 @@ torsdat = pushd b:\tools\PrivoxyInstalled\ && start privoxy.exe && popd && %APPD
 ;= rem * in a DOSKEY macro file.
 ;= rem ******************************************************************
 ;=
+
+gpmt = pushd "%PMTAPPDIR%"
+godevpmt = %PMTAPPDIR%\utils\push.py --version="dev" --email="developer@standarddiesandtools.com" --oauth2 $*

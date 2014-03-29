@@ -15,6 +15,11 @@ from UtilDecorators import timeThisFunction
 from UtilConfig import GetOption
 from collections import defaultdict
 
+def SendHeartBeat():
+    CheckConsistency()
+    from OutstandingPmtJsonDBGeneration import DumpJSONDB
+    DumpJSONDB()
+
 def CheckConsistency():
     functionList = [
                     CheckCustomerExistenceInDB,

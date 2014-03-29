@@ -16,7 +16,7 @@ page.onConsoleMessage = function (msg) {
 };
 var destinationFile = system.args[1]
 var docket = system.args[2]
-var FORM_DATA="__EVENTTARGET=&__EVENTARGUMENT=&__VIEWSTATE=%2FwEPDwUINjI1NjcyOTQPZBYCZg9kFgICAw9kFgICCQ9kFgYCAQ9kFgICAQ9kFgQCDA9kFgJmD2QWAgIBDzwrAA0AZAISDw8WAh4HVmlzaWJsZWhkZAICDw8WAh4EVGV4dGVkZAIDDw8WAh8BZWRkGAMFHl9fQ29udHJvbHNSZXF1aXJlUG9zdEJhY2tLZXlfXxYBBSdjdGwwMCRDbnRQbGFjZUhvbGRlckRldGFpbHMkaW1nYnRuVHJhY2sFJmN0bDAwJENudFBsYWNlSG9sZGVyRGV0YWlscyRNdWx0aVZpZXcxDw9kZmQFKWN0bDAwJENudFBsYWNlSG9sZGVyRGV0YWlscyRHcmlkVmlld091dGVyD2dkyjnzKNlK1F0lha2VPD203I0wnWY%3D&__EVENTVALIDATION=%2FwEWBwL5m5XfBgL49YzrBwL59YzrBwL3mqaFCwLjvLD3DQLX57OEBgKA6qoFptDBWKLK0LmchCP7GBi3QkiQbAA%3D&ctl00%24CntPlaceHolderDetails%24rdbListTrackType=1&ctl00%24CntPlaceHolderDetails%24txtAWB="+docket+"&ctl00%24CntPlaceHolderDetails%24ValidatorCalloutExtender6_ClientState=&ctl00%24CntPlaceHolderDetails%24imgbtnTrack.x=29&ctl00%24CntPlaceHolderDetails%24imgbtnTrack.y=7";
+var FORM_DATA = system.args[3]
 
 
 try {

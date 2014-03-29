@@ -114,6 +114,15 @@ RunAppserverForPath(path)
     return
 }
 
+#F3::
+{
+    path = %APPDIR_ENV%\..\pmtsdat
+    ;StartMailServer()
+    RunAppserverForPath(path)
+    return
+
+}
+
 #!C::
 {
     filePath = %APPDIR_ENV%\Bills\Cust.xlsx

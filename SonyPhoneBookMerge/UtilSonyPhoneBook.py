@@ -24,14 +24,14 @@ class SingleContact:
         return other.strippedNo == self.strippedNo
 
     def PrintAsVCard(self, fh=sys.stdout):
-        record =\
-"""BEGIN:VCARD
-VERSION:2.1
-N;CHARSET=UTF-8:{0}
-FN;CHARSET=UTF-8:{0}
-TEL;CELL:{1}
-END:VCARD""".format(self.name, self.actualNo)
-        fh.write(record)
+        fh.write("""BEGIN:VCARD\r
+VERSION:3.0\r
+FN:{0}\r
+N:{0};;;;\r
+TEL;TYPE=CELL:{1}\r
+END:VCARD\r
+""".format(self.name, self.actualNo))
+        return
 
 def ParseVCardFile(filePath):
     KnownTags={ "START":"BEGIN", "END" : "END", "NAME":"FN;", "TEL":"TEL;"}
