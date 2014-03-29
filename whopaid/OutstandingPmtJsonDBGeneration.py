@@ -47,7 +47,7 @@ def DumpJSONDB():
         oneCustomer = dict()
         oneCustomer["name"] = " {} | {}".format(eachCompName, SMALL_NAME)
         oneCustomerBills = []
-        unpaidBillList = sorted(unpaidBillList, key=lambda b: b.billNumber)
+        unpaidBillList = sorted(unpaidBillList, key=lambda b: datex(b.invoiceDate))
         for b in unpaidBillList:
             oneBill = {
                     "bn" : b.billNumber,

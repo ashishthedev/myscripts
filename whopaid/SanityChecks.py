@@ -16,7 +16,7 @@ from UtilConfig import GetOption
 from collections import defaultdict
 
 def SendHeartBeat():
-    CheckConsistency()
+    #A new concept of heartbeat. Only limited to json uploads
     from OutstandingPmtJsonDBGeneration import DumpJSONDB, UploadPmtData
     DumpJSONDB()
     UploadPmtData()
