@@ -208,4 +208,4 @@ torsdat = pushd b:\tools\PrivoxyInstalled\ && start privoxy.exe && popd && %APPD
 ;=
 
 gpmt = pushd "%PMTAPPDIR%"
-godevpmt = %PMTAPPDIR%\utils\push.py --version="dev" --email="developer@standarddiesandtools.com" --oauth2 $*
+godevpmt = %PMTAPPDIR%\utils\push.py --version="dev" --email="developer@standarddiesandtools.com" --oauth2 --force-upload $*
