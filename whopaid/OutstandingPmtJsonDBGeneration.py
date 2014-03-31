@@ -8,7 +8,7 @@ PMTAPPDIR = os.getenv("PMTAPPDIR")
 DUMPING_DIR = os.path.join(PMTAPPDIR, "static", "dbs")
 SMALL_NAME = GetOption("CONFIG_SECTION", "SmallName")
 EXT = ".json"
-FINAL_JSON_FILE = os.path.join(DUMPING_DIR, SMALL_NAME + EXT)
+JSON_FILE_NAME = os.path.join(DUMPING_DIR, SMALL_NAME + EXT)
 
 """
 data=
@@ -36,8 +36,8 @@ def DumpJSONDB():
     #TODO: Check from datestamp if dumping is required
     allCompaniesDict = GetAllCompaniesDict()
 
-    if os.path.exists(FINAL_JSON_FILE):
-        os.remove(FINAL_JSON_FILE)
+    if os.path.exists(JSON_FILE_NAME):
+        os.remove(JSON_FILE_NAME)
 
     data = {}
     allCustomers = []
@@ -52,6 +52,7 @@ def DumpJSONDB():
             oneBill = {
                     "bn" : b.billNumber,
                     "bd": DD_MM_YYYY(datex(b.invoiceDate)),
+                    "cd": b.daysOfCredit,
                     "ba":str(int(b.billAmount))
                     }
             oneCustomerBills.append(oneBill)
@@ -62,13 +63,11 @@ def DumpJSONDB():
 
     data["customers"] = sorted(allCustomers, key=lambda c: c["name"])
 
-    with open(FINAL_JSON_FILE, "w") as f:
+    with open(JSON_FILE_NAME, "w") as f:
         json.dump(data, f, separators=(',',':'), indent=2)
 
 def UploadPmtData():
-    #TODO: Decide when to upload
     import subprocess
-    PMTAPPDIR
     pushFile = os.path.abspath(os.path.join(PMTAPPDIR, "utils", "push.py"))
     if not os.path.exists(pushFile):
         raise Exception("{} does not exist".format(pushFile))
