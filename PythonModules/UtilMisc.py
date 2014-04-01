@@ -16,6 +16,19 @@ import shutil
 import hashlib
 import pickle
 
+class cd(object):
+    """Context manager for changing the current working directory"""
+    def __init__(self, newPath):
+        self.newPath = newPath
+
+    def __enter__(self):
+        self.savedPath = os.getcwd()
+        os.chdir(self.newPath)
+
+    def __exit__(self, etype, value, traceback):
+        os.chdir(self.savedPath)
+
+
 def GetHash(path):
     """
     Give it a path(directory/file) and this function will give a hash value for it. When the file or dir changes, so will the hash value.

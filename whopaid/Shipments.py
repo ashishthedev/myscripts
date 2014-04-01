@@ -703,6 +703,6 @@ def TrackAllShipments(args):
             #Print the exception and move on to next shipment
 
 if __name__ == '__main__':
-    SendHeartBeat()
     CheckConsistency()
+    SendHeartBeat()
     main()
