@@ -34,6 +34,7 @@ data=
 """
 def DumpJSONDB():
     #TODO: Check from datestamp if dumping is required
+    print("Generating Outstanding JSON for {}".format(SMALL_NAME))
     allCompaniesDict = GetAllCompaniesDict()
 
     if os.path.exists(JSON_FILE_NAME):
