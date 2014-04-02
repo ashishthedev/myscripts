@@ -1,14 +1,14 @@
 import os
 import json
 from UtilConfig import GetOption
-from UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, datex
+from UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, datex, RemoveTrackingBills
 from UtilMisc import DD_MM_YYYY
 
 PMTAPPDIR = os.getenv("PMTAPPDIR")
 DUMPING_DIR = os.path.join(PMTAPPDIR, "static", "dbs")
 SMALL_NAME = GetOption("CONFIG_SECTION", "SmallName")
 EXT = ".json"
-JSON_FILE_NAME = os.path.join(DUMPING_DIR, SMALL_NAME + EXT)
+JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, SMALL_NAME + EXT))
 
 """
 data=
@@ -33,8 +33,6 @@ data=
 
 """
 def DumpJSONDB():
-    #TODO: Check from datestamp if dumping is required
-    print("Generating JSON for {}".format(SMALL_NAME))
     allCompaniesDict = GetAllCompaniesDict()
 
     if os.path.exists(JSON_FILE_NAME):
@@ -45,6 +43,7 @@ def DumpJSONDB():
 
     for eachCompName, eachCompBills in allCompaniesDict.items():
         unpaidBillList = SelectUnpaidBillsFrom(eachCompBills)
+        unpaidBillList = RemoveTrackingBills(unpaidBillList)
         oneCustomer = dict()
         oneCustomer["name"] = " {} | {}".format(eachCompName, SMALL_NAME)
         oneCustomerBills = []
@@ -64,7 +63,7 @@ def DumpJSONDB():
 
     data["customers"] = sorted(allCustomers, key=lambda c: c["name"])
 
-    with open(JSON_FILE_NAME, "w") as f:
+    with open(JSON_FILE_NAME, "w+") as f:
         json.dump(data, f, separators=(',',':'), indent=2)
 
 def UploadPmtData():
@@ -78,5 +77,7 @@ def UploadPmtData():
     subprocess.check_call(cmd)
 
 
-if __name__ == "__main__":
-    DumpJSONDB()
+#if __name__ == "__main__":
+#    DumpJSONDB()
+# Unforutnately, it is being invoked through child process and name is actually
+# _main__. So being invoked twice

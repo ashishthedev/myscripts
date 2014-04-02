@@ -230,6 +230,8 @@ def SelectUnpaidBillsFrom(billList):
 def RemoveMinusOneBills(billList):
     return [b for b in billList if b.billNumber != str(int(-1))]
 
+def RemoveTrackingBills(billList):
+    return [b for b in billList if not b.billingCategory.lower().startswith("tracking")]
 
 class BillsCol:
     """

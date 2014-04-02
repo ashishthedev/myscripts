@@ -6,7 +6,7 @@
 
 from __future__ import print_function, division
 
-from UtilWhoPaid import GetAllBillsInLastNDays
+from UtilWhoPaid import GetAllBillsInLastNDays, RemoveTrackingBills
 from CustomersInfo import GetAllCustomersInfo
 from UtilMisc import PrintInBox, GetMsgInBox, DD_MM_YYYY
 from UtilConfig import GetOption
@@ -630,7 +630,9 @@ def main():
         TrackAllShipments(args)
 
 def SendDispatchSMSToAllCompanies(args):
-    [PersistentShipment.GetOrCreateShipmentForBill(b) for b in GetAllBillsInLastNDays(args.days) if b.docketDate]
+    bills = [b for b in GetAllBillsInLastNDays(args.days) if b.docketDate]
+    bills = RemoveTrackingBills(bills)
+    [PersistentShipment.GetOrCreateShipmentForBill(b) for b in bills]
     shipments = PersistentShipment.GetAllStoredShipments()
     shipments = [s for s in shipments if s.ShouldWeTrackThis()] #Filter our deliverd shipments
     shipments = [s for s in shipments if not s.wasShipmentSmsEverSent()]
@@ -655,8 +657,11 @@ def SendDispatchSMSToAllCompanies(args):
         print(ex)
         #eat the exception after printing. We have printed our custom exception, its good enough.
     return
+
 def SendMailToAllComapnies(args):
-    [PersistentShipment.GetOrCreateShipmentForBill(b) for b in GetAllBillsInLastNDays(args.days) if b.docketDate]
+    bills = [b for b in GetAllBillsInLastNDays(args.days) if b.docketDate]
+    bills = RemoveTrackingBills(bills)
+    [PersistentShipment.GetOrCreateShipmentForBill(b) for b in bills]
     shipments = PersistentShipment.GetAllStoredShipments()
     shipments = [s for s in shipments if s.ShouldWeTrackThis()] #Filter our deliverd shipments
     shipments = [s for s in shipments if not s.wasShipmentMailEverSent()]

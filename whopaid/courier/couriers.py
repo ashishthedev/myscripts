@@ -114,10 +114,10 @@ class TrackonCourier():
 class ProfessionalCourier():
     def __init__(self, bill):
         self.bill = bill
-        self.FORM_DATA = None
+        self.FORM_DATA = ""
 
     def GetStatus(self):
-        req = urllib2.Request("""http://www.tpcindia.com/Tracking.aspx?id={docket}&type=0""".format(docket=self.bill.docketNumber.strip()))
+        req = urllib2.Request("""http://www.tpcindia.com/Tracking2014.aspx?id={docket}&type=0&service=0""".format(docket=self.bill.docketNumber.strip()))
         req.add_header('Host', 'www.tpcindia.com')
         req.add_header('Referer', 'http://www.tpcindia.com/')
         resp = urllib2.urlopen(req)
