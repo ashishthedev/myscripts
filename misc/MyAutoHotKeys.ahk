@@ -117,7 +117,7 @@ RunAppserverForPath(path)
 #F3::
 {
     path = %APPDIR_ENV%\..\pmtsdat
-    ;StartMailServer()
+    StartMailServer()
     RunAppserverForPath(path)
     return
 

@@ -45,7 +45,6 @@ def DumpJSONDB():
     data = {}
     allCustomers = []
 
-    print("Generating {}".format(JSON_FILE_NAME))
     for eachCompName, eachCompBills in allCompaniesDict.items():
         unpaidBillList = SelectUnpaidBillsFrom(eachCompBills)
         unpaidBillList = RemoveTrackingBills(unpaidBillList)
