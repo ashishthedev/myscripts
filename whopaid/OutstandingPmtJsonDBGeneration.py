@@ -45,14 +45,12 @@ def DumpJSONDB():
     data = {}
     allCustomers = []
 
+    print("Generating {}".format(JSON_FILE_NAME))
     for eachCompName, eachCompBills in allCompaniesDict.items():
         unpaidBillList = SelectUnpaidBillsFrom(eachCompBills)
         unpaidBillList = RemoveTrackingBills(unpaidBillList)
         oneCustomer = dict()
         oneCustomer["name"] = " {} | {}".format(eachCompName, SMALL_NAME)
-
-        oneCustomer["trust"] = str(floatx(GetAllCustomersInfo().GetTrustForCustomer(eachCompName)))
-        if not oneCustomer["trust"]: raise Exception("M/s {} have 0 trust. Please fix the database.".format(eachCompName))
 
         oneCustomerBills = []
         unpaidBillList = sorted(unpaidBillList, key=lambda b: datex(b.invoiceDate))
@@ -69,22 +67,11 @@ def DumpJSONDB():
         if len(oneCustomerBills) > 0:
             allCustomers.append(oneCustomer)
 
-    data["customers"] = sorted(allCustomers, key=lambda c: c["name"])
+    data["customers"] = allCustomers
 
     with open(JSON_FILE_NAME, "w+") as f:
         json.dump(data, f, separators=(',',':'), indent=2)
     return
-
-#def UploadPmtData():
-#    import subprocess
-#    pushFile = os.path.abspath(os.path.join(PMTAPPDIR, "utils", "push.py"))
-#    if not os.path.exists(pushFile):
-#        raise Exception("{} does not exist".format(pushFile))
-#    e = 'moc.slootdnaseiddradnats@repoleved'
-#    v='dev'
-#    cmd = "python {pushFile} --email={e} --version={v} --oauth2".format(pushFile=pushFile, e=e[::-1], v=v)
-#    subprocess.check_call(cmd)
-#
 
 if __name__ == "__main__":
     DumpJSONDB()
