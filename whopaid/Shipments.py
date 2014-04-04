@@ -299,14 +299,16 @@ Thanks.
 """)
     smsContents = smsTemplate.substitute(d)
 
-    smsNo = smsNo.replace(';', ',').strip()
     COMMA = ","
+    smsNo = smsNo.replace(';', ',').strip()
     listOfNos = [x.strip() for x in smsNo.split(COMMA)]
     anyAdditionalSmsNo = GetOption("SMS_SECTION", "CC_NO")
     if anyAdditionalSmsNo:
-        listOfNos.append(anyAdditionalSmsNo)
+        anyAdditionalSmsNo = anyAdditionalSmsNo.replace(';', ',').strip()
+        listOfNos.extend([x.strip() for x in anyAdditionalSmsNo.split(COMMA)])
 
     for x in listOfNos:
+        print("Sending to these numbers: {}".format(" ".join(listOf)))
         SendSms(x, smsContents)
 
     return

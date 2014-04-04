@@ -11,6 +11,7 @@ from SanityChecks import CheckConsistency
 from UtilMisc import PrintInBox, printNow
 from UtilException import MyException
 from argparse import ArgumentParser
+from UtilConfig import GetOption
 
 
 @timeThisFunction
@@ -38,6 +39,8 @@ def WhoPaid(paymentMade):
     for eachCompName in allCompaniesDict:
         billsList = allCompaniesDict[eachCompName]
         unpaidBillsList = SelectUnpaidBillsFrom(billsList)
+        if len(unpaidBillsList) > int(GetOption("CONFIG_SECTION", "MaxUnpaidBills")):
+            continue
 
         (can, returnBillsList) = CanThisCompanyPay(unpaidBillsList, paymentMade)
         if can:
