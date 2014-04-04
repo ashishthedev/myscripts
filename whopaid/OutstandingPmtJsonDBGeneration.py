@@ -72,5 +72,17 @@ def DumpJSONDB():
         json.dump(data, f, separators=(',',':'), indent=2)
     return
 
+def UploadPmtData():
+    import subprocess
+    pushFile = os.path.abspath(os.path.join(PMTAPPDIR, "utils", "push.py"))
+    if not os.path.exists(pushFile):
+        raise Exception("{} does not exist".format(pushFile))
+    e = 'moc.slootdnaseiddradnats@repoleved'
+    v='dev'
+    cmd = "python {pushFile} --email={e} --version={v} --oauth2".format(pushFile=pushFile, e=e[::-1], v=v)
+    subprocess.check_call(cmd)
+
+
+
 if __name__ == "__main__":
     DumpJSONDB()
