@@ -86,5 +86,5 @@ def DumpJSONDB():
 #    subprocess.check_call(cmd)
 #
 
-#if __name__ == "__main__":
-#    DumpJSONDB()
+if __name__ == "__main__":
+    DumpJSONDB()
