@@ -1,8 +1,9 @@
 import os
 import json
 from UtilConfig import GetOption
-from UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, datex, RemoveTrackingBills
+from UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, datex, RemoveTrackingBills, floatx
 from UtilMisc import DD_MM_YYYY
+from CustomersInfo import GetAllCustomersInfo
 
 PMTAPPDIR = os.getenv("PMTAPPDIR")
 DUMPING_DIR = os.path.join(PMTAPPDIR, "static", "dbs")
@@ -16,17 +17,20 @@ data=
     customers:[
     {
         name:"Starbucks | SDAT",
+        trust: .5,
         bills:[
-            { billNumber:"1", billDate:"1-Mar-14", billAmount:"1400"},
-            { billNumber:"2", billDate:"2-Mar-14", billAmount:"2400"},
-            ]
+            { bn:"1", bd:"1-Mar-14", ba:"1400"},
+            { bn:"2", bd:"2-Mar-14", ba:"2400"},
+            ],
+        trust: .5,
     },
     {
         name:"CostaCoffee | Omega",
+        trust: .5,
         bills:[
-            { billNumber:"3", billDate:"3-Mar-14", billAmount:"3400"},
-            { billNumber:"4", billDate:"4-Mar-14", billAmount:"4400"},
-            ]
+            { bn:"3", bd:"3-Mar-14", ba:"3400"},
+            { bn:"4", bd:"4-Mar-14", ba:"4400"},
+            ],
     }
     ]
 }
@@ -46,13 +50,17 @@ def DumpJSONDB():
         unpaidBillList = RemoveTrackingBills(unpaidBillList)
         oneCustomer = dict()
         oneCustomer["name"] = " {} | {}".format(eachCompName, SMALL_NAME)
+
+        oneCustomer["trust"] = str(floatx(GetAllCustomersInfo().GetTrustForCustomer(eachCompName)))
+        if not oneCustomer["trust"]: raise Exception("M/s {} have 0 trust. Please fix the database.".format(eachCompName))
+
         oneCustomerBills = []
         unpaidBillList = sorted(unpaidBillList, key=lambda b: datex(b.invoiceDate))
         for b in unpaidBillList:
             oneBill = {
                     "bn" : b.billNumber,
                     "bd": DD_MM_YYYY(datex(b.invoiceDate)),
-                    "cd": b.daysOfCredit,
+                    "cd": str(b.daysOfCredit),
                     "ba":str(int(b.billAmount))
                     }
             oneCustomerBills.append(oneBill)
@@ -65,19 +73,18 @@ def DumpJSONDB():
 
     with open(JSON_FILE_NAME, "w+") as f:
         json.dump(data, f, separators=(',',':'), indent=2)
+    return
 
-def UploadPmtData():
-    import subprocess
-    pushFile = os.path.abspath(os.path.join(PMTAPPDIR, "utils", "push.py"))
-    if not os.path.exists(pushFile):
-        raise Exception("{} does not exist".format(pushFile))
-    e = 'moc.slootdnaseiddradnats@repoleved'
-    v='dev'
-    cmd = "python {pushFile} --email={e} --version={v} --oauth2".format(pushFile=pushFile, e=e[::-1], v=v)
-    subprocess.check_call(cmd)
-
+#def UploadPmtData():
+#    import subprocess
+#    pushFile = os.path.abspath(os.path.join(PMTAPPDIR, "utils", "push.py"))
+#    if not os.path.exists(pushFile):
+#        raise Exception("{} does not exist".format(pushFile))
+#    e = 'moc.slootdnaseiddradnats@repoleved'
+#    v='dev'
+#    cmd = "python {pushFile} --email={e} --version={v} --oauth2".format(pushFile=pushFile, e=e[::-1], v=v)
+#    subprocess.check_call(cmd)
+#
 
 #if __name__ == "__main__":
 #    DumpJSONDB()
-# Unforutnately, it is being invoked through child process and name is actually
-# _main__. So being invoked twice
