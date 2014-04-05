@@ -15,6 +15,35 @@ import sys
 import shutil
 import hashlib
 import pickle
+import tempfile
+
+class tempCopy(object):
+    """ Create a temp copy of file/dir and destroy it after work is done"""
+    def __init__(self, origPath, ignorePattern=None):
+        self.origPath = origPath
+        self.ignorePattern = ignorePattern
+
+    def __enter__(self):
+        self.newPath = None
+        self.tempdir = tempfile.mkdtemp()
+        if os.path.isdir(self.origPath):
+            #Its a dir; create a copy in tempdir
+            leafDir = os.path.basename(self.origPath)
+            leafDirParent = os.path.basename(os.path.dirname(self.origPath))
+            self.newPath = os.path.join(self.tempdir, leafDirParent, leafDir)
+            shutil.copytree(self.origPath, self.newPath, ignore=self.ignorePattern)
+        else:
+            #Its a file; just copy in temp dir
+            self.newPath = os.path.join(self.tempdir, os.path.basename(self.origPath))
+            shutil.copy(self.origPath, self.tempdir)
+
+        assert self.newPath is not None
+        return self.newPath
+
+    def __exit__(self, etype, value, traceback):
+        shutil.rmtree(self.tempdir)
+        return
+
 
 class cd(object):
     """Context manager for changing the current working directory"""

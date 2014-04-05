@@ -142,7 +142,7 @@ class ProfessionalCourier():
 class LaljiMuljiTransport():
     def __init__(self, bill):
         self.bill = bill
-        self.FORM_DATA = None
+        self.FORM_DATA = ""
 
     def GetStatus(self):
         req = urllib2.Request("""http://lmterp.com/ivcargo/Ajax.do?pageId=9&eventId=3&wayBillNumber={docket}&accountGroupId=201""" .format(docket=self.bill.docketNumber.strip()))
@@ -175,7 +175,7 @@ class LaljiMuljiTransport():
 class FirstFlightCourier():
     def __init__(self, bill):
         self.bill = bill
-        self.FORM_DATA = None
+        self.FORM_DATA = ""
 
     def GetStatus(self):
         req = urllib2.Request("""http://www.firstflight.net/n_contrac_new_12Digit_New.asp?tracking1={docket}""".format(docket=self.bill.docketNumber.strip()))

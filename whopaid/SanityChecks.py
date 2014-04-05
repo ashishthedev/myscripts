@@ -17,8 +17,7 @@ from collections import defaultdict
 
 def SendHeartBeat():
     #A new concept of heartbeat. Only limited to json uploads
-    from OutstandingPmtJsonDBGeneration import DumpJSONDB, UploadPmtData
-    DumpJSONDB()
+    from OutstandingPmtJsonDBGeneration import UploadPmtData
     UploadPmtData()
 
 
