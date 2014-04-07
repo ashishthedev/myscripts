@@ -342,9 +342,9 @@ def GetHTMLTableBlockForThisComp(compName, allCompaniesDict, allCustomersInfo):
         #Add a row to table for each unpaid bill
         if includeCreditDays:
             if b.daysOfCredit > allowedDaysOfCredit:
-                billRowArgs.append(Bold(str(b.daysOfCredit) + " days"))
+                billRowArgs.append(PastelOrangeText(Bold(str(b.daysOfCredit) + " days")))
             else:
-                billRowArgs.append(" ")
+                billRowArgs.append(str(b.daysOfCredit) + " days")
 
         tableRows += MakeBillRow(*billRowArgs)
 
@@ -354,7 +354,7 @@ def GetHTMLTableBlockForThisComp(compName, allCompaniesDict, allCustomersInfo):
 
     tableRows += MakeBillRow(*tableFinalRowArgs)
 
-    caption = "M/s {}, {}".format(companyOfficialName, companyCity) + PastelOrangeText(Bold("<br>Rs.{}".format(str(totalDue))))
+    caption = "M/s {}, {}".format(companyOfficialName, companyCity) + Bold("<br>Rs.{}".format(str(totalDue)))
 
     d = defaultdict(constant_factory(""))
     d['tTableRows'] = tableRows
