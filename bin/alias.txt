@@ -70,7 +70,7 @@ gydl = pushd "B:\\YoutubeVideosDownloaded\\"
 rollbacksdat = pushd %WEBDIR%\ && appcfg.py rollback . --no_cookies --email="developer@standarddiesandtools.com" $*
 rollbacksdatlive = pushd %WEBDIR%\ && appcfg.py rollback . --no_cookies --email="developer@standarddiesandtools.com" --version="live" $*
 rollbacksdatdev = pushd %WEBDIR%\ && appcfg.py rollback . --no_cookies --email="developer@standarddiesandtools.com" --version="dev" $*
-golivesdat = %WEBDIR%\scripts\push.py --version="live" --email="developer@standarddiesandtools.com" $*
+golivesdat = %WEBDIR%\scripts\push.py --version="live" --email="developer@standarddiesandtools.com" --oauth2 $*
 godevsdat = %WEBDIR%\scripts\push.py --version="dev" --email="developer@standarddiesandtools.com" --oauth2 $*
 golivephungsuk = %PHUNGSUKDIR%\scripts\push.py --version="live" --email="developer@phungsukjibabo.mygbiz.com"
 godevphungsuk = %PHUNGSUKDIR%\scripts\push.py --version="dev" --email="developer@phungsukjibabo.mygbiz.com"
