@@ -1,4 +1,4 @@
-BILL_PDF_FILE_PATH = "B:\\desktop\\b\\Bill-2013-05.pdf"
+BILL_PDF_FILE_PATH = "B:\\desktop\\b\\Bill-2014-03.pdf"
 #########################
 ## This file is meant to extract meaningful information from the text file converted directly from mobile bill pdf
 ##
@@ -49,59 +49,83 @@ class CallRecord(object):
                 identification,
                 )
 
-def CreateRecordFromThisString(record):
-    if record[2] != "-" or record[6] != "-":
+def CreateRecordFromThisString(recordString):
+    if recordString[2] != "-" or recordString[6] != "-":
         #Bare minimum criteria for even attempting to create a record
         raise Exception("Trying to feed an invalid record")
 
-    def isCallRecord(record):
-        thirtyFirstChar = record[46]
-        return thirtyFirstChar == ":"
+    rcType = TryToDeduceTypeOfRecord(recordString)
 
-    def isMsgRecord(record):
-        thirtyFirstChar = record[46]
-        twentyNinthChar = record[44]
-        return (thirtyFirstChar == "." and twentyNinthChar == "1")
-
-    if isCallRecord(record):
-        date = record[Semantics.DATE_FROM:Semantics.DATE_TO]
-        time = record[Semantics.TIME_FROM : Semantics.TIME_TO]
-        number = record[Semantics.NUMBER_FROM : Semantics.NUMBER_TO]
-        duration = record[Semantics.DURATION_FROM: Semantics.DURATION_TO]
-        amount = record[Semantics.AMOUNT_FROM: Semantics.AMOUNT_TO]
+    if RECORD_TYPE.CALL == rcType:
+        date = recordString[CALL_SEMANTICS.DATE_FROM:CALL_SEMANTICS.DATE_TO]
+        time = recordString[CALL_SEMANTICS.TIME_FROM : CALL_SEMANTICS.TIME_TO]
+        number = recordString[CALL_SEMANTICS.NUMBER_FROM : CALL_SEMANTICS.NUMBER_TO]
+        duration = recordString[CALL_SEMANTICS.DURATION_FROM: CALL_SEMANTICS.DURATION_TO]
+        amount = recordString[CALL_SEMANTICS.AMOUNT_FROM: CALL_SEMANTICS.AMOUNT_TO]
         personName = FindName(number)
         return CallRecord(number, date, time, duration, amount, personName)
 
-    elif isMsgRecord(record):
-        date = record[Semantics.DATE_FROM:Semantics.DATE_TO]
-        time = record[Semantics.TIME_FROM : Semantics.TIME_TO]
-        number = record[Semantics.NUMBER_FROM : Semantics.NUMBER_TO]
-        duration = record[Semantics.DURATION_FROM: Semantics.DURATION_TO]
-        amount = record[Semantics.AMOUNT_FROM: Semantics.AMOUNT_TO]
+    elif RECORD_TYPE.MSG == rcType:
+        date = recordString[MSG_SEMANTICS.DATE_FROM:MSG_SEMANTICS.DATE_TO]
+        time = recordString[MSG_SEMANTICS.TIME_FROM : MSG_SEMANTICS.TIME_TO]
+        number = recordString[MSG_SEMANTICS.NUMBER_FROM : MSG_SEMANTICS.NUMBER_TO]
+        amount = recordString[MSG_SEMANTICS.AMOUNT_FROM: MSG_SEMANTICS.AMOUNT_TO]
         personName = FindName(number)
         return CallRecord(number, date, time, duration, amount, personName)
+    elif RECORD_TYPE.ROAMING == rcType:
+        date = recordString[ROAMING_SEMANTICS.DATE_FROM:ROAMING_SEMANTICS.DATE_TO]
+        time = recordString[ROAMING_SEMANTICS.TIME_FROM : ROAMING_SEMANTICS.TIME_TO]
+        number = recordString[ROAMING_SEMANTICS.NUMBER_FROM : ROAMING_SEMANTICS.NUMBER_TO]
+        amount = recordString[ROAMING_SEMANTICS.AMOUNT_FROM: ROAMING_SEMANTICS.AMOUNT_TO]
+        personName = FindName(number)
+        return CallRecord(number, date, time, duration, amount, personName)
+
     else:
-        print("Cannot understand what is: '{}'".format(record))
+        print("Cannot understand what is: '{}'".format(recordString))
         return None
 
-class Semantics:
+class CALL_SEMANTICS:
     """
-18-nov-201318:58:59airtel-up(east)993514779500:471.0035
+11-mar-2014 12:00:26 7800662587 04:09 2.50 6
     """
-    LENGTH_OF_RECORD=53
     DATE_FROM = 0
     DATE_TO = 11
     TIME_FROM = 11
     TIME_TO = 19
-    ARE_FROM = 19
-    AREA_TO = 34
-    NUMBER_FROM = 34
-    NUMBER_TO = 44
-    DURATION_FROM = 44
-    DURATION_TO = 49
-    AMOUNT_FROM = 49
-    AMOUNT_TO = 53
+    NUMBER_FROM = 19
+    NUMBER_TO = 29
+    DURATION_FROM = 29
+    DURATION_TO = 34
+    AMOUNT_FROM = 34
+    AMOUNT_TO = 38
 
+class MSG_SEMANTICS:
+    """
+08-mar-2014 10:08:44 9971602777 1 0.30**2
+    """
+    DATE_FROM = 0
+    DATE_TO = 11
+    TIME_FROM = 11
+    TIME_TO = 19
+    NUMBER_FROM = 19
+    NUMBER_TO = 29
+    DURATION_FROM = 29
+    AMOUNT_FROM = 30
+    AMOUNT_TO = 34
+
+class ROAMING_SEMANTICS:
+"""
+05-apr-201420:43:43airtel-upwest9389620396 00:34 0.75**2
+"""
+    DATE_FROM = 0
+    DATE_TO = 11
+    TIME_FROM = 11
+    TIME_TO = 19
+    NUMBER_FROM = 19
+    NUMBER_TO = 29
+    DURATION_FROM = 29
+    AMOUNT_FROM = 30
+    AMOUNT_TO = 34
 
 def process_text_and_get_list_of_records(text):
     text = text.lower()
@@ -111,19 +135,18 @@ def process_text_and_get_list_of_records(text):
 
     for pivot in pivots:
         pos = text.find(pivot, 0)
-
         while pos != -1:
             #Continue until you cannot find any more instances of this pivot
-            record = text[pos-3:pos-3+Semantics.LENGTH_OF_RECORD]
-            #Sample record is given below
-            #Call = 09-Aug-201315:55:34XXXXXXXXXX00:470.00
-            #msg  = 12-Aug-201310:39:31997160277710.30**XX
-            if (record[2] == "-") and (record[6] == "-"):
-                #Its a date - confirmed
-                rec = CreateRecordFromThisString(record)
-                if rec:
-                    listOfRecords.append(rec)
+            nextPos = text.find(pivot, pos + 1)
+            if nextPos == -1: break
+            recordString = text[pos-3 : nextPos-3]
+            if len(recordString) < 100 :
+                interpretedRecord = TryToDeduceTypeOfRecord(recordString)
+                if interpretedRecord == RECORD_TYPE.DONT_KNOW:
+                    print("Cannot understand what is: {}".format(recordString))
+                else:
 
+                    listOfRecords.append(interpretedRecord)
             pos = text.find(pivot, pos+1)
     return listOfRecords
 
@@ -135,6 +158,67 @@ def FindName(number):
     return None
 
 
+def TryToDeduceTypeOfRecord(recordString):
+    zones = ["east", "west", "north", "south"]
+    #The ordering of following if else blocks is important
+    if recordString.find(".com") != -1:
+        return RECORD_TYPE.GPRS
+    elif len([z for z in zones if recordString.find(z) != -1]) >0: #IF any zone is present
+        return RECORD_TYPE.ROAMING
+    elif recordString.count(":") == 2: #Only 2 colons in time stamps
+        return RECORD_TYPE.MSG
+    elif recordString.count(":") == 3: #Only 3 colons in time stamp and durations
+        return RECORD_TYPE.CALL
+    else:
+        return RECORD_TYPE.DONT_KNOW
+    return
+
+
+class RECORD_TYPE:
+    DONT_KNOW = -1
+    TEXT = 1
+    CALL = 2
+    MSG = 3
+    ROAMING = 4
+    GPRS = 5
+
+
+def DebugPDFSemantics(text):
+    text = text.lower()
+    listOfRecords = list()
+    pivots = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+    zones = ["east", "west", "north", "south"]
+    #Everything starts from the name of month. They are the pivots for our parsing mechanism.
+
+    for pivot in pivots:
+        pos = text.find(pivot, 0)
+
+        while pos != -1:
+            #Continue until you cannot find any more instances of this pivot
+            nextPos = text.find(pivot, pos + 1)
+            if nextPos == -1:
+                break
+            recordString = text[pos-3 : nextPos-3]
+            #Sample record is given below
+            #Call = 09-Aug-201315:55:34XXXXXXXXXX00:470.00
+            #msg  = 12-Aug-201310:39:31997160277710.30**XX
+            if len(recordString) < 100:
+                rcType = None
+                if recordString.find(".com") != -1:
+                    rcType = "GPRS"
+                elif len([z for z in zones if recordString.find(z) != -1]) >0: #IF any zone is present
+                    rcType = "ROAMING"
+                elif recordString.count(":") == 2: #Only 2 colons in time stamps
+                    rcType = "MESG"
+                elif recordString.count(":") == 3: #Only 3 colons in time stamp and durations
+                    rcType = "CALL"
+                if rcType:
+                    print("{} | {}".format(rcType, recordString))
+                else:
+                    print("Cannot understand: Len: {} | {}".format(len(recordString), recordString))
+
+            pos = text.find(pivot, pos+1)
+    return listOfRecords
 
 
 def main():
@@ -151,8 +235,8 @@ def main():
         for page in pdf.pages:
             text += page.extractText()
 
+    #DebugPDFSemantics(text); return
     listOfRecords = process_text_and_get_list_of_records(text)
-
     listOfRecords = sorted(listOfRecords, key = lambda r: (r.date, r.time))
 
     for r in listOfRecords:

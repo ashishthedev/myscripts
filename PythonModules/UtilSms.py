@@ -16,12 +16,16 @@ if not os.path.exists(GNOKII_PATH):
     raise Exception("{} does not exist".format(GNOKII_PATH))
 
 def CanSendSmsAsOfNow():
-    gnokiiCmd = GNOKII_PATH + " --identify "
-    x = subprocess.call(gnokiiCmd, shell=True)
-    if x==0:
-        return True
-    else:
-        return False
+    configPath = os.path.join(os.path.dirname(GNOKII_PATH), "gnokii.ini")
+    configParams = " --config {}".format(configPath)
+    gnokiiCmd = GNOKII_PATH + configParams + " --identify "
+    with open(os.devnull, 'w') as tempf:
+        #x = subprocess.call(gnokiiCmd, stdout=tempf, shell=True) #Hide standard output
+        x = subprocess.call(gnokiiCmd, stderr=tempf, shell=True)  #Hide error
+        if x==0:
+            return True
+        else:
+            return False
 
 def SendSms(toThisNumber, smsContents):
     """
@@ -50,7 +54,7 @@ def SendSms(toThisNumber, smsContents):
 if __name__ == "__main__":
     import datetime
     d = datetime.datetime.now()
-    if CanSendSms():
+    if CanSendSmsAsOfNow():
         PrintInBox("SMS can now be sent")
     else:
         PrintInBox("Sorry. There is some problem and smses cannot be sent as of now.")
