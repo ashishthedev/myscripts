@@ -18,6 +18,16 @@ def SendMail(emailSubject, zfilename, SMTP_SERVER, SMTP_PORT, FROM_EMAIL, TO_EMA
     import os
     import smtplib
 
+    if isinstance(TO_EMAIL_LIST, basestring):
+        TO_EMAIL_LIST = TO_EMAIL_LIST.replace(";", ",").split(",")
+
+    if isinstance(CC_EMAIL_LIST, basestring):
+        CC_EMAIL_LIST = CC_EMAIL_LIST.replace(";", ",").split(",")
+
+    if isinstance(BCC_EMAIL_LIST, basestring):
+        BCC_EMAIL_LIST = BCC_EMAIL_LIST.replace(";", ",").split(",")
+
+
     COMMASPACE = ", "
 
     msg = MIMEMultipart()

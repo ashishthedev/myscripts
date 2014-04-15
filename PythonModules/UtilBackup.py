@@ -157,7 +157,17 @@ def DirZipAndEmail(emailSubject, folderPath, config):
 def EmailFile(emailSubject, path, config):
     from UtilMisc import GetSizeOfFileInMB
     print("Size of file: " + str(GetSizeOfFileInMB(path)) + " Mb")
-    return UtilPythonMail.SendMail(emailSubject, path, config.SMTP_SERVER, config.SMTP_PORT, config.FROM_EMAIL, config.TO_EMAIL, config.CC_EMAIL, config.MPASS, fromDisplayName=config.fromDisplayName)
+    return UtilPythonMail.SendMail(
+            emailSubject = emailSubject,
+            zfilename = path,
+            SMTP_SERVER = config.SMTP_SERVER,
+            SMTP_PORT = config.SMTP_PORT,
+            FROM_EMAIL = config.FROM_EMAIL,
+            TO_EMAIL_LIST = config.TO_EMAIL,
+            CC_EMAIL_LIST = config.CC_EMAIL,
+            BCC_EMAIL_LIST = None,
+            MPASS = config.MPASS,
+            fromDisplayName=config.fromDisplayName)
 
 def DeleteFileIfExists(AbsolutePath):
     if os.path.exists(AbsolutePath):
