@@ -308,7 +308,7 @@ Thanks.
         listOfNos.extend([x.strip() for x in anyAdditionalSmsNo.split(COMMA)])
 
     for x in listOfNos:
-        print("Sending to these numbers: {}".format(" ".join(listOfNos)))
+        print("Sending to this number: {}".format(x))
         SendSms(x, smsContents)
 
     return
