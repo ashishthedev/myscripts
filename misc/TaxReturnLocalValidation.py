@@ -1,6 +1,6 @@
 import xml.dom.minidom, os, unittest
 from UtilConfig import GetAppDir
-FOLDER_NAME             = "2014-02"
+FOLDER_NAME             = "2014-03"
 BASEPATH                = os.path.join(GetAppDir(), "SalesTaxReturnFiles", "2013-2014")
 ANNEXUREA               = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureA.xml")
 ANNEXUREB               = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureB.xml")
@@ -20,6 +20,9 @@ PREVALING_EXPORT_RATE='0'   # in percent
 TOLERANCE_IN_RUPEES=1
 
 def SumFloat(fileName, nodeName):
+    if not os.path.exists(fileName):
+      print("Ignoring SumFloat for {}".format(fileName))
+      return float(0)
     return sum([float(getText(eachNode.childNodes)) for eachNode in GetAllNodesByNameFromFile(fileName, nodeName)])
 
 def GetAllNodesByNameFromFile(filePath, tagName):
@@ -81,6 +84,10 @@ def TestSameness(testCaseInstance, fileName_ValueToLookFor_Dict):
     """
     values = list()
     for fileName, valuesToLookFor in fileName_ValueToLookFor_Dict.items():
+        if not os.path.exists(fileName):
+          print("Ignoring TestSameness for {}".format(fileName))
+          continue
+
         for n in GetAllNodesByNameFromFile(fileName, valuesToLookFor):
             values.append(getText(n.childNodes))
 
@@ -151,7 +158,7 @@ class TestFunctions(unittest.TestCase):
         #This test will check that upvat  amount is same on two pages or not
         self.assertEqual(
                 getFloatValueFromXmlFile(UPVAT_MAINFORM_FILE, "net_tax"),
-                getFloatValueFromXmlFile(UPVAT_BANKDETAIL_FILE, "tax_amount"))
+                SumFloat(UPVAT_BANKDETAIL_FILE, "tax_amount"))
 
         return
 
@@ -205,7 +212,7 @@ class TestFunctions(unittest.TestCase):
 
         values = [
             totalCSTTax-itcAdjustment,
-            getFloatValueFromXmlFile(CST_TAX_PAID_FORM, "amount"),
+            SumFloat(CST_TAX_PAID_FORM, "amount"),
             getFloatValueFromXmlFile(CST_MAIN_FORM, "tax_payable"),
             abs(SumFloat(CST_LOISS_FORM, "AmmountOfTaxCharged")-itcAdjustment),
             ]
