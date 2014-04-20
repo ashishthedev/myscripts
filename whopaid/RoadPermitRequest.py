@@ -79,20 +79,20 @@ def ParseOptions():
 def main():
     args = ParseOptions()
     print("Churning data...")
-    allCompaniesDict = GetAllCompaniesDict()
+    allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
 
     token = args.comp or str(raw_input("Enter company name:"))
     chosenComp = GuessCompanyName(token)
 
     if chosenComp:
-        SendRoadPermitRequest(chosenComp, allCompaniesDict, args)
+        SendRoadPermitRequest(chosenComp, allBillsDict, args)
     else:
         print("Company containing {} does not exist. Try shorter string")
         exit(1)
     return
 
 
-def SendRoadPermitRequest(compName, allCompaniesDict, args):
+def SendRoadPermitRequest(compName, allBillsDict, args):
 
     args.emailSubject = "Road permit required: Bill#{}".format(args.billNumber)
 
@@ -122,7 +122,7 @@ def SendRoadPermitRequest(compName, allCompaniesDict, args):
     bccMailList = GetOption("EMAIL_REMINDER_SECTION", 'BCCEmailList').replace(';', ',').split(','),
 
     print("Preparing mail...")
-    mailBody = PrepareMailContentForThisComp(compName, allCompaniesDict, args)
+    mailBody = PrepareMailContentForThisComp(compName, allBillsDict, args)
 
     if args.isDemo:
         toMailList = GetOption("EMAIL_REMINDER_SECTION", "TestMailList").split(',')
@@ -147,7 +147,7 @@ def SendRoadPermitRequest(compName, allCompaniesDict, args):
     return
 
 
-def PrepareMailContentForThisComp(compName, allCompaniesDict, args):
+def PrepareMailContentForThisComp(compName, allBillsDict, args):
     """Given a company, this function will prepare an email for roadpermit."""
     from UtilColors import MyColors
     from UtilHTML import TableHeaderRow, TableDataRow, TableHeaderCol

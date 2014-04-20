@@ -161,11 +161,6 @@ class PersistentShipment(object):
         return self._mail.sendMailForThisShipment()
 
     def wasShipmentSmsEverSent(self):
-        if not hasattr(self, "_sms"):
-            #TODO: Remove once porting is over
-            self._sms = ShipmentSms(self, self.bill)
-            self.saveInDB()
-
         return self._sms.wasShipmentSmsEverSent()
 
     def isSMSNoAvailable(self):
@@ -270,7 +265,7 @@ def SendMaterialDispatchSms(bill):
 
     optionalAmount = ""
     if allCustInfo.IncludeBillAmountInEmails(compName):
-        optionalAmount = "Amount: Rs." + str(int(bill.billAmount)) + "/-"
+        optionalAmount = "Amount: Rs." + str(int(bill.instrumentAmount)) + "/-"
 
     companyOfficialName = allCustInfo.GetCompanyOfficialName(compName)
     if not companyOfficialName:
@@ -320,7 +315,7 @@ def SendMaterialDispatchMail(bill, ctxt):
 
     optionalAmount = ""
     if allCustInfo.IncludeBillAmountInEmails(bill.compName):
-        optionalAmount = " Rs." + str(int(bill.billAmount)) + "/-"
+        optionalAmount = " Rs." + str(int(bill.instrumentAmount)) + "/-"
 
     ctxt.emailSubject = ctxt.emailSubject or "Dispatch Details: {} Bill#{} {amt}".format(bill.docketDate.strftime("%d-%b-%Y"), str(int(bill.billNumber)), amt=optionalAmount)
 
@@ -398,7 +393,7 @@ def PrepareShipmentEmailForThisBill(bill, ctxt):
 
     if includeAmount:
         tableHeadersArgs.append("Bill Amount")
-        tableDataRowArgs.append("Rs.{}/-".format(str(int(bill.billAmount))))
+        tableDataRowArgs.append("Rs.{}/-".format(str(int(bill.instrumentAmount))))
 
     tableRows = TableHeaderRow(
             MyColors["BLACK"],

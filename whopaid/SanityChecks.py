@@ -7,7 +7,7 @@
 ##              Openpyxl for Python 3 must be installed
 ###############################################################################
 
-from UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate, RemoveMinusOneBills
+from UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate
 from CustomersInfo import GetAllCustomersInfo
 from UtilException import MyException
 from UtilMisc import PrintInBox, ParseDateFromString
@@ -30,32 +30,32 @@ def CheckConsistency():
                     CheckCancelledAmount,
                    ]
 
-    allCompaniesDict = GetAllCompaniesDict()
+    allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
     for eachFunc in functionList:
-        eachFunc(allCompaniesDict)
+        eachFunc(allBillsDict)
     return
 
-def CheckCancelledAmount(allCompaniesDict):
-    for (eachCompName, eachComp) in allCompaniesDict.items():
+def CheckCancelledAmount(allBillsDict):
+    for (eachCompName, eachComp) in allBillsDict.items():
         if eachCompName.lower().find("cancel") != -1:
             for eachBill in eachComp:
-                if eachBill.billAmount != 0:
-                    raise MyException("Bill#{} dated {} is cancelled but has amount {}. It should be 0".format(eachBill.billNumber, str(eachBill.invoiceDate), eachBill.billAmount))
+                if eachBill.instrumentAmount != 0:
+                    raise MyException("Bill#{} dated {} is cancelled but has amount {}. It should be 0".format(eachBill.billNumber, str(eachBill.invoiceDate), eachBill.instrumentAmount))
 
 
-def CheckBillingCategory(allCompaniesDict):
-    for (eachCompName, eachComp) in allCompaniesDict.items():
+def CheckBillingCategory(allBillsDict):
+    for (eachCompName, eachComp) in allBillsDict.items():
         eachComp.CheckEachBillsBillingCategory()
 
-def CheckBillsCalculation(allCompaniesDict):
-    for (eachCompName, eachComp) in allCompaniesDict.items():
+def CheckBillsCalculation(allBillsDict):
+    for (eachCompName, eachComp) in allBillsDict.items():
         eachComp.CheckEachBillsCalculation()
 
-def ReportMissingOrDuplicateBillsSince(allCompaniesDict):
+def ReportMissingOrDuplicateBillsSince(allBillsDict):
     d = defaultdict(list)
 
     #First sort all bills category wise
-    for eachCompName, eachComp in allCompaniesDict.items():
+    for eachCompName, eachComp in allBillsDict.items():
         for eachBill in eachComp:
             d[eachBill.billingCategory].append(eachBill)
 
@@ -69,9 +69,9 @@ def ReportMissingOrDuplicateBillsSince(allCompaniesDict):
     for eachCategory in d:
         if eachCategory.lower() in ["tracking", ]:
             continue
-        billList = RemoveMinusOneBills(d[eachCategory])
+        billList = d[eachCategory]
         billList = SelectBillsAfterDate(billList, startDateObject)
-        billList.sort(key=lambda b:b.billNumber) #TODO: Remove
+        billList.sort(key=lambda b:b.invoiceDate) #TODO: Remove
 
         if len(billList) < 1:
             continue  # i.e. if there is only one bill
@@ -94,14 +94,14 @@ def ReportMissingOrDuplicateBillsSince(allCompaniesDict):
                     raise MyException("Bill Number: %s is entered twice in category %s in year starting from 1-Apr-%s" % (str(billNumber), eachCategory, eachYear))
 
 
-def CheckCustomerExistenceInDB(allCompaniesDict):
+def CheckCustomerExistenceInDB(allBillsDict):
 
     """ Execute various checks which cross verify that data entered matches.
         1. Every bill issued should have an existing customer in database
         2. Every payment received should have an existing customer in database.
         3. More to come...
     """
-    uniqueCompNames = set([eachComp for eachComp in allCompaniesDict])
+    uniqueCompNames = set([eachComp for eachComp in allBillsDict.keys()])
 
     allCustInfo = GetAllCustomersInfo()
 
@@ -147,7 +147,7 @@ def CreateATestBill():
     b.goodsValue = 2
     b.tax = 2
     b.courier = 2
-    b.billAmount = 6
+    b.instrumentAmount = 6
     b.courierName = "Overnite Parcels"
     b.docketNumber = "8037705351"
     b.docketDate = datetime.date.today()

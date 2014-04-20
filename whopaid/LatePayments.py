@@ -7,9 +7,8 @@
 #######################################################
 
 from UtilDecorators import timeThisFunction
-from UtilWhoPaid import CandidateCompaniesDict, GetAllCompaniesDict,\
-        SelectUnpaidBillsFrom, floatx, \
-        TotalAmountDueForThisCompany, RemoveMinusOneBills
+from UtilWhoPaid import CompaniesDict, GetAllCompaniesDict,\
+        SelectUnpaidBillsFrom, floatx ,TotalAmountDueForThisCompany
 from UtilException import MyException
 from UtilMisc import PrintInBox, OpenFileForViewing
 from UtilHTML import Html, Body, UnderLine, Table, tr, td
@@ -26,12 +25,29 @@ ANOMALY_STANDARD_DEVIATION = float(GetOption("CONFIG_SECTION", "AnomalyStandardD
 FILE_PATH_TXT = os.path.join(os.path.expandvars("%temp%"), "PaymentChaseUpList.txt")
 FILE_PATH_HTML = os.path.join(os.path.expandvars("%temp%"), "PaymentChaseUpList.html")
 
+class CandidateCompaniesDict(CompaniesDict):
+    """This class represents the resultant companies of WhoPaid() operation, i.e companies who can pay the particular amount.
+    It is basically a dictonary just like the base class. Key is company and value is its bills that has been paid"""
+    def __init__(self):
+        super(CandidateCompaniesDict, self).__init__()
+
+    def __str__(self):
+        """This function contains all the formatting in which the results should be shown."""
+        result = ""
+        if(len(self) > 0):
+            for eachComp in self.GetAllBillsOfAllCompaniesAsDict().keys():
+                result += "\n" + str(eachComp)
+        else:
+            result += "Cannot detect who paid amount"
+        return result
+
 
 @timeThisFunction
 def main():
     print("Churning Data...")
-    allCompaniesDict = GetAllCompaniesDict()
-    defaultersDict = FindDefaulters(allCompaniesDict)
+    allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
+    defaultersDict = FindDefaulters(allBillsDict)
+    defaultedBillsDict = defaultersDict.GetAllBillsOfAllCompaniesAsDict()
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--text", dest='text', type=str, default=None, help="If present, the report will be genertated in text format.")
@@ -46,12 +62,12 @@ def main():
     with open(filePath, "w") as f:
         if args.text:
             f.write("\n{:^60}\n".format("Payment Chase-up list") + "_"*60)
-            f.write(DefaultersAsStrWithLessDesc(defaultersDict, allCompaniesDict))
+            f.write(DefaultersAsStrWithLessDesc(defaultedBillsDict, allBillsDict))
         elif args.verbose:
-            f.write(TotalDefaultersAmount(defaultersDict))
-            f.write(DefaultersAsStr(defaultersDict))
+            f.write(TotalDefaultersAmount(defaultedBillsDict))
+            f.write(DefaultersAsStr(defaultedBillsDict))
         else:
-            f.write(DefaultersAsHTMLWithLessDesc(defaultersDict, allCompaniesDict))
+            f.write(DefaultersAsHTMLWithLessDesc(defaultedBillsDict, allBillsDict))
 
     OpenFileForViewing(filePath)
     CheckConsistency()
@@ -59,11 +75,11 @@ def main():
     return
 
 
-def DefaultersAsHTMLWithLessDesc(defaultersDict, allCompaniesDict):
+def DefaultersAsHTMLWithLessDesc(defaultedBillsDict, allBillsDict):
     """Late Payments as HTML """
     result = "\n"
     result += UnderLine("<H1>Payment Chase-up List</H1>")
-    l = list(defaultersDict.items())
+    l = list(defaultedBillsDict.items())
 
     YardStick = DelayInPayment
     YardStick = AmountStuckWithInterest
@@ -76,12 +92,12 @@ def DefaultersAsHTMLWithLessDesc(defaultersDict, allCompaniesDict):
 
     tableData = ""
     for i, (compName, billList) in enumerate(l):
-        tableData += TableRow(i+1, compName, "Rs." + str(TotalAmountDueForThisCompany(allCompaniesDict, compName)))
+        tableData += TableRow(i+1, compName, "Rs." + str(TotalAmountDueForThisCompany(allBillsDict, compName)))
     return Html(Body(result + Table(tableData)))
 
-def DefaultersAsStrWithLessDesc(defaultersDict, allCompaniesDict):
+def DefaultersAsStrWithLessDesc(defaultedBillsDict, allBillsDict):
     result = "\n"
-    l = list(defaultersDict.items())
+    l = list(defaultedBillsDict.items())
 
     YardStick = DelayInPayment
     YardStick = AmountStuckWithInterest
@@ -90,12 +106,12 @@ def DefaultersAsStrWithLessDesc(defaultersDict, allCompaniesDict):
     l.sort(key=lambda x:YardStick(x[1]), reverse=True)
 
     for i, (compName, billList) in enumerate(l):
-        result += "\n{:>3}. {} (Rs.{})".format(i, compName, TotalAmountDueForThisCompany(allCompaniesDict, compName))
+        result += "\n{:>3}. {} (Rs.{})".format(i, compName, TotalAmountDueForThisCompany(allBillsDict, compName))
     return result
 
-def DefaultersAsStr(defaultersDict):
+def DefaultersAsStr(defaultedBillsDict):
     result = "\n"
-    l = list(defaultersDict.items())#l contains the list of names
+    l = list(defaultedBillsDict.items())#l contains the list of names
 
     YardStick = AmountStuckWithInterest
     YardStick = DelayInPayment
@@ -109,11 +125,11 @@ def DefaultersAsStr(defaultersDict):
         result += str(billList)
     return result
 
-def TotalDefaultersAmount(defaultersDict):
+def TotalDefaultersAmount(defaultedBillsDict):
     amt = 0
-    for eachComp in defaultersDict:
-        for b in defaultersDict[eachComp]:
-            amt += int(b.billAmount)
+    for eachComp in defaultedBillsDict:
+        for b in defaultedBillsDict[eachComp]:
+            amt += int(b.instrumentAmount)
 
     return "{:<.04} lakh is the total amount due towards defaulters".format(str(amt/100000))
 
@@ -172,6 +188,8 @@ def DelayInPayment(billList):
 
 def AmountStuckWithInterest(billList):
     """Gives back a number indicating the amount of liability with amount also accounted for"""
+    if not billList:
+        return 0
 
     trust = floatx(GetAllCustomersInfo().GetTrustForCustomer(billList[0].compName))
     if not trust:
@@ -184,15 +202,13 @@ def AmountStuckWithInterest(billList):
     for b in billList:
         assert b.isUnpaid, "This function should only be called on unpaid bills"
         delayInExpectedPayment = b.daysOfCredit - averagePaymentDays
-        amountStuck += (b.billAmount * delayInExpectedPayment) / trust
+        amountStuck += (b.instrumentAmount * delayInExpectedPayment) / trust
     return amountStuck
 
-def FindDefaulters(allCompaniesDict):
+def FindDefaulters(allBillsDict):
     """Traverse each company, create a list of all bills and see what is the average number of days in which the payment is made"""
-    defaultersDict = CandidateCompaniesDict()
-    for eachCompName in allCompaniesDict:
-        billList = allCompaniesDict[eachCompName]
-        billList = RemoveMinusOneBills(billList)
+    defaultersDict = CompaniesDict()
+    for eachCompName, billList in allBillsDict.items():
         averageDays = AveragePaymentDays(billList) + GRACEPERIOD
         unpaidBillsList = SelectUnpaidBillsFrom(billList)
         if len(unpaidBillsList):

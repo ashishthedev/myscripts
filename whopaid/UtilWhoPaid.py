@@ -34,10 +34,13 @@ def datex(d):
     return(datetime.date.today() if d is None else d)
 
 
-class CompaniesDict(dict):
+class CompaniesDict(dict):#TODO: Name it as DB
     """Base Class which is basically a dictionary. Key is compName and Value is a list of single bills of that company"""
     def __init__(self):
         super(CompaniesDict, self).__init__(dict())
+        self[KIND.BILL] = dict()
+        self[KIND.PAYMENT] = dict()
+        self[KIND.ADJUSTMENT] = dict()
 
     def AddBill(self, b):
         """
@@ -45,28 +48,55 @@ class CompaniesDict(dict):
         Find out if the company exists already. If it does, add the bill to that company.
         If it doesnt, create the company and add the bill to that company.
         """
-        if b.compName in self.keys():
-            self[b.compName].append(b)
+        if b.compName in self[KIND.BILL].keys():
+            self[KIND.BILL][b.compName].append(b)
         else:
-            self[b.compName] = Company(b.compName)
-            self[b.compName].append(b)
+            self[KIND.BILL][b.compName] = Company(b.compName)
+            self[KIND.BILL][b.compName].append(b)
 
-
-class CandidateCompaniesDict(CompaniesDict):
-    """This class represents the resultant companies of WhoPaid() operation, i.e companies who can pay the particular amount.
-    It is basically a dictonary just like the base class. Key is company and value is its bills that has been paid"""
-    def __init__(self):
-        super(CandidateCompaniesDict, self).__init__()
-
-    def __str__(self):
-        """This function contains all the formatting in which the results should be shown."""
-        result = ""
-        if(len(self) > 0):
-            for eachComp in self.values():
-                result += "\n" + str(eachComp)
+    def AddPayment(self, r):
+        if r.compName in self[KIND.PAYMENT].keys():
+            self[KIND.PAYMENT][r.compName].append(r)
         else:
-            result += "Cannot detect who paid amount"
-        return result
+            self[KIND.PAYMENT][r.compName] = Company(r.compName)
+            self[KIND.PAYMENT][r.compName].append(r)
+
+    def AddAdjustment(self, r):
+        if r.compName in self[KIND.ADJUSTMENT].keys():
+            self[KIND.ADJUSTMENT][r.compName].append(r)
+        else:
+            self[KIND.ADJUSTMENT][r.compName] = Company(r.compName)
+            self[KIND.ADJUSTMENT][r.compName].append(r)
+
+
+    def GetAllBillsOfAllCompaniesAsDict(self):
+        return self[KIND.BILL]
+
+    def GetAllPaymentsByAllCompaniesAsDict(self):
+        return self[KIND.PAYMENT]
+
+    def GetAllAdjustmentsOfAllCompaniesAsDict(self):
+        return self[KIND.ADJUSTMENT]
+
+
+    def GetBillsListForThisCompany(self, compName):
+        d = self.GetAllBillsOfAllCompaniesAsDict()
+        if d.has_key(compName):
+            return d[compName]
+        return None
+
+    def GetPaymentsListForThisCompany(self, compName):
+        d = self.GetAllPaymentsByAllCompaniesAsDict()
+        if d.has_key(compName):
+            return d[compName]
+        return None
+
+    def GetAdjustmentsListForCompany(self, compName):
+        d = self.GetAllAdjustmentsOfAllCompaniesAsDict()
+        if d.has_key(compName):
+            return d[compName]
+        return None
+
 
 def GetAllCompaniesDict():
     workbookPath = GetWorkBookPath()
@@ -74,11 +104,33 @@ def GetAllCompaniesDict():
         return _AllCompaniesDict(workbookPath)
     return GetPickledObject(workbookPath, _CreateAllCompaniesDict)
 
+class KIND(object):
+    BILL = 1
+    PAYMENT = 2
+    ADJUSTMENT = 3
+
+def GuessKindFromValue(val):
+    if val:
+        val = val.lower()
+        if val.lower() == "bill": return KIND.BILL
+        elif val.lower() == "payment": return KIND.PAYMENT
+        elif val.lower() == "adjustment": return KIND.ADJUSTMENT
+    return None
+
+def GuessKindFromRow(row):
+    for cell in row:
+        col = cell.column
+        val = cell.internal_value
+
+        if col == SheetCols.KindOfEntery:
+            return GuessKindFromValue(val)
+    return None
+
 class _AllCompaniesDict(CompaniesDict):
     """
     This class represents the heart of logic.
     It is an aggregation of all companies.
-    It is a dictonary having company names as keys and list of all bills as values.
+    It is a dictonary of dict. Ist level ["BILL"/"PAYMENT"]. Second level company names. Values are list of all bills or payments.
     Each member in the dict is a single company.
     Each Single company holds the list of all bills ever issued to them.
     """
@@ -89,6 +141,7 @@ class _AllCompaniesDict(CompaniesDict):
         MAX_ROW = ws.get_highest_row()
         MIN_ROW = int(GetOption("CONFIG_SECTION", "DataStartsAtRow"))
         rowNumber = 0
+
         for row in ws.iter_rows():
             #TODO: Can we give a range to it with MIN_ROW and MAX_ROW?
             rowNumber += 1
@@ -96,9 +149,20 @@ class _AllCompaniesDict(CompaniesDict):
                 continue
             if rowNumber >= MAX_ROW:
                 break
-            b = CreateSingleBillForRow(row)
-            self.AddBill(b)
-
+            kind = GuessKindFromRow(row)
+            if kind == KIND.BILL:
+                #Hack: We are returining None for anything that is not a bill.
+                #TODO: Refactor to acommodate payments also.
+                r = CreateSingleBillRow(row)
+                self.AddBill(r)
+            elif kind == KIND.PAYMENT:
+                r = CreateSinglePaymentRow(row)
+                self.AddPayment(r)
+            elif kind == KIND.ADJUSTMENT:
+                r = CreateSingleAdjustmentRow(row)
+                self.AddAdjustment(r)
+            else:
+                raise Exception("Error in row number: {} Kind of entry is invalid".format(rowNumber))
 
 class Company(list):
     """
@@ -141,21 +205,12 @@ class Company(list):
             raise MyException("Bills are issued in more than two category for company: " + str(self.compName))
 
 
-class SingleBill:
+class SingleRow(object):
     """
     This class represents a single row in the excel sheet which in effect represents a single bill
     """
     def __init__(self):
-        self.compName = None
-        self.billingCategory = None
-        self.billNumber = None
-        self.invoiceDate = None
-        self.goodsValue = None
-        self.tax = None
-        self.courier = None
-        self.billAmount = None
-        self.paymentReceivingDate = None
-        self.paymentStatus = None
+        pass
 
     def __str__(self):
         paymentDate = self.paymentReceivingDate
@@ -165,7 +220,7 @@ class SingleBill:
             paymentDate = DD_MM_YYYY(self.PaymentReceivingDate)
 
         return "Rs.{:<5} Bill:{:<5} {} {:<5} {}".format(
-            int(self.billAmount),
+            int(self.instrumentAmount),
             int(self.billNumber),
             DD_MM_YYYY(datex(self.invoiceDate)),
             str(self.paymentStatus),
@@ -182,7 +237,7 @@ class SingleBill:
 
     def CheckCalculation(self):
         if intx(self.goodsValue) != 0:
-            if(intx(self.billAmount) != (intx(self.goodsValue) + intx(self.tax) + intx(self.courier))):
+            if(intx(self.instrumentAmount) != (intx(self.goodsValue) + intx(self.tax) + intx(self.courier))):
                 raise MyException("Calculation error in " + str(self.billingCategory) + " bill# " + str(self.billNumber))
 
     @property
@@ -208,11 +263,10 @@ class SingleBill:
 
 def GetAllBillsInLastNDays(nDays):
     #TODO:Super slow needs optimization
-    allCompaniesDict = GetAllCompaniesDict()
+    allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
     totalBillList = list()
-    for compBillList in allCompaniesDict.values():
+    for compName, compBillList in allBillsDict.items():
         totalBillList.extend(compBillList)
-    totalBillList = RemoveMinusOneBills(totalBillList)
     dateObject = datetime.date.today() - datetime.timedelta(days=nDays)
     return SelectBillsAfterDate(totalBillList, dateObject)
 
@@ -227,80 +281,141 @@ def SelectBillsAfterDate(billList, dateObject):
 def SelectUnpaidBillsFrom(billList):
     return [b for b in billList if b.isUnpaid]
 
-def RemoveMinusOneBills(billList):
-    return [b for b in billList if b.billNumber != str(int(-1))]
+def SelectUnAccountedForAdjustmentsFrom(adjustmentList):
+    return [a for a in adjustmentList if not a.adjustmentAccountedFor]
 
 def RemoveTrackingBills(billList):
     return [b for b in billList if not b.billingCategory.lower().startswith("tracking")]
 
-class BillsCol:
+class SheetCols:
     """
     This class is used as Enum.
     If and when the format of excel file changes just change the column bindings in this class
     """
     CompanyFriendlyNameCol = "A"
-    BillingCategory        = "B"
-    BillNumber             = "C"
-    InvoiceDate            = "D"
-    MaterialDesc           = "E"
-    GoodsValue             = "F"
-    Tax                    = "G"
-    Courier                = "H"
-    BillAmount             = "I"
-    DocketNumber           = "J"
-    DocketDate             = "K"
-    CourierName            = "L"
-    PaymentReceivingDate   = "M"
-    PaymentStatus          = "N"
-    FormCReceivingDate     = "O"
+    KindOfEntery           = "B"
+    BillingCategory        = "C"
+    InstrumentNumber       = "D"
+    InstrumentDate         = "E"
+    MaterialDesc           = "F"
+    GoodsValue             = "G"
+    Tax                    = "H"
+    Courier                = "I"
+    InstrumentAmount       = "J"
+    DocketNumber           = "K"
+    DocketDate             = "L"
+    CourierName            = "M"
+    PaymentReceivingDate   = "N"
+    PaymentStatus          = "O"
+    PaymentAccountedFor    = "P"
+    FormCReceivingDate     = "Q"
 
-def CreateSingleBillForRow(row):
-    b = SingleBill()
+def CreateSingleAdjustmentRow(row):
+    r = SingleRow()
     for cell in row:
         col = cell.column
         val = cell.internal_value
 
-        if col == BillsCol.BillAmount: b.billAmount = val
-        elif col == BillsCol.BillingCategory: b.billingCategory = val
-        elif col == BillsCol.BillNumber:
+        if col == SheetCols.CompanyFriendlyNameCol:
+            if not val: raise Exception("Row:{} seems empty. Please fix the database".format(cell.row))
+            r.compName = val
+        elif col == SheetCols.KindOfEntery:
+            r.kindOfEntery = val
+        elif col == SheetCols.InstrumentAmount:
+            r.instrumentAmount = val
+        elif col == SheetCols.InstrumentDate:
+            if val is not None:
+                r.invoiceDate = ParseDateFromString(val)
+            else:
+                r.invoiceDate = val
+        elif col == SheetCols.PaymentAccountedFor:
+            if val is not None:
+                r.adjustmentAccountedFor = True if val.lower()=="yes" else False
+            else:
+                r.adjustmentAccountedFor = False
+    return r
+
+def CreateSinglePaymentRow(row):
+    r = SingleRow()
+    for cell in row:
+        col = cell.column
+        val = cell.internal_value
+
+        if col == SheetCols.InstrumentAmount:
+            r.InstrumentAmount = val
+        elif col == SheetCols.KindOfEntery:
+            r.kindOfEntery = GuessKindFromValue(val)
+        elif col == SheetCols.InstrumentNumber:
+            if not val: raise Exception("Row:{} seems not to have any cheque number.".format(cell.row))
+            r.chequeNumber = val
+        elif col == SheetCols.CompanyFriendlyNameCol:
+            if not val: raise Exception("Row:{} seems empty. Please fix the database".format(cell.row))
+            r.compName = val
+        elif col == SheetCols.InstrumentDate:
+            if not val: raise Exception("Row:{} seems not to have any cheque date".format(cell.row))
+            r.chequeDate = ParseDateFromString(val)
+        elif col == SheetCols.PaymentAccountedFor:
+            if val is not None:
+                r.paymentAccountedFor = True if val.lower()=="yes" else False
+            else:
+                r.paymentAccountedFor = False
+    return r
+
+
+def CreateSingleBillRow(row):
+    b = SingleRow()
+    for cell in row:
+        col = cell.column
+        val = cell.internal_value
+
+        if col == SheetCols.InstrumentAmount:
+            b.instrumentAmount = val
+        elif col == SheetCols.KindOfEntery:
+            b.kindOfEntery = val
+        elif col == SheetCols.BillingCategory:
+            b.billingCategory = val
+        elif col == SheetCols.InstrumentNumber:
             if not val: raise Exception("Row:{} seems not to have any bill number.".format(cell.row))
-            b.billNumber = str(int(val))
-        elif col == BillsCol.CompanyFriendlyNameCol:
+            b.billNumber = val
+        elif col == SheetCols.CompanyFriendlyNameCol:
             if not val: raise Exception("Row:{} seems empty. Please fix the database".format(cell.row))
             b.compName = val
-        elif col == BillsCol.Courier: b.courier = val
-        elif col == BillsCol.InvoiceDate:
+        elif col == SheetCols.Courier:
+            b.courier = val
+        elif col == SheetCols.InstrumentDate:
             if val is not None:
                 b.invoiceDate = ParseDateFromString(val)
             else:
                 b.invoiceDate = val
-        elif col == BillsCol.GoodsValue: b.goodsValue = val
-        elif col == BillsCol.PaymentReceivingDate:
+        elif col == SheetCols.GoodsValue: b.goodsValue = val
+        elif col == SheetCols.PaymentReceivingDate:
             if val is not None:
                 b.paymentReceivingDate = ParseDateFromString(val)
             else:
                 b.paymentReceivingDate = val
-        elif col == BillsCol.Tax: b.tax = val
-        elif col == BillsCol.PaymentStatus: b.paymentStatus = val
-        elif col == BillsCol.DocketNumber:
+        elif col == SheetCols.Tax:
+            b.tax = val
+        elif col == SheetCols.PaymentStatus:
+            b.paymentStatus = val
+        elif col == SheetCols.DocketNumber:
             if type(val) == float:
                 b.docketNumber = str(int(val))
             elif type(val) == int:
                 b.docketNumber = str(val)
             else:
                 b.docketNumber = val
-        elif col == BillsCol.DocketDate:
+        elif col == SheetCols.DocketDate:
             if val:
                 b.docketDate = ParseDateFromString(val)
             else:
                 b.docketDate = val
-        elif col == BillsCol.CourierName: b.courierName = val
-        elif col == BillsCol.MaterialDesc:
+        elif col == SheetCols.CourierName: b.courierName = val
+        elif col == SheetCols.MaterialDesc:
             if val is not None:
                 b.materialDesc = val
             else:
                 b.materialDesc = "--"
-        elif col == BillsCol.FormCReceivingDate:
+        elif col == SheetCols.FormCReceivingDate:
             if val is not None:
                 b.formCReceivingDate = ParseDateFromString(val)
             else:
@@ -342,15 +457,15 @@ def GuessCompanyName(token):
         if eachComp.lower().replace(' ', '').find(token.lower()) != -1:
             if raw_input("You mean: {0}\n(y/n):".format(eachComp)).lower() == 'y':
                 return eachComp
-                return eachComp
     else:
         raise MyException("{} does not exist. Try a shorter string".format(token))
 
 
-def TotalAmountDueForThisCompany(allCompaniesDict, compName):
+def TotalAmountDueForThisCompany(allBillsDict, compName):
     """Returns the sum of total unpaid amount for this company"""
-    newBillList = SelectUnpaidBillsFrom(allCompaniesDict[compName])
-    return int(sum([b.billAmount for b in newBillList]))
+    allBillsForThisComp = allBillsDict[compName]
+    newBillList = SelectUnpaidBillsFrom(allBillsForThisComp)
+    return int(sum([b.instrumentAmount for b in newBillList]))
 
 
 def BillsFileChangedSinceLastTime():

@@ -6,7 +6,8 @@ from __future__ import print_function, division, absolute_import, unicode_litera
 ## Requirement: Python Interpretor must be installed
 ######################################################
 from UtilDecorators import memoize, timeThisFunction
-from UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, CandidateCompaniesDict
+from UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict
+from LatePayments import CandidateCompaniesDict
 from SanityChecks import CheckConsistency
 from UtilMisc import PrintInBox, printNow
 from UtilException import MyException
@@ -35,9 +36,9 @@ def BeginWhoPaid(paymentMade):
 def WhoPaid(paymentMade):
     """Traverse each company, create a list of unpaid bills and see if it can pay for any combination"""
     candidatesDict = CandidateCompaniesDict()
-    allCompaniesDict = GetAllCompaniesDict()
-    for eachCompName in allCompaniesDict:
-        billsList = allCompaniesDict[eachCompName]
+    allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsList()
+    for eachCompName in allBillsDict:
+        billsList = allBillsDict[eachCompName]
         unpaidBillsList = SelectUnpaidBillsFrom(billsList)
         if len(unpaidBillsList) > int(GetOption("CONFIG_SECTION", "MaxUnpaidBills")):
             continue
@@ -54,7 +55,7 @@ def CanThisCompanyPay(billsList, paymentMade):
     This function will return True if the paid amount can be a combination of any bills. Also
     If this company can't pay it wil return False
     """
-    totalUnpaidAmount = sum([bill.billAmount for bill in billsList])
+    totalUnpaidAmount = sum([bill.instrumentAmount for bill in billsList])
 
     if(totalUnpaidAmount == paymentMade):
         return (True, billsList)

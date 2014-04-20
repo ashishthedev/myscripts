@@ -33,11 +33,11 @@ def main():
     args = ParseOptions()
 
     print("Churning data...")
-    allCompaniesDict = GetAllCompaniesDict()
+    allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
 
     chosenComp = GuessCompanyName(args.comp)
 
-    ShowStatementOnTerminal(chosenComp, allCompaniesDict, args)
+    ShowStatementOnTerminal(chosenComp, allBillsDict, args)
 
     CheckConsistency()
     return
@@ -49,12 +49,12 @@ def GetMinusOneBills(billList):
             newBillList.append(b)
     return newBillList
 
-def ShowStatementOnTerminal(compName, allCompaniesDict, args):
+def ShowStatementOnTerminal(compName, allBillsDict, args):
     header = [compName]
-    if not compName in allCompaniesDict:
+    if not compName in allBillsDict.keys():
         raise Exception("No bill is issued to M/s {}".format(compName))
 
-    billList = allCompaniesDict[compName]
+    billList = allBillsDict[compName]
 
     if args.onlyUnpaid:
         header.append("Only unpaid bills")

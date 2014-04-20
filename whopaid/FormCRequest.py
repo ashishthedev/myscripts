@@ -9,7 +9,7 @@
 ###############################################################################
 
 from UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate,\
-        SelectBillsBeforeDate, RemoveMinusOneBills, GuessCompanyName
+        SelectBillsBeforeDate, GuessCompanyName
 from CustomersInfo import GetAllCustomersInfo
 from UtilHTML import UnderLine, Bold, PastelOrangeText
 from UtilPythonMail import SendMail
@@ -200,7 +200,7 @@ class QuarterlyClubbedFORMC(object):
                     rowDict['qh'] = quarterHTML
                     rowDict['bn'] = int(eachBill.billNumber)
                     rowDict['idate'] = eachBill.invoiceDate.strftime("%d-%b-%y")
-                    rowDict['ba'] = int(eachBill.billAmount)
+                    rowDict['ba'] = int(eachBill.instrumentAmount)
                     rowDict['tTdRemarks'] = tTdRemarks
                     tableHTML += rowTemplate.substitute(rowDict)
 
@@ -212,7 +212,7 @@ class QuarterlyClubbedFORMC(object):
                 </tr>
                 """)
                 totalRowDict = dict()
-                totalRowDict['quarterTotalAmount'] = int(sum([eachBill.billAmount for eachBill in billList]))
+                totalRowDict['quarterTotalAmount'] = int(sum([eachBill.instrumentAmount for eachBill in billList]))
                 totalRowDict['tTdRemarks'] = tTdRemarks
                 tableHTML += totalRowTemplate.substitute(totalRowDict)
 
@@ -313,7 +313,7 @@ class QuarterlyClubbedFORMC(object):
 
 
 def GenerateFORMCForCompany(compName, args):
-    billList = RemoveMinusOneBills(GetAllCompaniesDict()[compName])
+    billList = GetAllCompaniesDict().GetBillsListForThisCompany(compName)
 
     #TODO: Remove args and take separate params
     sdate = args.sdate or min([b.invoiceDate for b in billList if not b.formCReceivingDate])

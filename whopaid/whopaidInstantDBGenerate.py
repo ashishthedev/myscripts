@@ -53,7 +53,7 @@ def DifferentStrAmountsThatCanBePaidByThisCompany(company):
             amt = 0
             slicedCompany = SlicedCompany(name=company.compName) #slicedCompany is a company with selective bills.
             for eachBill in eachBillListTuple:
-                amt += eachBill.billAmount
+                amt += eachBill.instrumentAmount
                 slicedCompany.append(eachBill)
             slicedCompany.missingBillPayments = ListOfMissingBills(slicedCompany, unpaidBillList)
             d[str(int(amt))].append(slicedCompany)
@@ -74,10 +74,10 @@ def PrintShelveDB(shelfFilePath, fd):
 
 
 def StartDBGeneration(shelfFilePath, DumpDBAsTextAtThisLocation=None):
-    allCompaniesDict = GetAllCompaniesDict()
+    allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
     with closing(shelve.open(shelfFilePath)) as sh:
         sh.clear()
-        for eachCompName, eachComp in allCompaniesDict.items():
+        for eachCompName, eachComp in allBillsDict.items():
             if len(SelectUnpaidBillsFrom(eachComp)) > int(GetOption("CONFIG_SECTION", "MaxUnpaidBills")):
                 print("Skipping :" + str(eachCompName))
                 continue

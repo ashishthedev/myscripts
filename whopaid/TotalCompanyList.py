@@ -49,9 +49,9 @@ def GenerateListOfComanies(args):
 
     uniqueCompNames = set()
     billList = list()
-    allCompaniesDict = GetAllCompaniesDict()
-    for eachComp in allCompaniesDict:
-        billList += [b for b in allCompaniesDict[eachComp]]
+    allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
+    for eachComp in allBillsDict.keys():
+        billList += [b for b in allBillsDict[eachComp]]
     billList = RemoveMinusOneBills(billList)
     billList = SelectBillsAfterDate(billList, sdateObject)
     billList = SelectBillsBeforeDate(billList, edateObject)
@@ -78,7 +78,7 @@ def GenerateListOfComanies(args):
             f.write("{}. {} bills {}<br>".format(i+1, count, officalCompName))
             for b in billList:
                 if b.compName == unOffName:
-                    f.write("<pre>" + tab + " {} Rs.{} Bill#{} </pre>".format(b.invoiceDate, int(b.billAmount), b.billNumber))
+                    f.write("<pre>" + tab + " {} Rs.{} Bill#{} </pre>".format(b.invoiceDate, int(b.instrumentAmount), b.billNumber))
 
     OpenFileForViewing(filePath)
 

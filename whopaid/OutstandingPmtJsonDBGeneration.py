@@ -1,9 +1,8 @@
 import os
 import json
 from UtilConfig import GetOption
-from UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, datex, RemoveTrackingBills, floatx
+from UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, datex, RemoveTrackingBills
 from UtilMisc import DD_MM_YYYY
-from CustomersInfo import GetAllCustomersInfo
 
 PMTAPPDIR = os.getenv("PMTAPPDIR")
 DUMPING_DIR = os.path.join(PMTAPPDIR, "static", "dbs")
@@ -37,7 +36,7 @@ data=
 
 """
 def DumpJSONDB():
-    allCompaniesDict = GetAllCompaniesDict()
+    allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
 
     if os.path.exists(JSON_FILE_NAME):
         os.remove(JSON_FILE_NAME)
@@ -45,7 +44,7 @@ def DumpJSONDB():
     data = {}
     allCustomers = []
 
-    for eachCompName, eachCompBills in allCompaniesDict.items():
+    for eachCompName, eachCompBills in allBillsDict.items():
         unpaidBillList = SelectUnpaidBillsFrom(eachCompBills)
         unpaidBillList = RemoveTrackingBills(unpaidBillList)
         oneCustomer = dict()
@@ -58,7 +57,7 @@ def DumpJSONDB():
                     "bn" : b.billNumber,
                     "bd": DD_MM_YYYY(datex(b.invoiceDate)),
                     "cd": str(b.daysOfCredit),
-                    "ba":str(int(b.billAmount))
+                    "ba":str(int(b.instrumentAmount))
                     }
             oneCustomerBills.append(oneBill)
         oneCustomer["bills"] = oneCustomerBills
