@@ -55,14 +55,27 @@ class SonyEricssonPhone():
                 return False
 
     def SendSms(self, toThisNumber, smsContents):
-        """ Send SMS using SMS GATEWAY installed on Andriod """
-        import urllib
-        SERVER = "192.168.1.18"
-        PORT = "9191"
-        params = urllib.urlencode({'phone': toThisNumber, 'text': smsContents, 'password': ''})
-        url = "http://{server}:{port}/sendsms?{params}".format(server=SERVER, port=PORT, params=params)
-        f = urllib.urlopen(url)
-        print(StripHTMLTags(f.read()))
+        """
+        Uses gnokii to send messages.
+        """
+        configPath = os.path.join(os.path.dirname(GNOKII_PATH), "gnokii.ini")
+        configParams = " --config {}".format(configPath)
+        gnokiiCmd = GNOKII_PATH + configParams + " --sendsms " + toThisNumber
+
+        from types import StringTypes
+        if not isinstance(smsContents, StringTypes):
+            raise Exception("smsContents should be of type string but instead got type {}".format(type(smsContents)))
+
+        PrintInBox("Sending sms to {}:\n{}".format(toThisNumber, smsContents))
+
+        fPath = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), "smsContents.txt")
+        if os.path.exists(fPath): os.remove(fPath)
+        with open(fPath,"w") as f:
+            f.write(smsContents)
+
+        cmd = "{gcmd} < {fPath} ".format(fPath=fPath, gcmd=gnokiiCmd)
+        subprocess.check_call(cmd, shell=True)
+
         return
 
 
