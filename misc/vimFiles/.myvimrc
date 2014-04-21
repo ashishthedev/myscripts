@@ -638,3 +638,10 @@ set cursorcolumn
 
 "JSLint for errors
 "https://github.com/hallettj/jslint.vim
+
+"There is an easy option to prevent this, however. You can temporarily switch to “paste mode”, simply by setting the following option:
+"http://nvie.com/posts/how-i-boosted-my-vim/
+
+set pastetoggle=<F4>
+"Then, when in insert mode, ready to paste, if you press <F2>, Vim will switch to paste mode, disabling all kinds of smartness and just pasting a whole buffer of text. Then, you can disable paste mode again with another press of <F2>. Nice and simple. Compare paste mode disabled vs enabled:
+

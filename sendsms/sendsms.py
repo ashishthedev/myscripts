@@ -15,29 +15,25 @@ def GuessNumber(smsContents):
 
 if __name__ == "__main__":
 
-    if CanSendSmsAsOfNow():
+    print("Checking if sms can be sent ...")
+    if not CanSendSmsAsOfNow():
+        errorMsg = "Sorry the connection with phone cannot be established..."
+        PrintInBox(errorMsg)
+        raise Exception(errorMsg)
+    else:
+        print("Connection established...\nPlease enter the number and text")
         toThisNumber = None
         smsContents = None
         TEMP_FILE_NAME = "temp.txt"
-        if os.path.exists(TEMP_FILE_NAME):
-            #Delete bofore proceeding to work on empty file. Fall back safety mechanism.
-            os.remove(TEMP_FILE_NAME)
-
-        with open(TEMP_FILE_NAME, "w"):
-            #Just create the file
-            pass
 
         try:
-        #Open the file and enter the sms contents
             import subprocess
-            subprocess.call([os.path.join(os.path.expandvars("%windir%"),"gvim.bat") , "-f", "+0", TEMP_FILE_NAME])
-            #OpenFileForViewing(TEMP_FILE_NAME)
+            #Open the file and enter the sms contents
+            blockingCommandForGvim = [os.path.join(os.path.expandvars("%windir%"),"gvim.bat") , "-f", "+0", TEMP_FILE_NAME]
+            subprocess.call(blockingCommandForGvim)
             with open(TEMP_FILE_NAME) as f:
                 smsContents = f.read()
 
-            if os.path.exists(TEMP_FILE_NAME):
-                #Delete after job is done
-                os.remove(TEMP_FILE_NAME)
 
             if not smsContents:
                 errorMsg = "No sms contents. Bailing out"
@@ -48,7 +44,7 @@ if __name__ == "__main__":
 
             if smsContents and toThisNumber:
                 line = "_"*70
-                msg = "To: {to}\n{l}\n{con}\n{l}\n(y/n)".format(to=toThisNumber, l=line, con=smsContents)
+                msg = "{l}\nTo: {to}\n{con}{l}\nSend: (y/n)".format(to=toThisNumber, l=line, con=smsContents)
                 if raw_input(msg).lower() == "y":
                     SendSms(toThisNumber, smsContents)
                 else:
@@ -56,5 +52,5 @@ if __name__ == "__main__":
 
         except Exception as ex:
             if smsContents:
-                print("The sms contents typed by you were:\n{}\n{}".format("_"*70, smsContents))
+                print("The sms contents typed by you were:\n{}\n{}".format("_"*70, toThisNumber + "\n" +smsContents))
             raise ex

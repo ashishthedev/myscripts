@@ -16,21 +16,32 @@ if not os.path.exists(GNOKII_PATH):
     raise Exception("{} does not exist".format(GNOKII_PATH))
 
 class AndriodSMSGateway(object):
+    SERVER = "192.168.1.18"
+    PORT = "9191"
+    TIMEOUT = 10 #seconds
     def __init__(self):
         self.name = "Andriod SMS Gateway"
 
     def CanSendSmsAsOfNow(self):
         #We dont know how to check connection. May be ping?
-        return True
+        import urllib2
+        try:
+            url = "http://{server}:{port}".format(server=self.SERVER, port=self.PORT)
+            resp = urllib2.urlopen(url, timeout=self.TIMEOUT)
+            responseCode = resp.getcode()
+            if responseCode == 200:
+                return True
+        except urllib2.URLError as ex:
+            print(ex.reason)
+
+        return False
 
     def SendSms(self, toThisNumber, smsContents):
         """ Send SMS using SMS GATEWAY installed on Andriod """
         #TODO: Make these class variables
         import urllib
-        SERVER = "192.168.1.18"
-        PORT = "9191"
         params = urllib.urlencode({'phone': toThisNumber, 'text': smsContents, 'password': ''})
-        url = "http://{server}:{port}/sendsms?{params}".format(server=SERVER, port=PORT, params=params)
+        url = "http://{server}:{port}/sendsms?{params}".format(server=self.SERVER, port=self.PORT, params=params)
         f = urllib.urlopen(url)
         print(StripHTMLTags(f.read()))
         return

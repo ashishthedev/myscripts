@@ -1,5 +1,6 @@
 __pycache__
 __pycache__\*
+temp.txt
 PhoneBookMerge/*.vcf
 */.ropeproject/*
 *.netrwhist
