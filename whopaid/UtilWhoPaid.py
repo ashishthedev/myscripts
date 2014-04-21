@@ -41,32 +41,34 @@ class CompaniesDict(dict):#TODO: Name it as DB
         self[KIND.BILL] = dict()
         self[KIND.PAYMENT] = dict()
         self[KIND.ADJUSTMENT] = dict()
+        self[KIND.ORDER] = dict()
 
-    def AddBill(self, b):
+
+    def _AddEntry(self, typ, r):
         """
         The only method through which this master database is prepared.
         Find out if the company exists already. If it does, add the bill to that company.
         If it doesnt, create the company and add the bill to that company.
+        typ = KIND.ORDER/BILL/PAYMENT/ADJUSTMENT
         """
-        if b.compName in self[KIND.BILL].keys():
-            self[KIND.BILL][b.compName].append(b)
+        if r.compName in self[typ].keys():
+            self[typ][r.compName].append(r)
         else:
-            self[KIND.BILL][b.compName] = Company(b.compName)
-            self[KIND.BILL][b.compName].append(b)
+            #If for this type there is no entry for this company, create it.
+            self[typ][r.compName] = Company(r.compName) #TODO: Remove after testing
+            self[typ][r.compName].append(r)
 
-    def AddPayment(self, r):
-        if r.compName in self[KIND.PAYMENT].keys():
-            self[KIND.PAYMENT][r.compName].append(r)
-        else:
-            self[KIND.PAYMENT][r.compName] = Company(r.compName)
-            self[KIND.PAYMENT][r.compName].append(r)
+    def AddBill(self, b):
+        self._AddEntry(KIND.BILL, b)
 
-    def AddAdjustment(self, r):
-        if r.compName in self[KIND.ADJUSTMENT].keys():
-            self[KIND.ADJUSTMENT][r.compName].append(r)
-        else:
-            self[KIND.ADJUSTMENT][r.compName] = Company(r.compName)
-            self[KIND.ADJUSTMENT][r.compName].append(r)
+    def AddPayment(self, p):
+        self._AddEntry(KIND.PAYMENT, p)
+
+    def AddAdjustment(self, a):
+        self._AddEntry(KIND.ADJUSTMENT, a)
+
+    def AddOrder(self, o):
+        self._AddEntry(KIND.ORDER, o)
 
 
     def GetAllBillsOfAllCompaniesAsDict(self):
@@ -78,24 +80,21 @@ class CompaniesDict(dict):#TODO: Name it as DB
     def GetAllAdjustmentsOfAllCompaniesAsDict(self):
         return self[KIND.ADJUSTMENT]
 
+    def GetAllOrdersOfAllCompaniesAsDict(self):
+        return self[KIND.ORDER]
+
 
     def GetBillsListForThisCompany(self, compName):
-        d = self.GetAllBillsOfAllCompaniesAsDict()
-        if d.has_key(compName):
-            return d[compName]
-        return None
+        return self.GetAllBillsOfAllCompaniesAsDict().get(compName, None)
 
     def GetPaymentsListForThisCompany(self, compName):
-        d = self.GetAllPaymentsByAllCompaniesAsDict()
-        if d.has_key(compName):
-            return d[compName]
-        return None
+        return self.GetAllPaymentsByAllCompaniesAsDict().get(compName, None)
 
     def GetAdjustmentsListForCompany(self, compName):
-        d = self.GetAllAdjustmentsOfAllCompaniesAsDict()
-        if d.has_key(compName):
-            return d[compName]
-        return None
+        return self.GetAllAdjustmentsOfAllCompaniesAsDict().get(compName, None)
+
+    def GetOrdersListForCompany(self, compName):
+        return self.GetAllOrdersOfAllCompaniesAsDict().get(compName, None)
 
 
 def GetAllCompaniesDict():
@@ -108,6 +107,7 @@ class KIND(object):
     BILL = 1
     PAYMENT = 2
     ADJUSTMENT = 3
+    ORDER = 4
 
 def GuessKindFromValue(val):
     if val:
@@ -115,6 +115,7 @@ def GuessKindFromValue(val):
         if val.lower() == "bill": return KIND.BILL
         elif val.lower() == "payment": return KIND.PAYMENT
         elif val.lower() == "adjustment": return KIND.ADJUSTMENT
+        elif val.lower() == "order": return KIND.ORDER
     return None
 
 def GuessKindFromRow(row):
@@ -145,22 +146,18 @@ class _AllCompaniesDict(CompaniesDict):
         for row in ws.iter_rows():
             #TODO: Can we give a range to it with MIN_ROW and MAX_ROW?
             rowNumber += 1
-            if rowNumber < MIN_ROW:
-                continue
-            if rowNumber >= MAX_ROW:
-                break
+            if rowNumber < MIN_ROW: continue
+            if rowNumber >= MAX_ROW: break
+
             kind = GuessKindFromRow(row)
             if kind == KIND.BILL:
-                #Hack: We are returining None for anything that is not a bill.
-                #TODO: Refactor to acommodate payments also.
-                r = CreateSingleBillRow(row)
-                self.AddBill(r)
+                self.AddBill(CreateSingleBillRow(row))
             elif kind == KIND.PAYMENT:
-                r = CreateSinglePaymentRow(row)
-                self.AddPayment(r)
+                self.AddPayment(CreateSinglePaymentRow(row))
             elif kind == KIND.ADJUSTMENT:
-                r = CreateSingleAdjustmentRow(row)
-                self.AddAdjustment(r)
+                self.AddAdjustment(CreateSingleAdjustmentRow(row))
+            elif kind == KIND.ORDER:
+                self.AddOrder(CreateSingleOrderRow(row))
             else:
                 raise Exception("Error in row number: {} Kind of entry is invalid".format(rowNumber))
 
@@ -206,6 +203,21 @@ class Company(list):
 
 
 class SingleRow(object):
+    pass
+class SinglePaymentRow(SingleRow):
+    pass
+class SingleAdjustmentRow(SingleRow):
+    pass
+class SingleOrderRow(SingleRow):
+    def __str__(self):
+        return "ORDER: {cn:}\n{dt}\n{md} ".format(
+                dt = DD_MM_YYYY(self.orderDate),
+                cn = self.compName,
+                md = self.materialDesc
+                )
+
+
+class SingleBillRow(SingleRow):
     """
     This class represents a single row in the excel sheet which in effect represents a single bill
     """
@@ -310,14 +322,36 @@ class SheetCols:
     PaymentAccountedFor    = "P"
     FormCReceivingDate     = "Q"
 
-def CreateSingleAdjustmentRow(row):
-    r = SingleRow()
+def CreateSingleOrderRow(row):
+    r = SingleOrderRow()
     for cell in row:
         col = cell.column
         val = cell.internal_value
 
         if col == SheetCols.CompanyFriendlyNameCol:
-            if not val: raise Exception("Row:{} seems empty. Please fix the database".format(cell.row))
+            if not val: raise Exception("Row: {} seems empty. Please fix the database".format(cell.row))
+            r.compName = val
+        elif col == SheetCols.KindOfEntery:
+            r.kindOfEntery = val
+        elif col == SheetCols.MaterialDesc:
+            if not val: raise Exception("Order in row: {} seems empty. Please fix the database".format(cell.row))
+            r.materialDesc = val
+        elif col == SheetCols.InstrumentDate:
+            if not val: raise Exception("Date in row: {} seems empty. Please fix the database".format(cell.row))
+            r.orderDate = ParseDateFromString(val)
+        elif col == SheetCols.InstrumentNumber:
+            if not val: raise Exception("Row: {} seems empty. Please fix the database".format(cell.row))
+            r.orderNumber = val
+    return r
+
+def CreateSingleAdjustmentRow(row):
+    r = SingleAdjustmentRow()
+    for cell in row:
+        col = cell.column
+        val = cell.internal_value
+
+        if col == SheetCols.CompanyFriendlyNameCol:
+            if not val: raise Exception("Row: {} seems empty. Please fix the database".format(cell.row))
             r.compName = val
         elif col == SheetCols.KindOfEntery:
             r.kindOfEntery = val
@@ -336,7 +370,7 @@ def CreateSingleAdjustmentRow(row):
     return r
 
 def CreateSinglePaymentRow(row):
-    r = SingleRow()
+    r = SinglePaymentRow()
     for cell in row:
         col = cell.column
         val = cell.internal_value
@@ -346,13 +380,13 @@ def CreateSinglePaymentRow(row):
         elif col == SheetCols.KindOfEntery:
             r.kindOfEntery = GuessKindFromValue(val)
         elif col == SheetCols.InstrumentNumber:
-            if not val: raise Exception("Row:{} seems not to have any cheque number.".format(cell.row))
+            if not val: raise Exception("Row: {} seems not to have any cheque number.".format(cell.row))
             r.chequeNumber = val
         elif col == SheetCols.CompanyFriendlyNameCol:
-            if not val: raise Exception("Row:{} seems empty. Please fix the database".format(cell.row))
+            if not val: raise Exception("Row: {} seems empty. Please fix the database".format(cell.row))
             r.compName = val
         elif col == SheetCols.InstrumentDate:
-            if not val: raise Exception("Row:{} seems not to have any cheque date".format(cell.row))
+            if not val: raise Exception("Row: {} seems not to have any cheque date".format(cell.row))
             r.chequeDate = ParseDateFromString(val)
         elif col == SheetCols.PaymentAccountedFor:
             if val is not None:
@@ -363,7 +397,7 @@ def CreateSinglePaymentRow(row):
 
 
 def CreateSingleBillRow(row):
-    b = SingleRow()
+    b = SingleBillRow()
     for cell in row:
         col = cell.column
         val = cell.internal_value
@@ -375,10 +409,10 @@ def CreateSingleBillRow(row):
         elif col == SheetCols.BillingCategory:
             b.billingCategory = val
         elif col == SheetCols.InstrumentNumber:
-            if not val: raise Exception("Row:{} seems not to have any bill number.".format(cell.row))
+            if not val: raise Exception("Row: {} seems not to have any bill number.".format(cell.row))
             b.billNumber = val
         elif col == SheetCols.CompanyFriendlyNameCol:
-            if not val: raise Exception("Row:{} seems empty. Please fix the database".format(cell.row))
+            if not val: raise Exception("Row: {} seems empty. Please fix the database".format(cell.row))
             b.compName = val
         elif col == SheetCols.Courier:
             b.courier = val
@@ -485,3 +519,12 @@ def StoreNewTimeForBillsFile():
         sh[BILLS_FILE_LAST_CHANGE_SHELF_ID] = os.path.getmtime(GetWorkBookPath())
     return
 
+def ShowPendingOrdersOnScreen():
+    allOrdersDict = GetAllCompaniesDict().GetAllOrdersOfAllCompaniesAsDict()
+    from UtilMisc import PrintInBox
+    for eachComp, orders in allOrdersDict.items():
+        for eachOrder in orders:
+            print(type(eachOrder))
+            PrintInBox(str(eachOrder))
+if __name__ == "__main__":
+    ShowPendingOrdersOnScreen()

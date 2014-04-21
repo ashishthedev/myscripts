@@ -1,16 +1,82 @@
+#TODO: Rename it to be more proper 
 import os
 import json
 from UtilConfig import GetOption
 from UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, datex, RemoveTrackingBills
 from UtilMisc import DD_MM_YYYY
+from collections import defaultdict
 
 PMTAPPDIR = os.getenv("PMTAPPDIR")
 DUMPING_DIR = os.path.join(PMTAPPDIR, "static", "dbs")
 SMALL_NAME = GetOption("CONFIG_SECTION", "SmallName")
 EXT = ".json"
-JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, SMALL_NAME + EXT))
+PMT_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "PMT_" + SMALL_NAME + EXT))
+ORDER_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "ORDER_" + SMALL_NAME + EXT))
+"""
+OrderDB:
+data =
+[
+// Each {} is an object in a list and represents a collection of orders on
+// particular date
+    {
+        date: "21-Apr-2014",
+        orders:[
+          {
+            "custName":"AWT",
+            "md":"15x13x.77=30pc; .83=20pc; .90=20pc; PO#AWT/14-15/",
+            "oNum":"AWT/14-15/0026"
+          },
+          {
+            "custName":"MWW",
+            "md":"13x10x.765=100pc; .96=35",
+            "oNum":"PUR-27/14"
+          }
+        ],
+    },
+    {
+        date: "22-Apr-2014",
+        orders:[
+          {
+            "custName":"AWT",
+            "md":"15x13x.77=30pc; .83=20pc; .90=20pc; PO#AWT/14-15/",
+            "oNum":"AWT/14-15/0026"
+          },
+          {
+            "custName":"MWW",
+            "md":"13x10x.765=100pc; .96=35",
+            "oNum":"PUR-27/14"
+          }
+        ]
+        }
+  }
+]
+"""
+
+def DumpOrdersDB():
+    allOrdersDict = GetAllCompaniesDict().GetAllOrdersOfAllCompaniesAsDict()
+
+    if os.path.exists(ORDER_JSON_FILE_NAME):
+        os.remove(ORDER_JSON_FILE_NAME)
+
+    data = list() #THis will have one day orders
+
+    for eachCompName, orders in allOrdersDict.items():
+        for eachOrder in orders:
+            singleOrder = dict()
+            singleOrder["custName"] = eachOrder.compName
+            singleOrder["md"] = eachOrder.materialDesc
+            singleOrder["oNum"] = eachOrder.orderNumber
+            singleOrder["oDate"] = DD_MM_YYYY(eachOrder.orderDate)
+            data.append(singleOrder) #Just dump this single order there and we will club them date wise while generating final json
+
+    with open(ORDER_JSON_FILE_NAME, "w+") as f:
+        json.dump(data, f, separators=(',',':'), indent=2)
+    return
+
+
 
 """
+paymentDB
 data=
 {
     customers:[
@@ -35,11 +101,11 @@ data=
 }
 
 """
-def DumpJSONDB():
+def DumpPaymentsDB():
     allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
 
-    if os.path.exists(JSON_FILE_NAME):
-        os.remove(JSON_FILE_NAME)
+    if os.path.exists(PMT_JSON_FILE_NAME):
+        os.remove(PMT_JSON_FILE_NAME)
 
     data = {}
     allCustomers = []
@@ -67,11 +133,16 @@ def DumpJSONDB():
 
     data["customers"] = allCustomers
 
-    with open(JSON_FILE_NAME, "w+") as f:
+    with open(PMT_JSON_FILE_NAME, "w+") as f:
         json.dump(data, f, separators=(',',':'), indent=2)
     return
 
-def UploadPmtData():
+def DumpJSONDB():
+    DumpPaymentsDB()
+    DumpOrdersDB()
+
+
+def UploadPmtData(): #TODO: Rename to UploadAppWithNewData
     import subprocess
     pushFile = os.path.abspath(os.path.join(PMTAPPDIR, "utils", "push.py"))
     if not os.path.exists(pushFile):

@@ -209,4 +209,5 @@ torsdat = pushd b:\tools\PrivoxyInstalled\ && start privoxy.exe && popd && %APPD
 
 gpmt = pushd "%PMTAPPDIR%"
 godevpmt = %PMTAPPDIR%\utils\push.py --version="dev" --email="developer@standarddiesandtools.com" --oauth2 --force-upload $*
+golivepmt = %PMTAPPDIR%\utils\push.py --version="live" --email="developer@standarddiesandtools.com" --oauth2 --force-upload $*
 rollbackpmt = pushd %PMTAPPDIR%\ && appcfg.py rollback . --email="developer@standarddiesandtools.com" --version="dev" $*
