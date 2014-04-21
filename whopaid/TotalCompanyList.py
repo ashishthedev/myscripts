@@ -7,7 +7,7 @@
 ###############################################################################
 
 from UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate,\
-        SelectBillsBeforeDate, RemoveMinusOneBills
+        SelectBillsBeforeDate
 from CustomersInfo import GetAllCustomersInfo
 from UtilMisc import ParseDateFromString, OpenFileForViewing, MakeSureDirExists
 from SanityChecks import CheckConsistency
@@ -52,7 +52,6 @@ def GenerateListOfComanies(args):
     allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
     for eachComp in allBillsDict.keys():
         billList += [b for b in allBillsDict[eachComp]]
-    billList = RemoveMinusOneBills(billList)
     billList = SelectBillsAfterDate(billList, sdateObject)
     billList = SelectBillsBeforeDate(billList, edateObject)
     billList = [b for b in billList if b.billingCategory.lower() not in ["up", "jobwork"]]

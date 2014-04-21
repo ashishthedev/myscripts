@@ -5,7 +5,7 @@
 ##         possible amounts and values as the list of companies who can pay
 ## Requirement: Python Interpretor must be installed
 ######################################################################
-from UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, Company, SelectBillsBeforeDate, SelectBillsAfterDate, datex, RemoveMinusOneBills
+from UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, Company, SelectBillsBeforeDate, SelectBillsAfterDate, datex
 from UtilMisc import  OpenFileForViewing, PrintInBox
 from contextlib import closing
 from UtilConfig import GetOption
@@ -32,8 +32,7 @@ class SlicedCompany(Company):
 def ListOfMissingBills(slicedCompany, unpaidBillList):
     minDate = min([datex(b.invoiceDate) for b in slicedCompany])
     maxDate = max([datex(b.invoiceDate) for b in slicedCompany])
-    prunedUnpaidList = RemoveMinusOneBills(unpaidBillList) #TODO: We are not looking into minus 1 bills. Fix it.
-    prunedUnpaidList = SelectBillsBeforeDate(prunedUnpaidList, maxDate)
+    prunedUnpaidList = SelectBillsBeforeDate(unpaidBillList, maxDate)
     prunedUnpaidList = SelectBillsAfterDate(prunedUnpaidList, minDate)
     missingBillPayments = list()
     for eachBill in prunedUnpaidList:

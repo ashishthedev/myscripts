@@ -7,8 +7,7 @@
 ##################################################################################################
 
 from UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate,\
-        SelectBillsBeforeDate, RemoveMinusOneBills, GuessCompanyName,\
-        SelectUnpaidBillsFrom
+        SelectBillsBeforeDate, GuessCompanyName, SelectUnpaidBillsFrom
 from UtilException import MyException
 from UtilMisc import ParseDateFromString, PrintInBox
 from SanityChecks import CheckConsistency
@@ -62,8 +61,6 @@ def ShowStatementOnTerminal(compName, allBillsDict, args):
 
     for b in GetMinusOneBills(billList):
         header.append(str(b))
-
-    billList = RemoveMinusOneBills(billList)
 
     sdateObject = ParseDateFromString(args.sdate)  # Start Date Object
     billList = SelectBillsAfterDate(billList, sdateObject)
