@@ -306,21 +306,23 @@ class SheetCols:
     """
     CompanyFriendlyNameCol = "A"
     KindOfEntery           = "B"
-    BillingCategory        = "C"
-    InstrumentNumber       = "D"
-    InstrumentDate         = "E"
-    MaterialDesc           = "F"
-    GoodsValue             = "G"
-    Tax                    = "H"
-    Courier                = "I"
-    InstrumentAmount       = "J"
-    DocketNumber           = "K"
-    DocketDate             = "L"
-    CourierName            = "M"
-    PaymentReceivingDate   = "N"
-    PaymentStatus          = "O"
-    PaymentAccountedFor    = "P"
-    FormCReceivingDate     = "Q"
+    PoNum                  = "C"
+    PODate                 = "D"
+    BillingCategory        = "E"
+    InstrumentNumber       = "F"
+    InstrumentDate         = "G"
+    MaterialDesc           = "H"
+    GoodsValue             = "I"
+    Tax                    = "J"
+    Courier                = "K"
+    InstrumentAmount       = "L"
+    DocketNumber           = "M"
+    DocketDate             = "N"
+    CourierName            = "O"
+    PaymentReceivingDate   = "P"
+    PaymentStatus          = "Q"
+    PaymentAccountedFor    = "R"
+    FormCReceivingDate     = "S"
 
 def CreateSingleOrderRow(row):
     r = SingleOrderRow()
@@ -336,10 +338,10 @@ def CreateSingleOrderRow(row):
         elif col == SheetCols.MaterialDesc:
             if not val: raise Exception("Order in row: {} seems empty. Please fix the database".format(cell.row))
             r.materialDesc = val
-        elif col == SheetCols.InstrumentDate:
+        elif col == SheetCols.PODate:
             if not val: raise Exception("Date in row: {} seems empty. Please fix the database".format(cell.row))
             r.orderDate = ParseDateFromString(val)
-        elif col == SheetCols.InstrumentNumber:
+        elif col == SheetCols.PoNum:
             if not val: raise Exception("Row: {} seems empty. Please fix the database".format(cell.row))
             r.orderNumber = val
     return r
@@ -364,7 +366,11 @@ def CreateSingleAdjustmentRow(row):
                 r.invoiceDate = val
         elif col == SheetCols.PaymentAccountedFor:
             if val is not None:
-                r.adjustmentAccountedFor = True if val.lower()=="yes" else False
+                if isinstance(val, basestring):
+                    r.adjustmentAccountedFor = True if val.lower()=="yes" else False
+                else:
+                    print(">"*70)
+                    print("Undesirable value in payment accounted for column in row {} Type: {} val:{}".format(cell.row, type(val), val))
             else:
                 r.adjustmentAccountedFor = False
     return r

@@ -4,7 +4,6 @@ import json
 from UtilConfig import GetOption
 from UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, datex, RemoveTrackingBills
 from UtilMisc import DD_MM_YYYY
-from collections import defaultdict
 
 PMTAPPDIR = os.getenv("PMTAPPDIR")
 DUMPING_DIR = os.path.join(PMTAPPDIR, "static", "dbs")
@@ -148,7 +147,7 @@ def UploadPmtData(): #TODO: Rename to UploadAppWithNewData
     if not os.path.exists(pushFile):
         raise Exception("{} does not exist".format(pushFile))
     e = 'moc.slootdnaseiddradnats@repoleved'
-    v='dev'
+    v='live'
     cmd = "python {pushFile} --email={e} --version={v} --oauth2".format(pushFile=pushFile, e=e[::-1], v=v)
     subprocess.check_call(cmd)
 
