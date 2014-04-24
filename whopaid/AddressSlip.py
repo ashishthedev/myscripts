@@ -30,6 +30,8 @@ def ParseOptions():
             default=False, help="Print from address too")
     parser.add_argument("-noComp", dest="noComp", action="store_true",
             default=False, help="Do not print company name")
+    parser.add_argument("-l", "--longEnv", dest="longEnvelope", action="store_true",
+            default=False, help="Do not print company name")
 
     return parser.parse_args()
 
@@ -61,7 +63,6 @@ def GenerateAddressSlipForThisCompany(compName, args):
 
     from collections import defaultdict
     d = defaultdict(constant_factory(""))
-    d['tAddWidth'] = "10.0cm"
     if not args.noComp:
         if not args.noms:
             companyOfficialName = "M/s " + companyOfficialName
@@ -84,6 +85,8 @@ def GenerateAddressSlipForThisCompany(compName, args):
     for i in range(1, args.num):
         finalAddressSnippet += "<br><br>" + singleAddressSnippet
 
+    # Its a short envelope. Style it appropriately
+    d['tAddWidth'] = "10.0cm"
     d['tStyle'] = Template("""
     <style>
     #mydiv {
@@ -93,6 +96,23 @@ def GenerateAddressSlipForThisCompany(compName, args):
     }
     </style>
     """).substitute(d)
+
+    if args.longEnvelope:
+        d['tStyle'] = d['tStyle'] +  """
+         <style>
+         #mydiv {
+         margin-top: 7cm;
+         -webkit-transform: rotate(90deg);
+         border:1px solid black;
+         float: right;
+         height: auto;
+         width: 8cm; /* Total 15cm provision 8*/
+         overflow: visible;
+         }
+         </style>
+         """
+
+
 
     d['tfinalAddressSnippet'] = finalAddressSnippet
 

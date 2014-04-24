@@ -8,10 +8,12 @@ def GuessNumber(smsContents):
     lines = [l.strip() for l in lines if l.strip() != "\n"] #remove blank lines
     fLine = lines[0].lower()
     fLine = fLine.replace("to", "").replace(":", "").strip()
-    if fLine[0] not in "+0123456789":
+    if fLine[0] not in "+0123456789;":
         raise Exception("Cannot deciper telephone number from this line:{}".format(smsContents.split()[0]))
+    nos = fLine.replace(',', ';').split(';')
 
-    return fLine, "\n".join(smsContents.split(NEWLINE)[1:])
+
+    return tuple(nos), "\n".join(smsContents.split(NEWLINE)[1:])
 
 if __name__ == "__main__":
 
@@ -22,7 +24,7 @@ if __name__ == "__main__":
         raise Exception(errorMsg)
     else:
         print("Connection established...\nPlease enter the number and text")
-        toThisNumber = None
+        toTheseNumbers = None
         smsContents = None
         TEMP_FILE_NAME = "temp.txt"
 
@@ -40,17 +42,21 @@ if __name__ == "__main__":
                 PrintInBox(errorMsg)
                 raise Exception(errorMsg)
 
-            toThisNumber, smsContents = GuessNumber(smsContents)
+            toTheseNumbers, smsContents = GuessNumber(smsContents)
 
-            if smsContents and toThisNumber:
+            if smsContents and toTheseNumbers:
                 line = "_"*70
-                msg = "{l}\nTo: {to}\n{con}{l}\nSend: (y/n)".format(to=toThisNumber, l=line, con=smsContents)
-                if raw_input(msg).lower() == "y":
-                    SendSms(toThisNumber, smsContents)
-                else:
+                msg = "{l}\nTo: {to}\n{con}{l}\nSend: (y/n)".format(to=toTheseNumbers, l=line, con=smsContents)
+                if not raw_input(msg).lower() == "y":
                     print("Not sending message...")
+                else:
+                    for singleNumber in toTheseNumbers:
+                        try:
+                            SendSms(singleNumber, smsContents)
+                        except Exception as ex:
+                            print("Could not send to: {}\n{}".format("_"*70, singleNumber))
 
         except Exception as ex:
             if smsContents:
-                print("The sms contents typed by you were:\n{}\n{}".format("_"*70, toThisNumber + "\n" +smsContents))
+                print("The sms contents typed by you were:\n{}\n{}".format("_"*70, toTheseNumbers + "\n" +smsContents))
             raise ex

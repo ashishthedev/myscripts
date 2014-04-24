@@ -20,12 +20,13 @@ from UtilPythonMail import SendMail
 from UtilHTML import UnderLine, Bold, PastelOrangeText
 import os
 from string import Template
-from SanityChecks import SendHeartBeat, CheckConsistency
+from SanityChecks import SendHeartBeat
 import urllib2
 from UtilSms import SendSms, CanSendSmsAsOfNow
 
 from courier.couriers import Courier
 MAX_IN_TRANSIT_DAYS = 15
+MAX_DAYS_FOR_SENDING_NOTIFICATION = 4
 IS_DEMO = True
 
 #Shipment
@@ -57,6 +58,8 @@ class ShipmentTrack(object):
         return self.isDelivered
 
     def markAsDelivered(self):
+        print("_"*70)
+        print("Marking shipment as delivered for: {}".format(self.bill.compName))
         self.isDelivered = True
 
     def TakeNewSnapshot(self):
@@ -126,6 +129,8 @@ class ShipmentMail(object):
         pass
 
     def markShipmentMailAsSent(self):
+        print("_"*70)
+        print("Marking shipment mail as sent for : {}".format(self.bill.compName))
         self.shipmentMailSent = True
 
     def wasShipmentMailEverSent(self):
@@ -634,7 +639,7 @@ def SendDispatchSMSToAllCompanies(args):
     shipments = [s for s in shipments if s.ShouldWeTrackThis()] #Filter our deliverd shipments
     shipments = [s for s in shipments if not s.wasShipmentSmsEverSent()]
     shipments = [s for s in shipments if s.isSMSNoAvailable()]
-    shipments = [s for s in shipments if s.daysPassed < MAX_IN_TRANSIT_DAYS]
+    shipments = [s for s in shipments if s.daysPassed < MAX_DAYS_FOR_SENDING_NOTIFICATION]
     shipments.sort(key=lambda s: s.bill.docketDate, reverse=True)
 
     if len(shipments) != 0:
@@ -662,7 +667,7 @@ def SendMailToAllComapnies(args):
     shipments = PersistentShipment.GetAllStoredShipments()
     shipments = [s for s in shipments if s.ShouldWeTrackThis()] #Filter our deliverd shipments
     shipments = [s for s in shipments if not s.wasShipmentMailEverSent()]
-    shipments = [s for s in shipments if s.daysPassed < MAX_IN_TRANSIT_DAYS]
+    shipments = [s for s in shipments if s.daysPassed < MAX_DAYS_FOR_SENDING_NOTIFICATION]
     shipments.sort(key=lambda s: s.bill.docketDate, reverse=True)
 
     try:
@@ -700,11 +705,7 @@ def TrackAllShipments(args):
         except ShipmentException as ex:
             PrintInBox(str(ex), outliner="X")
             pass
-            #PrintInBox(str(ex))
-            #print(traceback.format_exc())
-            #Print the exception and move on to next shipment
 
 if __name__ == '__main__':
-    CheckConsistency()
     SendHeartBeat()
     main()

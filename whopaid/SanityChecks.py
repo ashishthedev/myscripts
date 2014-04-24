@@ -19,6 +19,7 @@ def SendHeartBeat():
     #A new concept of heartbeat. Only limited to json uploads
     from OutstandingPmtJsonDBGeneration import UploadPmtData
     UploadPmtData()
+    CheckConsistency()
 
 
 def CheckConsistency():
