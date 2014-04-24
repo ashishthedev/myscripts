@@ -174,7 +174,7 @@ def PrintInBox(msg, waitForEnterKey=False, myWidth=79, fl=sys.stdout, outliner="
     finalText = GetMsgInBox(msg, myWidth, outliner)
     fl.write(finalText)
 
-    sys.stdout.flush()
+    fl.flush()
     if waitForEnterKey:
         raw_input("Press any key to continue...")
     return finalText

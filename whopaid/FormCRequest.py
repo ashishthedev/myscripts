@@ -200,7 +200,7 @@ class QuarterlyClubbedFORMC(object):
                     rowDict['qh'] = quarterHTML
                     rowDict['bn'] = int(eachBill.billNumber)
                     rowDict['idate'] = eachBill.invoiceDate.strftime("%d-%b-%y")
-                    rowDict['ba'] = int(eachBill.instrumentAmount)
+                    rowDict['ba'] = int(eachBill.amount)
                     rowDict['tTdRemarks'] = tTdRemarks
                     tableHTML += rowTemplate.substitute(rowDict)
 
@@ -212,7 +212,7 @@ class QuarterlyClubbedFORMC(object):
                 </tr>
                 """)
                 totalRowDict = dict()
-                totalRowDict['quarterTotalAmount'] = int(sum([eachBill.instrumentAmount for eachBill in billList]))
+                totalRowDict['quarterTotalAmount'] = int(sum([eachBill.amount for eachBill in billList]))
                 totalRowDict['tTdRemarks'] = tTdRemarks
                 tableHTML += totalRowTemplate.substitute(totalRowDict)
 

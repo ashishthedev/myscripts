@@ -77,7 +77,7 @@ def GenerateListOfComanies(args):
             f.write("{}. {} bills {}<br>".format(i+1, count, officalCompName))
             for b in billList:
                 if b.compName == unOffName:
-                    f.write("<pre>" + tab + " {} Rs.{} Bill#{} </pre>".format(b.invoiceDate, int(b.instrumentAmount), b.billNumber))
+                    f.write("<pre>" + tab + " {} Rs.{} Bill#{} </pre>".format(b.invoiceDate, int(b.amount), b.billNumber))
 
     OpenFileForViewing(filePath)
 

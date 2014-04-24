@@ -55,7 +55,7 @@ def CanThisCompanyPay(billsList, paymentMade):
     This function will return True if the paid amount can be a combination of any bills. Also
     If this company can't pay it wil return False
     """
-    totalUnpaidAmount = sum([bill.instrumentAmount for bill in billsList])
+    totalUnpaidAmount = sum([bill.amount for bill in billsList])
 
     if(totalUnpaidAmount == paymentMade):
         return (True, billsList)

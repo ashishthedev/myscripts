@@ -122,7 +122,7 @@ def DumpPaymentsDB():
                     "bn" : b.billNumber,
                     "bd": DD_MM_YYYY(datex(b.invoiceDate)),
                     "cd": str(b.daysOfCredit),
-                    "ba":str(int(b.instrumentAmount))
+                    "ba":str(int(b.amount))
                     }
             oneCustomerBills.append(oneBill)
         oneCustomer["bills"] = oneCustomerBills

@@ -52,7 +52,7 @@ def DifferentStrAmountsThatCanBePaidByThisCompany(company):
             amt = 0
             slicedCompany = SlicedCompany(name=company.compName) #slicedCompany is a company with selective bills.
             for eachBill in eachBillListTuple:
-                amt += eachBill.instrumentAmount
+                amt += eachBill.amount
                 slicedCompany.append(eachBill)
             slicedCompany.missingBillPayments = ListOfMissingBills(slicedCompany, unpaidBillList)
             d[str(int(amt))].append(slicedCompany)

@@ -129,7 +129,7 @@ def TotalDefaultersAmount(defaultedBillsDict):
     amt = 0
     for eachComp in defaultedBillsDict:
         for b in defaultedBillsDict[eachComp]:
-            amt += int(b.instrumentAmount)
+            amt += int(b.amount)
 
     return "{:<.04} lakh is the total amount due towards defaulters".format(str(amt/100000))
 
@@ -202,7 +202,7 @@ def AmountStuckWithInterest(billList):
     for b in billList:
         assert b.isUnpaid, "This function should only be called on unpaid bills"
         delayInExpectedPayment = b.daysOfCredit - averagePaymentDays
-        amountStuck += (b.instrumentAmount * delayInExpectedPayment) / trust
+        amountStuck += (b.amount * delayInExpectedPayment) / trust
     return amountStuck
 
 def FindDefaulters(allBillsDict):

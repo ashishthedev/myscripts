@@ -270,7 +270,7 @@ def SendMaterialDispatchSms(bill):
 
     optionalAmount = ""
     if allCustInfo.IncludeBillAmountInEmails(compName):
-        optionalAmount = "Amount: Rs." + str(int(bill.instrumentAmount)) + "/-"
+        optionalAmount = "Amount: Rs." + str(int(bill.amount)) + "/-"
 
     companyOfficialName = allCustInfo.GetCompanyOfficialName(compName)
     if not companyOfficialName:
@@ -320,7 +320,7 @@ def SendMaterialDispatchMail(bill, ctxt):
 
     optionalAmount = ""
     if allCustInfo.IncludeBillAmountInEmails(bill.compName):
-        optionalAmount = " Rs." + str(int(bill.instrumentAmount)) + "/-"
+        optionalAmount = " Rs." + str(int(bill.amount)) + "/-"
 
     ctxt.emailSubject = ctxt.emailSubject or "Dispatch Details: {} Bill#{} {amt}".format(bill.docketDate.strftime("%d-%b-%Y"), str(int(bill.billNumber)), amt=optionalAmount)
 
@@ -398,7 +398,7 @@ def PrepareShipmentEmailForThisBill(bill, ctxt):
 
     if includeAmount:
         tableHeadersArgs.append("Bill Amount")
-        tableDataRowArgs.append("Rs.{}/-".format(str(int(bill.instrumentAmount))))
+        tableDataRowArgs.append("Rs.{}/-".format(str(int(bill.amount))))
 
     tableRows = TableHeaderRow(
             MyColors["BLACK"],

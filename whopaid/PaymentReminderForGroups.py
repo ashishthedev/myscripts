@@ -164,7 +164,7 @@ def ShouldWeSendAutomaticEmailForGroup(grpName, allBillsDict, allCustomersInfo):
         return False # All bills are duly paid; do not send email
 
     #Advance towards us check
-    if int(sum([eachBill.instrumentAmount for eachBill in unpaidBillsList])) < MINIMUM_AMOUNT_DUE:
+    if int(sum([eachBill.amount for eachBill in unpaidBillsList])) < MINIMUM_AMOUNT_DUE:
         return False
 
     #Check if we dont want the customer to be included in automatic mails
@@ -198,11 +198,11 @@ def TotalDueForCompAsInt(compName):
     billsList = GetAllCompaniesDict().GetBillsListForThisCompany(compName)
     if billsList:
         billsList = SelectUnpaidBillsFrom(billsList)
-        billsAmount = sum([b.instrumentAmount for b in billsList])
+        billsAmount = sum([b.amount for b in billsList])
 
     adjustmentsList = GetAllCompaniesDict().GetAdjustmentsListForCompany(compName)
     if adjustmentsList:
-        adjustmentAmount = sum([int(a.instrumentAmount) for a in adjustmentsList])
+        adjustmentAmount = sum([int(a.amount) for a in adjustmentsList])
 
     return int(billsAmount) + int(adjustmentAmount)
 
@@ -329,7 +329,7 @@ def GetHTMLTableBlockForThisComp(compName, allBillsDict, allCustomersInfo):
                 "This function should only be called on unpaid bills of a single\
                 company."
 
-    totalDueLiterally = int(sum([eachBill.instrumentAmount for eachBill in unpaidBillsList]))
+    totalDueLiterally = int(sum([eachBill.amount for eachBill in unpaidBillsList]))
 
     includeCreditDays = True if ("yes" == str(allCustomersInfo.GetIncludeDaysOrNot(compName)).lower()) else False
     tableHeadersArgs = ["Bill#", "Invoice Date", "Amount"]
@@ -344,7 +344,7 @@ def GetHTMLTableBlockForThisComp(compName, allBillsDict, allCustomersInfo):
     for b in unpaidBillsList:
         billRowArgs=[int(b.billNumber),
                 DD_MM_YYYY(b.invoiceDate),
-                Bold("Rs." + str(int(b.instrumentAmount)))]
+                Bold("Rs." + str(int(b.amount)))]
 
         #Add a row to table for each unpaid bill
         if includeCreditDays:
@@ -368,8 +368,8 @@ def GetHTMLTableBlockForThisComp(compName, allBillsDict, allCustomersInfo):
 
         adjRowArgs=[int(adjSingleBill.billNumber),
                 DD_MM_YYYY(adjSingleBill.invoiceDate),
-                Bold("Rs." + str(int(adjSingleBill.instrumentAmount)))]
-        totalDueLiterally += int(adjSingleBill.instrumentAmount)
+                Bold("Rs." + str(int(adjSingleBill.amount)))]
+        totalDueLiterally += int(adjSingleBill.amount)
 
         if includeCreditDays:
             adjRowArgs.append(" ")

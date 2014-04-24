@@ -232,7 +232,7 @@ class SingleBillRow(SingleRow):
             paymentDate = DD_MM_YYYY(self.PaymentReceivingDate)
 
         return "Rs.{:<5} Bill:{:<5} {} {:<5} {}".format(
-            int(self.instrumentAmount),
+            int(self.amount),
             int(self.billNumber),
             DD_MM_YYYY(datex(self.invoiceDate)),
             str(self.paymentStatus),
@@ -249,7 +249,7 @@ class SingleBillRow(SingleRow):
 
     def CheckCalculation(self):
         if intx(self.goodsValue) != 0:
-            if(intx(self.instrumentAmount) != (intx(self.goodsValue) + intx(self.tax) + intx(self.courier))):
+            if(intx(self.amount) != (intx(self.goodsValue) + intx(self.tax) + intx(self.courier))):
                 raise MyException("Calculation error in " + str(self.billingCategory) + " bill# " + str(self.billNumber))
 
     @property
@@ -315,7 +315,7 @@ class SheetCols:
     GoodsValue             = "I"
     Tax                    = "J"
     Courier                = "K"
-    InstrumentAmount       = "L"
+    InvoiceAmount          = "L"
     DocketNumber           = "M"
     DocketDate             = "N"
     CourierName            = "O"
@@ -358,9 +358,9 @@ def CreateSingleAdjustmentRow(row):
         elif col == SheetCols.KindOfEntery:
             if not val: raise Exception("No type of entery in row: {} and col: {}".format(cell.row, col))
             r.kindOfEntery = val
-        elif col == SheetCols.InstrumentAmount:
+        elif col == SheetCols.InvoiceAmount:
             if not val: raise Exception("No adjustment amount in row: {} and col: {}".format(cell.row, col))
-            r.instrumentAmount = val
+            r.amount = val
         elif col == SheetCols.InvoiceDateCol:
             if val is not None:
                 r.invoiceDate = ParseDateFromString(val)
@@ -378,9 +378,9 @@ def CreateSinglePaymentRow(row):
         col = cell.column
         val = cell.internal_value
 
-        if col == SheetCols.InstrumentAmount:
+        if col == SheetCols.InvoiceAmount:
             if not val: raise Exception("No cheque amount in row: {} and col: {}".format(cell.row, col))
-            r.InstrumentAmount = val
+            r.amount = val
         elif col == SheetCols.KindOfEntery:
             if not val: raise Exception("No type of entery in row: {} and col: {}".format(cell.row, col))
             r.kindOfEntery = GuessKindFromValue(val)
@@ -410,8 +410,8 @@ def CreateSingleBillRow(row):
         col = cell.column
         val = cell.internal_value
 
-        if col == SheetCols.InstrumentAmount:
-            b.instrumentAmount = val
+        if col == SheetCols.InvoiceAmount:
+            b.amount = val
         elif col == SheetCols.KindOfEntery:
             if not val: raise Exception("No type of entery in row: {} and col: {}".format(cell.row, col))
             b.kindOfEntery = val
@@ -510,7 +510,7 @@ def TotalAmountDueForThisCompany(allBillsDict, compName):
     """Returns the sum of total unpaid amount for this company"""
     allBillsForThisComp = allBillsDict[compName]
     newBillList = SelectUnpaidBillsFrom(allBillsForThisComp)
-    return int(sum([b.instrumentAmount for b in newBillList]))
+    return int(sum([b.amount for b in newBillList]))
 
 
 def BillsFileChangedSinceLastTime():

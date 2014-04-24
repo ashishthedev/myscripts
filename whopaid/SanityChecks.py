@@ -14,12 +14,14 @@ from UtilMisc import PrintInBox, ParseDateFromString
 from UtilDecorators import timeThisFunction
 from UtilConfig import GetOption
 from collections import defaultdict
+from MarkBillsAsPaid import ReportBillWhichShouldBeMarkAsPaid
 
 def SendHeartBeat():
     #A new concept of heartbeat. Only limited to json uploads
     from OutstandingPmtJsonDBGeneration import UploadPmtData
     UploadPmtData()
     CheckConsistency()
+    
 
 
 def CheckConsistency():
@@ -29,6 +31,7 @@ def CheckConsistency():
                     CheckBillingCategory,
                     CheckBillsCalculation,
                     CheckCancelledAmount,
+                    CheckIfAnyBillsShouldBeMarkedAsPaid,
                    ]
 
     allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
@@ -36,12 +39,17 @@ def CheckConsistency():
         eachFunc(allBillsDict)
     return
 
+def CheckIfAnyBillsShouldBeMarkedAsPaid(allBillsDict):
+    msg = ReportBillWhichShouldBeMarkAsPaid()
+    if msg:
+        raise Exception(msg)
+
 def CheckCancelledAmount(allBillsDict):
     for (eachCompName, eachComp) in allBillsDict.items():
         if eachCompName.lower().find("cancel") != -1:
             for eachBill in eachComp:
-                if eachBill.instrumentAmount != 0:
-                    raise MyException("Bill#{} dated {} is cancelled but has amount {}. It should be 0".format(eachBill.billNumber, str(eachBill.invoiceDate), eachBill.instrumentAmount))
+                if eachBill.amount != 0:
+                    raise MyException("Bill#{} dated {} is cancelled but has amount {}. It should be 0".format(eachBill.billNumber, str(eachBill.invoiceDate), eachBill.amount))
 
 
 def CheckBillingCategory(allBillsDict):
@@ -112,7 +120,7 @@ def CheckCustomerExistenceInDB(allBillsDict):
     return
 
 def CheckCourierStatusAssessmentIsCorrect():
-    from track_shipments import IsDeliveredAssessFromStatus
+    from Shipments import IsDeliveredAssessFromStatus
     test_base = [
             ("Parcel was not delivered", False),
             ("Parcel was delivered", True),
@@ -148,7 +156,7 @@ def CreateATestBill():
     b.goodsValue = 2
     b.tax = 2
     b.courier = 2
-    b.instrumentAmount = 6
+    b.amount = 6
     b.courierName = "Overnite Parcels"
     b.docketNumber = "8037705351"
     b.docketDate = datetime.date.today()
