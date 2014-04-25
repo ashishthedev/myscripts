@@ -153,6 +153,7 @@ dup = %APPDIR%\MyScripts\misc\FindDuplicateFiles.py
 stmt = pushd %APPDIR%\myscripts\whopaid && Statement.py $* && popd
 h = doskey /history
 ggno = pushd %APPDIR%\myscripts\misc\gnokii
+sms = pushd %APPDIR%\myscripts\sms && sendsms.py && popd
 
 ;======================================================
 ;= Match Horoscopes
