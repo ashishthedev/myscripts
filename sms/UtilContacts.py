@@ -27,12 +27,14 @@ class Contact(object):
         self.homePhone2 = row[COLS.HOME_PHONE2]
         self.mobilePhone = row[COLS.MOBILE_PHONE]
 
-    def IsRelatedTo(self, s):
-        for attr, val in self.__dict__.items():
-            if val.startswith("__"): continue
-            if val.lower().find(str(s).lower()) != -1:
-                return True
+    def __str__(self):
+        number = self.mobilePhone or self.homePhone or self.homePhone2
+        return " ".join([str(number), self.firstName, self.middleName, self.lastName, self.emailAdd])
 
+    def IsRelatedTo(self, s):
+        for val in self.__dict__.values():
+            if val.strip().lower().find(str(s).strip().lower())!=-1:
+                return True
         return False
 
 
@@ -43,23 +45,15 @@ class AllContacts(object):
         with open(self.csvPath, 'rb') as f:
             reader = csv.reader(f)
             for row in reader:
-                if DEBUG_COL_NOS:
-                    for i, col in enumerate(row):
-                        print("{:<5} {}").format(i, col)
-                    break
-                con = Contact(row)
-                self.AddContact(con)
+                self.AddContact(Contact(row))
+        return
 
     def AddContact(self, c):
         self.db.append(c)
+        return
 
     def FindRelatedContacts(self, s):
-        print("Searching for {}".format(s))
-        l = [c for c in self.db if c.IsRelatedTo(s)]
-        print("returning {}".format(l))
-        return l
-
-
+        return [c for c in self.db if c.IsRelatedTo(s)]
 
 def main():
     allContacts = AllContacts(CONTACTS_CSV_PATH)
@@ -67,6 +61,7 @@ def main():
 
     relContacts = allContacts.FindRelatedContacts(s)
     for c in relContacts:
-        print(c.firstName)
+        print(c)
+
 if __name__ == "__main__":
     main()

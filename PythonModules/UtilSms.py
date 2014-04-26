@@ -10,6 +10,7 @@ import subprocess
 import os
 from UtilConfig import GetAppDirPath, GetOption
 from UtilMisc import PrintInBox
+import urllib2
 
 GNOKII_PATH = os.path.join(GetAppDirPath(), "myscripts", "misc", "gnokii", "gnokii.exe")
 if not os.path.exists(GNOKII_PATH):
@@ -19,12 +20,22 @@ class AndriodSMSGateway(object):
     SERVER = "192.168.1.18"
     PORT = "9191"
     TIMEOUT = 10 #seconds
+    PING_TIMEOUT = .1
     def __init__(self):
         self.name = "Andriod SMS Gateway"
 
+    def PrefetchResources(self):
+        """ A very short duration timeout. And will always return True.
+        Intent is to prefetch the resources."""
+        try:
+            url = "http://{server}:{port}".format(server=self.SERVER, port=self.PORT)
+            urllib2.urlopen(url, timeout=self.PING_TIMEOUT)
+        except urllib2.URLError:
+            #DO not do anything here. The idea is to prefetch the resources and leave abruptly so that few seconds later when the resources are required for actual sending, they are already loaded.
+            pass
+
     def CanSendSmsAsOfNow(self):
         #We dont know how to check connection. May be ping?
-        import urllib2
         try:
             url = "http://{server}:{port}".format(server=self.SERVER, port=self.PORT)
             resp = urllib2.urlopen(url, timeout=self.TIMEOUT)
@@ -49,6 +60,10 @@ class AndriodSMSGateway(object):
 class SonyEricssonPhone():
     def __init__(self):
         self.name = "Sony Ericsson Phone"
+
+    def PrefetchResources(self):
+        #TODO: Find out if we can prefetch resources in Sony Ericsson.
+        return
 
     def CanSendSmsAsOfNow(self):
         SUCCESS = 0
@@ -91,6 +106,7 @@ class SonyEricssonPhone():
 
 
 
+#Global object which tells which Gateway will be used to send SMS.
 SMSOBJECT = AndriodSMSGateway()
 #SMSOBJECT = SonyEricssonPhone()
 
@@ -98,7 +114,10 @@ def CanSendSmsAsOfNow():
     return SMSOBJECT.CanSendSmsAsOfNow()
 
 def SendSms(toThisNumber, smsContents):
-    SMSOBJECT.SendSms(toThisNumber, smsContents)
+    return SMSOBJECT.SendSms(toThisNumber, smsContents)
+
+def PrefetchResources():
+    return SMSOBJECT.PrefetchResources()
 
 def StripHTMLTags(html):
     from HTMLParser import HTMLParser

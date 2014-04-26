@@ -633,7 +633,7 @@ def main():
 
 def SendDispatchSMSToAllCompanies(args):
     bills = [b for b in GetAllBillsInLastNDays(args.days) if b.docketDate]
-    bills = RemoveTrackingBills(bills)
+    #bills = RemoveTrackingBills(bills)
     [PersistentShipment.GetOrCreateShipmentForBill(b) for b in bills]
     shipments = PersistentShipment.GetAllStoredShipments()
     shipments = [s for s in shipments if s.ShouldWeTrackThis()] #Filter our deliverd shipments

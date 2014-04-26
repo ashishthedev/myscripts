@@ -42,6 +42,7 @@ class CompaniesDict(dict):#TODO: Name it as DB
         self[KIND.PAYMENT] = dict()
         self[KIND.ADJUSTMENT] = dict()
         self[KIND.ORDER] = dict()
+        self[KIND.PUNTED_ORDER] = dict()
 
 
     def _AddEntry(self, typ, r):
@@ -108,6 +109,7 @@ class KIND(object):
     PAYMENT = 2
     ADJUSTMENT = 3
     ORDER = 4
+    PUNTED_ORDER = 5
 
 def GuessKindFromValue(val):
     if val:
@@ -116,6 +118,7 @@ def GuessKindFromValue(val):
         elif val.lower() == "payment": return KIND.PAYMENT
         elif val.lower() == "adjustment": return KIND.ADJUSTMENT
         elif val.lower() == "order": return KIND.ORDER
+        elif val.lower() == "punted": return KIND.PUNTED_ORDER
     return None
 
 def GuessKindFromRow(row):
@@ -158,6 +161,8 @@ class _AllCompaniesDict(CompaniesDict):
                 self.AddAdjustment(CreateSingleAdjustmentRow(row))
             elif kind == KIND.ORDER:
                 self.AddOrder(CreateSingleOrderRow(row))
+            elif kind == KIND.PUNTED_ORDER:
+                pass #DO NOT DO ANYTHING FOR PUNTED ORDERS
             else:
                 raise Exception("Error in row number: {} Kind of entry is invalid".format(rowNumber))
 

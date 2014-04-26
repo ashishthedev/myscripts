@@ -1,7 +1,9 @@
-from UtilSms import SendSms, CanSendSmsAsOfNow
+from UtilSms import SendSms, CanSendSmsAsOfNow, PrefetchResources
 from UtilMisc import PrintInBox
 import subprocess
 import os
+from UtilConfig import GetAppDir, GetOption
+from UtilContacts import AllContacts
 
 def ParseContents(smsContents):
     NEWLINE = "\n"
@@ -14,8 +16,6 @@ def ParseContents(smsContents):
     return tuple(nos) , "\n".join(smsContents.split(NEWLINE)[1:])
 
 def GetDataFromUserAndSendSms():
-    toTheseUnprocessedNumbersList = None
-    smsContents = None
     TEMP_FILE_NAME = "temp.txt"
 
     #Open the file and enter the sms contents
@@ -29,20 +29,15 @@ def GetDataFromUserAndSendSms():
         PrintInBox(errorMsg)
         raise Exception(errorMsg)
 
-    toTheseUnprocessedNumbersList, smsContents = ParseContents(smsContents)
+    toTheseUnprocessedNumbersSeq, smsContents = ParseContents(smsContents)
 
-    if smsContents and toTheseUnprocessedNumbersList:
-        line = "_"*70
-        msg = "{l}\nTo: {to}\n{con}{l}\nSend: (y/n)".format(to=toTheseUnprocessedNumbersList, l=line, con=smsContents)
-        if not raw_input(msg).lower() == "y":
-            print("Not sending message...")
-        else:
-            SendSameSmsToTheseUnprocessedStrings(smsContents, toTheseUnprocessedNumbersList)
+    if smsContents and toTheseUnprocessedNumbersSeq:
+        PrintInBox("To: {to}\n{con}".format(to=toTheseUnprocessedNumbersSeq, con=smsContents))
+        SendSameSmsToTheseUnprocessedStrings(smsContents, toTheseUnprocessedNumbersSeq)
+    return
 
 
 def SendSameSmsToTheseUnprocessedStrings(smsContents, listOfStrings):
-    from UtilConfig import GetAppDir, GetOption
-    from UtilContacts import AllContacts
     CONTACTS_CSV_PATH = os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "ContactsRelativePath"))
     allContacts = AllContacts(CONTACTS_CSV_PATH)
     finalContacts = list()
@@ -55,6 +50,15 @@ def SendSameSmsToTheseUnprocessedStrings(smsContents, listOfStrings):
             displayStr = " ".join([str(number), c.firstName, c.middleName, c.lastName, c.emailAdd, "\n(y/n)?"])
             if raw_input(displayStr).lower() == 'y':
                 finalContacts += number
+                break
+
+    if not CanSendSmsAsOfNow():
+         print("Checking if sms can be sent ...")
+         errorMsg = "Sorry the connection with phone cannot be established..."
+         PrintInBox(errorMsg)
+         raise Exception(errorMsg)
+
+    finalContacts = [c for c in finalContacts if c.strip()]
 
     for singleNumber in finalContacts:
         try:
@@ -62,15 +66,8 @@ def SendSameSmsToTheseUnprocessedStrings(smsContents, listOfStrings):
         except Exception:
             PrintInBox("Could not send to: {}".format(singleNumber))
 
+    return
 
 if __name__ == "__main__":
-
-    print("Checking if sms can be sent ...")
-    if not CanSendSmsAsOfNow():
-        errorMsg = "Sorry the connection with phone cannot be established..."
-        PrintInBox(errorMsg)
-        raise Exception(errorMsg)
-    else:
-        print("Connection established...\nPlease enter the number and text")
-        GetDataFromUserAndSendSms()
-
+    PrefetchResources()
+    GetDataFromUserAndSendSms()
