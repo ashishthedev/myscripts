@@ -30,7 +30,7 @@ class Courier():
 
     def GetStatus(self):
         try:
-            self.courier.GetStatus()
+            return self.courier.GetStatus()
         except URLError as e:
             if hasattr(e, 'reason'):
                 print("We failed to reach the server.\nReason {}".format(self.courier.bill.courierName, e.reason))
