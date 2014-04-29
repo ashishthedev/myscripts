@@ -3,6 +3,7 @@ from HTMLParser import HTMLParser
 from UtilMisc import YYYY_MM_DD, StripHTMLTags
 from UtilConfig import GetAppDir, GetOption
 import subprocess
+from urllib2 import URLError
 import os
 
 class Courier():
@@ -28,7 +29,15 @@ class Courier():
             self.courier = DummyCourier(b)
 
     def GetStatus(self):
-        return self.courier.GetStatus()
+        try:
+            self.courier.GetStatus()
+        except URLError as e:
+            if hasattr(e, 'reason'):
+                print("We failed to reach the server.\nReason {}".format(self.courier.bill.courierName, e.reason))
+            elif hasattr(e, 'code'):
+                print("The server couldn't fulfil the request\nError code: {}".format(e.code))
+            raise e
+        return
 
     def StoreSnapshot(self):
         self.courier.StoreSnapshot()

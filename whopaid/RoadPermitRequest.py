@@ -11,17 +11,19 @@
 
 from UtilWhoPaid import GetAllCompaniesDict, GuessCompanyName
 from UtilHTML import UnderLine, Bold, PastelOrangeText
-from UtilPythonMail import SendMail
-from UtilException import MyException
-from UtilMisc import PrintInBox, DD_MM_YYYY
 from CustomersInfo import GetAllCustomersInfo
-from UtilConfig import GetOption
+from UtilMisc import PrintInBox, DD_MM_YYYY
 from SanityChecks import CheckConsistency
+from UtilException import MyException
+from UtilPythonMail import SendMail
+from UtilConfig import GetOption
 
 from datetime import datetime
 from string import Template
+
 import argparse
 import random
+import os
 
 
 def ParseOptions():
@@ -62,6 +64,10 @@ def ParseOptions():
     p.add_argument("-ll", "--last-line", dest='last_line', type=str,
             default=None, help="If present, emails will be sent with this as "
             "last line.")
+
+    p.add_argument("-fp", "--file-path", dest="file_path", type=str,
+             default=None, help = "If present file will be sent as attachment")
+
 
     args = p.parse_args()
     if not args.invoiceDate:
@@ -122,6 +128,11 @@ def SendRoadPermitRequest(compName, allBillsDict, args):
     bccMailList = GetOption("EMAIL_REMINDER_SECTION", 'BCCEmailList').replace(';', ',').split(','),
 
     print("Preparing mail...")
+    filePath = None
+    if args.file_path:
+        filePath = args.file_path
+        if not os.path.exists(filePath):
+            raise Exception("{} does not exist. This path is given as an attachment to be sent along with road permit")
     mailBody = PrepareMailContentForThisComp(compName, allBillsDict, args)
 
     if args.isDemo:
@@ -132,7 +143,7 @@ def SendRoadPermitRequest(compName, allBillsDict, args):
 
     section = "EMAIL_REMINDER_SECTION"
     SendMail(args.emailSubject,
-            None,
+            filePath,
             GetOption(section, 'Server'),
             GetOption(section, 'Port'),
             GetOption(section, 'FromEmailAddress'),

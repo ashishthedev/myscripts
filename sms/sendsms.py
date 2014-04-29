@@ -49,7 +49,7 @@ def SendSameSmsToTheseUnprocessedStrings(smsContents, listOfStrings):
             if not number: continue
             displayStr = " ".join([str(number), c.firstName, c.middleName, c.lastName, c.emailAdd, "\n(y/n)?"])
             if raw_input(displayStr).lower() == 'y':
-                finalContacts += number
+                finalContacts.append(number)
                 break
 
     if not CanSendSmsAsOfNow():
