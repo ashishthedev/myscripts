@@ -33,7 +33,9 @@ class Contact(object):
 
     def IsRelatedTo(self, s):
         for val in self.__dict__.values():
-            if val.strip().lower().find(str(s).strip().lower())!=-1:
+            onewordVal = val.replace(" ", "").strip().lower()
+            oneWordString = s.replace(" ", "").strip().lower()
+            if onewordVal.find(oneWordString) != -1:
                 return True
         return False
 

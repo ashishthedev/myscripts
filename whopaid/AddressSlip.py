@@ -70,9 +70,15 @@ def GenerateAddressSlipForThisCompany(compName, args):
     d['tCompanyDeliveryAddress'] = companyDeliveryAddress
     d['tcompanyDeliveryPhNo'] = companyDeliveryPhNo
     d['tcompanyPinCode'] = companyPinCode
+    d['tCSSClass'] = "horizontalCompany"
+    d['tOurCompCSSClass'] = "ourCompanyHorizontal"
+
+    if args.longEnvelope:
+        d['tCSSClass'] = "verticalCompany"
+        d['tOurCompCSSClass'] = "ourCompanyVertical"
 
     singleAddressSnippet = Template("""
-    <div id="mydiv">
+    <div class=$tCSSClass>
     <table>
     <tr><td><strong>$tCompanyOfficialName</strong></td></tr>
     <tr><td>$tCompanyDeliveryAddress - PIN - $tcompanyPinCode</td></tr>
@@ -81,46 +87,75 @@ def GenerateAddressSlipForThisCompany(compName, args):
     </div>
     """).substitute(d)
 
-    finalAddressSnippet = singleAddressSnippet
+    addressSnippet = singleAddressSnippet
+    if args.fromAddress:
+        d['tocName'] = 'slooT dnA seiD dradnatS'[::-1]
+        d['tocAdd'] = 'dabaizahG ,ragaN ayrA dlO ,105'[::-1]
+        d['tocPh'] = '5962682-0210'[::-1]
+        d['tocPin'] = '100102'[::-1]
+
+        ourCompAddSnippet = Template("""
+        <div class="$tOurCompCSSClass">
+         From:
+        <table>
+        <tr><td><u>$tocName</u></td></tr>
+        <tr><td>$tocAdd - $tocPin</td></tr>
+        <tr><td>Ph# $tocPh</td></tr>
+        </table>
+        </div>
+        """).substitute(d)
+
+        addressSnippet += ourCompAddSnippet
+
     for i in range(1, args.num):
-        finalAddressSnippet += "<br><br>" + singleAddressSnippet
+        addressSnippet += "<br><br>" + singleAddressSnippet
 
-    # Its a short envelope. Style it appropriately
-    d['tAddWidth'] = "10.0cm"
-    d['tStyle'] = Template("""
-    <style>
-    #mydiv {
-     width: $tAddWidth;
-     border:1px solid black;
-     margin-left: 300px;
-    }
-    </style>
-    """).substitute(d)
-
-    if args.longEnvelope:
-        d['tStyle'] = d['tStyle'] +  """
-         <style>
-         #mydiv {
-         margin-top: 7cm;
-         -webkit-transform: rotate(90deg);
-         border:1px solid black;
-         float: right;
-         height: auto;
-         width: 8cm; /* Total 15cm provision 8*/
-         overflow: visible;
-         }
-         </style>
-         """
-
-
-
-    d['tfinalAddressSnippet'] = finalAddressSnippet
+    d['tAddressSnippet'] = addressSnippet
 
     html = Template("""
     <html>
-    <head> $tStyle </head>
+    <head>
+        <style>
+
+        .horizontalCompany {
+        /* Its a short envelope. Style it appropriately */
+             width: 10cm;
+             border:1px solid black;
+             margin-left: 300px;
+         }
+
+        .ourCompanyHorizontal {
+             margin-top: 1cm;
+             margin-left: 30px;
+         }
+
+         .verticalCompany {
+             margin-top: 10cm;
+             margin-left: 0px;
+             margin-right: -2.5cm;
+             -webkit-transform: rotate(90deg);
+             border:1px solid black;
+             float: right;
+             height: auto;
+             width: auto;
+             padding: 5px;
+         }
+
+         .ourCompanyVertical {
+             margin-top: 6cm;
+             margin-left: 0px;
+             margin-right: -2.5cm;
+             -webkit-transform: rotate(90deg);
+             float: right;
+             height: auto;
+             width: auto;
+             padding: 5px;
+         }
+
+        </style>
+    </head>
     <body onload="window.print()">
-    $tfinalAddressSnippet
+    $tAddressSnippet
     </body>
     </html>
     """).substitute(d)
@@ -130,9 +165,7 @@ def GenerateAddressSlipForThisCompany(compName, args):
 
     OpenFileForViewing(tempPath)
 
-
 def main():
-
     args = ParseOptions()
     chosenComp = GuessCompanyName(args.comp)
     GenerateAddressSlipForThisCompany(chosenComp, args)
