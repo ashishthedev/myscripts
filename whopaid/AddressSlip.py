@@ -6,16 +6,19 @@
 ##              Openpyxl for Python 3 must be installed
 ###############################################################################
 
-from UtilWhoPaid import GuessCompanyName
-from UtilException import MyException
-from UtilMisc import PrintInBox, OpenFileForViewing, MakeSureDirExists
+from UtilWhoPaid import GuessCompanyName, GetAllCompaniesDict, SelectBillsAfterDate
+from UtilMisc import PrintInBox, OpenFileForViewing, MakeSureDirExists, DD_MM_YYYY
 from CustomersInfo import GetAllCustomersInfo
 from SanityChecks import CheckConsistency
+from UtilException import MyException
+from UtilPersistant import Persistant
 from UtilConfig import GetOption
 
 from string import Template
 import argparse
 import os
+import datetime
+
 
 
 def ParseOptions():
@@ -164,11 +167,58 @@ def GenerateAddressSlipForThisCompany(compName, args):
         f.write(html)
 
     OpenFileForViewing(tempPath)
+    return
+
+
+
+class PersistantEnvelopes(Persistant):
+    def __init__(self):
+        super(PersistantEnvelopes, self).__init__(self.__class__.__name__)
+
+    def __str__(self):
+        s = ""
+        for eachComp in self.allKeys:
+            obj = self.get(eachComp)
+            num = obj[0]
+            date = obj[1]
+            s += "{:<5} {:<20} {:<20}\n".format(num, DD_MM_YYYY(date), eachComp)
+
+        return s
+
+    def MarkPrinted(self, compName, numOfEnv, date):
+        obj = (numOfEnv, date)
+        self.put(compName, obj)
+        self.PredictFuturePrints()
+        return
+
+
+    def PredictFuturePrints(self):
+        allBills = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
+        compNames = list()
+        for eachComp in self.allKeys:
+            numOfEnv, date = self.get(eachComp)
+            if not allBills.has_key(eachComp): continue
+            billList = allBills[eachComp]
+            billList = SelectBillsAfterDate(billList, date)
+            envInHand = numOfEnv - len(billList)
+            if envInHand <=1 :
+                compNames.append(eachComp)
+        if compNames:
+            PrintInBox("Please print the envelopes for following companies:")
+            for i, name in enumerate(compNames):
+                print("{:<5} {}".format(i, name))
+
+        return
+
+
+
 
 def main():
     args = ParseOptions()
     chosenComp = GuessCompanyName(args.comp)
     GenerateAddressSlipForThisCompany(chosenComp, args)
+    pe = PersistantEnvelopes()
+    pe.MarkPrinted(chosenComp, args.num, datetime.datetime.today())
     return
 
 if __name__ == '__main__':

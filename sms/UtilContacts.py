@@ -32,11 +32,11 @@ class Contact(object):
         return " ".join([str(number), self.firstName, self.middleName, self.lastName, self.emailAdd])
 
     def IsRelatedTo(self, s):
-        for val in self.__dict__.values():
-            onewordVal = val.replace(" ", "").strip().lower()
-            oneWordString = s.replace(" ", "").strip().lower()
-            if onewordVal.find(oneWordString) != -1:
-                return True
+        allValuesConcatenated = "".join(self.__dict__.values())
+        allValuesConcatenated = allValuesConcatenated.replace(" ", "").strip().lower()
+        oneWordString = s.replace(" ", "").strip().lower()
+        if allValuesConcatenated.find(oneWordString) != -1:
+            return True
         return False
 
 
