@@ -14,7 +14,7 @@ from UtilPythonMail import SendMail
 from UtilColors import MyColors
 from UtilException import MyException
 from UtilMisc import ParseDateFromString, PrintInBox, OpenFileForViewing,\
-        MakeSureDirExists, DD_MM_YYYY, StripHTMLTags
+        MakeSureDirExists, DD_MM_YYYY
 from SanityChecks import CheckConsistency
 from UtilConfig import GetOption
 from UtilDecorators import timeThisFunction
@@ -303,6 +303,7 @@ def GenerateFORMCForAllCompanies(args):
     </style>
 
     """
+    html += "<small>{}</small>".format(GetOption("CONFIG_SECTION", "SmallName"))
     html += "<h2>Pending FORMC-C from {} to {}<br> as on {}</h2>".format(DD_MM_YYYY(sdateObject), DD_MM_YYYY(edateObject), DD_MM_YYYY(datetime.datetime.today()))
 
     allCompaniesDict = GetAllCompaniesDict()
