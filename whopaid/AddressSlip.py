@@ -186,8 +186,9 @@ class PersistantEnvelopes(Persistant):
         return s
 
     def MarkPrinted(self, compName, numOfEnv, date):
-        obj = (numOfEnv, date)
-        self.put(compName, obj)
+        if numOfEnv > 1:
+            obj = (numOfEnv, date)
+            self.put(compName, obj)
         self.PredictFuturePrints()
         return
 
@@ -218,7 +219,7 @@ def main():
     chosenComp = GuessCompanyName(args.comp)
     GenerateAddressSlipForThisCompany(chosenComp, args)
     pe = PersistantEnvelopes()
-    pe.MarkPrinted(chosenComp, args.num, datetime.datetime.today())
+    pe.MarkPrinted(chosenComp, args.num, datetime.date.today())
     return
 
 if __name__ == '__main__':

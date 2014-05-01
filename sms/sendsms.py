@@ -42,15 +42,32 @@ def SendSameSmsToTheseUnprocessedStrings(smsContents, listOfStrings):
     allContacts = AllContacts(CONTACTS_CSV_PATH)
     finalContacts = list()
     for s in listOfStrings:
-        #TODO: THere is a bug. Only serchign for first name. Fix it later. Should be related to generator.
-        contacts = allContacts.FindRelatedContacts(s)
-        for c in contacts:
-            number = c.mobilePhone or c.homePhone or c.homePhone2
-            if not number: continue
-            displayStr = " ".join([str(number), c.firstName, c.middleName, c.lastName, c.emailAdd, "\n(y/n)?"])
-            if raw_input(displayStr).lower() == 'y':
-                finalContacts.append(number)
+        isNumber = True
+        for c in s:
+            if c not in "+1234567890":
+                isNumber = False
                 break
+
+        if isNumber:
+            displayStr = "{}\n(y/n)?".format(s)
+            if raw_input(displayStr).lower() == 'y':
+                finalContacts.append(s)
+        else:
+            def GetNumber(c):
+                return c.mobilePhone or c.homePhone or c.homePhone2 or None
+
+            print("Working on {}".format(s))
+            contacts = allContacts.FindRelatedContacts(s)
+            contacts = [c for c in contacts if GetNumber(c)]
+            if contacts:
+                print("Choose from:\n{}".format("\n".join(str(i) + ". " + str(c) for i, c in enumerate(contacts, start=1))))
+                print("_"*30)
+            for i, c in enumerate(contacts, start=1):
+                number = GetNumber(c)
+                displayStr = " ".join([str(i) + ". ", str(number), c.firstName, c.middleName, c.lastName, c.emailAdd, "\n(y/n)?"])
+                if raw_input(displayStr).lower() == 'y':
+                    finalContacts.append(number)
+                    break
 
     if not CanSendSmsAsOfNow():
          print("Checking if sms can be sent ...")

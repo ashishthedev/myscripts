@@ -545,7 +545,6 @@ runtime macros/matchit.vim
 "
 
 
-autocmd BufRead,BufWritePost *.txt call DistractionFreeWriting()
 
 map <leader>courier :call OpenFilesInTabs([
             \WHOPAID_DIR."\\Shipments.py",
@@ -574,6 +573,17 @@ function! OpenFilesInTabs(...)
     endfor
 endfunction
 
+
+autocmd BufEnter,BufRead,BufWritePost,BufWinEnter,BufReadPre,BufNewFile *.go call GoSettings()
+function! GoSettings()
+    set noexpandtab
+    set nolist
+    set listchars=tab:\|\ 
+    "set listchars=tab:--,trail:-,eol:<
+    "set listchars=tab:\|\ ,
+endfunction
+
+autocmd BufRead,BufWritePost *.txt call DistractionFreeWriting()
 function! DistractionFreeWriting()
     "colorscheme iawriter
     "set background=light
