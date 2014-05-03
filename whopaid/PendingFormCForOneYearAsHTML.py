@@ -30,6 +30,9 @@ DEST_FOLDER = "B:\\Desktop\\FCR"
 def ParseArguments():
     p = argparse.ArgumentParser()
 
+    p.add_argument("-o", "--OpenFileForViewing", dest='open',
+            action="store_true", default=False, help="If present, file will"
+            " be opened")
     p.add_argument("-sd", "--start-date", dest='sdate', metavar="Start-date",
             required=True, default=None, type=str,
             help="Starting Date for FORM-C requests.")
@@ -303,7 +306,7 @@ def GenerateFORMCForAllCompanies(args):
     </style>
 
     """
-    html += "<small>{}</small>".format(GetOption("CONFIG_SECTION", "SmallName"))
+    html += "<small>{} as on {}</small>".format(GetOption("CONFIG_SECTION", "SmallName"), DD_MM_YYYY(datetime.date.today()))
     html += "<h2>Pending FORMC-C from {} to {}<br> as on {}</h2>".format(DD_MM_YYYY(sdateObject), DD_MM_YYYY(edateObject), DD_MM_YYYY(datetime.datetime.today()))
 
     allCompaniesDict = GetAllCompaniesDict()
