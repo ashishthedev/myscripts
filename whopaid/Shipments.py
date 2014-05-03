@@ -531,7 +531,6 @@ def _FormceMarkShipmentMailAsSent(docketNumber):
         if s.bill.docketNumber == docketNumber:
             s.markShipmentMailAsSent()
             s.saveInDB()
-            print("Marking the mail as sent for docket#: {}".format(docketNumber))
 
 
 def _ForceMarkDocketAsDelivered(docketNumber):
