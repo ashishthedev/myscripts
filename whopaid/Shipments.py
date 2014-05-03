@@ -707,5 +707,5 @@ def TrackAllShipments(args):
             pass
 
 if __name__ == '__main__':
-    SendHeartBeat()
     main()
+    SendHeartBeat()
