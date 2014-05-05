@@ -69,12 +69,6 @@ def SendSameSmsToTheseUnprocessedStrings(smsContents, listOfStrings):
                     finalContacts.append(number)
                     break
 
-    if not CanSendSmsAsOfNow():
-         print("Checking if sms can be sent ...")
-         errorMsg = "Sorry the connection with phone cannot be established..."
-         PrintInBox(errorMsg)
-         raise Exception(errorMsg)
-
     finalContacts = [c for c in finalContacts if c.strip()]
 
     for singleNumber in finalContacts:

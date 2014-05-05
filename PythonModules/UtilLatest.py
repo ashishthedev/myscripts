@@ -39,6 +39,13 @@ def AllFilesInThisDirectory(directory):
 
     return allFiles
 
+def LatestNFilesUnderThisDirectory(directory, noOfFiles):
+    allFiles = AllFilesInThisDirectory(os.curdir)
+    allFiles.sort()
+
+    result = [eachFile.path for eachFile in allFiles[-1 * noOfFiles:]]
+    return result
+
 def LatestFilePathUnderThisDirectory(directory):
     allFiles = AllFilesInThisDirectory(directory)
     allFiles.sort(reverse=True)

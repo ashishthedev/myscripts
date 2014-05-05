@@ -41,13 +41,12 @@ def timeThisFunction(function_to_decorate):
         return retVal
     return timeThisFunction_wrapper_around_original_function
 
-def RetryFor5TimesIfFailed(function_to_decorate):
+def RetryNTimesIfFailed(function_to_decorate, noOfTimes):
     """A decorator that will call the function 5 times if it fails(i.e. throws exception) and will bail out in the end."""
     def retry_wrapper_around_original_function(*args, **kwargs):
         missionAccomplished = False
-        MAX_RETRIES = 5
         attempts = 0
-        while not missionAccomplished and (attempts < MAX_RETRIES):
+        while not missionAccomplished and (attempts < noOfTimes):
             try:
                 attempts += 1
                 retVal = function_to_decorate(*args, **kwargs)
@@ -55,9 +54,20 @@ def RetryFor5TimesIfFailed(function_to_decorate):
                 return retVal
             except Exception as ex:
                 PrintInBox(str(ex))
-                if attempts < MAX_RETRIES:
+                if attempts < noOfTimes:
                     print("Retrying one more time...")
                 else:
                     PrintInBox("Bailing out. Enough for today...")
     return retry_wrapper_around_original_function
+
+
+def RetryFor2TimesIfFailed(function_to_decorate):
+    """A decorator that will call the function 2 times if it fails(i.e. throws exception) and will bail out in the end."""
+    return RetryNTimesIfFailed(function_to_decorate, 2)
+
+#TODO: Learn how to create a generic decorator which can take 3 and 5 as arguments
+
+def RetryFor5TimesIfFailed(function_to_decorate):
+    """A decorator that will call the function 5 times if it fails(i.e. throws exception) and will bail out in the end."""
+    return RetryNTimesIfFailed(function_to_decorate, 5)
 
