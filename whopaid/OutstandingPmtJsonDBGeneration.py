@@ -103,6 +103,7 @@ data=
 """
 def DumpPaymentsDB():
     allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
+    allAdjustmentsDict = GetAllCompaniesDict().GetAllAdjustmentsOfAllCompaniesAsDict()
     allCustInfo = GetAllCustomersInfo()
 
     if os.path.exists(PMT_JSON_FILE_NAME):
@@ -113,6 +114,7 @@ def DumpPaymentsDB():
 
     #TODO: Add adjustment bills
     for eachCompName, eachCompBills in allBillsDict.items():
+        adjustmentList = allAdjustmentsDict.get(eachCompName, [])
         unpaidBillList = SelectUnpaidBillsFrom(eachCompBills)
         unpaidBillList = RemoveTrackingBills(unpaidBillList)
         oneCustomer = dict()
@@ -128,6 +130,17 @@ def DumpPaymentsDB():
                     "ba":str(int(b.amount))
                     }
             oneCustomerBills.append(oneBill)
+
+        for a in adjustmentList:
+            if a.adjustmentAccountedFor: continue
+            oneAdjustment = {
+                    "bn": "-1",
+                    "bd": DD_MM_YYYY(datex(a.invoiceDate)),
+                    "cd": "0",
+                    "ba":str(int(a.amount))
+                    }
+            oneCustomerBills.append(oneAdjustment) #For all practical purposes, an adjustment is treated as a bill with bill#-1
+
         oneCustomer["bills"] = oneCustomerBills
         oneCustomer["trust"] = allCustInfo.GetTrustForCustomer(eachCompName)
 

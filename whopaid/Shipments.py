@@ -58,8 +58,6 @@ class ShipmentTrack(object):
         return self.isDelivered
 
     def markAsDelivered(self):
-        print("_"*70)
-        print("Marking shipment as delivered for: {}".format(self.bill.compName))
         self.isDelivered = True
 
     def TakeNewSnapshot(self):
@@ -531,6 +529,7 @@ def _FormceMarkShipmentMailAsSent(docketNumber):
         if s.bill.docketNumber == docketNumber:
             s.markShipmentMailAsSent()
             s.saveInDB()
+            print("Marking the mail as sent for docket#: {}".format(docketNumber))
 
 
 def _ForceMarkDocketAsDelivered(docketNumber):
@@ -645,7 +644,8 @@ def SendDispatchSMSToAllCompanies(args):
         if not CanSendSmsAsOfNow():
             raise Exception("Sorry. SMS cannot be sent as of now. The phone might not be nearby or not paired with this computer.")
     else:
-        PrintInBox("All sms that could have been sent has been sent.")
+        PrintInBox("All the SMSes that could have been sent have been sent.")
+        return
 
     try:
         for eachShipment in shipments:
