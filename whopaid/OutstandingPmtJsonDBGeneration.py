@@ -4,6 +4,7 @@ import json
 from UtilConfig import GetOption
 from UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, datex, RemoveTrackingBills
 from UtilMisc import DD_MM_YYYY
+from CustomersInfo import GetAllCustomersInfo
 
 PMTAPPDIR = os.getenv("PMTAPPDIR")
 DUMPING_DIR = os.path.join(PMTAPPDIR, "static", "dbs")
@@ -102,6 +103,7 @@ data=
 """
 def DumpPaymentsDB():
     allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
+    allCustInfo = GetAllCustomersInfo()
 
     if os.path.exists(PMT_JSON_FILE_NAME):
         os.remove(PMT_JSON_FILE_NAME)
@@ -109,6 +111,7 @@ def DumpPaymentsDB():
     data = {}
     allCustomers = []
 
+    #TODO: Add adjustment bills
     for eachCompName, eachCompBills in allBillsDict.items():
         unpaidBillList = SelectUnpaidBillsFrom(eachCompBills)
         unpaidBillList = RemoveTrackingBills(unpaidBillList)
@@ -126,6 +129,7 @@ def DumpPaymentsDB():
                     }
             oneCustomerBills.append(oneBill)
         oneCustomer["bills"] = oneCustomerBills
+        oneCustomer["trust"] = allCustInfo.GetTrustForCustomer(eachCompName)
 
         if len(oneCustomerBills) > 0:
             allCustomers.append(oneCustomer)

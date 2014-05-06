@@ -20,7 +20,7 @@ from UtilPythonMail import SendMail
 from UtilHTML import UnderLine, Bold, PastelOrangeText
 import os
 from string import Template
-from SanityChecks import SendHeartBeat, CheckConsistency
+from SanityChecks import SendAutomaticHeartBeat, CheckConsistency
 import urllib2
 from UtilSms import SendSms, CanSendSmsAsOfNow
 
@@ -708,4 +708,4 @@ def TrackAllShipments(args):
 if __name__ == '__main__':
     CheckConsistency()
     main()
-    SendHeartBeat()
+    SendAutomaticHeartBeat()

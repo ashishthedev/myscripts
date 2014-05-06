@@ -36,8 +36,9 @@ class Courier():
                 print("We failed to reach the server.\nReason {}".format(self.courier.bill.courierName, e.reason))
             elif hasattr(e, 'code'):
                 print("The server couldn't fulfil the request\nError code: {}".format(e.code))
-            raise e
-        return
+        except Exception as e:
+            print(str(e))
+        return ""
 
     def StoreSnapshot(self):
         self.courier.StoreSnapshot()
