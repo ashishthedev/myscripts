@@ -375,6 +375,9 @@ def CreateSingleAdjustmentRow(row):
             r.adjustmentAccountedFor = False
             if val is not None:
                 r.adjustmentAccountedFor = val.lower()=="yes"
+        elif col == SheetCols.InvoiceNumberCol:
+            r.adjustmentNo = val
+
     return r
 
 def CreateSinglePaymentRow(row):

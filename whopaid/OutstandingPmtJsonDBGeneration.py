@@ -112,7 +112,6 @@ def DumpPaymentsDB():
     data = {}
     allCustomers = []
 
-    #TODO: Add adjustment bills
     for eachCompName, eachCompBills in allBillsDict.items():
         adjustmentList = allAdjustmentsDict.get(eachCompName, [])
         unpaidBillList = SelectUnpaidBillsFrom(eachCompBills)
@@ -134,7 +133,7 @@ def DumpPaymentsDB():
         for a in adjustmentList:
             if a.adjustmentAccountedFor: continue
             oneAdjustment = {
-                    "bn": "-1",
+                    "bn": a.adjustmentNo or "-1",
                     "bd": DD_MM_YYYY(datex(a.invoiceDate)),
                     "cd": "0",
                     "ba":str(int(a.amount))
