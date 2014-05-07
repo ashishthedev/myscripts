@@ -212,7 +212,13 @@ class SingleRow(object):
 class SinglePaymentRow(SingleRow):
     pass
 class SingleAdjustmentRow(SingleRow):
+    @property
+    def daysOfCredit(self):
+        assert self.isUnpaid, "This function should only be called on unpaid bills"
+        timeDelta = datetime.date.today() - datex(self.invoiceDate)
+        return timeDelta.days
     pass
+
 class SingleOrderRow(SingleRow):
     def __str__(self):
         return "ORDER: {cn:}\n{dt}\n{md} ".format(

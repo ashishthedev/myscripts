@@ -186,13 +186,13 @@ import vim
 #Appdir has a defined structure inside it. Add desirable directories to path
 relativePath = "myscripts\pythonmodules"
 if "appdir" in os.environ:
-    path = os.path.join(os.environ["appdir"], relativePath)
+    path = os.path.join(GetAPPDIR(), relativePath)
     path = os.path.normpath(path)
     vim.command(r"set path+=%s" % (path.replace(" ", r"\ ")))
 
 for p in sys.path:
     if os.path.isdir(p):
-        if p.find("python27") == -1:
+        if p.find("python27") != -1:
             #Adding python27 makes autocompletion too slow. Avoid it.
             continue
         vim.command(r"set path+=%s" % (p.replace(" ", r"\ ")))
@@ -237,6 +237,19 @@ noremap <C-F8> :%s/\(\n\s*\n\)\n\+/\r/gc<CR>
 noremap ,spell :setlocal spell<CR>
 
 
+python << EOF
+def InvokeSendSmsFromVim():
+  appPath = GetAPPDIR()
+  smsDir = os.path.join(appPath, "myscripts", "sms")
+  pythonModulesDir = os.path.join(appPath, "myscripts", "PythonModules")
+  sys.path.append(smsDir)
+  sys.path.append(pythonModulesDir)
+  from sendsms import SendSMSToThisBlobHavingNumbersAndContents
+
+  SendSMSToThisBlobHavingNumbersAndContents(vim.current.buffer)
+  return
+
+EOF
 python << EOF
 from datetime import datetime
 import subprocess
@@ -317,6 +330,7 @@ noremap <silent> <leader>hom :python AppendTaskInFrequentFliers("Homework.txt")<
 noremap <silent> <leader>tally :python AppendTaskInFrequentFliers("Tally.txt")<CR>
 noremap <silent> <leader>i :python AppendTaskInFrequentFliers("Info.txt")<CR>
 noremap <silent> <leader>pass :python AppendTaskInFrequentFliers("NewPublicPasswords.txt")<CR>
+noremap <silent> <leader>sms :python InvokeSendSmsFromVim()<CR>
 
 "Use space in normal mode to search. Awesome!
 noremap <Space> /
@@ -573,6 +587,15 @@ function! OpenFilesInTabs(...)
     endfor
 endfunction
 
+
+autocmd BufEnter,BufRead,BufWritePost,BufWinEnter,BufReadPre,BufNewFile *.py call PySettings()
+function! PySettings()
+    set expandtab
+    set tabstop=2
+    set shiftwidth=2
+    set list
+    set listchars=tab:>-,trail:-
+endfunction
 
 autocmd BufEnter,BufRead,BufWritePost,BufWinEnter,BufReadPre,BufNewFile *.go call GoSettings()
 function! GoSettings()
