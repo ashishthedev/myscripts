@@ -19,9 +19,9 @@ from MarkBillsAsPaid import ReportBillWhichShouldBeMarkAsPaid
 def SendAutomaticHeartBeat():
     #A heart beat will be sent every now and then whenever this function is called.
     #The receivers should not have any side effects and can expect back to back or no heartbeat at all. They should be resilient enough.
-    from OutstandingPmtJsonDBGeneration import UploadPmtData
+    from OutstandingPmtJsonDBGeneration import UploadAppWithNewData
     CheckConsistency()
-    UploadPmtData()
+    UploadAppWithNewData()
 
 
 def CheckConsistency():

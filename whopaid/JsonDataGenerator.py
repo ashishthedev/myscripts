@@ -1,4 +1,3 @@
-#TODO: Rename it to be more proper 
 import os
 import json
 from UtilConfig import GetOption
@@ -52,7 +51,7 @@ data =
 ]
 """
 
-def DumpOrdersDB():
+def _DumpOrdersDB():
     allOrdersDict = GetAllCompaniesDict().GetAllOrdersOfAllCompaniesAsDict()
 
     if os.path.exists(ORDER_JSON_FILE_NAME):
@@ -101,7 +100,7 @@ data=
 }
 
 """
-def DumpPaymentsDB():
+def _DumpPaymentsDB():
     allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
     allAdjustmentsDict = GetAllCompaniesDict().GetAllAdjustmentsOfAllCompaniesAsDict()
     allCustInfo = GetAllCustomersInfo()
@@ -152,12 +151,12 @@ def DumpPaymentsDB():
         json.dump(data, f, separators=(',',':'), indent=2)
     return
 
-def DumpJSONDB():
-    DumpPaymentsDB()
-    DumpOrdersDB()
+def _DumpJSONDB():
+    _DumpPaymentsDB()
+    _DumpOrdersDB()
 
 
-def UploadPmtData(): #TODO: Rename to UploadAppWithNewData
+def UploadAppWithNewData():
     import subprocess
     pushFile = os.path.abspath(os.path.join(PMTAPPDIR, "utils", "push.py"))
     if not os.path.exists(pushFile):
@@ -170,4 +169,4 @@ def UploadPmtData(): #TODO: Rename to UploadAppWithNewData
 
 
 if __name__ == "__main__":
-    DumpJSONDB()
+  _DumpJSONDB()
