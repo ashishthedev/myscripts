@@ -192,7 +192,7 @@ if "appdir" in os.environ:
 
 for p in sys.path:
     if os.path.isdir(p):
-        if p.find("python27") != -1:
+        if p.find("python27") == -1:
             #Adding python27 makes autocompletion too slow. Avoid it.
             continue
         vim.command(r"set path+=%s" % (p.replace(" ", r"\ ")))
