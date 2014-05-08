@@ -115,6 +115,9 @@ def YYYY_MM_DD(foo):
   do = ParseDateFromString(foo)
   return do.strftime("%Y-%m-%d")
 
+def DD_MMM_YYYY(foo):
+  return DD_MM_YYYY(foo)
+
 def DD_MM_YYYY(foo):
   do = ParseDateFromString(foo)
   return do.strftime("%d-%b-%Y")

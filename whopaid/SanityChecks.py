@@ -15,13 +15,15 @@ from UtilDecorators import timeThisFunction
 from UtilConfig import GetOption
 from collections import defaultdict
 from MarkBillsAsPaid import ReportBillWhichShouldBeMarkAsPaid
+from JsonDataGenerator import UploadAppWithNewData
+from AutomaticNotifications import SendAutomaticSmsReportsIfRequired
 
 def SendAutomaticHeartBeat():
     #A heart beat will be sent every now and then whenever this function is called.
     #The receivers should not have any side effects and can expect back to back or no heartbeat at all. They should be resilient enough.
-    from OutstandingPmtJsonDBGeneration import UploadAppWithNewData
     CheckConsistency()
     UploadAppWithNewData()
+    SendAutomaticSmsReportsIfRequired()
 
 
 def CheckConsistency():

@@ -9,7 +9,7 @@
 ###############################################################################
 
 from UtilWhoPaid import datex, GetAllCompaniesDict, SelectUnpaidBillsFrom, \
-        GuessCompanyGroupName, RemoveTrackingBills, KIND, SelectUnAccountedForAdjustmentsFrom
+        GuessCompanyGroupName, RemoveTrackingBills
 from UtilHTML import UnderLine, Bold, Big, PastelOrangeText, TableHeaderRow,\
         TableDataRow
 from UtilColors import MyColors

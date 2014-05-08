@@ -53,7 +53,7 @@ def _SendSameSmsToTheseUnprocessedStrings(smsContents, listOfStrings):
         break
 
     if isNumber:
-      if raw_input("{}\n(y/n)?".format(s)).lower() == 'y': 
+      if raw_input("{}\n(y/n)?".format(s)).lower() == 'y':
         finalContacts.append(s)
     else:
       def GetNumber(c):

@@ -50,7 +50,6 @@ class AndriodSMSGateway(object):
 
     def SendSms(self, toThisNumber, smsContents):
         """ Send SMS using SMS GATEWAY installed on Andriod """
-        #TODO: Make these class variables
         import urllib
         params = urllib.urlencode({'phone': toThisNumber, 'text': smsContents, 'password': ''})
         url = "http://{server}:{port}/sendsms?{params}".format(server=self.SERVER, port=self.PORT, params=params)
