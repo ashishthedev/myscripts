@@ -157,13 +157,13 @@ def GetMsgInBox(msg, myWidth=79, outliner="_"):
     wrapper = textwrap.TextWrapper()
     wrapper.replace_whitespace = False
     wrapper.drop_whitespace = True
-    wrapper.width = myWidth
+    wrapper.width = int(myWidth) - 2
 
     finalText = "\n"
     finalText += outline
     finalText += "\n"
     for eachLine in msg.split("\n"):
-        finalText += "{: ^{width}}\n".format(wrapper.fill(eachLine), width=myWidth)
+        finalText += "|{: ^{width}}|\n".format(wrapper.fill(eachLine), width=wrapper.width)
     finalText += outline
     finalText += "\n"
     return finalText
@@ -245,4 +245,3 @@ def StripHTMLTags(html):
 def GetConfirmation():
     if raw_input("Proceed: (y/n)").lower() != "y":
         raise Exception()
-
