@@ -8,7 +8,7 @@ from __future__ import print_function, division
 
 from UtilWhoPaid import GetAllBillsInLastNDays, RemoveTrackingBills
 from CustomersInfo import GetAllCustomersInfo
-from UtilMisc import PrintInBox, GetMsgInBox, DD_MM_YYYY
+from UtilMisc import PrintInBox, GetMsgInBox, DD_MM_YYYY, DD_MMM_YYYY
 from UtilConfig import GetOption
 from contextlib import closing
 from time import sleep
@@ -279,7 +279,7 @@ def SendMaterialDispatchSms(bill):
     d["tFromName"] = "From: {}".format(GetOption("SMS_SECTION", 'FromDisplayName'))
     d["toName"] = "To: {}".format(companyOfficialName)
     d["tDocketNumber"] = bill.docketNumber
-    d["tDocketDate"] = bill.docketDate
+    d["tDocketDate"] = DD_MMM_YYYY(bill.docketDate)
     d["tThrough"] = bill.courierName
     d["tMaterialDescription"] = bill.materialDesc
     d["tAmount"] = optionalAmount

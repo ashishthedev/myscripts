@@ -346,7 +346,8 @@ def GenerateFORMCForCompany(compName, args):
         print("Sending to: " + str(toMailList))
 
         section = "EMAIL_REMINDER_SECTION"
-        emailSubject = "FORM-C request - M/s {}".format(companyOfficialName)
+        requestingCompanyName = GetOption("CONFIG_SECTION", 'CompName')
+        emailSubject = "FORM-C request - M/s {} - from M/s {}".format(companyOfficialName, requestingCompanyName)
         SendMail(emailSubject=emailSubject,
                 zfilename=None,
                 SMTP_SERVER=GetOption(section, 'Server'),

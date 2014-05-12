@@ -10,7 +10,7 @@ def _ParseContents(smsContents):
   lines = smsContents.split(NEWLINE)
   lines = [l.strip() for l in lines if l.strip() != "\n"] #remove blank lines
   fLine = lines[0].lower()
-  nos = fLine.replace(',', ';').split(';')
+  nos = fLine.replace(',', ';').replace(' ', '').split(';')
 
 
   return tuple(nos) , "\n".join(smsContents.split(NEWLINE)[1:])
