@@ -62,6 +62,8 @@ def GenerateAddressSlipForThisCompany(compName, args):
     if not companyPinCode:
         raise MyException("\nM/s {} doesnt have a pin code. Please feed it in the database".format(compName))
 
+    preferredCourierForThisComp = allCustInfo.GetCustomerPreferredCourier(compName)
+
     tempPath = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), "AddressSlips", companyOfficialName + ".html")
     MakeSureDirExists(os.path.dirname(tempPath))
 
@@ -78,6 +80,9 @@ def GenerateAddressSlipForThisCompany(compName, args):
     d['tCompanyDeliveryAddress'] = companyDeliveryAddress
     d['tcompanyDeliveryPhNo'] = companyDeliveryPhNo
     d['tcompanyPinCode'] = companyPinCode
+    d['tOptionalParams'] = ""
+    if preferredCourierForThisComp:
+      d['tOptionalParams'] += "<tr><td>Courier: {}</td></tr>".format(preferredCourierForThisComp)
     d['tCSSClass'] = "horizontalCompany"
     d['tOurCompCSSClass'] = "ourCompanyHorizontal"
 
@@ -91,6 +96,7 @@ def GenerateAddressSlipForThisCompany(compName, args):
     <tr><td><strong>$tCompanyOfficialName</strong></td></tr>
     <tr><td>$tCompanyDeliveryAddress - PIN - $tcompanyPinCode</td></tr>
     <tr><td>Ph# $tcompanyDeliveryPhNo</td></tr>
+    $tOptionalParams
     </table>
     </div>
     """).substitute(d)

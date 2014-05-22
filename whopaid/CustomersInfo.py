@@ -25,17 +25,18 @@ class CustomerInfoCol:
     CompanyOfficialNameCol = "G"
     CourierAddressCol = "H"
     DeliveryPinCodeCol = "I"
-    CityCol = "J"
-    EmailForPayment = "K"
-    KindAttentionCol = "L"
-    EmailForFormC = "M"
-    TrustCol = "N"
-    IncludeDaysCol = "O"
-    CreditLimitCol = "P"
-    SendAutomaticMails = "Q"
-    MinDaysGapCol = "R"
-    IncludeBillAmountInEmails = "S"
-    CompanyGroupCol = "T"
+    PreferredCourierCol = "J"
+    CityCol = "K"
+    EmailForPayment = "L"
+    KindAttentionCol = "M"
+    EmailForFormC = "N"
+    TrustCol = "O"
+    IncludeDaysCol = "P"
+    CreditLimitCol = "Q"
+    SendAutomaticMails = "R"
+    MinDaysGapCol = "S"
+    IncludeBillAmountInEmails = "T"
+    CompanyGroupCol = "U"
     CompanyCodeCol = "V"
 
 
@@ -63,6 +64,8 @@ def CreateSingleCustomerInfo(row):
             c.companyOfficialName = val
         elif col == CustomerInfoCol.CourierAddressCol:
             c.courierAddress = val
+        elif col == CustomerInfoCol.PreferredCourierCol:
+            c.preferredCourier = val
         elif col == CustomerInfoCol.CityCol:
             c.city = val
         elif col == CustomerInfoCol.EmailForPayment:
@@ -146,6 +149,9 @@ class _AllCustomersInfo(dict):
 
     def GetCustomerDeliveryAddress(self, compName):
         return self[compName].courierAddress
+
+    def GetCustomerPreferredCourier(self, compName):
+        return self[compName].preferredCourier
 
     def GetCustomerCity(self, compName):
         return self[compName].city
