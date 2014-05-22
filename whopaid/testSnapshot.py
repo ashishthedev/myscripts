@@ -4,12 +4,12 @@ def main():
 
 
     bill = CreateATestBill()
-    bill.courierName = "Lalji mulji"
-    bill.docketNumber = "10246635"
+    bill.courierName = "Professional Courier"
+    bill.docketNumber = "GZB2207318"
     with TestShipment(bill) as ts:
         ts.Track()
         print("Status: {}".format(ts.status))
-        #s.TakeNewSnapshot()
+        ts.TakeNewSnapshot()
 
 
 if __name__ == '__main__':

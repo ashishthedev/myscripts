@@ -59,6 +59,7 @@ Top Two:
     for n in nos:
       print("Sending sms to {}".format(n))
       print("{}".format(smsContents))
+      #raw_input("About to send sms but will not send because of testing...");return #TODO: Delete this line
       SendSms(n, smsContents)
 
     self.put(PersistantWeeklySmsDetails.Key(firstDay), DD_MMM_YYYY(datetime.date.today()))
@@ -82,11 +83,13 @@ class DAYS(object):
 
 def SendWeeklySalesAsSmsIfNotSentAlready():
   minusOne = datetime.timedelta(days=-1)
-  t = datetime.date.today() + minusOne #Start from yesterday
+  t = datetime.date.today()
 
   if calendar.weekday(t.year, t.month, t.day) in [DAYS.MONDAY, DAYS.TUESDAY]:
     #Too early to send sms. All bills might have not been entered
     return
+
+  t = t + minusOne #Start from yesterday
 
   while calendar.weekday(t.year, t.month, t.day) != DAYS.SATURDAY:
     t = t + minusOne

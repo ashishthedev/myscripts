@@ -120,7 +120,13 @@ RunAppserverForPath(path)
     StartMailServer()
     RunAppserverForPath(path)
     return
-
+}
+#F4::
+{
+    path = %APPDIR_ENV%\..\leantricks
+    ;StartMailServer()
+    RunAppserverForPath(path)
+    return
 }
 
 #!C::
@@ -246,6 +252,14 @@ return
 ;Windows Alt Shortcuts
 ;______________________________
 
+; Windows Alt L for Letter head
+
+#!l::
+{
+  filePath = "%APPDIR_ENV%\SDAT\LettersSent\Letter Head Standard Dies In Word.docx"
+  OpenExistingFileIfPossible("Letter Head Standard Dies In Word.docx - Microsoft Word", filePath)
+  return
+}
 ; Windows Alt B for Bank reconciliation
 #!b::
 {

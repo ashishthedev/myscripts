@@ -51,8 +51,8 @@ set lazyredraw "Dont redraw when executing macros
 set nu
 set undolevels=5000
 set expandtab
-set tabstop=4
-set shiftwidth=4
+set tabstop=2
+set shiftwidth=2
 set guicursor=a:blinkwait001-blinkoff50-blinkon350
 set visualbell
 
@@ -587,6 +587,15 @@ function! OpenFilesInTabs(...)
     endfor
 endfunction
 
+
+autocmd BufEnter,BufRead,BufWritePost,BufWinEnter,BufReadPre,BufNewFile *.html  call HTMLSettings()
+function! HTMLSettings()
+    set expandtab
+    set tabstop=2
+    set shiftwidth=2
+    set list
+    set listchars=tab:>-,trail:-
+endfunction
 
 autocmd BufEnter,BufRead,BufWritePost,BufWinEnter,BufReadPre,BufNewFile *.py call PySettings()
 function! PySettings()

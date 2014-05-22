@@ -1,7 +1,7 @@
 import xml.dom.minidom, os, unittest
 from UtilConfig import GetAppDir
-FOLDER_NAME             = "2014-03"
-BASEPATH                = os.path.join(GetAppDir(), "SalesTaxReturnFiles", "2013-2014")
+FOLDER_NAME             = "2014-04"
+BASEPATH                = os.path.join(GetAppDir(), "SalesTaxReturnFiles", "2014-2015")
 ANNEXUREA               = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureA.xml")
 ANNEXUREB               = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureB.xml")
 ANNEXUREC               = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnxC.xml")
@@ -277,7 +277,7 @@ if __name__=="__main__":
 
     from datetime import datetime
     if(5 == datetime.today().month):
-        raw_input("Have you made sure that you have changed fincial year while filing April's return")
+        raw_input("Have you made sure that you have changed financial year while filing April's return")
 
     print("Folder Name = "+ FOLDER_NAME)
     absoluteFolder = os.path.join(BASEPATH, FOLDER_NAME)

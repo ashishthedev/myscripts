@@ -17,6 +17,7 @@ import hashlib
 import pickle
 import tempfile
 import textwrap
+import random
 
 class tempCopy(object):
   """ Create a temp copy of file/dir and destroy it after work is done"""
@@ -121,6 +122,19 @@ def DD_MMM_YYYY(foo):
 def DD_MM_YYYY(foo):
   do = ParseDateFromString(foo)
   return do.strftime("%d-%b-%Y")
+
+def AnyFundooProcessingMsg():
+  l = [
+      "Admiring the intellect...",
+      "Inventing strangeness...",
+      "Polishing the code...",
+      "Toughening the skeleton...",
+      "Fastening seatbelt...",
+      "Churning data...",
+      "Running at full speed...",
+      "Shredding papers...",
+      ]
+  return l[random.randint(0, len(l)-1)]
 
 def ParseDateFromString(foo):
   """

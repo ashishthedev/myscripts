@@ -15,7 +15,7 @@ from UtilHTML import UnderLine, Bold, Big, PastelOrangeText, TableHeaderRow,\
 from UtilColors import MyColors
 from UtilPythonMail import SendMail
 from UtilException import MyException
-from UtilMisc import PrintInBox, DD_MM_YYYY
+from UtilMisc import PrintInBox, DD_MM_YYYY, AnyFundooProcessingMsg
 from CustomersInfo import GetAllCustomersInfo
 from UtilDecorators import timeThisFunction
 from UtilConfig import GetOption, GetAppDir
@@ -96,7 +96,7 @@ def ParseOptions():
 
 def AskQuestionsFromUserAndSendMail(args):
 
-    print("Churning data...")
+    PrintInBox(AnyFundooProcessingMsg())
     allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
     allCustomersInfo = GetAllCustomersInfo()
 
@@ -200,7 +200,7 @@ def TotalDueForCompAsInt(compName):
         billsList = SelectUnpaidBillsFrom(billsList)
         billsAmount = sum([b.amount for b in billsList])
 
-    adjustmentsList = GetAllCompaniesDict().GetAdjustmentsListForCompany(compName)
+    adjustmentsList = GetAllCompaniesDict().GetUnAccountedAdjustmentsListForCompany(compName)
     if adjustmentsList:
         adjustmentAmount = sum([int(a.amount) for a in adjustmentsList])
 
@@ -355,9 +355,8 @@ def GetHTMLTableBlockForThisComp(compName, allBillsDict, allCustomersInfo):
 
         tableRows += MakeBillRow(*billRowArgs)
 
-    adjustmentBills = GetAllCompaniesDict().GetAdjustmentsListForCompany(compName)
+    adjustmentBills = GetAllCompaniesDict().GetUnAccountedAdjustmentsListForCompany(compName)
     if adjustmentBills:
-        adjustmentBills = [b for b in adjustmentBills if not b.adjustmentAccountedFor]
         if len(adjustmentBills) > 1:
             #TODO: Currently we are accomodating only one adjustment bill
             raise Exception("There can be only one adjustment bill for a company")

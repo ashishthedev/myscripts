@@ -91,8 +91,9 @@ class CompaniesDict(dict):#TODO: Name it as DB
     def GetPaymentsListForThisCompany(self, compName):
         return self.GetAllPaymentsByAllCompaniesAsDict().get(compName, None)
 
-    def GetAdjustmentsListForCompany(self, compName):
-        return self.GetAllAdjustmentsOfAllCompaniesAsDict().get(compName, None)
+    def GetUnAccountedAdjustmentsListForCompany(self, compName):
+      adjustmentList = self.GetAllAdjustmentsOfAllCompaniesAsDict().get(compName, [])
+      return [a for a in adjustmentList if not a.adjustmentAccountedFor]
 
     def GetOrdersListForCompany(self, compName):
         return self.GetAllOrdersOfAllCompaniesAsDict().get(compName, None)
@@ -304,7 +305,7 @@ def SelectBillsAfterDate(billList, dateObject):
 def SelectUnpaidBillsFrom(billList):
     return [b for b in billList if b.isUnpaid]
 
-def SelectUnAccountedForAdjustmentsFrom(adjustmentList):
+def SelectUnAccountedAdjustmentsFrom(adjustmentList):
     return [a for a in adjustmentList if not a.adjustmentAccountedFor]
 
 def RemoveTrackingBills(billList):

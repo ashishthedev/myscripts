@@ -6,7 +6,7 @@
 #############################################################################
 from UtilDecorators import timeThisFunction
 from SanityChecks import CheckConsistency
-from UtilMisc import printNow, PrintInBox, GetSizeOfFileInMB
+from UtilMisc import PrintInBox, GetSizeOfFileInMB, AnyFundooProcessingMsg
 from UtilConfig import GetOption
 from UtilException import MyException
 from whopaidInstantDBGenerate import StartDBGeneration
@@ -45,7 +45,7 @@ def main():
         dumpFilePath = "B:\\desktop\\DB.txt"
 
     if startAfresh:
-        PrintInBox("Wait... Things have changed since last time. Searching thoroughly now.")
+        PrintInBox("But wait... Things have changed since last time. Searching thoroughly now.")
         StartDBGeneration(shelfFilePath, DumpDBAsTextAtThisLocation=dumpFilePath)
         PrintInBox("Size of newly created DB is : {}Mb".format(GetSizeOfFileInMB(shelfFilePath)))
         slCompList2 = FindOutWhoPaidFromDB(shelfFilePath, paymentMade)
@@ -63,12 +63,12 @@ def FindOutWhoPaidFromDB(shelfFileName, paymentMade):
             slicedCompaniesList = sh[paymentMade]  # More than once company can pay this amount. We need to show both.
             return slicedCompaniesList
         else:
-            PrintInBox("Cannot detect who made the payment of Rs." + paymentMade)
+            PrintInBox("Cannot detect from already stored records who made the payment of Rs." + paymentMade)
             return None
 
 
 if __name__ == '__main__':
-    printNow("Churning data...")
+    PrintInBox(AnyFundooProcessingMsg())
     try:
         main()
         CheckConsistency()

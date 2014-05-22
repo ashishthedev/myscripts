@@ -215,3 +215,6 @@ golivepmt = %PMTAPPDIR%\utils\push.py --version="live" --email="developer@standa
 rollbackpmt = pushd %PMTAPPDIR%\ && appcfg.py rollback .  --email="developer@standarddiesandtools.com" --oauth2 --version="live" $*
 rollbackpmt = pushd %PMTAPPDIR%\ && appcfg.py rollback .  --oauth2 --version="live" $*
 gcloudlogin = gcloud auth login --no-launch-browser
+
+
+glt = pushd "%APPDIR%"\\..\\leantricks

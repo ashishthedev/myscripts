@@ -9,7 +9,7 @@ import os
 import shutil
 from UtilMisc import PrintInBox
 import datetime
-IGNORE_LIST = [] #TODO
+IGNORE_LIST = ["Watch", "Wedding", "YoutubeVideosDownloaded", "Photographs", "Tools"]
 SOURCES = [("C:\\Users\\Ichigo\\Dropbox\\", "Dropbox"),
         ("b:\\", "Bdrive")]
 

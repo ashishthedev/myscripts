@@ -6,25 +6,25 @@
 
 from __future__ import print_function, division
 
-from UtilWhoPaid import GetAllBillsInLastNDays, RemoveTrackingBills
-from CustomersInfo import GetAllCustomersInfo
 from UtilMisc import PrintInBox, GetMsgInBox, DD_MM_YYYY, DD_MMM_YYYY
+from UtilWhoPaid import GetAllBillsInLastNDays, RemoveTrackingBills
+from SanityChecks import SendAutomaticHeartBeat, CheckConsistency
+from UtilHTML import UnderLine, Bold, PastelOrangeText
+from UtilSms import SendSms, CanSendSmsAsOfNow
+from CustomersInfo import GetAllCustomersInfo
+from courier.couriers import Courier
+from UtilPythonMail import SendMail
 from UtilConfig import GetOption
 from contextlib import closing
+from string import Template
 from time import sleep
 import argparse
 import datetime
 import shelve
 import random
-from UtilPythonMail import SendMail
-from UtilHTML import UnderLine, Bold, PastelOrangeText
 import os
-from string import Template
-from SanityChecks import SendAutomaticHeartBeat, CheckConsistency
 import urllib2
-from UtilSms import SendSms, CanSendSmsAsOfNow
 
-from courier.couriers import Courier
 MAX_IN_TRANSIT_DAYS = 15
 MAX_DAYS_FOR_SENDING_NOTIFICATION = 4
 IS_DEMO = True

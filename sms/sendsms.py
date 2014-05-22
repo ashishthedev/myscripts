@@ -44,36 +44,39 @@ def SendSMSToThisBlobHavingNumbersAndContents(smsContents):
 def _SendSameSmsToTheseUnprocessedStrings(smsContents, listOfStrings):
   CONTACTS_CSV_PATH = os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "ContactsRelativePath"))
   allContacts = AllContacts(CONTACTS_CSV_PATH)
-  finalContacts = list()
+  singleNumbers = list()
   for s in listOfStrings:
     isNumber = True
-    for c in s:
-      if c not in "+1234567890":
+    for ch in s:
+      if ch not in "+1234567890":
         isNumber = False
         break
 
     if isNumber:
       if raw_input("{}\n(y/n)?".format(s)).lower() == 'y':
-        finalContacts.append(s)
+        singleNumbers.append(s)
     else:
-      def GetNumber(c):
-        return c.mobilePhone or c.homePhone or c.homePhone2 or None
+      def GetNumberList(c):
+        return [n for n in [c.mobilePhone, c.homePhone, c.homePhone2] if n]
 
-      contacts = allContacts.FindRelatedContacts(s)
-      contacts = [c for c in contacts if GetNumber(c)]
-      if contacts:
-        print("Choose from:\n{}".format("\n".join(str(i) + ". " + str(c) for i, c in enumerate(contacts, start=1))))
+      relatedContacts = allContacts.FindRelatedContacts(s)
+
+      relatedContacts = [c for c in relatedContacts if GetNumberList(c)]
+
+      if relatedContacts:
+        print("Choose from:\n{}".format("\n".join(str(i) + ". " + str(c) for i, c in enumerate(relatedContacts, start=1))))
         print("_"*30)
-      for i, c in enumerate(contacts, start=1):
-        number = GetNumber(c)
-        displayStr = " ".join([str(i) + ". ", str(number), c.firstName, c.middleName, c.lastName, c.emailAdd, "\n(y/n)?"])
-        if raw_input(displayStr).lower() == 'y':
-          finalContacts.append(number)
-          break
+        for i, c in enumerate(relatedContacts, start=1):
+          numbers = GetNumberList(c)
+          for number in numbers:
+            displayStr = " ".join([str(i) + ". ", str(number), c.firstName, c.middleName, c.lastName, c.emailAdd, "\n(y/n)?"])
+            if raw_input(displayStr).lower() == 'y':
+              singleNumbers.append(number)
+              break
 
-  finalContacts = [c for c in finalContacts if c.strip()]
+  singleNumbers = [c for c in singleNumbers if c.strip()]
 
-  for singleNumber in finalContacts:
+  for singleNumber in singleNumbers:
     try:
       SendSms(singleNumber, smsContents)
     except Exception:

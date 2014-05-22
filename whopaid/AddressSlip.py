@@ -23,6 +23,11 @@ import datetime
 
 def ParseOptions():
     parser = argparse.ArgumentParser()
+
+    parser.add_argument("-sa", "--show-all", dest='showAll', action="store_true",
+        default=False, help="If present, will show how many envelopes are left")
+    parser.add_argument("-hml", "--how--many-left", dest='howManyLeft', action="store_true",
+        default=False, help="If present, will show how many envelopes are left")
     parser.add_argument("-c", "--comp", dest='comp', type=str, default=None,
             help="Company name or part of it.")
     parser.add_argument("-n", dest='num', type=int, default=2,
@@ -189,8 +194,22 @@ class PersistantEnvelopes(Persistant):
         if numOfEnv > 1:
             obj = (numOfEnv, date)
             self.put(compName, obj)
-        self.PredictFuturePrints()
         return
+
+
+    def HowManyLeftForThisCompany(self, compName):
+        if compName in self.allKeys:
+          return self.get(compName)[0]
+        return 0
+
+    def PrintAllInfo(self):
+      l = list()
+      for compName in self.allKeys:
+        n = self.get(compName)[0]
+        l.append((n, "{} envelopes for {}".format(n, compName)))
+      l = sorted(l, key=lambda x: x[0], reverse=True)
+      for x in l:
+        print(x[1])
 
 
     def PredictFuturePrints(self):
@@ -216,10 +235,19 @@ class PersistantEnvelopes(Persistant):
 
 def main():
     args = ParseOptions()
-    chosenComp = GuessCompanyName(args.comp)
-    GenerateAddressSlipForThisCompany(chosenComp, args)
     pe = PersistantEnvelopes()
+    if args.showAll:
+      pe.PrintAllInfo()
+      return
+
+    chosenComp = GuessCompanyName(args.comp)
+    if args.howManyLeft:
+      print("{} envelopers left for {}".format(pe.HowManyLeftForThisCompany(chosenComp), chosenComp))
+      return
+
+    GenerateAddressSlipForThisCompany(chosenComp, args)
     pe.MarkPrinted(chosenComp, args.num, datetime.date.today())
+    pe.PredictFuturePrints()
     return
 
 if __name__ == '__main__':

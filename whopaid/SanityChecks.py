@@ -17,6 +17,8 @@ from collections import defaultdict
 from MarkBillsAsPaid import ReportBillWhichShouldBeMarkAsPaid
 from JsonDataGenerator import UploadAppWithNewData
 from AutomaticNotifications import SendAutomaticSmsReportsIfRequired
+from UtilWhoPaid import SingleBillRow
+import datetime
 
 def SendAutomaticHeartBeat():
     #A heart beat will be sent every now and then whenever this function is called.
@@ -147,9 +149,7 @@ class TestShipment():
         self.ps._removeFromDB()
 
 def CreateATestBill():
-    from UtilWhoPaid import SingleBill
-    import datetime
-    b = SingleBill()
+    b = SingleBillRow()
     b.compName = "Test"
     b.billingCategory = "Central"
     b.billNumber = 100
@@ -160,7 +160,7 @@ def CreateATestBill():
     b.courier = 2
     b.amount = 6
     b.courierName = "Overnite Parcels"
-    b.docketNumber = "8037705351"
+    b.docketNumber = "To be inserted"
     b.docketDate = datetime.date.today()
     return b
 
