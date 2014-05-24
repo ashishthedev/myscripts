@@ -14,26 +14,33 @@ behave mswin
 "Remove all autocommands in case it is sourced twice
 
 
-python << EOF
-EOF
-
 function! GetAPPDIR()
 python << endpython
 import vim
 import os
 def GetAPPDIR():
-    if "APPDIR" in os.environ:
-        return os.path.normpath(os.environ["appdir"])
-    else:
-        return os.path.normpath("c:\\users\\ichigo\\Dropbox\\SDATDocs\\")
+  return os.path.normpath(os.environ["appdir"])
 
 retcmd = "return '{}'".format(GetAPPDIR())
 vim.command(retcmd)# return from the Vim function!
 endpython
 endfunction
 
-let WEBSITE_DIR = GetAPPDIR()."\\..\\website\\"
-let WHOPAID_DIR = GetAPPDIR()."\\myscripts\\whopaid\\"
+function! GetSDATDir()
+python << endpython
+import vim
+import os
+def GetSDATDir():
+  return os.path.normpath(os.path.join(os.environ["appdir"], "SDATDocs"))
+
+retcmd = "return '{}'".format(GetSDATDir())
+vim.command(retcmd)# return from the Vim function!
+endpython
+endfunction
+
+
+let WEBSITE_DIR = GetAPPDIR()."\\website\\"
+let WHOPAID_DIR = GetSDATDir()."\\myscripts\\whopaid\\"
 
 
 "1. VIM Customizations
@@ -74,9 +81,9 @@ set directory=%temp%
 
 " When vimrc is edited, reload it
 autocmd bufwritepost .myvimrc source <sfile> "When this file changes resource it
-execute "noremap <leader>v :e   ".GetAPPDIR()."\\MyScripts\\misc\\vimFiles\\.myvimrc"."<CR>"
-execute "noremap <leader>nv :sp ".GetAPPDIR()."\\MyScripts\\misc\\vimFiles\\.myvimrc"."<CR>"
-execute "noremap ,re :source ".GetAPPDIR()."\\MyScripts\\misc\\vimFiles\\.myvimrc"."<CR>"
+execute "noremap <leader>v :e   ".GetSDATDir()."\\MyScripts\\misc\\vimFiles\\.myvimrc"."<CR>"
+execute "noremap <leader>nv :sp ".GetSDATDir()."\\MyScripts\\misc\\vimFiles\\.myvimrc"."<CR>"
+execute "noremap ,re :source ".GetSDATDir()."\\MyScripts\\misc\\vimFiles\\.myvimrc"."<CR>"
 
 
 
@@ -140,8 +147,8 @@ endif
 " 2. PYTHON CUSTOMIZATIONS STARTS
 "______________________________________________________________________________
 " Source http://sontek.net/blog/detail/turning-vim-into-a-modern-python-ide
-execute "source "GetAPPDIR()."\\myscripts\\misc\\vimFiles\\vim\\autoload\\pathogen.vim"
-let bundlePath=GetAPPDIR()."\\myscripts\\misc\\vimFiles\\vim\\bundle\\{}"
+execute "source "GetSDATDir()."\\myscripts\\misc\\vimFiles\\vim\\autoload\\pathogen.vim"
+let bundlePath=GetSDATDir()."\\myscripts\\misc\\vimFiles\\vim\\bundle\\{}"
 call pathogen#infect('bundle/{}', bundlePath)
 "call pathogen#incubate()
 "call pathogen#helptags()
@@ -186,7 +193,7 @@ import vim
 #Appdir has a defined structure inside it. Add desirable directories to path
 relativePath = "myscripts\pythonmodules"
 if "appdir" in os.environ:
-    path = os.path.join(GetAPPDIR(), relativePath)
+    path = os.path.join(GetSDATDir(), relativePath)
     path = os.path.normpath(path)
     vim.command(r"set path+=%s" % (path.replace(" ", r"\ ")))
 
@@ -239,7 +246,7 @@ noremap ,spell :setlocal spell<CR>
 
 python << EOF
 def InvokeSendSmsFromVim():
-  appPath = GetAPPDIR()
+  appPath = GetSDATDir()
   smsDir = os.path.join(appPath, "myscripts", "sms")
   pythonModulesDir = os.path.join(appPath, "myscripts", "PythonModules")
   sys.path.append(smsDir)
@@ -260,7 +267,7 @@ def AppendTaskInFrequentFliers(fileName):
     # The tasks are always appended in filename under dir "FrequentFliers"
 
     relativePath = "FrequentFliers"
-    appPath = GetAPPDIR()
+    appPath = GetSDATDir()
     fileName = os.path.join(appPath, relativePath, fileName)
 
     with open(fileName, "a") as f:
@@ -310,10 +317,6 @@ def AddToYoutubeDownloadQueue(mode="beginning"):
     #restartYoutubeDownloads()
     return
 
-def restartYoutubeDownloads():
-    import subprocess
-    subprocess.call("Taskkill /F /T /IM youtube-dl.exe")
-    subprocess.check_call("python c:\\Users\\Ichigo\\Dropbox\\SDATDocs\\MyScripts\\misc\\ydl.py")
 EOF
 
 noremap <silent> <leader>yte :python AddToYoutubeDownloadQueue(mode="last")<CR>
@@ -344,30 +347,26 @@ noremap - gt
 
 :execute "noremap ,torc   :e b:\\Tools\\tor\\Data\\Tor\\torrc<CR>"
 :execute "noremap ,priv   :e b:\\Tools\\PrivoxyInstalled\\config.txt<CR>"
-:execute "noremap ,logins   :e ".GetAPPDIR()."\\FrequentFliers\\logins.txt<CR>"
-:execute "noremap ,banks    :e ".GetAPPDIR()."\\FrequentFliers\\banks.txt<CR>"
-:execute "noremap ,info   :e ".GetAPPDIR()."\\FrequentFliers\\Info.txt<CR>"
-:execute "noremap ,blog   :e ".GetAPPDIR()."\\FrequentFliers\\blogs.txt<CR>"
-:execute "noremap ,comp   :e ".GetAPPDIR()."\\FrequentFliers\\compList.txt<CR>"
-:execute "noremap ,eret   :e ".GetAPPDIR()."\\SalesTaxReturnFiles\\eReturnInfo.txt<CR>"
-:execute "noremap ,act    :e ".GetAPPDIR()."\\FrequentFliers\\actions.txt<CR>"
-:execute "noremap ,note   :e ".GetAPPDIR()."\\FrequentFliers\\Notes.xml<CR>"
-:execute "noremap ,book   :e ".GetAPPDIR()."\\FrequentFliers\\Notes.xml<CR>"
-:execute "noremap ,diary  :e ".GetAPPDIR()."\\FrequentFliers\\Diary.txt<CR>"
-:execute "noremap ,voc    :e ".GetAPPDIR()."\\FrequentFliers\\Vocab.txt<CR>"
-:execute "noremap ,prt    :e ".GetAPPDIR()."\\SDAT\\KennametalAll\\PriceIncreaseTemplate.txt<CR>"
-:execute "noremap ,tally  :e ".GetAPPDIR()."\\FrequentFliers\\tally.txt<CR>"
-:execute "noremap ,ahk    :e ".GetAPPDIR()."\\myscripts\\misc\\MyAutoHotKeys.ahk<CR>"
-:execute "noremap ,hc     :e ".GetAPPDIR()."\\Personal\\bh\\HC.txt \\|set lines=130 \\| set columns=82 \\| winpos 560 0<CR>"
-:execute "noremap ,cn     :e ".GetAPPDIR()."\\Personal\\bh\\c.txt  \\|set lines=130 \\| set columns=82 \\| winpos 560 0<CR>"
-:execute "noremap ,gg     :e ".GetAPPDIR()."\\Personal\\bh\\g.txt  \\|set lines=130 \\| set columns=82 \\| winpos 560 0<CR>"
-:execute "noremap ,bb     :e ".GetAPPDIR()."\\Personal\\bh\\bb.txt \\|set lines=130 \\| set columns=82 \\| winpos 500 0<CR>"
+:execute "noremap ,logins   :e ".GetSDATDir()."\\FrequentFliers\\logins.txt<CR>"
+:execute "noremap ,banks    :e ".GetSDATDir()."\\FrequentFliers\\banks.txt<CR>"
+:execute "noremap ,info   :e ".GetSDATDir()."\\FrequentFliers\\Info.txt<CR>"
+:execute "noremap ,blog   :e ".GetSDATDir()."\\FrequentFliers\\blogs.txt<CR>"
+:execute "noremap ,comp   :e ".GetSDATDir()."\\FrequentFliers\\compList.txt<CR>"
+:execute "noremap ,eret   :e ".GetSDATDir()."\\SalesTaxReturnFiles\\eReturnInfo.txt<CR>"
+:execute "noremap ,act    :e ".GetSDATDir()."\\FrequentFliers\\actions.txt<CR>"
+:execute "noremap ,note   :e ".GetSDATDir()."\\FrequentFliers\\Notes.xml<CR>"
+:execute "noremap ,book   :e ".GetSDATDir()."\\FrequentFliers\\Notes.xml<CR>"
+:execute "noremap ,diary  :e ".GetSDATDir()."\\FrequentFliers\\Diary.txt<CR>"
+:execute "noremap ,voc    :e ".GetSDATDir()."\\FrequentFliers\\Vocab.txt<CR>"
+:execute "noremap ,prt    :e ".GetSDATDir()."\\SDAT\\KennametalAll\\PriceIncreaseTemplate.txt<CR>"
+:execute "noremap ,tally  :e ".GetSDATDir()."\\FrequentFliers\\tally.txt<CR>"
+:execute "noremap ,ahk    :e ".GetSDATDir()."\\myscripts\\misc\\MyAutoHotKeys.ahk<CR>"
+:execute "noremap ,hc     :e ".GetSDATDir()."\\Personal\\bh\\HC.txt \\|set lines=130 \\| set columns=82 \\| winpos 560 0<CR>"
+:execute "noremap ,cn     :e ".GetSDATDir()."\\Personal\\bh\\c.txt  \\|set lines=130 \\| set columns=82 \\| winpos 560 0<CR>"
+:execute "noremap ,gg     :e ".GetSDATDir()."\\Personal\\bh\\g.txt  \\|set lines=130 \\| set columns=82 \\| winpos 560 0<CR>"
+:execute "noremap ,bb     :e ".GetSDATDir()."\\Personal\\bh\\bb.txt \\|set lines=130 \\| set columns=82 \\| winpos 500 0<CR>"
 :execute "noremap ,ytf    :e B:\\YoutubeVideosDownloaded\\YoutubeURLsQueue.txt<CR>"
 :execute "noremap ,ydl    :e B:\\YoutubeVideosDownloaded\\YoutubeURLsQueue.txt<CR>"
-
-:execute "noremap ,js      :e ".GetAPPDIR()."\\..\\phungsuk_jibabo\\detect_change_app\\static\\js\\main.js<CR>"
-:execute "noremap ,home    :e ".GetAPPDIR()."\\..\\phungsuk_jibabo\\detect_change_app\\templates\\home.html<CR>"
-:execute "noremap ,css    :e ".GetAPPDIR()."\\..\\phungsuk_jibabo\\detect_change_app\\static\\stylesheets\\default.css<CR>"
 
 "Disable the arrow keys in normal mode to reach next level of awesomeness
 nnoremap <up> <nop>
@@ -426,7 +425,7 @@ if has("gui_running")
     set guioptions-=r "c=No menus and e=
 endif
 set background=dark
-"execute "source "GetAPPDIR()."\\myscripts\\misc\\vimFiles\\solarized.vim"
+"execute "source "GetSDATDir()."\\myscripts\\misc\\vimFiles\\solarized.vim"
 colorscheme solarized
 
 
@@ -686,4 +685,12 @@ set cursorcolumn
 
 set pastetoggle=<F4>
 "Then, when in insert mode, ready to paste, if you press <F2>, Vim will switch to paste mode, disabling all kinds of smartness and just pasting a whole buffer of text. Then, you can disable paste mode again with another press of <F2>. Nice and simple. Compare paste mode disabled vs enabled:
+
+"Commands reference
+"To delete all empty lines with space
+":g/^\s*$/d
+" ______
+":%s/\s\+$//e
+":%s/\n\{3,}/\r\r/e
+"The e substitute flag means that no error is displayed if the pattern is not found. In the second command, \n in the search pattern finds newline, while \r in the replacement inserts a newline.
 

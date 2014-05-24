@@ -9,13 +9,9 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 ; Ctrl = ^
 ; Shift = +
 
-;TODO: Hardcoding appdir is a hack. Find an elegant solution
 ENVGET, WINDIR_ENV, WINDIR
 ENVGET, APPDIR_ENV, APPDIR
-IF APPDIR_ENV =
- {
-    APPDIR_ENV:="c:\users\ichigo\dropbox\SDATDocs"
- }
+SDAT_DIR = APPDIR_ENV."\SDATDocs"
 ENVGET, PROGRAMFILES_ENV, PROGRAMFILES
 GVIM = %WINDIR_ENV%\gvim.bat
 
@@ -84,10 +80,10 @@ GVIM = %WINDIR_ENV%\gvim.bat
 
 StartMailServer()
 {
-    global APPDIR_ENV
-    ;Run "b:\\python27\\python.exe" %APPDIR_ENV%\myscripts\misc\SMTPDebugginsServer.py
-    ;Run %APPDIR_ENV%\myscripts\misc\SMTPDebugginsServer.py
-    cmd = %ComSpec% /k %APPDIR_ENV%\myscripts\misc\SMTPDebugginsServer.py
+    global SDAT_DIR
+    ;Run "b:\\python27\\python.exe" %SDAT_DIR%\myscripts\misc\SMTPDebugginsServer.py
+    ;Run %SDAT_DIR%\myscripts\misc\SMTPDebugginsServer.py
+    cmd = %ComSpec% /k %SDAT_DIR%\myscripts\misc\SMTPDebugginsServer.py
     Run %cmd%
     return
 }
@@ -108,7 +104,7 @@ RunAppserverForPath(path)
 }
 #F1::
 {
-    path = %APPDIR_ENV%\..\website
+    path = %SDAT_DIR%\..\website
     StartMailServer()
     RunAppserverForPath(path)
     return
@@ -116,14 +112,14 @@ RunAppserverForPath(path)
 
 #F3::
 {
-    path = %APPDIR_ENV%\..\pmtsdat
+    path = %SDAT_DIR%\..\pmtsdat
     StartMailServer()
     RunAppserverForPath(path)
     return
 }
 #F4::
 {
-    path = %APPDIR_ENV%\..\leantricks
+    path = %SDAT_DIR%\..\leantricks
     ;StartMailServer()
     RunAppserverForPath(path)
     return
@@ -131,14 +127,14 @@ RunAppserverForPath(path)
 
 #!C::
 {
-    filePath = %APPDIR_ENV%\Bills\Cust.xlsx
+    filePath = %SDAT_DIR%\Bills\Cust.xlsx
     OpenExistingFileIfPossible("Microsoft Excel - Cust.xlsx", filePath)
     return
 }
 
 #!P::
 {
-    path = %APPDIR_ENV%\..\phungsuk_jibabo\detect_change_app
+    path = %SDAT_DIR%\..\phungsuk_jibabo\detect_change_app
     RunAppserverForPath(path)
     return
 }
@@ -148,7 +144,7 @@ RunAppserverForPath(path)
     StartMailServer()
 
 
-    path = %APPDIR_ENV%\..\phungsuk_jibabo\detect_change_app
+    path = %SDAT_DIR%\..\phungsuk_jibabo\detect_change_app
     RunAppserverForPath(path)
 
 
@@ -183,36 +179,36 @@ OpenExistingFileIfPossible(windowDispName, filePath)
 
 #o::
 {
-    filePath = %APPDIR_ENV%\..\ODATDocs\Bills\OdatBills.xlsx
+    filePath = %SDAT_DIR%\..\ODATDocs\Bills\OdatBills.xlsx
     OpenExistingFileIfPossible("Microsoft Excel - ODATBills.xlsx", filePath)
     return
 }
 #k::
 {
-    filePath = %APPDIR_ENV%\Bills\Bills.xlsx
+    filePath = %SDAT_DIR%\Bills\Bills.xlsx
     OpenExistingFileIfPossible("Microsoft Excel - Bills.xlsx", filePath)
     return
 }
 
 #!d::
 {
-    filePath = %APPDIR_ENV%\..\personal\misc\DataMining.xlsx
+    filePath = %SDAT_DIR%\..\personal\misc\DataMining.xlsx
     OpenExistingFileIfPossible("Microsoft Excel - DataMining.xlsx", filePath)
     return
 }
 
 
 ; Windows Y for youtube download
-#Y:: Run %APPDIR_ENV%\Myscripts\misc\ydl.py
+#Y:: Run %SDAT_DIR%\Myscripts\misc\ydl.py
 
 ;Windows Aly Y for rate limited youtube downloads
-#!Y:: Run %APPDIR_ENV%\Myscripts\misc\ydl.py -r30k
+#!Y:: Run %SDAT_DIR%\Myscripts\misc\ydl.py -r30k
 
 ; Windows g for gvim
 #g:: Run %GVIM%
 
 ; Windows a for actions
-#a:: Run %GVIM% %APPDIR_ENV%\FrequentFliers\actions.txt
+#a:: Run %GVIM% %SDAT_DIR%\FrequentFliers\actions.txt
 
 ; Start Tor Browser
 
@@ -256,29 +252,29 @@ return
 
 #!l::
 {
-  filePath = "%APPDIR_ENV%\SDAT\LettersSent\Letter Head Standard Dies In Word.docx"
+  filePath = "%SDAT_DIR%\SDAT\LettersSent\Letter Head Standard Dies In Word.docx"
   OpenExistingFileIfPossible("Letter Head Standard Dies In Word.docx - Microsoft Word", filePath)
   return
 }
 ; Windows Alt B for Bank reconciliation
 #!b::
 {
-  filePath = %APPDIR_ENV%\FrequentFliers\BankReconcilation.xlsx
+  filePath = %SDAT_DIR%\FrequentFliers\BankReconcilation.xlsx
   OpenExistingFileIfPossible("Microsoft Excel - BankReconcilation.xlsx", filePath)
   return
 }
 
 ; Windows alt o for explorer
-#!o:: Run explorer %APPDIR_ENV%
+#!o:: Run explorer %SDAT_DIR%
 
 ; Windows alt f for template of form 38
-#!f:: Run %PROGRAMFILES_ENV%\Microsoft Office\Office12\EXCEL.EXE %APPDIR_ENV%\Form38Actual\Receipt\Template-Form38.xlsx
+#!f:: Run %PROGRAMFILES_ENV%\Microsoft Office\Office12\EXCEL.EXE %SDAT_DIR%\Form38Actual\Receipt\Template-Form38.xlsx
 
 ; Windows alt e for eretinfo.txt
-#!e:: Run %GVIM% %APPDIR_ENV%\SalesTaxReturnFiles\ereturnInfo.txt
+#!e:: Run %GVIM% %SDAT_DIR%\SalesTaxReturnFiles\ereturnInfo.txt
 
 ; Windows alt i for info.txt
-#!i:: Run %GVIM% %APPDIR_ENV%\FrequentFliers\Info.txt
+#!i:: Run %GVIM% %SDAT_DIR%\FrequentFliers\Info.txt
 
 
 
