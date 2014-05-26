@@ -27,13 +27,14 @@
 
 gitclean = git gc --aggressive --prune
 gitamend = git commit --amend --no-edit
-re=doskey /Macrofile=%XDATDOCSDIR%\myscripts\bin\alias.txt
+re=pushd %XDATDOCSDIR%\MyScripts\bin && doskey /Macrofile=alias.txt && popd
 ..=cd..
 ...=cd..\..
 
 idle = %XDATDOCSDIR%\myscripts\bin\idle.lnk
 mv=move $*
 al=gvim %XDATDOCSDIR%\myscripts\bin\alias.txt
+al=pushd %XDATDOCSDIR%\MyScripts\bin && gvim alias.txt && popd
 cfg=gvim %XDATDOCSDIR%\pycrm.cfg
 g=gvim $*
 z=start /w %VIM_EXE_DIR%\gvim.exe $*

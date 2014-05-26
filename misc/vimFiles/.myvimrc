@@ -219,10 +219,21 @@ noremap <leader>n :NERDTreeToggle<CR>
 "Fuzzy Text Search
 noremap <leader>f <ESC>:Ack!
 
+noremap <leader>= <ESC>mzgg=G'zzz
+
 "Fugitive status line
 " %{fugitive#statusline()}
 
-
+"Some awesome abbreviations I defined for myself
+abbr {{ {{ }}<ESC>hhi
+abbr {% {% %}<ESC>hhi
+abbr {# {# #}<ESC>hhi
+"abbr <div> <div> </div><ESC>hhhhhhhi
+abbr <p> <p></p><ESC>hhhi
+abbr <a> <a href=""></a><ESC>5hi
+abbr <span> <span></span><ESC>6hi
+abbr psvm public static void main(String[] args){<CR>}<esc>O
+abbr ifm if __name__ == "__main__":<CR>
 
 "let g:SimpylFold_docstring_preview = 1
 "set autoindent
@@ -242,7 +253,7 @@ noremap <leader>w :w!<cr>
 noremap <leader>\ :q!<cr>
 noremap <C-F8> :%s/\(\n\s*\n\)\n\+/\r/gc<CR>
 noremap ,spell :setlocal spell<CR>
-
+set spell
 
 python << EOF
 def InvokeSendSmsFromVim():
@@ -379,7 +390,6 @@ noremap j gj
 noremap k gk
 
 noremap <F1>  <nop>
-map <C-F1> mxgg=G`x
 
 "Remove all lines containig tab click or enter
 noremap <F2> :g/click\\|enter\\|tab/d<CR>
