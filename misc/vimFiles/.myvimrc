@@ -252,7 +252,8 @@ nnoremap <C-F3> :if &go=~#'r'<Bar>set go-=r<Bar>else<Bar>set go+=r<Bar>endif<CR>
 noremap <leader>w :w!<cr>
 noremap <leader>\ :q!<cr>
 noremap <C-F8> :%s/\(\n\s*\n\)\n\+/\r/gc<CR>
-noremap ,spell :setlocal spell!<CR>
+noremap ,spell :setlocal spell<CR>
+set spell
 
 python << EOF
 def InvokeSendSmsFromVim():
@@ -412,7 +413,7 @@ noremap <F8> :retab\|%s/\s\+$//e<CR>
 set clipboard=unnamed
 
 "Copy the outstanding bills, open Vim and press F12. Super Awesomeness!!
-let @f = 'pggddWWd^:%s/\t\s/              /geggddGp:retabi                    gg^llllGkI    OBill#   Date         Amount¯¯¯¯¯   ¯¯¯¯¯¯¯¯¯    ¯¯¯¯¯¯¯¯¯¯j^llllllllllllllllllllGI Rs.GI^XXXXXXXXXXXXXXXXXXXXXITotal:               O¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯:%s/-1              /Previous Balance/gegg^ODear Sir,You are requested to make payment for following bills:^XXXXXoggi'.strftime("%d-%b-%Y").''
+let @f = 'pggddWWd^:%s/\t\s/              /geggddGp:retabi                    gg^llllGkI    OBill#   Date         Amount¯¯¯¯¯   ¯¯¯¯¯¯¯¯¯    ¯¯¯¯¯¯¯¯¯¯j^llllllllllllllllllllGI Rs.GI^XXXXXXXXXXXXXXXXXXXXXITotal:               O¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯:%s/-1              /Previous Balance/gegg^ODear Sir,You are requested to make payment for following bills:^XXXXXoggi'.strftime("%d-%b-%Y").''
 noremap <F12> @f
 
 "Insert a smooth underline
