@@ -11,7 +11,21 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 ENVGET, WINDIR_ENV, WINDIR
 ENVGET, APPDIR_ENV, APPDIR
-SDAT_DIR = APPDIR_ENV."\SDATDocs"
+
+
+
+
+
+;Hack: Can't get it to work without using .. in the APPDIR_ENV and SDAT_DIR.
+;Appengine cannot be inititated if these are not used.
+APPDIR_ENV= ..\..\..
+SDAT_DIR = ..\..\..\SDATDocs
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+
 ENVGET, PROGRAMFILES_ENV, PROGRAMFILES
 GVIM = %WINDIR_ENV%\gvim.bat
 
@@ -93,18 +107,18 @@ RunAppserverForPath(path)
     global PROGRAMFILES_ENV
     skip = ""
     skip = --skip_sdk_update_check True
-    clearDS = --clear_datastore True
+    clearDS = --clear_datastore False
     mailSettings = --enable_sendmail
     mailSettings = --smtp_host=localhost --smtp_port=8025
     DEV_APPSERVER = "%PROGRAMFILES_ENV%\Google\google_appengine\dev_appserver.py"
     cmd = %ComSpec% /k %DEV_APPSERVER% %mailSettings% %clearDS% %skip% %path%
-    ;MsgBox %cmd%
     run %cmd%
+    ;MsgBox %cmd%
     return
 }
 #F1::
 {
-    path = %SDAT_DIR%\..\website
+    path = %APPDIR_ENV%\website
     StartMailServer()
     RunAppserverForPath(path)
     return
@@ -112,14 +126,14 @@ RunAppserverForPath(path)
 
 #F3::
 {
-    path = %SDAT_DIR%\..\pmtsdat
+    path = %APPDIR_ENV%\pmtsdat
     StartMailServer()
     RunAppserverForPath(path)
     return
 }
 #F4::
 {
-    path = %SDAT_DIR%\..\leantricks
+    path = %APPDIR_ENV%\leantricks
     ;StartMailServer()
     RunAppserverForPath(path)
     return
@@ -161,12 +175,12 @@ RunAppserverForPath(path)
 
 #u:: Run "B:\Tools\VirtualBoxPortable4.2.12-84980\VirtualBoxPortable.exe"
 ; Windows k for bills.xlsx
-OpenExistingFileIfPossible(windowDispName, filePath)
+OpenExistingFileIfPossible(windowsTitle, filePath)
 {
-  IfWinExist, %windowDispName%
+  IfWinExist, %windowsTitle%, , ,
   {
-    WinActivate, %windowDispName%, , , ;
-    WinMaximize, %windowDispName%, , , ;
+    WinActivate, %windowsTitle%, , , ;
+    WinMaximize, %windowsTitle%, , , ;
   }
   else
   {

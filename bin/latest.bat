@@ -1,1 +1,1 @@
-%APPDIR%\MyScripts\Misc\latest.py %1
+"%APPDIR%\SDATDocs\MyScripts\Misc\latest.py" %1

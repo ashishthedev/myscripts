@@ -219,10 +219,21 @@ noremap <leader>n :NERDTreeToggle<CR>
 "Fuzzy Text Search
 noremap <leader>f <ESC>:Ack!
 
+noremap <leader>= <ESC>mzgg=G'zzz
+
 "Fugitive status line
 " %{fugitive#statusline()}
 
-
+"Some awesome abbreviations I defined for myself
+abbr {{ {{ }}<ESC>hhi
+abbr {% {% %}<ESC>hhi
+abbr {# {# #}<ESC>hhi
+"abbr <div> <div> </div><ESC>hhhhhhhi
+abbr <p> <p></p><ESC>hhhi
+abbr <a> <a href=""></a><ESC>5hi
+abbr <span> <span></span><ESC>6hi
+abbr psvm public static void main(String[] args){<CR>}<esc>O
+abbr ifm if __name__ == "__main__":<CR>
 
 "let g:SimpylFold_docstring_preview = 1
 "set autoindent
@@ -241,8 +252,7 @@ nnoremap <C-F3> :if &go=~#'r'<Bar>set go-=r<Bar>else<Bar>set go+=r<Bar>endif<CR>
 noremap <leader>w :w!<cr>
 noremap <leader>\ :q!<cr>
 noremap <C-F8> :%s/\(\n\s*\n\)\n\+/\r/gc<CR>
-noremap ,spell :setlocal spell<CR>
-
+noremap ,spell :setlocal spell!<CR>
 
 python << EOF
 def InvokeSendSmsFromVim():
@@ -379,7 +389,6 @@ noremap j gj
 noremap k gk
 
 noremap <F1>  <nop>
-map <C-F1> mxgg=G`x
 
 "Remove all lines containig tab click or enter
 noremap <F2> :g/click\\|enter\\|tab/d<CR>
@@ -589,45 +598,47 @@ endfunction
 
 autocmd BufEnter,BufRead,BufWritePost,BufWinEnter,BufReadPre,BufNewFile *.html  call HTMLSettings()
 function! HTMLSettings()
-    set expandtab
-    set tabstop=2
-    set shiftwidth=2
-    set list
-    set listchars=tab:>-,trail:-
+    setlocal expandtab
+    setlocal tabstop=2
+    setlocal shiftwidth=2
+    setlocal list
+    setlocal listchars=tab:>-,trail:-
+    setlocal spell
 endfunction
 
 autocmd BufEnter,BufRead,BufWritePost,BufWinEnter,BufReadPre,BufNewFile *.py call PySettings()
 function! PySettings()
-    set expandtab
-    set tabstop=2
-    set shiftwidth=2
-    set list
-    set listchars=tab:>-,trail:-
+    setlocal expandtab
+    setlocal tabstop=2
+    setlocal shiftwidth=2
+    setlocal list
+    setlocal listchars=tab:>-,trail:-
+    setlocal nospell
 endfunction
 
 autocmd BufEnter,BufRead,BufWritePost,BufWinEnter,BufReadPre,BufNewFile *.go call GoSettings()
 function! GoSettings()
-    set noexpandtab
-    set nolist
-    set listchars=tab:\|\ 
-    "set listchars=tab:--,trail:-,eol:<
-    "set listchars=tab:\|\ ,
+    setlocal noexpandtab
+    setlocal nolist
+    setlocal listchars=tab:\|\ 
+    "setlocal listchars=tab:--,trail:-,eol:<
+    "setlocal listchars=tab:\|\ ,
 endfunction
 
 autocmd BufRead,BufWritePost *.txt call DistractionFreeWriting()
 function! DistractionFreeWriting()
     "colorscheme iawriter
-    "set background=light
-    set background=dark
-    "set gfn=Cousine:h14             " Font to use
-    "set lines=40 columns=100        " Size of editable area
-    "set fuoptions=background:#00f5f6f6 " Macvim specific setting
-    set guioptions-=r
-    set laststatus=0
-    set noruler
-    set linebreak
-    set formatoptions+=t
-    set textwidth=79
+    "setlocal background=light
+    setlocal background=dark
+    "setlocal gfn=Cousine:h14             " Font to use
+    "setlocal lines=40 columns=100        " Size of editable area
+    "setlocal fuoptions=background:#00f5f6f6 " Macvim specific setting
+    setlocal guioptions-=r
+    setlocal laststatus=0
+    setlocal noruler
+    setlocal linebreak
+    setlocal formatoptions+=t
+    setlocal textwidth=79
     setlocal spell
 endfunction
 

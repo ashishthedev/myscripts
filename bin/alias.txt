@@ -27,13 +27,14 @@
 
 gitclean = git gc --aggressive --prune
 gitamend = git commit --amend --no-edit
-re=doskey /Macrofile=%XDATDOCSDIR%\myscripts\bin\alias.txt
+re=pushd %XDATDOCSDIR%\MyScripts\bin && doskey /Macrofile=alias.txt && popd
 ..=cd..
 ...=cd..\..
 
 idle = %XDATDOCSDIR%\myscripts\bin\idle.lnk
 mv=move $*
 al=gvim %XDATDOCSDIR%\myscripts\bin\alias.txt
+al=pushd %XDATDOCSDIR%\MyScripts\bin && gvim alias.txt && popd
 cfg=gvim %XDATDOCSDIR%\pycrm.cfg
 g=gvim $*
 z=start /w %VIM_EXE_DIR%\gvim.exe $*
@@ -154,12 +155,6 @@ h = doskey /history
 ggno = pushd %XDATDOCSDIR%\myscripts\misc\gnokii
 sms = pushd %XDATDOCSDIR%\myscripts\sms && sendsms.py && popd
 
-;======================================================
-;= Match Horoscopes
-ghoro = pushd %HORODIR%\
-golivehoro = %HORODIR%\scripts\push.py --version="live" --email="developer@matchhoroscope.com" $*
-godevhoro = %HORODIR%\scripts\push.py --version="dev" --email="developer@matchhoroscope.com" $*
-
 ;= Take Email backup with tkbkem (TaKe BacKup = tkbk)
 tkbk = %XDATDOCSDIR%\MyScripts\Backup\InitiateEmailBackup.py
 chk  = %XDATDOCSDIR%\MyScripts\whopaid\SanityChecks.py
@@ -216,4 +211,9 @@ rollbackpmt = pushd %PMTAPPDIR%\ && appcfg.py rollback .  --oauth2 --version="li
 gcloudlogin = gcloud auth login --no-launch-browser
 
 
-glt = pushd "%XDATDOCSDIR%"\\..\\leantricks
+;======================================================
+;= Lean Tricks
+glt = pushd %LEANDIR%
+golivelean = %LEANDIR%\scripts\push.py --version="live" --oauth2 --email="developer@standarddiesandtools.com" $*
+godevlean = %LEANDIR%\scripts\push.py --version="dev" --oauth2 --email="developer@standarddiesandtools.com" $*
+rollbacklean = pushd %LEANDIR%\ && appcfg.py rollback .  --email="developer@standarddiesandtools.com" --oauth2 --version="live" $*

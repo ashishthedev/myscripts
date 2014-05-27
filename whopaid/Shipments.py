@@ -615,6 +615,7 @@ def main():
 
     if args.removeTrackingForDocket:
         _RemoveDocketFromIndex(args.removeTrackingForDocket)
+        import sys; sys.exit(0)
 
     if args.newSnapshotForDocket:
         _NewSnapshotForDocket(args.newSnapshotForDocket)

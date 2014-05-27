@@ -163,7 +163,7 @@ def UploadAppWithNewData():
         raise Exception("{} does not exist".format(pushFile))
     e = 'moc.slootdnaseiddradnats@repoleved'
     v='live'
-    cmd = "python {pushFile} --email={e} --version={v} --oauth2".format(pushFile=pushFile, e=e[::-1], v=v)
+    cmd = "python \"{pushFile}\" --email={e} --version={v} --oauth2".format(pushFile=pushFile, e=e[::-1], v=v)
     subprocess.check_call(cmd)
 
 
