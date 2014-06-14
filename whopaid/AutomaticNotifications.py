@@ -61,7 +61,7 @@ Rs.$totalSale/-
       SendSms(n, smsContents)
 
     k = self.Key(date)
-    self.put(PersistantMonthlySmsDetails.Key(k), DD_MMM_YYYY(datetime.date.today()))
+    self.put(k, DD_MMM_YYYY(datetime.date.today()))
     return
 
 
@@ -158,7 +158,7 @@ def SendWeeklySalesAsSmsIfNotSentAlready():
 def SendMonthlySaleAsSmsIfNotSentAlready():
   t = datetime.date.today()
 
-  ALLOWED_DAYS = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+  ALLOWED_DAYS = [5, 6, 7, 8, 9, 10, 11]
   if t.day not in ALLOWED_DAYS:
     #Too early or too late to send sms. All bills might have not been entered
     return
