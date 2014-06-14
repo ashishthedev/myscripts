@@ -1,1 +1,2 @@
-start %APPDIR%\SalesTaxReturnFiles\
+start %XDATDOCSDIR%\SalesTaxReturnFiles\
+

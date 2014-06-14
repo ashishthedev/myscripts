@@ -118,7 +118,9 @@ recent=dir /s /b /a:-d /t:w /o:-d|less
 fip=@echo "Finding inside .py files" && findstr /i /s /n $* *.py
 fit=@echo "Finding inside .txt files" && findstr /i /s /n $* *.txt
 fih=@echo "Finding inside .html files" && findstr /i /s /n $* *.html
-fia=@echo "Finding inside all files" && findstr /i /s /n $* *
+fia=@echo "Finding inside all files" && findstr /i /s /n $* *.*
+fic=@echo "Finding inside all files" && findstr /i /s /n $* *.py *.html *.js *.css
+esice= pushd %XDATDOCSDIR%\ESIC
 
 q=exit
 pyprof = %XDATDOCSDIR%\MyScripts\bin\pyprofile.py "$*"
@@ -214,6 +216,10 @@ gcloudlogin = gcloud auth login --no-launch-browser
 ;======================================================
 ;= Lean Tricks
 glt = pushd %LEANDIR%
-golivelean = %LEANDIR%\scripts\push.py --version="live" --oauth2 --email="developer@standarddiesandtools.com" $*
-godevlean = %LEANDIR%\scripts\push.py --version="dev" --oauth2 --email="developer@standarddiesandtools.com" $*
-rollbacklean = pushd %LEANDIR%\ && appcfg.py rollback .  --email="developer@standarddiesandtools.com" --oauth2 --version="live" $*
+golivelt = %LEANDIR%\utils\push.py --version="live" --email="leantricks@gmail.com" $*
+godevlt = %LEANDIR%\utils\push.py --version="dev" --email="leantricks@gmail.com" $*
+rollbacklt = pushd %LEANDIR%\ && appcfg.py rollback .  --email="leantricks@gmail.com" --version="live" $*
+gzambia = pushd %XDATDOCSDIR%\Export\SteelWorxZambia\ &&  start.
+gexport = pushd %XDATDOCSDIR%\Export && start.
+galkhaleej = pushd %XDATDOCSDIR%\Export\AlkhaleejSteelsDubai && start.
+

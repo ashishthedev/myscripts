@@ -226,6 +226,7 @@ noremap <leader>= <ESC>mzgg=G'zzz
 
 "Some awesome abbreviations I defined for myself
 abbr {{ {{ }}<ESC>hhi
+abbr {[{ {[{ }]}<ESC>hhhxi
 abbr {% {% %}<ESC>hhi
 abbr {# {# #}<ESC>hhi
 "abbr <div> <div> </div><ESC>hhhhhhhi
@@ -234,6 +235,8 @@ abbr <a> <a href=""></a><ESC>5hi
 abbr <span> <span></span><ESC>6hi
 abbr psvm public static void main(String[] args){<CR>}<esc>O
 abbr ifm if __name__ == "__main__":<CR>
+abbr fsms From: Standard Dies<CR>To:<CR>Dear Sir,<CR>Thanks,<CR>Ashok Anand.<CR>+919810181182<ESC>gg0i
+
 
 "let g:SimpylFold_docstring_preview = 1
 "set autoindent
@@ -341,19 +344,21 @@ noremap <silent> <leader>pintu :python AppendTaskInFrequentFliers("Pintu.txt")<C
 noremap <silent> <leader>pal :python AppendTaskInFrequentFliers("Expenses.txt")<CR>
 noremap <silent> <leader>exp :python AppendTaskInFrequentFliers("Expenses.txt")<CR>
 noremap <silent> <leader>hom :python AppendTaskInFrequentFliers("Homework.txt")<CR>
-noremap <silent> <leader>tally :python AppendTaskInFrequentFliers("Tally.txt")<CR>
+noremap <silent> <leader>khunc :python AppendTaskInFrequentFliers("Tally.txt")<CR>
 noremap <silent> <leader>i :python AppendTaskInFrequentFliers("Info.txt")<CR>
 noremap <silent> <leader>pass :python AppendTaskInFrequentFliers("NewPublicPasswords.txt")<CR>
 noremap <silent> <leader>sms :python InvokeSendSmsFromVim()<CR>
 
 "Use space in normal mode to search. Awesome!
 noremap <Space> /
+"Use control space to open another file in same dir. A explorer will be shown. Killer!
+noremap <c-Space> :Tex<CR>
+noremap <leader>t :Tex<CR>
 
 "Use '-' to switch between splited windows.
 noremap - <c-w>w <CR> <bar> :set winheight=998<CR>
 "Use '-' to switch between splited windows.
 noremap - gt
-"Use :sb <Tab> to switch between open buffers
 
 
 :execute "noremap ,torc   :e b:\\Tools\\tor\\Data\\Tor\\torrc<CR>"

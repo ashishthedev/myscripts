@@ -135,16 +135,21 @@ class ShipmentMail(object):
         return self.shipmentMailSent
 
     def sendMailForThisShipment(self):
-        if self.wasShipmentMailEverSent():
-            if str(raw_input("A shipment mail has already been sent to {}. Do you want to send again(y/n)?".format(self.bill.compName))).lower() != 'y':
-                print("Not sending mail")
-                return
-        ctxt = DispatchMailContext()
-        ctxt.isDemo = IS_DEMO
-        SendMaterialDispatchMail(self.bill, ctxt)
-        if not IS_DEMO:
-            self.markShipmentMailAsSent()
-            self.shipment.saveInDB()
+      if self.wasShipmentMailEverSent():
+        if str(raw_input("A shipment mail has already been sent to {}. Do you want to send again(y/n)?".format(self.bill.compName))).lower() != 'y':
+          print("Not sending mail")
+          return
+      if self.bill.billingCategory.lower().startswith("tracking"):
+        print("_"*70)
+        print("This is a tracking shipment. Not sendign any mail")
+        print(self)
+        return
+      ctxt = DispatchMailContext()
+      ctxt.isDemo = IS_DEMO
+      SendMaterialDispatchMail(self.bill, ctxt)
+      if not IS_DEMO:
+        self.markShipmentMailAsSent()
+        self.shipment.saveInDB()
 
 
 class PersistentShipment(object):
@@ -251,7 +256,7 @@ class PersistentShipment(object):
             b.docketNumber,
             b.courierName,
             b.materialDesc,
-            self.status])
+            str(self.status)])
 
     @property
     def daysPassed(self):
@@ -312,13 +317,12 @@ Thanks.
     return
 
 
-
 def SendMaterialDispatchMail(bill, ctxt):
     allCustInfo = GetAllCustomersInfo()
 
     optionalAmount = ""
     if allCustInfo.IncludeBillAmountInEmails(bill.compName):
-        optionalAmount = " Rs." + str(int(bill.amount)) + "/-"
+      optionalAmount = " Rs." + str(int(bill.amount)) + "/-"
 
     ctxt.emailSubject = ctxt.emailSubject or "Dispatch Details: {} Bill#{} {amt}".format(bill.docketDate.strftime("%d-%b-%Y"), str(int(bill.billNumber)), amt=optionalAmount)
 

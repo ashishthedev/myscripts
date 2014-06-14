@@ -471,10 +471,12 @@ def CreateSingleBillRow(row):
         elif col == SheetCols.CourierName:
             b.courierName = val
         elif col == SheetCols.MaterialDesc:
-            if val is not None:
-                b.materialDesc = val
+            if isinstance(val, basestring):
+              b.materialDesc = val
+            elif val is None:
+              b.materialDesc = "--"
             else:
-                b.materialDesc = "--"
+              raise Exception("The material description should be string and not {} in row: {} and col: {}".format(type(val), cell.row, col))
         elif col == SheetCols.FormCReceivingDate:
             if val is not None:
                 b.formCReceivingDate = ParseDateFromString(val)

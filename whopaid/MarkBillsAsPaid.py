@@ -17,8 +17,10 @@ def ReportBillWhichShouldBeMarkAsPaid():
     for eachCompName, paymentList in allPaymentsDict.items():
         paymentList = [p for p in paymentList if not p.paymentAccountedFor]
         if not paymentList: continue
+        unpaidBillList = allCompaniesDict.GetBillsListForThisCompany(eachCompName)
+        if not unpaidBillList: continue #i.e it was an advance payment by a new company
 
-        unpaidBillList = RemoveTrackingBills(allCompaniesDict.GetBillsListForThisCompany(eachCompName))
+        unpaidBillList = RemoveTrackingBills(unpaidBillList)
         unpaidBillList = SelectUnpaidBillsFrom(unpaidBillList)
         unpaidBillList = sorted(unpaidBillList, key=lambda b:b.invoiceDate)
 

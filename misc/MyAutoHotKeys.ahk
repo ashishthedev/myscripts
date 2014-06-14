@@ -19,7 +19,7 @@ ENVGET, APPDIR_ENV, APPDIR
 ;Hack: Can't get it to work without using .. in the APPDIR_ENV and SDAT_DIR.
 ;Appengine cannot be inititated if these are not used.
 APPDIR_ENV= ..\..\..
-SDAT_DIR = ..\..\..\SDATDocs
+SDAT_DIR = %APPDIR_ENV%\SDATDocs
 
 
 
@@ -102,12 +102,12 @@ StartMailServer()
     return
 }
 
-RunAppserverForPath(path)
+RunAppserverForPath(path, shouldClearDataStore)
 {
     global PROGRAMFILES_ENV
     skip = ""
-    skip = --skip_sdk_update_check True
-    clearDS = --clear_datastore False
+    skip = --skip_sdk_update_check true
+    clearDS = --clear_datastore %shouldClearDataStore%
     mailSettings = --enable_sendmail
     mailSettings = --smtp_host=localhost --smtp_port=8025
     DEV_APPSERVER = "%PROGRAMFILES_ENV%\Google\google_appengine\dev_appserver.py"
@@ -120,7 +120,7 @@ RunAppserverForPath(path)
 {
     path = %APPDIR_ENV%\website
     StartMailServer()
-    RunAppserverForPath(path)
+    RunAppserverForPath(path, false)
     return
 }
 
@@ -128,15 +128,26 @@ RunAppserverForPath(path)
 {
     path = %APPDIR_ENV%\pmtsdat
     StartMailServer()
-    RunAppserverForPath(path)
+    RunAppserverForPath(path, false)
     return
 }
 #F4::
 {
     path = %APPDIR_ENV%\leantricks
     ;StartMailServer()
-    RunAppserverForPath(path)
+    shouldClearDataStore = false
+    RunAppserverForPath(path, shouldClearDataStore)
     return
+}
+
+#F12::
+{
+    path = %APPDIR_ENV%\leantricks
+    ;StartMailServer()
+    shouldClearDataStore = true
+    RunAppserverForPath(path, shouldClearDataStore)
+    return
+
 }
 
 #!C::
@@ -149,7 +160,7 @@ RunAppserverForPath(path)
 #!P::
 {
     path = %SDAT_DIR%\..\phungsuk_jibabo\detect_change_app
-    RunAppserverForPath(path)
+    RunAppserverForPath(path, false)
     return
 }
 
@@ -159,7 +170,7 @@ RunAppserverForPath(path)
 
 
     path = %SDAT_DIR%\..\phungsuk_jibabo\detect_change_app
-    RunAppserverForPath(path)
+    RunAppserverForPath(path, false)
 
 
     Run %ComSpec% /k b:\bottleServer\scripts\activate.bat && python b:\bottleServer\app\todo5656.py
@@ -222,7 +233,7 @@ OpenExistingFileIfPossible(windowsTitle, filePath)
 #g:: Run %GVIM%
 
 ; Windows a for actions
-#a:: Run %GVIM% %SDAT_DIR%\FrequentFliers\actions.txt
+#A:: Run %SDAT_DIR%\FrequentFliers\actions.txt
 
 ; Start Tor Browser
 

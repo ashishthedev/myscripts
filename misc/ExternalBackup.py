@@ -10,8 +10,9 @@ import shutil
 from UtilMisc import PrintInBox
 import datetime
 IGNORE_LIST = ["Watch", "Wedding", "YoutubeVideosDownloaded", "Photographs", "Tools"]
-SOURCES = [("C:\\Users\\Ichigo\\Dropbox\\", "Dropbox"),
-        ("b:\\", "Bdrive")]
+SOURCES = [
+    ("b:\\", "Bdrive"),
+    ]
 
 def main():
     DESTINATION_DRIVE="D:\\" #TODO: Read programatically?
@@ -30,7 +31,7 @@ def main():
     for source, foldername in SOURCES:
         finalDestination = os.path.join(destination, foldername)
         PrintInBox("Copying {} \n to \n {}".format(source, finalDestination))
-        shutil.copytree(source, finalDestination, shutil.ignore_patterns(IGNORE_LIST))
+        shutil.copytree(source, finalDestination, shutil.ignore_patterns(*IGNORE_LIST))
     return
 
 if __name__ == '__main__':

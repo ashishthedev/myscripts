@@ -135,7 +135,7 @@ def GenerateAddressSlipForThisCompany(compName, args):
         /* Its a short envelope. Style it appropriately */
              width: 10cm;
              border:1px solid black;
-             margin-left: 250px;
+             margin-left: 150px;
          }
 
         .ourCompanyHorizontal {
