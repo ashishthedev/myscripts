@@ -1,6 +1,6 @@
 import xml.dom.minidom, os, unittest
 from UtilConfig import GetAppDir
-FOLDER_NAME             = "2014-04"
+FOLDER_NAME             = "2014-05"
 BASEPATH                = os.path.join(GetAppDir(), "SalesTaxReturnFiles", "2014-2015")
 ANNEXUREA               = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureA.xml")
 ANNEXUREB               = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureB.xml")
@@ -89,11 +89,13 @@ def TestSameness(testCaseInstance, fileName_ValueToLookFor_Dict):
           continue
 
         for n in GetAllNodesByNameFromFile(fileName, valuesToLookFor):
-            values.append(getText(n.childNodes))
+            values.append((getText(n.childNodes), fileName))
 
-    for x in values:
-        if x != values[0]: print("These are not equal: {}".format(values))
-        testCaseInstance.assertEqual(values[0], x)
+    for x, fn in values:
+        if x != values[0][0]:
+          import pprint
+          print("These are not equal:\n{}".format(pprint.pformat(values)))
+        testCaseInstance.assertEqual(values[0][0], x)
 
 
 class TestFunctions(unittest.TestCase):

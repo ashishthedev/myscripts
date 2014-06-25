@@ -9,7 +9,7 @@
 ###############################################################################
 
 from UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate,\
-        SelectBillsBeforeDate, GuessCompanyName
+        SelectBillsBeforeDate, GuessCompanyName, RemoveTrackingBills
 from CustomersInfo import GetAllCustomersInfo
 from UtilHTML import UnderLine, Bold, PastelOrangeText
 from UtilPythonMail import SendMail
@@ -324,6 +324,8 @@ def GenerateFORMCForCompany(compName, args):
 
     FORMCBillList = SelectBillsAfterDate(billList, sdateObject)
     FORMCBillList = SelectBillsBeforeDate(FORMCBillList, edateObject)
+    FORMCBillList = RemoveTrackingBills(FORMCBillList)
+
 
     if not FORMCBillList:
         raise MyException("\nM/s {} has no FORM-C due".format(compName))

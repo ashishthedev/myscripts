@@ -1,1 +1,1 @@
-call %APPDIR%"\\myscripts\\bin\\pyhelp.py"
+call %APPDIR%"\\SDATDocs\\myscripts\\bin\\pyhelp.py"

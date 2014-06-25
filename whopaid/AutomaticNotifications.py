@@ -16,6 +16,24 @@ from string import Template
 from UtilWhoPaid import SelectBillsAfterDate, SelectBillsBeforeDate, GetAllBillsInLastNDays
 SMALL_NAME = GetOption("CONFIG_SECTION", "SmallName")
 
+def GetTopFiveClientsAsString(bills):
+  d = dict()
+
+  for b in bills:
+    if b.compName not in d.keys():
+      d[b.compName] = 0
+    d[b.compName] += int(b.amount)
+
+  from collections import OrderedDict
+  od = OrderedDict(sorted(d.items(), key=lambda t: t[1], reverse=True))
+  res = ""
+  i=1
+  for compName, amount in od.items()[:5]:
+    res += "\n{}. Rs.{} {}".format(i, amount, compName)
+    i+=1
+  return res
+
+
 class PersistantMonthlySmsDetails(Persistant):
   @classmethod
   def Key(cls, date):
@@ -34,22 +52,22 @@ class PersistantMonthlySmsDetails(Persistant):
     d = dict()
     bills = [b for b in GetAllBillsInLastNDays(60)]
     firstDay = datetime.date(date.year, date.month, 1)
-    x = firstDay + datetime.timedelta(days=32) #Force jump one month, this will solve dec-jan problem
-    lastDay = datetime.date(x.year, x.month, 1) - datetime.timedelta(days=1)
+    nextMonthDate = firstDay + datetime.timedelta(days=32) #Force jump one month, this will solve dec-jan problem
+    lastDay = datetime.date(nextMonthDate.year, nextMonthDate.month, 1) - datetime.timedelta(days=1)
 
     bills = SelectBillsAfterDate(bills, firstDay)
     bills = SelectBillsBeforeDate(bills, lastDay)
-    bills = sorted(bills, key = lambda b: b.amount, reverse=True)
     totalSale = sum([b.goodsValue for b in bills])
-    #TODO: Club all bills for particular companies and give top two performers
 
     d["compSmallName"] = SMALL_NAME
-    d["date"] = "{}-{}".format(firstDay.strftime("%b"), firstDay.year)
+    d["month"] = "{}-{}".format(firstDay.strftime("%b"), firstDay.year)
     d["totalSale"] = str(int(totalSale))
+    d["topFiveStrList"] = GetTopFiveClientsAsString(bills)
     smsContents = Template(
 """M/s $compSmallName
-Sale for $date:
-Rs.$totalSale/-
+Sale for $month: Rs.$totalSale/-
+Top customers:
+$topFiveStrList
 """).substitute(d)
 
     nos = GetOption("SMS_SECTION", "OwnersR").replace(";", ",").split(",")
@@ -156,14 +174,15 @@ def SendWeeklySalesAsSmsIfNotSentAlready():
   return
 
 def SendMonthlySaleAsSmsIfNotSentAlready():
+  PrintInBox("Sending monthly sale sms if not already sent")
   t = datetime.date.today()
 
-  ALLOWED_DAYS = [5, 6, 7, 8, 9, 10, 11]
+  ALLOWED_DAYS = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
   if t.day not in ALLOWED_DAYS:
     #Too early or too late to send sms. All bills might have not been entered
     return
 
-  lastMonthDate  = t - datetime.timedelta(days=max(ALLOWED_DAYS)+1)
+  lastMonthDate  = t - datetime.timedelta(days=t.day+1)
 
   pmsd = PersistantMonthlySmsDetails()
 
@@ -173,11 +192,10 @@ def SendMonthlySaleAsSmsIfNotSentAlready():
   return
 
 def SendAutomaticSmsReportsIfRequired():
-  #TODO: Try to invoke it through Heartbeat which is invoked from Global Observer
-  SendWeeklySalesAsSmsIfNotSentAlready()
+  #SendWeeklySalesAsSmsIfNotSentAlready()
   SendMonthlySaleAsSmsIfNotSentAlready()
   return
 
 
 if __name__ == "__main__":
-  SendWeeklySalesAsSmsIfNotSentAlready()
+  SendMonthlySaleAsSmsIfNotSentAlready()
