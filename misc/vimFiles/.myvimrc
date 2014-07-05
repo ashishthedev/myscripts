@@ -364,7 +364,6 @@ noremap - gt
 :execute "noremap ,torc   :e b:\\Tools\\tor\\Data\\Tor\\torrc<CR>"
 :execute "noremap ,priv   :e b:\\Tools\\PrivoxyInstalled\\config.txt<CR>"
 :execute "noremap ,logins   :e ".GetSDATDir()."\\FrequentFliers\\logins.txt<CR>"
-:execute "noremap ,banks    :e ".GetSDATDir()."\\FrequentFliers\\banks.txt<CR>"
 :execute "noremap ,info   :e ".GetSDATDir()."\\FrequentFliers\\Info.txt<CR>"
 :execute "noremap ,blog   :e ".GetSDATDir()."\\FrequentFliers\\blogs.txt<CR>"
 :execute "noremap ,comp   :e ".GetSDATDir()."\\FrequentFliers\\compList.txt<CR>"

@@ -59,6 +59,8 @@ GVIM = %WINDIR_ENV%\gvim.bat
 ::fkvca::F-163, Sector 1, Bawana Industrial Area, New Delhi
 ::fkvct::07600328972
 ::fkvcs::New Delhi
+::fscooter::UP14AL6314
+::fcar::HR26BJ9977
 
 
 ::pansdat::ABTPA7224J

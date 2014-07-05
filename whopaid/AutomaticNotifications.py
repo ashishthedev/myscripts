@@ -14,15 +14,18 @@ import calendar
 from UtilConfig import GetOption
 from string import Template
 from UtilWhoPaid import SelectBillsAfterDate, SelectBillsBeforeDate, GetAllBillsInLastNDays
+from CustomersInfo import GetAllCustomersInfo
 SMALL_NAME = GetOption("CONFIG_SECTION", "SmallName")
 
 def GetTopFiveClientsAsString(bills):
   d = dict()
 
+  allCustomersInfo = GetAllCustomersInfo()
   for b in bills:
-    if b.compName not in d.keys():
-      d[b.compName] = 0
-    d[b.compName] += int(b.amount)
+    grpName = allCustomersInfo.GetCompanyGroupName(b.compName)
+    if grpName not in d.keys():
+      d[grpName] = 0
+    d[grpName] += int(b.amount)
 
   from collections import OrderedDict
   od = OrderedDict(sorted(d.items(), key=lambda t: t[1], reverse=True))
