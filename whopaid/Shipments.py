@@ -6,15 +6,15 @@
 
 from __future__ import print_function, division
 
-from UtilMisc import PrintInBox, GetMsgInBox, DD_MM_YYYY, DD_MMM_YYYY
+from Util.Misc import PrintInBox, GetMsgInBox, DD_MM_YYYY, DD_MMM_YYYY
 from UtilWhoPaid import GetAllBillsInLastNDays, RemoveTrackingBills
 from SanityChecks import SendAutomaticHeartBeat, CheckConsistency
-from UtilHTML import UnderLine, Bold, PastelOrangeText
-from UtilSms import SendSms, CanSendSmsAsOfNow
+from Util.HTML import UnderLine, Bold, PastelOrangeText
+from Util.Sms import SendSms, CanSendSmsAsOfNow
 from CustomersInfo import GetAllCustomersInfo
 from courier.couriers import Courier
-from UtilPythonMail import SendMail
-from UtilConfig import GetOption
+from Util.PythonMail import SendMail
+from Util.Config import GetOption
 from contextlib import closing
 from string import Template
 from time import sleep
@@ -381,8 +381,8 @@ def SendMaterialDispatchMail(bill, ctxt):
 
 def PrepareShipmentEmailForThisBill(bill, ctxt):
     """Given a company, this function will prepare an email for shipment details."""
-    from UtilColors import MyColors
-    from UtilHTML import TableHeaderRow, TableDataRow
+    from Util.Colors import MyColors
+    from Util.HTML import TableHeaderRow, TableDataRow
 
     allCustInfo = GetAllCustomersInfo()
     letterDate = DD_MM_YYYY(datetime.date.today())

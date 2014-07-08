@@ -9,7 +9,7 @@
 from UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate,\
         SelectBillsBeforeDate
 from CustomersInfo import GetAllCustomersInfo
-from UtilMisc import ParseDateFromString, OpenFileForViewing, MakeSureDirExists
+from Util.Misc import ParseDateFromString, OpenFileForViewing, MakeSureDirExists
 from SanityChecks import CheckConsistency
 
 import datetime

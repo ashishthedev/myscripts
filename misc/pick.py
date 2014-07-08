@@ -2,7 +2,7 @@
 
 import os
 import shutil
-from UtilMisc import MakeSureDirExists
+from Util.Misc import MakeSureDirExists
 
 DESTINATION_DIR = "B:\\Desktop\\PickedFiles\\"
 def main():

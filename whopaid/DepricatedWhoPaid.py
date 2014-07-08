@@ -5,14 +5,14 @@ from __future__ import print_function, division, absolute_import, unicode_litera
 ## Intent: To read bills.xlsx and check who paid for this amount. Also perform some sanity testing
 ## Requirement: Python Interpretor must be installed
 ######################################################
-from UtilDecorators import memoize, timeThisFunction
+from Util.Decorators import memoize, timeThisFunction
 from UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict
 from LatePayments import CandidateCompaniesDict
 from SanityChecks import CheckConsistency
-from UtilMisc import PrintInBox, printNow
-from UtilException import MyException
+from Util.Misc import PrintInBox, printNow
+from Util.Exception import MyException
 from argparse import ArgumentParser
-from UtilConfig import GetOption
+from Util.Config import GetOption
 
 
 @timeThisFunction

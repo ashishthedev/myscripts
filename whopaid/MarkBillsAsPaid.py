@@ -1,6 +1,6 @@
 from UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, RemoveTrackingBills
-from UtilMisc import DD_MM_YYYY, GetMsgInBox
-from UtilConfig import GetOption
+from Util.Misc import DD_MM_YYYY, GetMsgInBox
+from Util.Config import GetOption
 
 SMALL_NAME = GetOption("CONFIG_SECTION", "SmallName")
 

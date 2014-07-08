@@ -20,10 +20,10 @@ import imaplib
 import argparse
 
 from contextlib import closing
-from UtilPythonMail import SendMail
-from UtilException import MyException
-from UtilConfig import GetOption
-from UtilMisc import PrintInBox
+from Util.PythonMail import SendMail
+from Util.Exception import MyException
+from Util.Config import GetOption
+from Util.Misc import PrintInBox
 
 SINCE_DATE = GetOption("YMAIL", "SINCE_DATE")
 ALL_SINCE_CRITERION="(ALL SINCE %s)"%SINCE_DATE

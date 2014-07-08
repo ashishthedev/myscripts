@@ -10,10 +10,10 @@ from UtilDecorators import timeThisFunction
 from UtilWhoPaid import CompaniesDict, GetAllCompaniesDict,\
         SelectUnpaidBillsFrom, floatx ,TotalAmountDueForThisCompany
 from UtilException import MyException
-from UtilMisc import PrintInBox, OpenFileForViewing
+from Util.Misc import PrintInBox, OpenFileForViewing
 from UtilHTML import Html, Body, UnderLine, Table, tr, td
 from SanityChecks import CheckConsistency
-from UtilConfig import GetOption
+from Util.Config import GetOption
 
 import os
 import argparse

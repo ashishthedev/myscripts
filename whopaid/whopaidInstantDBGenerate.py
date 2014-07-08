@@ -6,9 +6,9 @@
 ## Requirement: Python Interpretor must be installed
 ######################################################################
 from UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, Company, SelectBillsBeforeDate, SelectBillsAfterDate, datex
-from UtilMisc import  OpenFileForViewing, PrintInBox
+from Util.Misc import  OpenFileForViewing, PrintInBox
 from contextlib import closing
-from UtilConfig import GetOption
+from Util.Config import GetOption
 
 import shelve
 

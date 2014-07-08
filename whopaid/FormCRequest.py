@@ -11,15 +11,15 @@
 from UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate,\
         SelectBillsBeforeDate, GuessCompanyName, RemoveTrackingBills
 from CustomersInfo import GetAllCustomersInfo
-from UtilHTML import UnderLine, Bold, PastelOrangeText
-from UtilPythonMail import SendMail
-from UtilColors import MyColors
-from UtilException import MyException
-from UtilMisc import ParseDateFromString, PrintInBox, OpenFileForViewing,\
+from Util.HTML import UnderLine, Bold, PastelOrangeText
+from Util.PythonMail import SendMail
+from Util.Colors import MyColors
+from Util.Exception import MyException
+from Util.Misc import ParseDateFromString, PrintInBox, OpenFileForViewing,\
         MakeSureDirExists
 from SanityChecks import CheckConsistency
-from UtilConfig import GetOption
-from UtilDecorators import timeThisFunction
+from Util.Config import GetOption
+from Util.Decorators import timeThisFunction
 
 from string import Template
 import datetime

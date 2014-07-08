@@ -8,8 +8,8 @@
 
 from UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate,\
         SelectBillsBeforeDate, GuessCompanyName, SelectUnpaidBillsFrom
-from UtilException import MyException
-from UtilMisc import ParseDateFromString, PrintInBox
+from Util.Exception import MyException
+from Util.Misc import ParseDateFromString, PrintInBox
 from SanityChecks import CheckConsistency
 
 from datetime import date

@@ -2,7 +2,7 @@ import subprocess
 import sys
 import pstats
 import os
-from UtilMisc import OpenFileForViewing
+from Util.Misc import OpenFileForViewing
 
 def main():
     if not sys.argv[1]:

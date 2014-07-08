@@ -10,13 +10,13 @@
 ###############################################################################
 
 from UtilWhoPaid import GetAllCompaniesDict, GuessCompanyName
-from UtilHTML import UnderLine, Bold, PastelOrangeText
+from Util.HTML import UnderLine, Bold, PastelOrangeText
 from CustomersInfo import GetAllCustomersInfo
-from UtilMisc import PrintInBox, DD_MM_YYYY
+from Util.Misc import PrintInBox, DD_MM_YYYY
 from SanityChecks import CheckConsistency
-from UtilException import MyException
-from UtilPythonMail import SendMail
-from UtilConfig import GetOption
+from Util.Exception import MyException
+from Util.PythonMail import SendMail
+from Util.Config import GetOption
 
 from datetime import datetime
 from string import Template
@@ -160,8 +160,8 @@ def SendRoadPermitRequest(compName, allBillsDict, args):
 
 def PrepareMailContentForThisComp(compName, allBillsDict, args):
     """Given a company, this function will prepare an email for roadpermit."""
-    from UtilColors import MyColors
-    from UtilHTML import TableHeaderRow, TableDataRow, TableHeaderCol
+    from Util.Colors import MyColors
+    from Util.HTML import TableHeaderRow, TableDataRow, TableHeaderCol
 
     allCustInfo = GetAllCustomersInfo()
     companyName = allCustInfo.GetCompanyOfficialName(compName)
@@ -185,7 +185,7 @@ def PrepareMailContentForThisComp(compName, allBillsDict, args):
         args.isDemo = True
         args.emailSubject = "Testing Colors"
         PrintInBox("Executing in test mode")
-        from UtilColors import MyColors
+        from Util.Colors import MyColors
         for eachBGColor in MyColors:
             for eachFGColr in [MyColors["WHITE"], MyColors["BLACK"]]:
                 tableRows += "<br>"

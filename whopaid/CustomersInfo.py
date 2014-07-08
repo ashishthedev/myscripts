@@ -7,8 +7,8 @@ DATA_STARTS_AT_ROW = 2
 ## Openpyxl must be installed
 #######################################################
 import os
-from UtilMisc import GetPickledObject
-from UtilConfig import GetOption, GetAppDir
+from Util.Misc import GetPickledObject
+from Util.Config import GetOption, GetAppDir
 
 
 class CustomerInfoCol:
@@ -103,7 +103,7 @@ class _AllCustomersInfo(dict):
     """Base Class which is basically a dictionary. Key is compName and Value is a list of info"""
     def __init__(self, custDBwbPath):
         super(_AllCustomersInfo, self).__init__(dict())
-        from UtilExcelReader import LoadIterableWorkbook
+        from Util.ExcelReader import LoadIterableWorkbook
         wb = LoadIterableWorkbook(custDBwbPath)
         ws = wb.get_sheet_by_name(GetOption("CONFIG_SECTION", "NameOfCustSheet"))
         MAX_ROW = ws.get_highest_row()

@@ -5,11 +5,11 @@ BILL_PDF_FILE_PATH = "B:\\desktop\\b\\Bill-2014-03.pdf"
 ## Date: 2013-Sep-11 Wed 02:26 PM
 #########################
 
-from UtilSonyPhoneBook import ParseVCardFile
-from UtilPythonZip import ExtractFileIntoTempDirFromZippedFile
-from UtilLatest import LatestFilePathUnderThisDirectory
-from UtilConfig import GetAppDir
-from UtilMisc import DD_MM_YYYY, ParseDateFromString
+from Util.SonyPhoneBook import ParseVCardFile
+from Util.PythonZip import ExtractFileIntoTempDirFromZippedFile
+from Util.Latest import LatestFilePathUnderThisDirectory
+from Util.Config import GetAppDir
+from Util.Misc import DD_MM_YYYY, ParseDateFromString
 import os
 import pyPdf
 

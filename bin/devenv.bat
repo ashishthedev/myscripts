@@ -18,6 +18,6 @@ set GOPATH=%APPDIR%\goscripts
 
 doskey /MACROFILE="%XDATDOCSDIR%\%RELATIVEPATH%"
 set PYTHONDONTWRITEBYTECODE=1
-set PYTHONPATH=%XDATDOCSDIR%\myscripts\PythonModules\
+set PYTHONPATH=%XDATDOCSDIR%\myscripts\
 
 pushd %XDATDOCSDIR%\myscripts

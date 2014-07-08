@@ -9,10 +9,10 @@
 
 from UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate
 from CustomersInfo import GetAllCustomersInfo
-from UtilException import MyException
-from UtilMisc import PrintInBox, ParseDateFromString
-from UtilDecorators import timeThisFunction
-from UtilConfig import GetOption
+from Util.Exception import MyException
+from Util.Misc import PrintInBox, ParseDateFromString
+from Util.Decorators import timeThisFunction
+from Util.Config import GetOption
 from collections import defaultdict
 from MarkBillsAsPaid import ReportBillWhichShouldBeMarkAsPaid
 from JsonDataGenerator import UploadAppWithNewData

@@ -5,13 +5,13 @@ Description: Produce a delta straigth from .dbk backup files. No need to unzip a
 Date:  2012-10-09
 '''
 
-from UtilLatest import LatestFilePathUnderThisDirectory
+from Util.Latest import LatestFilePathUnderThisDirectory
 from Merge import FindMissingContactsInJohnsBook
 from Merge import PrintContactsToFile
-from UtilException import MyException
-from UtilMisc import PrintInBox
-from UtilPythonZip import ExtractFileIntoTempDirFromZippedFile
-from UtilConfig import GetAppDir
+from Util.Exception import MyException
+from Util.Misc import PrintInBox
+from Util.PythonZip import ExtractFileIntoTempDirFromZippedFile
+from Util.Config import GetAppDir
 import os
 import datetime
 import math

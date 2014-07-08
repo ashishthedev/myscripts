@@ -9,7 +9,7 @@ import sys
 import os
 import re
 import urllib.request
-from UtilMisc import OpenFileForViewing
+from Util.Misc import OpenFileForViewing
 from html.parser import HTMLParser
 
 TIME_BETWEEN_FETCHES = 1

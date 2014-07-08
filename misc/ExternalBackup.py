@@ -7,7 +7,7 @@
 
 import os
 import shutil
-from UtilMisc import PrintInBox
+from Util.Misc import PrintInBox
 import datetime
 IGNORE_LIST = ["Watch", "Wedding", "YoutubeVideosDownloaded", "Photographs", "Tools"]
 SOURCES = [

@@ -1,9 +1,9 @@
-from UtilSms import SendSms, PrefetchResources
-from UtilMisc import PrintInBox
+from Util.Sms import SendSms, PrefetchResources
+from Util.Misc import PrintInBox
 import subprocess
 import os
-from UtilConfig import GetAppDir, GetOption
-from UtilContacts import AllContacts
+from Util.Config import GetAppDir, GetOption
+from Util.Contacts import AllContacts
 
 def _ParseContents(smsContents):
   NEWLINE = "\n"

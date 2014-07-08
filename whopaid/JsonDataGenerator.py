@@ -1,8 +1,8 @@
 import os
 import json
-from UtilConfig import GetOption
+from Util.Config import GetOption
 from UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, datex, RemoveTrackingBills
-from UtilMisc import DD_MM_YYYY
+from Util.Misc import DD_MM_YYYY
 from CustomersInfo import GetAllCustomersInfo
 
 PMTAPPDIR = os.getenv("PMTAPPDIR")

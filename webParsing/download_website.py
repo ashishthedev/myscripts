@@ -10,7 +10,7 @@ import os
 from time import sleep
 import urllib2
 import urllib
-from UtilMisc import PrintInBox
+from Util.Misc import PrintInBox
 from datetime import datetime
 from urlparse import urljoin, urlparse
 

@@ -9,7 +9,7 @@ import sys
 import os
 from time import sleep
 import urllib2
-from UtilMisc import PrintInBox, OpenFileForViewing
+from Util.Misc import PrintInBox, OpenFileForViewing
 from collections import Counter
 from datetime import datetime
 from urlparse import urlparse, urljoin

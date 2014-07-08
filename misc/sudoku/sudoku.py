@@ -6,8 +6,8 @@
 ## Author: Ashish Anand
 ############################################################
 
-from UtilAdmin import ShootMailToAdmin
-from UtilMisc import PrintInBox
+from Util.Admin import ShootMailToAdmin
+from Util.Misc import PrintInBox
 
 import os
 F = os.path.join("B:\\Desktop", "status.txt")

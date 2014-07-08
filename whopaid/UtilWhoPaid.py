@@ -5,10 +5,10 @@
 ## with it
 ## Requirement: Python Interpretor must be installed
 ###############################################################################
-from UtilException import MyException
-from UtilConfig import GetOption, GetAppDir
-from UtilExcelReader import LoadIterableWorkbook
-from UtilMisc import GetPickledObject, ParseDateFromString, DD_MM_YYYY
+from Util.Exception import MyException
+from Util.Config import GetOption, GetAppDir
+from Util.ExcelReader import LoadIterableWorkbook
+from Util.Misc import GetPickledObject, ParseDateFromString, DD_MM_YYYY, PrintInBox
 from CustomersInfo import GetAllCustomersInfo
 
 import os
@@ -549,7 +549,6 @@ def StoreNewTimeForBillsFile():
 
 def ShowPendingOrdersOnScreen():
     allOrdersDict = GetAllCompaniesDict().GetAllOrdersOfAllCompaniesAsDict()
-    from UtilMisc import PrintInBox
     for eachComp, orders in allOrdersDict.items():
         for eachOrder in orders:
             print(type(eachOrder))

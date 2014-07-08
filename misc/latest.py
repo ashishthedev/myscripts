@@ -5,8 +5,8 @@
 ## Date:  2013-03-06 Wed 11:57 AM
 #####################################################################
 
-from UtilLatest import AllFilesInThisDirectory
-from UtilMisc import PrintInBox
+from Util.Latest import AllFilesInThisDirectory
+from Util.Misc import PrintInBox
 import os
 import argparse
 

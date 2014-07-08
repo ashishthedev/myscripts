@@ -10,15 +10,15 @@
 
 from UtilWhoPaid import datex, GetAllCompaniesDict, SelectUnpaidBillsFrom, \
         GuessCompanyGroupName, RemoveTrackingBills
-from UtilHTML import UnderLine, Bold, Big, PastelOrangeText, TableHeaderRow,\
+from Util.HTML import UnderLine, Bold, Big, PastelOrangeText, TableHeaderRow,\
         TableDataRow
-from UtilColors import MyColors
-from UtilPythonMail import SendMail
-from UtilException import MyException
-from UtilMisc import PrintInBox, DD_MM_YYYY, AnyFundooProcessingMsg
+from Util.Colors import MyColors
+from Util.PythonMail import SendMail
+from Util.Exception import MyException
+from Util.Misc import PrintInBox, DD_MM_YYYY, AnyFundooProcessingMsg
 from CustomersInfo import GetAllCustomersInfo
-from UtilDecorators import timeThisFunction
-from UtilConfig import GetOption, GetAppDir
+from Util.Decorators import timeThisFunction
+from Util.Config import GetOption, GetAppDir
 from SanityChecks import CheckConsistency
 
 import datetime

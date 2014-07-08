@@ -4,11 +4,11 @@
 ## Intent: To read the instant database and query for who paid this amount
 ## Requirement: Python Interpretor must be installed
 #############################################################################
-from UtilDecorators import timeThisFunction
+from Util.Decorators import timeThisFunction
 from SanityChecks import CheckConsistency
-from UtilMisc import PrintInBox, GetSizeOfFileInMB, AnyFundooProcessingMsg
-from UtilConfig import GetOption
-from UtilException import MyException
+from Util.Misc import PrintInBox, GetSizeOfFileInMB, AnyFundooProcessingMsg
+from Util.Config import GetOption
+from Util.Exception import MyException
 from whopaidInstantDBGenerate import StartDBGeneration
 from UtilWhoPaid import BillsFileChangedSinceLastTime, StoreNewTimeForBillsFile
 from argparse import ArgumentParser

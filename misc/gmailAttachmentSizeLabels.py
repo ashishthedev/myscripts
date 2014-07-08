@@ -12,10 +12,10 @@
 ##
 ## Author : Ashish Anand
 ###############################################################################
-from UtilException import MyException
-from UtilConfig import GetOption
-from UtilMisc import PrintInBox
-from UtilGmail import Gmail
+from Util.Exception import MyException
+from Util.Config import GetOption
+from Util.Misc import PrintInBox
+from Util.Gmail import Gmail
 
 SINCE_DATE = GetOption("GMAIL_ATT_SIZE", "SINCE_DATE")
 UNAME = GetOption("GMAIL_ATT_SIZE", "UNAME")

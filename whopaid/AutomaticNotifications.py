@@ -6,12 +6,12 @@
 ##              Openpyxl for Python 3 must be installed
 ###############################################################################
 
-from UtilMisc import PrintInBox, DD_MMM_YYYY
-from UtilPersistant import Persistant
-from UtilSms import SendSms
+from Util.Misc import PrintInBox, DD_MMM_YYYY
+from Util.Persistant import Persistant
+from Util.Sms import SendSms
 import datetime
 import calendar
-from UtilConfig import GetOption
+from Util.Config import GetOption
 from string import Template
 from UtilWhoPaid import SelectBillsAfterDate, SelectBillsBeforeDate, GetAllBillsInLastNDays
 from CustomersInfo import GetAllCustomersInfo

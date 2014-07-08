@@ -1,5 +1,5 @@
 import csv
-from UtilConfig import GetOption, GetAppDir
+from Util.Config import GetOption, GetAppDir
 import os
 DEBUG_COL_NOS = True
 DEBUG_COL_NOS = False

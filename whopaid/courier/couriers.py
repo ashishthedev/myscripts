@@ -1,7 +1,7 @@
 import urllib2
 from HTMLParser import HTMLParser
-from UtilMisc import YYYY_MM_DD, StripHTMLTags
-from UtilConfig import GetAppDir, GetOption
+from Util.Misc import YYYY_MM_DD, StripHTMLTags
+from Util.Config import GetAppDir, GetOption
 import subprocess
 from urllib2 import URLError
 import os

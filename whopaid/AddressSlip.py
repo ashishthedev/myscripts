@@ -7,12 +7,12 @@
 ###############################################################################
 
 from UtilWhoPaid import GuessCompanyName, GetAllCompaniesDict, SelectBillsAfterDate
-from UtilMisc import PrintInBox, OpenFileForViewing, MakeSureDirExists, DD_MM_YYYY
+from Util.Misc import PrintInBox, OpenFileForViewing, MakeSureDirExists, DD_MM_YYYY
 from CustomersInfo import GetAllCustomersInfo
 from SanityChecks import CheckConsistency
-from UtilException import MyException
-from UtilPersistant import Persistant
-from UtilConfig import GetOption
+from Util.Exception import MyException
+from Util.Persistant import Persistant
+from Util.Config import GetOption
 
 from string import Template
 import argparse
