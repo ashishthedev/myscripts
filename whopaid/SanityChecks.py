@@ -7,17 +7,18 @@
 ##              Openpyxl for Python 3 must be installed
 ###############################################################################
 
-from UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate
-from CustomersInfo import GetAllCustomersInfo
-from Util.Exception import MyException
-from Util.Misc import PrintInBox, ParseDateFromString
-from Util.Decorators import timeThisFunction
+from whopaid.AutomaticNotifications import SendAutomaticSmsReportsIfRequired
+from whopaid.JsonDataGenerator import UploadAppWithNewData
+from whopaid.MarkBillsAsPaid import ReportBillWhichShouldBeMarkAsPaid
+from whopaid.UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate, SingleBillRow
+from whopaid.CustomersInfo import GetAllCustomersInfo
+
 from Util.Config import GetOption
+from Util.Decorators import timeThisFunction
+from Util.Exception import MyException
+from Util.Misc import PrintInBox, ParseDateFromString, IsDeliveredAssessFromStatus
+
 from collections import defaultdict
-from MarkBillsAsPaid import ReportBillWhichShouldBeMarkAsPaid
-from JsonDataGenerator import UploadAppWithNewData
-from AutomaticNotifications import SendAutomaticSmsReportsIfRequired
-from UtilWhoPaid import SingleBillRow
 import datetime
 
 def SendAutomaticHeartBeat():
@@ -49,20 +50,20 @@ def CheckIfAnyBillsShouldBeMarkedAsPaid(allBillsDict):
         raise Exception(msg)
 
 def CheckCancelledAmount(allBillsDict):
-    for (eachCompName, eachComp) in allBillsDict.items():
-        if eachCompName.lower().find("cancel") != -1:
-            for eachBill in eachComp:
-                if eachBill.amount != 0:
-                    raise MyException("Bill#{} dated {} is cancelled but has amount {}. It should be 0".format(eachBill.billNumber, str(eachBill.invoiceDate), eachBill.amount))
+  for (eachCompName, eachComp) in allBillsDict.items():
+    if eachCompName.lower().find("cancel") != -1:
+      for eachBill in eachComp:
+        if eachBill.amount != 0:
+          raise MyException("Bill#{} dated {} is cancelled but has amount {}. It should be 0".format(eachBill.billNumber, str(eachBill.invoiceDate), eachBill.amount))
 
 
 def CheckBillingCategory(allBillsDict):
-    for (eachCompName, eachComp) in allBillsDict.items():
-        eachComp.CheckEachBillsBillingCategory()
+  for (eachCompName, eachComp) in allBillsDict.items():
+    eachComp.CheckEachBillsBillingCategory()
 
 def CheckBillsCalculation(allBillsDict):
-    for (eachCompName, eachComp) in allBillsDict.items():
-        eachComp.CheckEachBillsCalculation()
+  for (eachCompName, eachComp) in allBillsDict.items():
+    eachComp.CheckEachBillsCalculation()
 
 def ReportMissingOrDuplicateBillsSince(allBillsDict):
     d = defaultdict(list)
@@ -124,7 +125,6 @@ def CheckCustomerExistenceInDB(allBillsDict):
     return
 
 def CheckCourierStatusAssessmentIsCorrect():
-    from Shipments import IsDeliveredAssessFromStatus
     test_base = [
             ("Parcel was not delivered", False),
             ("Parcel was delivered", True),
@@ -137,16 +137,6 @@ def CheckCourierStatusAssessmentIsCorrect():
     for eachStr, expectedDeliveryStatus in test_base:
         if expectedDeliveryStatus != IsDeliveredAssessFromStatus(eachStr):
             raise Exception("Our algorithm is faulty for the following string:\n{}".format(eachStr))
-
-class TestShipment():
-    def __init__(self, testBill):
-        from Shipments import PersistentShipment
-        self.ps = PersistentShipment(testBill)
-        self.ps.saveInDB()
-    def __enter__(self):
-        return self.ps
-    def __exit__(self, type, value, traceback):
-        self.ps._removeFromDB()
 
 def CreateATestBill():
     b = SingleBillRow()

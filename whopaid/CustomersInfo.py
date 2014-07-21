@@ -6,9 +6,10 @@ DATA_STARTS_AT_ROW = 2
 ## Requirement: Python Interpretor must be installed
 ## Openpyxl must be installed
 #######################################################
-import os
 from Util.Misc import GetPickledObject
 from Util.Config import GetOption, GetAppDir
+
+import os
 
 
 class CustomerInfoCol:

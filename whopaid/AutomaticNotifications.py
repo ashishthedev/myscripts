@@ -6,15 +6,20 @@
 ##              Openpyxl for Python 3 must be installed
 ###############################################################################
 
-from Util.Misc import PrintInBox, DD_MMM_YYYY
+from Util.Config import GetOption
+from Util.Misc import PrintInBox, DD_MMM_YYYY, GetFirstDateOfThisFinancialYear
 from Util.Persistant import Persistant
 from Util.Sms import SendSms
-import datetime
-import calendar
-from Util.Config import GetOption
+
+from whopaid.UtilWhoPaid import SelectBillsAfterDate, SelectBillsBeforeDate, GetAllBillsInLastNDays
+from whopaid.CustomersInfo import GetAllCustomersInfo
+
+from collections import OrderedDict
 from string import Template
-from UtilWhoPaid import SelectBillsAfterDate, SelectBillsBeforeDate, GetAllBillsInLastNDays
-from CustomersInfo import GetAllCustomersInfo
+
+import calendar
+import datetime
+
 SMALL_NAME = GetOption("CONFIG_SECTION", "SmallName")
 
 def GetTopFiveClientsAsString(bills):
@@ -27,7 +32,6 @@ def GetTopFiveClientsAsString(bills):
       d[grpName] = 0
     d[grpName] += int(b.amount)
 
-  from collections import OrderedDict
   od = OrderedDict(sorted(d.items(), key=lambda t: t[1], reverse=True))
   res = ""
   i=1
@@ -36,6 +40,17 @@ def GetTopFiveClientsAsString(bills):
     i+=1
   return res
 
+
+def CalculateProjectedSaleForThisYear():
+  firstApril = GetFirstDateOfThisFinancialYear()
+  bills = SelectBillsAfterDate(GetAllBillsInLastNDays(365), firstApril)
+  t = datetime.date.today()
+  previousMonthLastDate  = t - datetime.timedelta(days=t.day+1)
+  bills = SelectBillsBeforeDate(bills, previousMonthLastDate)
+  projectedSaleForThisYear = sum([b.amount for b in bills if b.billingCategory.lower() in ["up", "central", "export"]])
+  daysPassedInThisYear = (previousMonthLastDate - firstApril).days
+  projectedSaleForThisYear = (projectedSaleForThisYear/daysPassedInThisYear)*365
+  return projectedSaleForThisYear
 
 class PersistantMonthlySmsDetails(Persistant):
   @classmethod
@@ -65,10 +80,12 @@ class PersistantMonthlySmsDetails(Persistant):
     d["compSmallName"] = SMALL_NAME
     d["month"] = "{}-{}".format(firstDay.strftime("%b"), firstDay.year)
     d["totalSale"] = str(int(totalSale))
+    d["projectedSaleForThisYear"] = str(round(CalculateProjectedSaleForThisYear()/10000000, 2))
     d["topFiveStrList"] = GetTopFiveClientsAsString(bills)
     smsContents = Template(
 """M/s $compSmallName
 Sale for $month: Rs.$totalSale/-
+Projected Sale for this year: Rs.$projectedSaleForThisYear Cr
 Top customers:
 $topFiveStrList
 """).substitute(d)
@@ -181,16 +198,14 @@ def SendMonthlySaleAsSmsIfNotSentAlready():
   t = datetime.date.today()
 
   ALLOWED_DAYS = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
-  if t.day not in ALLOWED_DAYS:
-    #Too early or too late to send sms. All bills might have not been entered
-    return
+  if t.day not in ALLOWED_DAYS: return #Too early or too late to send sms. All bills might have not been entered
 
-  lastMonthDate  = t - datetime.timedelta(days=t.day+1)
+  previousMonthLastDate  = t - datetime.timedelta(days=t.day+1)
 
   pmsd = PersistantMonthlySmsDetails()
 
-  if not pmsd.wasSmsSentForMonthHavingThisDate(lastMonthDate):
-    pmsd.sendSmsForMonthHavingThisDate(lastMonthDate)
+  if not pmsd.wasSmsSentForMonthHavingThisDate(previousMonthLastDate):
+    pmsd.sendSmsForMonthHavingThisDate(previousMonthLastDate)
 
   return
 
@@ -198,6 +213,8 @@ def SendAutomaticSmsReportsIfRequired():
   #SendWeeklySalesAsSmsIfNotSentAlready()
   SendMonthlySaleAsSmsIfNotSentAlready()
   return
+
+
 
 
 if __name__ == "__main__":

@@ -6,18 +6,19 @@
 ## Openpyxl for Python 3 must be installed
 #######################################################
 
-from UtilDecorators import timeThisFunction
-from UtilWhoPaid import CompaniesDict, GetAllCompaniesDict,\
-        SelectUnpaidBillsFrom, floatx ,TotalAmountDueForThisCompany
-from UtilException import MyException
-from Util.Misc import PrintInBox, OpenFileForViewing
-from UtilHTML import Html, Body, UnderLine, Table, tr, td
-from SanityChecks import CheckConsistency
 from Util.Config import GetOption
+from Util.Decorators import timeThisFunction
+from Util.Exception import MyException
+from Util.HTML import Html, Body, UnderLine, Table, tr, td
+from Util.Misc import PrintInBox, OpenFileForViewing
+
+from whopaid.CustomersInfo import GetAllCustomersInfo
+from whopaid.SanityChecks import CheckConsistency
+from whopaid.UtilWhoPaid import CompaniesDict, GetAllCompaniesDict,\
+        SelectUnpaidBillsFrom, floatx ,TotalAmountDueForThisCompany
 
 import os
 import argparse
-from CustomersInfo import GetAllCustomersInfo
 
 GRACEPERIOD = int(GetOption("CONFIG_SECTION", "GracePeriodInDays"))
 DEFAULT_PAYMENT = int(GetOption("CONFIG_SECTION", "DefaultPaymentInDays"))

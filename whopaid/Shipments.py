@@ -6,18 +6,24 @@
 
 from __future__ import print_function, division
 
-from Util.Misc import PrintInBox, GetMsgInBox, DD_MM_YYYY, DD_MMM_YYYY
-from UtilWhoPaid import GetAllBillsInLastNDays, RemoveTrackingBills
-from SanityChecks import SendAutomaticHeartBeat, CheckConsistency
-from Util.HTML import UnderLine, Bold, PastelOrangeText
-from Util.Sms import SendSms, CanSendSmsAsOfNow
-from CustomersInfo import GetAllCustomersInfo
-from courier.couriers import Courier
-from Util.PythonMail import SendMail
+from Util.Colors import MyColors
 from Util.Config import GetOption
+from Util.HTML import UnderLine, Bold, PastelOrangeText, TableHeaderRow, TableDataRow
+from Util.Misc import PrintInBox, GetMsgInBox, DD_MM_YYYY, DD_MMM_YYYY, IsDeliveredAssessFromStatus
+from Util.PythonMail import SendMail
+from Util.Sms import SendSms, CanSendSmsAsOfNow
+
+from whopaid.CustomersInfo import GetAllCustomersInfo
+from whopaid.courier.couriers import Courier
+from whopaid.SanityChecks import SendAutomaticHeartBeat, CheckConsistency
+from whopaid.UtilWhoPaid import GetAllBillsInLastNDays, RemoveTrackingBills
+
+from collections import defaultdict
 from contextlib import closing
+from itertools import repeat
 from string import Template
 from time import sleep
+
 import argparse
 import datetime
 import shelve
@@ -143,7 +149,7 @@ class ShipmentMail(object):
         print("_"*70)
         print("This is a tracking shipment. Not sendign any mail")
         print(self)
-        return
+        #return
       ctxt = DispatchMailContext()
       ctxt.isDemo = IS_DEMO
       SendMaterialDispatchMail(self.bill, ctxt)
@@ -381,8 +387,6 @@ def SendMaterialDispatchMail(bill, ctxt):
 
 def PrepareShipmentEmailForThisBill(bill, ctxt):
     """Given a company, this function will prepare an email for shipment details."""
-    from Util.Colors import MyColors
-    from Util.HTML import TableHeaderRow, TableDataRow
 
     allCustInfo = GetAllCustomersInfo()
     letterDate = DD_MM_YYYY(datetime.date.today())
@@ -413,10 +417,8 @@ def PrepareShipmentEmailForThisBill(bill, ctxt):
             *tableDataRowArgs)
 
     def constant_factory(value):
-        from itertools import repeat
         return repeat(value).next
 
-    from collections import defaultdict
     d = defaultdict(constant_factory(""))
 
     if ctxt.first_line:
@@ -518,12 +520,6 @@ def ParseOptions():
 
     return parser.parse_args()
 
-
-def IsDeliveredAssessFromStatus(status):
-    yes_words = status.lower().find("delivered") != -1
-    no_words = ( status.lower().find("not") != -1 or status.lower().find("undelivered") != -1)
-    delivered = yes_words and not no_words #If has the word delivered but not the word not
-    return delivered
 
 
 def _FormceMarkShipmentMailAsSent(docketNumber):

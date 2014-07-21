@@ -20,4 +20,4 @@ doskey /MACROFILE="%XDATDOCSDIR%\%RELATIVEPATH%"
 set PYTHONDONTWRITEBYTECODE=1
 set PYTHONPATH=%XDATDOCSDIR%\myscripts\
 
-pushd %XDATDOCSDIR%\myscripts
+pushd %XDATDOCSDIR%\myscripts\whopaid

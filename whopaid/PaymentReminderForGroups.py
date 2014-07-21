@@ -384,7 +384,11 @@ def GetHTMLTableBlockForThisComp(compName, allBillsDict, allCustomersInfo):
 
     tableRows += MakeBillRow(*tableFinalRowArgs)
 
-    caption = "M/s {}, {}".format(companyOfficialName, companyCity) + Bold("<br>Rs.{}".format(str(totalDue)))
+    caption = "M/s {}, {}<br>{}<br>as on {}".format(
+        companyOfficialName,
+        companyCity,
+        Bold("Rs.{}".format(str(totalDue))),
+        DD_MM_YYYY(datetime.date.today()))
 
     d = defaultdict(constant_factory(""))
     d['tTableRows'] = tableRows

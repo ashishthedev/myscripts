@@ -1,8 +1,9 @@
 import xml.dom.minidom, os, unittest
-from UtilConfig import GetAppDir
-FOLDER_NAME             = "2014-05"
+from Util.Config import GetAppDir
+FOLDER_NAME             = "2014-06"
 BASEPATH                = os.path.join(GetAppDir(), "SalesTaxReturnFiles", "2014-2015")
 ANNEXUREA               = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureA.xml")
+ANNEXUREA2              = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureA2.xml")
 ANNEXUREB               = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureB.xml")
 ANNEXUREC               = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnxC.xml")
 UPVAT_TAX_DETAIL_SALE   = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24TaxDetailS.xml")
@@ -125,6 +126,7 @@ class TestFunctions(unittest.TestCase):
                 CST_TURNOVER_FORM: "Month",
                 CST_LOISS_FORM: "Month",
                 ANNEXUREA: "Month",
+                ANNEXUREA2: "Month",
                 ANNEXUREB: "Month",
                 ANNEXUREC: "Month",
                 UPVAT_BANKDETAIL_FILE: "month1",
@@ -169,11 +171,15 @@ class TestFunctions(unittest.TestCase):
         This test will check if the number of digits in Form38 are 14 or not.
         """
         REQUIRED_LENGTH_OF_FORM38_NUMBERS = 14
+        REQUIRED_LENGTH_OF_ESANCHARAN_NUMBERS = 20
 
         form38Numbers = GetAllNodesByNameFromFile(ANNEXUREC, "F_38No")
         for eachNumber in form38Numbers:
             number = getText(eachNumber.childNodes)
-            self.assertEqual(len(number), REQUIRED_LENGTH_OF_FORM38_NUMBERS, "There is some problem in length of Form38 numbers")
+            if number.find("ES") != -1:
+              self.assertEqual(len(number), REQUIRED_LENGTH_OF_ESANCHARAN_NUMBERS, "There is some problem in length of ESANCHARAN number: {}".format(number))
+            else:
+              self.assertEqual(len(number), REQUIRED_LENGTH_OF_FORM38_NUMBERS, "There is some problem in length of Form38 number: {}".format(number))
 
         return
     def test_AnnexureA_Part1_Values(self):
@@ -244,6 +250,7 @@ class TestFunctions(unittest.TestCase):
                 CST_TURNOVER_FORM: "AssYear",
                 CST_LOISS_FORM: "AssYear",
                 ANNEXUREA: "AssYear",
+                ANNEXUREA2: "AssYear",
                 ANNEXUREB: "AssYear",
                 ANNEXUREC: "AssYear",
                 UPVAT_BANKDETAIL_FILE: "assessment_year",

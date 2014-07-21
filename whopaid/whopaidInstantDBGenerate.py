@@ -5,11 +5,13 @@
 ##         possible amounts and values as the list of companies who can pay
 ## Requirement: Python Interpretor must be installed
 ######################################################################
-from UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, Company, SelectBillsBeforeDate, SelectBillsAfterDate, datex
+from whopaid.UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, Company, SelectBillsBeforeDate, SelectBillsAfterDate, datex
 from Util.Misc import  OpenFileForViewing, PrintInBox
-from contextlib import closing
 from Util.Config import GetOption
 
+from contextlib import closing
+from collections import defaultdict
+from itertools import combinations
 import shelve
 
 class SlicedCompany(Company):
@@ -42,10 +44,8 @@ def ListOfMissingBills(slicedCompany, unpaidBillList):
 
 
 def DifferentStrAmountsThatCanBePaidByThisCompany(company):
-    from collections import defaultdict
     d = defaultdict(list)  # Keys are the amounts that can be paid and value is a company(ie. list of bills)
     unpaidBillList = SelectUnpaidBillsFrom(company)
-    from itertools import combinations
     for i in range(1, len(unpaidBillList)+1):
         cmbns = combinations(unpaidBillList, i)
         for eachBillListTuple in cmbns:

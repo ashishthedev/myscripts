@@ -5,19 +5,19 @@ Description: All misc utility functions
 Date: 2012-03-26 Tue 04:46 PM
 '''
 
-import datetime
 from Util.Exception import MyException
 from Util.Config import GetOption
 
-import subprocess
-import os
-import sys
-import shutil
+import datetime
 import hashlib
+import os
 import pickle
+import random
+import shutil
+import subprocess
+import sys
 import tempfile
 import textwrap
-import random
 
 class tempCopy(object):
   """ Create a temp copy of file/dir and destroy it after work is done"""
@@ -264,3 +264,17 @@ def GetConfirmation():
   if raw_input("Proceed: (y/n)").lower() != "y":
     raise Exception()
 
+def IsDeliveredAssessFromStatus(status):
+    yes_words = status.lower().find("delivered") != -1
+    no_words = ( status.lower().find("not") != -1 or status.lower().find("undelivered") != -1)
+    delivered = yes_words and not no_words #If has the word delivered but not the word not
+    return delivered
+
+def GetFirstDateOfThisFinancialYear():
+  t = datetime.datetime.today()
+  month = t.month
+  if month in [1, 2, 3]:
+    d = datetime.date(t.year-1, 4, 1)
+  else:
+    d = datetime.date(t.year, 4, 1)
+  return d

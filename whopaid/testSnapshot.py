@@ -1,4 +1,14 @@
-from SanityChecks import TestShipment, CreateATestBill
+from whopaid.SanityChecks import CreateATestBill
+
+class TestShipment():
+    def __init__(self, testBill):
+        from whopaid.Shipments import PersistentShipment
+        self.ps = PersistentShipment(testBill)
+        self.ps.saveInDB()
+    def __enter__(self):
+        return self.ps
+    def __exit__(self, type, value, traceback):
+        self.ps._removeFromDB()
 
 def main():
 
