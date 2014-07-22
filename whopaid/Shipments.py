@@ -488,7 +488,7 @@ def ParseOptions():
     parser.add_argument("-mmas", "--mark-mail-as-sent", dest='markMailAsSentForDocket', type=str, default=None,
             help="Mark the mail as sent.")
 
-    parser.add_argument("--show-undelivered", dest='showUndelivered', action="store_true", default=False,
+    parser.add_argument("-su", "--show-undelivered", dest='showUndelivered', action="store_true", default=False,
             help="If present, show undelivered parcels on screen")
 
     parser.add_argument("-d", "--days", dest='days', type=int, default=MAX_IN_TRANSIT_DAYS,
@@ -562,37 +562,42 @@ def _NewSnapshotForDocket(docketNumber):
     else:
         print("Could not find the docket {}".format(docketNumber))
 
+def ShowUndeliveredOnScreenWithMinimalInformation():
+  shipments = PersistentShipment.GetAllUndeliveredShipments()
+  PrintInBox("Following are undelivered shipments:")
+  for i, s in enumerate(sorted(shipments, key=lambda s: s.bill.docketDate), start=1):
+    print("{}.{:<50} : {:<15} : {}".format(i, s.bill.compName, DD_MMM_YYYY(s.bill.docketDate), s.bill.docketNumber))
+  return
+
 def ShowUndeliveredOnScreen():
-    print("Following parcels are still underlivered as on {}".format(DD_MM_YYYY(datetime.date.today())))
-    shipments = PersistentShipment.GetAllUndeliveredShipments()
-    shipments.sort(key=lambda s: s.bill.docketDate, reverse=False)
-    coll = set()
+  print("Following parcels are still underlivered as on {}".format(DD_MM_YYYY(datetime.date.today())))
+  shipments = PersistentShipment.GetAllUndeliveredShipments()
+  shipments.sort(key=lambda s: s.bill.docketDate, reverse=False)
+  coll = set()
+  for s in shipments:
+    coll.add(s.bill.courierName)
+
+  for c in coll:
+    PrintInBox(c)
+    print("Kindly provide scanned copy of PODs for following parcels:\n")
     for s in shipments:
-        coll.add(s.bill.courierName)
+      if s.bill.courierName == c:
+        allCustInfo = GetAllCustomersInfo()
+        companyOfficialName = allCustInfo.GetCompanyOfficialName(s.bill.compName) or "NA"
+        address = allCustInfo.GetCustomerDeliveryAddress(s.bill.compName) or "NA"
+        phNo = allCustInfo.GetCustomerPhoneNumber(s.bill.compName) or "NA"
+        print("_"*70)
+        print(s.bill.compName)
+        print(DD_MM_YYYY(s.bill.docketDate))
+        print(address)
 
-    for c in coll:
-        PrintInBox(c)
-        print("Kindly provide scanned copy of PODs for following parcels:\n")
-        for s in shipments:
-            if s.bill.courierName == c:
-                print()
-                allCustInfo = GetAllCustomersInfo()
-                companyOfficialName = allCustInfo.GetCompanyOfficialName(s.bill.compName) or "NA"
-                address = allCustInfo.GetCustomerDeliveryAddress(s.bill.compName) or "NA"
-                phNo = allCustInfo.GetCustomerPhoneNumber(s.bill.compName) or "NA"
-                print("_"*70)
-                print(s.bill.compName)
-                print(DD_MM_YYYY(s.bill.docketDate))
-                print(address)
-
-                print("\n".join([
-                    "Docket Date: " + DD_MM_YYYY(s.bill.docketDate),
-                    "Docket: " + str(s.bill.docketNumber),
-                    "CompName: " + companyOfficialName,
-                    "Address: " + address,
-                    "Ph: " + str(phNo),
-                    ]))
-
+        print("\n".join([
+            "Docket Date: " + DD_MM_YYYY(s.bill.docketDate),
+            "Docket: " + str(s.bill.docketNumber),
+            "CompName: " + companyOfficialName,
+            "Address: " + address,
+            "Ph: " + str(phNo),
+            ]))
 
 def main():
     args = ParseOptions()
@@ -707,6 +712,7 @@ def TrackAllShipments(args):
             pass
 
 if __name__ == '__main__':
-    CheckConsistency()
-    main()
-    SendAutomaticHeartBeat()
+  CheckConsistency()
+  main()
+  SendAutomaticHeartBeat()
+  ShowUndeliveredOnScreenWithMinimalInformation()

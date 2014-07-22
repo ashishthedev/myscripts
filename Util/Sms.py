@@ -11,7 +11,7 @@ import os
 from Util.Config import GetAppDirPath, GetOption
 from Util.Misc import PrintInBox
 import urllib2
-from Util.Decorators import RetryFor2TimesIfFailed
+from Util.Decorators import RetryFor5TimesIfFailed, RetryFor2TimesIfFailed
 
 GNOKII_PATH = os.path.join(GetAppDirPath(), "myscripts", "misc", "gnokii", "gnokii.exe")
 if not os.path.exists(GNOKII_PATH):
@@ -110,6 +110,7 @@ class SonyEricssonPhone():
 SMSOBJECT = AndriodSMSGateway()
 #SMSOBJECT = SonyEricssonPhone()
 
+@RetryFor5TimesIfFailed
 def CanSendSmsAsOfNow():
     return SMSOBJECT.CanSendSmsAsOfNow()
 
