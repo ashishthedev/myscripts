@@ -2,7 +2,7 @@ import os
 import json
 from Util.Config import GetOption
 from UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, datex, RemoveTrackingBills
-from Util.Misc import DD_MM_YYYY
+from Util.Misc import DD_MM_YYYY, PrintInBox
 from CustomersInfo import GetAllCustomersInfo
 
 PMTAPPDIR = os.getenv("PMTAPPDIR")
@@ -101,55 +101,59 @@ data=
 
 """
 def _DumpPaymentsDB():
-    allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
-    allAdjustmentsDict = GetAllCompaniesDict().GetAllAdjustmentsOfAllCompaniesAsDict()
-    allCustInfo = GetAllCustomersInfo()
+  allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
+  allAdjustmentsDict = GetAllCompaniesDict().GetAllAdjustmentsOfAllCompaniesAsDict()
+  allCustInfo = GetAllCustomersInfo()
 
-    if os.path.exists(PMT_JSON_FILE_NAME):
-        os.remove(PMT_JSON_FILE_NAME)
+  if os.path.exists(PMT_JSON_FILE_NAME):
+    os.remove(PMT_JSON_FILE_NAME)
 
-    data = {}
-    allCustomers = []
+  data = {}
+  allCustomers = []
 
-    for eachCompName, eachCompBills in allBillsDict.items():
-        adjustmentList = allAdjustmentsDict.get(eachCompName, [])
-        unpaidBillList = SelectUnpaidBillsFrom(eachCompBills)
-        unpaidBillList = RemoveTrackingBills(unpaidBillList)
-        oneCustomer = dict()
-        oneCustomer["name"] = " {} | {}".format(eachCompName, SMALL_NAME)
+  for eachCompName, eachCompBills in allBillsDict.items():
+    adjustmentList = allAdjustmentsDict.get(eachCompName, [])
+    unpaidBillList = SelectUnpaidBillsFrom(eachCompBills)
+    unpaidBillList = RemoveTrackingBills(unpaidBillList)
+    oneCustomer = dict()
+    oneCustomer["name"] = " {} | {}".format(eachCompName, SMALL_NAME)
 
-        oneCustomerBills = []
-        unpaidBillList = sorted(unpaidBillList, key=lambda b: datex(b.invoiceDate))
-        for b in unpaidBillList:
-            oneBill = {
-                    "bn" : b.billNumber,
-                    "bd": DD_MM_YYYY(datex(b.invoiceDate)),
-                    "cd": str(b.daysOfCredit),
-                    "ba":str(int(b.amount))
-                    }
-            oneCustomerBills.append(oneBill)
+    oneCustomerBills = []
+    unpaidBillList = sorted(unpaidBillList, key=lambda b: datex(b.invoiceDate))
+    for b in unpaidBillList:
+      oneBill = {
+          "bn" : b.billNumber,
+          "bd": DD_MM_YYYY(datex(b.invoiceDate)),
+          "cd": str(b.daysOfCredit),
+          "ba":str(int(b.amount))
+          }
+      oneCustomerBills.append(oneBill)
 
-        for a in adjustmentList:
-            if a.adjustmentAccountedFor: continue
-            oneAdjustment = {
-                    "bn": a.adjustmentNo or "-1",
-                    "bd": DD_MM_YYYY(datex(a.invoiceDate)),
-                    "cd": "0",
-                    "ba":str(int(a.amount))
-                    }
-            oneCustomerBills.append(oneAdjustment) #For all practical purposes, an adjustment is treated as a bill with bill#-1
+    for a in adjustmentList:
+      if a.adjustmentAccountedFor: continue
+      oneAdjustment = {
+          "bn": a.adjustmentNo or "-1",
+          "bd": DD_MM_YYYY(datex(a.invoiceDate)),
+          "cd": "0",
+          "ba":str(int(a.amount))
+          }
+      oneCustomerBills.append(oneAdjustment) #For all practical purposes, an adjustment is treated as a bill with bill#-1
 
-        oneCustomer["bills"] = oneCustomerBills
-        oneCustomer["trust"] = allCustInfo.GetTrustForCustomer(eachCompName)
+    oneCustomer["bills"] = oneCustomerBills
+    oneCustomer["trust"] = allCustInfo.GetTrustForCustomer(eachCompName)
 
-        if len(oneCustomerBills) > 0:
-            allCustomers.append(oneCustomer)
+    if len(oneCustomerBills) > 0:
+      allCustomers.append(oneCustomer)
 
-    data["customers"] = allCustomers
+  data["customers"] = allCustomers
+  allPayments = GetAllCompaniesDict().GetAllPaymentsByAllCompaniesAsDict()
+  recentPmtDate = max([p.pmtDate for comp, payments in allPayments.items() for p in payments])
+  compSmallName = GetOption("CONFIG_SECTION", "SmallName")
+  data ["showVerbatimOnTop"] = "{} last pmt: {}".format(compSmallName, DD_MM_YYYY(recentPmtDate))
 
-    with open(PMT_JSON_FILE_NAME, "w+") as f:
-        json.dump(data, f, separators=(',',':'), indent=2)
-    return
+  with open(PMT_JSON_FILE_NAME, "w+") as f:
+    json.dump(data, f, separators=(',',':'), indent=2)
+  return
 
 def _DumpJSONDB():
     _DumpPaymentsDB()
