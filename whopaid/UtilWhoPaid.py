@@ -410,7 +410,7 @@ def CreateSinglePaymentRow(row):
             r.compName = val
         elif col == SheetCols.InstrumentDateCol:
             if not val: raise Exception("No cheque date in row: {}".format(cell.row))
-            r.chequeDate = ParseDateFromString(val)
+            r.pmtDate = ParseDateFromString(val)
         elif col == SheetCols.PaymentAccountedFor:
             if val is not None:
                 r.paymentAccountedFor = True if val.lower()=="yes" else False

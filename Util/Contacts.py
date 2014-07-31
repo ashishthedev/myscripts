@@ -15,6 +15,7 @@ class COLS:
     HOME_PHONE = 18
     HOME_PHONE2 = 19
     MOBILE_PHONE = 20
+    WORK_PHONE = 38
 
 
 class Contact(object):
@@ -26,9 +27,10 @@ class Contact(object):
         self.homePhone = row[COLS.HOME_PHONE]
         self.homePhone2 = row[COLS.HOME_PHONE2]
         self.mobilePhone = row[COLS.MOBILE_PHONE]
+        self.workPhone = row[COLS.WORK_PHONE]
 
     def __str__(self):
-        number = self.mobilePhone or self.homePhone or self.homePhone2
+        number = self.mobilePhone or self.homePhone or self.homePhone2 or self.workPhone
         return " ".join([str(number), self.firstName, self.middleName, self.lastName, self.emailAdd])
 
     def IsRelatedTo(self, s):

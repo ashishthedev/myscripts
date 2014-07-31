@@ -17,6 +17,7 @@ from SanityChecks import CheckConsistency
 from Util.Exception import MyException
 from Util.PythonMail import SendMail
 from Util.Config import GetOption
+from Util.Sms import SendSms
 
 from datetime import datetime
 from string import Template
@@ -44,6 +45,12 @@ def ParseOptions():
 
     p.add_argument('-md', '--material-desc', dest='materialDesc', type=str,
             help="Company name or part of it.")
+
+    p.add_argument("--mail", dest='mail', action="store_true",
+            default=False, help="If present, an email will be sent if possible.")
+
+    p.add_argument("--sms", dest='sms', action="store_true",
+            default=False, help="If present, an sms will also be sent if possible.")
 
     p.add_argument("--demo", dest='isDemo', action="store_true",
             default=False, help="If present, emails will only be sent to "
@@ -91,12 +98,44 @@ def main():
     chosenComp = GuessCompanyName(token)
 
     if chosenComp:
+      if args.mail:
         SendRoadPermitRequest(chosenComp, allBillsDict, args)
+      if args.sms:
+        SendSmsIntimation(chosenComp,args)
     else:
-        print("Company containing {} does not exist. Try shorter string")
-        exit(1)
+      print("Company containing {} does not exist. Try shorter string")
+      exit(1)
     return
 
+
+def SendSmsIntimation(compName, args):
+  allCustInfo = GetAllCustomersInfo()
+  smsNo = allCustInfo.GetSmsDispatchNumber(compName)
+  if not smsNo: raise Exception("No sms no. feeded for customer: {}".format(compName))
+
+  companyOfficialName = allCustInfo.GetCompanyOfficialName(compName)
+  if not companyOfficialName: raise Exception("\nM/s {} doesnt have a displayable 'name'. Please feed it in the database".format(compName))
+
+  d = dict()
+  d["tFromName"] = "From: {}".format(GetOption("SMS_SECTION", 'FromDisplayName'))
+  d["toName"] = "To: {}".format(companyOfficialName)
+
+  smsTemplate = Template("""$tFromName
+$toName
+Dear Sir,
+Kindly issue the road permit. Details have been emailed.
+Thanks.
+""")
+  smsContents = smsTemplate.substitute(d)
+
+  COMMA = ","
+  smsNo = smsNo.replace(';', ',').strip()
+  listOfNos = [x.strip() for x in smsNo.split(COMMA) if x.strip()]
+  PrintInBox(smsContents)
+  for x in listOfNos:
+    print("Sending to this number: {}".format(x))
+    SendSms(x, smsContents)
+  return
 
 def SendRoadPermitRequest(compName, allBillsDict, args):
 

@@ -488,6 +488,9 @@ def ParseOptions():
     parser.add_argument("-mmas", "--mark-mail-as-sent", dest='markMailAsSentForDocket', type=str, default=None,
             help="Mark the mail as sent.")
 
+    parser.add_argument("-sus", "--show-undelivered-small", dest='showUndeliveredSmall', action="store_true", default=False,
+            help="If present, show undelivered parcels on screen")
+
     parser.add_argument("-su", "--show-undelivered", dest='showUndelivered', action="store_true", default=False,
             help="If present, show undelivered parcels on screen")
 
@@ -523,34 +526,37 @@ def ParseOptions():
 
 
 def _FormceMarkShipmentMailAsSent(docketNumber):
-    us = PersistentShipment.GetAllStoredShipments()
-    for s in us:
-        print(s.bill.docketNumber)
-        if s.bill.docketNumber == docketNumber:
-            s.markShipmentMailAsSent()
-            s.saveInDB()
-            print("Marking the mail as sent for docket#: {}".format(docketNumber))
+  us = PersistentShipment.GetAllStoredShipments()
+  for s in us:
+    print(s.bill.docketNumber)
+    if s.bill.docketNumber == docketNumber:
+      s.markShipmentMailAsSent()
+      s.saveInDB()
+      print("Marking the mail as sent for docket#: {}".format(docketNumber))
+  return
 
 
 def _ForceMarkDocketAsDelivered(docketNumber):
-    for s in PersistentShipment.GetAllUndeliveredShipments():
-        if s.bill.docketNumber == docketNumber:
-            s.status = "This shipment was force marked as delivered on {}".format(DD_MM_YYYY(datetime.date.today()))
-            print(s.status)
-            s.markAsDelivered()
-            s.saveInDB()
+  for s in PersistentShipment.GetAllUndeliveredShipments():
+    if s.bill.docketNumber == docketNumber:
+      s.status = "This shipment was force marked as delivered on {}".format(DD_MM_YYYY(datetime.date.today()))
+      print(s.status)
+      s.markAsDelivered()
+      s.saveInDB()
+  return
 
 def _RemoveDocketFromIndex(docketNumber):
-    us = PersistentShipment.GetAllStoredShipments()
-    print("About to remove docket from tracking index: {}".format(docketNumber))
-    for s in us:
-        print(s.bill.docketNumber)
-        if s.bill.docketNumber == docketNumber:
-            print("Docket {} removed from tracking index".format(docketNumber))
-            s._removeFromDB()
-            break
-    else:
-        print("Could not find the docket {}".format(docketNumber))
+  us = PersistentShipment.GetAllStoredShipments()
+  print("About to remove docket from tracking index: {}".format(docketNumber))
+  for s in us:
+    print(s.bill.docketNumber)
+    if s.bill.docketNumber == docketNumber:
+      print("Docket {} removed from tracking index".format(docketNumber))
+      s._removeFromDB()
+      break
+  else:
+    print("Could not find the docket {}".format(docketNumber))
+  return
 
 def _NewSnapshotForDocket(docketNumber):
     print("About to take a new snapshot for docket: {}".format(docketNumber))
@@ -592,124 +598,127 @@ def ShowUndeliveredOnScreen():
         print(address)
 
         print("\n".join([
-            "Docket Date: " + DD_MM_YYYY(s.bill.docketDate),
-            "Docket: " + str(s.bill.docketNumber),
-            "CompName: " + companyOfficialName,
-            "Address: " + address,
-            "Ph: " + str(phNo),
-            ]))
+          "Docket Date: " + DD_MM_YYYY(s.bill.docketDate),
+          "Docket: " + str(s.bill.docketNumber),
+          "CompName: " + companyOfficialName,
+          "Address: " + address,
+          "Ph: " + str(phNo),
+          ]))
 
 def main():
-    args = ParseOptions()
+  args = ParseOptions()
 
-    global IS_DEMO
-    IS_DEMO = args.isDemo
+  global IS_DEMO
+  IS_DEMO = args.isDemo
 
-    if args.clearDB:
-        PrintInBox("Starting afresh")
-        os.remove(PersistentShipment.shelfFileName)
+  if args.clearDB:
+    PrintInBox("Starting afresh")
+    os.remove(PersistentShipment.shelfFileName)
 
-    if args.markMailAsSentForDocket:
-        _FormceMarkShipmentMailAsSent(args.markMailAsSentForDocket)
+  if args.markMailAsSentForDocket:
+    _FormceMarkShipmentMailAsSent(args.markMailAsSentForDocket)
 
-    if args.showUndelivered:
-        ShowUndeliveredOnScreen()
+  if args.showUndeliveredSmall:
+    ShowUndeliveredOnScreenWithMinimalInformation()
 
-    if args.forceMarkDeliveredDocket:
-        _ForceMarkDocketAsDelivered(args.forceMarkDeliveredDocket)
+  if args.showUndelivered:
+    ShowUndeliveredOnScreen()
 
-    if args.removeTrackingForDocket:
-        _RemoveDocketFromIndex(args.removeTrackingForDocket)
-        import sys; sys.exit(0)
+  if args.forceMarkDeliveredDocket:
+    _ForceMarkDocketAsDelivered(args.forceMarkDeliveredDocket)
 
-    if args.newSnapshotForDocket:
-        _NewSnapshotForDocket(args.newSnapshotForDocket)
+  if args.removeTrackingForDocket:
+    _RemoveDocketFromIndex(args.removeTrackingForDocket)
+    import sys; sys.exit(0)
 
-    if args.sendMailToAllCompanies:
-        SendMailToAllComapnies(args)
+  if args.newSnapshotForDocket:
+    _NewSnapshotForDocket(args.newSnapshotForDocket)
 
-    if args.sendDispatchSms:
-        PrintInBox("Preparing to send SMS now")
-        SendDispatchSMSToAllCompanies(args)
+  if args.sendMailToAllCompanies:
+    SendMailToAllComapnies(args)
 
-    if args.trackAllUndeliveredCouriers:
-        TrackAllShipments(args)
+  if args.sendDispatchSms:
+    PrintInBox("Preparing to send SMS now")
+    SendDispatchSMSToAllCompanies(args)
+
+  if args.trackAllUndeliveredCouriers:
+    TrackAllShipments(args)
 
 def SendDispatchSMSToAllCompanies(args):
-    bills = [b for b in GetAllBillsInLastNDays(args.days) if b.docketDate]
-    #bills = RemoveTrackingBills(bills)
-    [PersistentShipment.GetOrCreateShipmentForBill(b) for b in bills]
-    shipments = PersistentShipment.GetAllStoredShipments()
-    shipments = [s for s in shipments if s.ShouldWeTrackThis()] #Filter our deliverd shipments
-    shipments = [s for s in shipments if not s.wasShipmentSmsEverSent()]
-    shipments = [s for s in shipments if s.isSMSNoAvailable()]
-    shipments = [s for s in shipments if s.daysPassed < MAX_DAYS_FOR_SENDING_NOTIFICATION]
-    shipments.sort(key=lambda s: s.bill.docketDate, reverse=True)
+  bills = [b for b in GetAllBillsInLastNDays(args.days) if b.docketDate]
+  #bills = RemoveTrackingBills(bills)
+  [PersistentShipment.GetOrCreateShipmentForBill(b) for b in bills]
+  shipments = PersistentShipment.GetAllStoredShipments()
+  shipments = [s for s in shipments if s.ShouldWeTrackThis()] #Filter our deliverd shipments
+  shipments = [s for s in shipments if not s.wasShipmentSmsEverSent()]
+  shipments = [s for s in shipments if s.isSMSNoAvailable()]
+  shipments = [s for s in shipments if s.daysPassed < MAX_DAYS_FOR_SENDING_NOTIFICATION]
+  shipments.sort(key=lambda s: s.bill.docketDate, reverse=True)
 
-    if len(shipments) != 0:
-        if not CanSendSmsAsOfNow():
-            raise Exception("Sorry. SMS cannot be sent as of now. The phone might not be nearby or not paired with this computer.")
-    else:
-        PrintInBox("All the SMSes that could have been sent have been sent.")
-        return
-
-    try:
-        for eachShipment in shipments:
-            print("_"*70)
-            if 'y' == raw_input("Send sms for {} (y/n)?".format(eachShipment)).lower():
-                eachShipment.sendSmsForThisShipment()
-            else:
-                print("Not sending sms...")
-    except ShipmentException as ex:
-        print(ex)
-        #eat the exception after printing. We have printed our custom exception, its good enough.
+  if len(shipments) != 0:
+    if not CanSendSmsAsOfNow():
+      raise Exception("Sorry. SMS cannot be sent as of now. The phone might not be nearby or not paired with this computer.")
+  else:
+    PrintInBox("All the SMSes that could have been sent have been sent.")
     return
+
+  try:
+    for eachShipment in shipments:
+      print("_"*70)
+      if 'y' == raw_input("Send sms for {} (y/n)?".format(eachShipment)).lower():
+        eachShipment.sendSmsForThisShipment()
+      else:
+        print("Not sending sms...")
+  except ShipmentException as ex:
+    print(ex)
+    #eat the exception after printing. We have printed our custom exception, its good enough.
+  return
 
 def SendMailToAllComapnies(args):
-    bills = [b for b in GetAllBillsInLastNDays(args.days) if b.docketDate]
-    bills = RemoveTrackingBills(bills)
-    [PersistentShipment.GetOrCreateShipmentForBill(b) for b in bills]
-    shipments = PersistentShipment.GetAllStoredShipments()
-    shipments = [s for s in shipments if s.ShouldWeTrackThis()] #Filter our deliverd shipments
-    shipments = [s for s in shipments if not s.wasShipmentMailEverSent()]
-    shipments = [s for s in shipments if s.daysPassed < MAX_DAYS_FOR_SENDING_NOTIFICATION]
-    shipments.sort(key=lambda s: s.bill.docketDate, reverse=True)
+  bills = [b for b in GetAllBillsInLastNDays(args.days) if b.docketDate]
+  bills = RemoveTrackingBills(bills)
+  [PersistentShipment.GetOrCreateShipmentForBill(b) for b in bills]
+  shipments = PersistentShipment.GetAllStoredShipments()
+  shipments = [s for s in shipments if s.ShouldWeTrackThis()] #Filter our deliverd shipments
+  shipments = [s for s in shipments if not s.wasShipmentMailEverSent()]
+  shipments = [s for s in shipments if s.daysPassed < MAX_DAYS_FOR_SENDING_NOTIFICATION]
+  shipments.sort(key=lambda s: s.bill.docketDate, reverse=True)
 
-    try:
-        for eachShipment in shipments:
-            print("_"*70)
-            if 'y' == raw_input("Send mail for {} (y/n)?".format(eachShipment)).lower():
-                eachShipment.sendMailForThisShipment()
-            else:
-                print("Not sending mail...")
-    except ShipmentException as ex:
-        print(ex)
-        #eat the exception after printing. We have printed our custom exception, its good enough.
-    return
+  try:
+    for eachShipment in shipments:
+      print("_"*70)
+      if 'y' == raw_input("Send mail for {} (y/n)?".format(eachShipment)).lower():
+        eachShipment.sendMailForThisShipment()
+      else:
+        print("Not sending mail...")
+  except ShipmentException as ex:
+    print(ex)
+    #eat the exception after printing. We have printed our custom exception, its good enough.
+  return
 
 def TrackAllShipments(args):
-    [PersistentShipment.GetOrCreateShipmentForBill(b) for b in GetAllBillsInLastNDays(args.days) if b.docketDate]
-    shipments = PersistentShipment.GetAllStoredShipments()
-    trackableShipments = [s for s in shipments if s.ShouldWeTrackThis()]
-    trackableShipments.sort(key=lambda s: s.bill.docketDate)
+  [PersistentShipment.GetOrCreateShipmentForBill(b) for b in GetAllBillsInLastNDays(args.days) if b.docketDate]
+  shipments = PersistentShipment.GetAllStoredShipments()
+  trackableShipments = [s for s in shipments if s.ShouldWeTrackThis()]
+  trackableShipments.sort(key=lambda s: s.bill.docketDate)
 
-    for i, shipment in enumerate(trackableShipments, start=1):
-        try:
-            old_status = shipment._track.status
-            print("{}\n{} of {}| {} days| {}".format("_"*70, i, len(trackableShipments), shipment.daysPassed, shipment))
-            new_status = shipment.Track()  #One shipment per bill
+  for i, shipment in enumerate(trackableShipments, start=1):
+    try:
+      old_status = shipment._track.status
+      print("{}\n{} of {}| {} days| {}".format("_"*70, i, len(trackableShipments), shipment.daysPassed, shipment))
+      new_status = shipment.Track()  #One shipment per bill
 
-            if old_status != new_status:
-                PrintInBox("New status: {}".format(new_status), outliner=">")
+      if old_status != new_status:
+        PrintInBox("New status: {}".format(new_status), outliner=">")
 
-            if not shipment.isDelivered and shipment.daysPassed > MAX_IN_TRANSIT_DAYS :
-                raise ShipmentException("{} days back the following material was shipped but still not delivered\n{}".format(
-                    shipment.daysPassed, shipment.description))
-            sleep(2)
+      if not shipment.isDelivered and shipment.daysPassed > MAX_IN_TRANSIT_DAYS :
+        raise ShipmentException("{} days back the following material was shipped but still not delivered\n{}".format(
+          shipment.daysPassed, shipment.description))
+      sleep(2)
 
-        except ShipmentException as ex:
-            PrintInBox(str(ex), outliner="X")
-            pass
+    except ShipmentException as ex:
+      PrintInBox(str(ex), outliner="X")
+      pass
 
 if __name__ == '__main__':
   CheckConsistency()

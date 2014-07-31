@@ -105,7 +105,9 @@ cust2odat = copy "%APPDIR%\\SDATDocs\\Bills\\Cust.xlsx" "%APPDIR%\\ODATDocs\\Bil
 analyze = pushd %XDATDOCSDIR%\\myscripts\\misc\\PhoneBillAnalysis && AnalyzeBill.py $*
 
 trs = pushd %XDATDOCSDIR%\MyScripts\whopaid && Shipments.py --track $* && pushd %XDATDOCSDIR%\..\DocketPODs && start. && popd
-undelivered = pushd %XDATDOCSDIR%\MyScripts\whopaid && Shipments.py --show-undelivered && popd
+undelivered = pushd %XDATDOCSDIR%\MyScripts\whopaid && Shipments.py --show-undelivered-small && popd
+lfp = pushd %XDATDOCSDIR%\MyScripts\whopaid && Statement.py --last-few-payments && popd
+
 opybk = "B:\Read\Python\The Quick Python Book 2e - Vernon Ceder - Manning (2010).pdf"
 ogaebk2 = "b:\Read\Google App Engine\Programming GAE V2.pdf"
 ogaebk = "b:\Read\Google App Engine\Oreilly - Programming Google Apps Engine (12-2009) (ATTiCA).pdf"
@@ -139,12 +141,15 @@ slip = pushd %XDATDOCSDIR%\myscripts\whopaid && AddressSlip.py $* && popd
 er = pushd %XDATDOCSDIR%\myscripts\whopaid && PaymentReminderForGroups.py $* && popd
 erd = pushd %XDATDOCSDIR%\myscripts\whopaid && PaymentReminderForGroups.py --demo $* && popd
 erol = pushd %XDATDOCSDIR%\myscripts\whopaid && PaymentReminderForGroups.py --allCompanies --only-list-no-send --demo $* && popd
+gform38 = pushd %XDATDOCSDIR%\Form38Actual\Receipt && start.
 fcr  = pushd %XDATDOCSDIR%\myscripts\whopaid && FormCRequest.py -o $* && popd
 fcrl = pushd %XDATDOCSDIR%\myscripts\whopaid && FormCRequest.py -o --letterHead --desktopOnly $* && popd
 fcrd = pushd %XDATDOCSDIR%\myscripts\whopaid && FormCRequest.py -o --demo $* && popd
 fcre = pushd %XDATDOCSDIR%\myscripts\whopaid && FormCRequest.py --email $* && popd
-rpr  = pushd %XDATDOCSDIR%\myscripts\whopaid && RoadPermitRequest.py $* && popd
-rprd = pushd %XDATDOCSDIR%\myscripts\whopaid && RoadPermitRequest.py --demo $* && popd
+rpr  = pushd %XDATDOCSDIR%\myscripts\whopaid && RoadPermitRequest.py --mail --sms $* && popd
+rprm  = pushd %XDATDOCSDIR%\myscripts\whopaid && RoadPermitRequest.py --mail $* && popd
+rprs  = pushd %XDATDOCSDIR%\myscripts\whopaid && RoadPermitRequest.py --sms $* && popd
+rprd = pushd %XDATDOCSDIR%\myscripts\whopaid && RoadPermitRequest.py --mail --sms --demo $* && popd
 dis   = pushd %XDATDOCSDIR%\myscripts\whopaid && Shipments.py --mail --dispatch-sms-all $* && Shipments.py --track && pushd %XDATDOCSDIR%\..\DocketPODs && start. && popd && popd
 dis10 = pushd %XDATDOCSDIR%\myscripts\whopaid && Shipments.py --mail --dispatch-sms-all --days=10 $* && popd
 disd  = pushd %XDATDOCSDIR%\myscripts\whopaid && Shipments.py --mail --dispatch-sms-all --demo $* && popd

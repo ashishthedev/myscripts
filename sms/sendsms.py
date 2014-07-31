@@ -57,7 +57,7 @@ def _SendSameSmsToTheseUnprocessedStrings(smsContents, listOfStrings):
         singleNumbers.append(s)
     else:
       def GetNumberList(c):
-        return [n for n in [c.mobilePhone, c.homePhone, c.homePhone2] if n]
+        return [n for n in [c.mobilePhone, c.homePhone, c.homePhone2, c.workPhone] if n]
 
       relatedContacts = allContacts.FindRelatedContacts(s)
 
