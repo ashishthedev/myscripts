@@ -36,66 +36,61 @@ def constant_factory(value):
     from itertools import repeat
     return repeat(value).next
 
-def GetConfirmation():
-    if raw_input("Proceed: (y/n)").lower() != "y":
-        raise Exception()
-
 def EarlierSentOnDateForThisGrp(grpName):
-    """Returns a dateObject representing the date on which an email was last sent to this company"""
-    dateObject = None
-    shelfFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), LAST_EMAIL_DATE_DB)
+  """Returns a dateObject representing the date on which an email was last sent to this company"""
+  dateObject = None
+  shelfFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), LAST_EMAIL_DATE_DB)
 
-    with closing(shelve.open(shelfFileName)) as d:
-        if str(grpName) in d:
-            dateObject = d[str(grpName)]
-    if type(dateObject) == datetime.datetime:
-        dateObject = dateObject.date()
-    return dateObject
+  with closing(shelve.open(shelfFileName)) as d:
+    if str(grpName) in d:
+      dateObject = d[str(grpName)]
+  if type(dateObject) == datetime.datetime:
+    dateObject = dateObject.date()
+  return dateObject
 
 def SaveSentOnDateForThisGrp(compName):
-    """Registers today() as the date on which last email was sent to company."""
-    shelfFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), LAST_EMAIL_DATE_DB)
-    with closing(shelve.open(shelfFileName)) as d:
-        d[str(compName)] = datetime.date.today()
-    return
+  """Registers today() as the date on which last email was sent to company."""
+  shelfFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), LAST_EMAIL_DATE_DB)
+  with closing(shelve.open(shelfFileName)) as d:
+    d[str(compName)] = datetime.date.today()
+  return
 
 
 def ParseOptions():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--allCompanies", dest='allCompanies', action="store_true",
-            default=False, help="Send payment reminder to all eligible companies.")
-    parser.add_argument("-c", "--comp", dest='comp', type=str, default=None,
-            help="Company name or part of it.")
-    parser.add_argument("-d", "--demo", dest='isDemo', action="store_true",
-            default=False, help="If present, emails will only be sent to cc"
-            " email and no mail will be sent to customer.")
-    parser.add_argument("-ka", "--kindAttentionPerson", dest='kaPerson',
-            type=str, default=None, help="If present, a kind attention name"
-            " will be placed toemails will be added to the request.")
-    parser.add_argument("-fl", "--first-line", dest='first_line', type=str,
-            default=None, help="If present, emails will be sent with this as "
-            "first line.")
-    parser.add_argument("-flb", "--first-line-bold", dest='first_line_bold', type=str,
-            default=None, help="If present, emails will be sent with this as "
-            "first line.")
-    parser.add_argument("-sl", "--second-line", dest='second_line', type=str,
-            default=None, help="If present, emails will be sent with this as "
-            "second line.")
-    parser.add_argument("-ll", "--last-line", dest='last_line', type=str,
-            default=None, help="If present, emails will be sent with this as "
-            "last line.")
-    parser.add_argument("-llb", "--last-line-bold", dest='last_line_bold', type=str,
-            default=None, help="If present, emails will be sent with this as "
-            "last line.")
-    parser.add_argument("-ol", "--only-list-no-send", dest="onlyListNoSend",
-            default=False, action="store_true", help="Only list names, do not "
-            "send. To be used with automatic reminders")
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--allCompanies", dest='allCompanies', action="store_true",
+      default=False, help="Send payment reminder to all eligible companies.")
+  parser.add_argument("-c", "--comp", dest='comp', type=str, default=None,
+      help="Company name or part of it.")
+  parser.add_argument("-d", "--demo", dest='isDemo', action="store_true",
+      default=False, help="If present, emails will only be sent to cc"
+      " email and no mail will be sent to customer.")
+  parser.add_argument("-ka", "--kindAttentionPerson", dest='kaPerson',
+      type=str, default=None, help="If present, a kind attention name"
+      " will be placed toemails will be added to the request.")
+  parser.add_argument("-fl", "--first-line", dest='first_line', type=str,
+      default=None, help="If present, emails will be sent with this as "
+      "first line.")
+  parser.add_argument("-flb", "--first-line-bold", dest='first_line_bold', type=str,
+      default=None, help="If present, emails will be sent with this as "
+      "first line.")
+  parser.add_argument("-sl", "--second-line", dest='second_line', type=str,
+      default=None, help="If present, emails will be sent with this as "
+      "second line.")
+  parser.add_argument("-ll", "--last-line", dest='last_line', type=str,
+      default=None, help="If present, emails will be sent with this as "
+      "last line.")
+  parser.add_argument("-llb", "--last-line-bold", dest='last_line_bold', type=str,
+      default=None, help="If present, emails will be sent with this as "
+      "last line.")
+  parser.add_argument("-ol", "--only-list-no-send", dest="onlyListNoSend",
+      default=False, action="store_true", help="Only list names, do not "
+      "send. To be used with automatic reminders")
 
-    return parser.parse_args()
+  return parser.parse_args()
 
 
 def AskQuestionsFromUserAndSendMail(args):
-
     PrintInBox(AnyFundooProcessingMsg())
     allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
     allCustomersInfo = GetAllCustomersInfo()
@@ -103,305 +98,305 @@ def AskQuestionsFromUserAndSendMail(args):
     grpName = GuessCompanyGroupName(args.comp)
 
     if not args.kaPerson:
-        #If no person was specified at command line then pick one from the database.
-        for eachComp in allCustomersInfo.GetListOfCompNamesForThisGrp(grpName):
-            personFromDB = allCustomersInfo.GetCustomerKindAttentionPerson(eachComp)
-            if personFromDB and 'y' == raw_input("Mention kind attn: {} (y/n)?".format(personFromDB)).lower():
-                args.kaPerson = personFromDB
-                break
+      #If no person was specified at command line then pick one from the database.
+      for eachComp in allCustomersInfo.GetListOfCompNamesForThisGrp(grpName):
+        personFromDB = allCustomersInfo.GetCustomerKindAttentionPerson(eachComp)
+        if personFromDB and 'y' == raw_input("Mention kind attn: {} (y/n)?".format(personFromDB)).lower():
+          args.kaPerson = personFromDB
+          break
     SendReminderToGrp(grpName, allBillsDict, allCustomersInfo, args)
 
 
 def SendAutomaticReminderToAllCompanies(args):
-    PrintInBox("About to send email to all the companies")
-    allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
-    allCustomersInfo = GetAllCustomersInfo()
-    uniqueCompGrpNames = set([allCustomersInfo.GetCompanyGroupName(eachComp) for eachComp in allBillsDict])
-    for eachGrp in uniqueCompGrpNames:
-        print("Working on {}".format(eachGrp))
-        try:
-            if ShouldWeSendAutomaticEmailForGroup(eachGrp, allBillsDict, allCustomersInfo):
-                SendReminderToGrp(eachGrp, allBillsDict, allCustomersInfo, args)
-        except Exception as ex:
-            PrintInBox("Exception while processing: {}\n{}".format(eachGrp, str(ex)))
+  PrintInBox("About to send email to all the companies")
+  allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
+  allCustomersInfo = GetAllCustomersInfo()
+  uniqueCompGrpNames = set([allCustomersInfo.GetCompanyGroupName(eachComp) for eachComp in allBillsDict])
+  for eachGrp in uniqueCompGrpNames:
+    print("Working on {}".format(eachGrp))
+    try:
+      if ShouldWeSendAutomaticEmailForGroup(eachGrp, allBillsDict, allCustomersInfo):
+        SendReminderToGrp(eachGrp, allBillsDict, allCustomersInfo, args)
+    except Exception as ex:
+      PrintInBox("Exception while processing: {}\n{}".format(eachGrp, str(ex)))
 
 def OnlyListCompaniesOnScreen(args):
-    allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
-    allCustomersInfo = GetAllCustomersInfo()
-    uniqueCompGrpNames = set([allCustomersInfo.GetCompanyGroupName(eachComp) for eachComp in allBillsDict])
-    for eachGrp in uniqueCompGrpNames:
-        if ShouldWeSendAutomaticEmailForGroup(eachGrp, allBillsDict, allCustomersInfo):
-            print("We should send mail to {}".format(eachGrp))
+  allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
+  allCustomersInfo = GetAllCustomersInfo()
+  uniqueCompGrpNames = set([allCustomersInfo.GetCompanyGroupName(eachComp) for eachComp in allBillsDict])
+  for eachGrp in uniqueCompGrpNames:
+    if ShouldWeSendAutomaticEmailForGroup(eachGrp, allBillsDict, allCustomersInfo):
+      print("We should send mail to {}".format(eachGrp))
 
 
 @timeThisFunction
 def main():
 
-    args = ParseOptions()
+  args = ParseOptions()
 
-    if args.onlyListNoSend:
-        OnlyListCompaniesOnScreen(args)
-        return
+  if args.onlyListNoSend:
+    OnlyListCompaniesOnScreen(args)
+    return
 
-    if args.allCompanies:
-        SendAutomaticReminderToAllCompanies(args)
-        return
+  if args.allCompanies:
+    SendAutomaticReminderToAllCompanies(args)
+    return
 
-    AskQuestionsFromUserAndSendMail(args)
+  AskQuestionsFromUserAndSendMail(args)
 
 def ShouldWeSendAutomaticEmailForGroup(grpName, allBillsDict, allCustomersInfo):
-    compsInGrp = allCustomersInfo.GetListOfCompNamesForThisGrp(grpName)
-    firstCompInGrp = compsInGrp[0]
-    unpaidBillsList = []
-    for compName in compsInGrp:
-        if not compName in allBillsDict:
-            #print("{compName} has no issued bills till date. Ignoring it.".format(compName=compName))
-            continue
-        unpaidBillsList += SelectUnpaidBillsFrom(allBillsDict[compName])
+  compsInGrp = allCustomersInfo.GetListOfCompNamesForThisGrp(grpName)
+  firstCompInGrp = compsInGrp[0]
+  unpaidBillsList = []
+  for compName in compsInGrp:
+    if not compName in allBillsDict:
+      #print("{compName} has no issued bills till date. Ignoring it.".format(compName=compName))
+      continue
+    unpaidBillsList += SelectUnpaidBillsFrom(allBillsDict[compName])
 
-    #Unpaid Bills check
-    if not unpaidBillsList:
-        return False # All bills are duly paid; do not send email
+  #Unpaid Bills check
+  if not unpaidBillsList:
+    return False # All bills are duly paid; do not send email
 
-    #Advance towards us check
-    if int(sum([eachBill.amount for eachBill in unpaidBillsList])) < MINIMUM_AMOUNT_DUE:
-        return False
+  #Advance towards us check
+  if int(sum([eachBill.amount for eachBill in unpaidBillsList])) < MINIMUM_AMOUNT_DUE:
+    return False
 
-    #Check if we dont want the customer to be included in automatic mails
-    if not allCustomersInfo.IncludeCustInAutomaticMails(firstCompInGrp):
-        return False
+  #Check if we dont want the customer to be included in automatic mails
+  if not allCustomersInfo.IncludeCustInAutomaticMails(firstCompInGrp):
+    return False
 
-    #Email present
-    if not allCustomersInfo.GetPaymentReminderEmailAsListForCustomer(firstCompInGrp):
-        return False
+  #Email present
+  if not allCustomersInfo.GetPaymentReminderEmailAsListForCustomer(firstCompInGrp):
+    return False
 
-    daysSinceOldestUnpaidBill = max([b.daysOfCredit for b in unpaidBillsList])
-    allowedDaysOfCredit = int(allCustomersInfo.GetCreditLimitForCustomer(firstCompInGrp))
-    if daysSinceOldestUnpaidBill <= allowedDaysOfCredit:
-        return False
+  daysSinceOldestUnpaidBill = max([b.daysOfCredit for b in unpaidBillsList])
+  allowedDaysOfCredit = int(allCustomersInfo.GetCreditLimitForCustomer(firstCompInGrp))
+  if daysSinceOldestUnpaidBill <= allowedDaysOfCredit:
+    return False
 
-    lastDate = EarlierSentOnDateForThisGrp(firstCompInGrp)
-    if lastDate:
-        #Perform this check only when an email was ever sent to this company and this is not a demo.
-        timeDelta = datetime.date.today() - lastDate
-        minDaysGap = int(allCustomersInfo.GetMinDaysGapBetweenMails(firstCompInGrp))
-        if timeDelta.days < minDaysGap:
-            return False
+  lastDate = EarlierSentOnDateForThisGrp(firstCompInGrp)
+  if lastDate:
+    #Perform this check only when an email was ever sent to this company and this is not a demo.
+    timeDelta = datetime.date.today() - lastDate
+    minDaysGap = int(allCustomersInfo.GetMinDaysGapBetweenMails(firstCompInGrp))
+    if timeDelta.days < minDaysGap:
+      return False
 
-    return True
+  return True
 
 
 def TotalDueForCompAsInt(compName):
-    adjustmentAmount = 0
-    billsAmount = 0
+  adjustmentAmount = 0
+  billsAmount = 0
 
-    billsList = GetAllCompaniesDict().GetBillsListForThisCompany(compName)
-    if billsList:
-      billsList = SelectUnpaidBillsFrom(billsList)
-      billsAmount = sum([b.amount for b in billsList])
+  billsList = GetAllCompaniesDict().GetBillsListForThisCompany(compName)
+  if billsList:
+    billsList = SelectUnpaidBillsFrom(billsList)
+    billsAmount = sum([b.amount for b in billsList])
 
-    adjustmentsList = GetAllCompaniesDict().GetUnAccountedAdjustmentsListForCompany(compName)
-    if adjustmentsList:
-      adjustmentAmount = sum([int(a.amount) for a in adjustmentsList])
+  adjustmentsList = GetAllCompaniesDict().GetUnAccountedAdjustmentsListForCompany(compName)
+  if adjustmentsList:
+    adjustmentAmount = sum([int(a.amount) for a in adjustmentsList])
 
-    return int(billsAmount) + int(adjustmentAmount)
+  return int(billsAmount) + int(adjustmentAmount)
 
 def TotalDueForGroupAsInt(grpName):
-    allCustomersInfo = GetAllCustomersInfo()
-    compsInGrp = allCustomersInfo.GetListOfCompNamesForThisGrp(grpName)
-    totalDue = 0
-    for eachComp in compsInGrp:
-      totalDue += TotalDueForCompAsInt(eachComp)
-    return totalDue
+  allCustomersInfo = GetAllCustomersInfo()
+  compsInGrp = allCustomersInfo.GetListOfCompNamesForThisGrp(grpName)
+  totalDue = 0
+  for eachComp in compsInGrp:
+    totalDue += TotalDueForCompAsInt(eachComp)
+  return totalDue
 
 
 def SendReminderToGrp(grpName, allBillsDict, allCustomersInfo, args):
-    compsInGrp = allCustomersInfo.GetListOfCompNamesForThisGrp(grpName)
-    import pprint
-    PrintInBox("Preparing mails for following companies:")
-    pprint.pprint(compsInGrp)
-    firstCompInGrp = compsInGrp[0] #TODO: Remove usage of firstCompInGrp as this is a hack. We are working on groups now.
-    unpaidBillsList = []
-    for eachComp in compsInGrp:
-      unpaidBillsList += SelectUnpaidBillsFrom(allBillsDict[eachComp])
+  compsInGrp = allCustomersInfo.GetListOfCompNamesForThisGrp(grpName)
+  import pprint
+  PrintInBox("Preparing mails for following companies:")
+  pprint.pprint(compsInGrp)
+  firstCompInGrp = compsInGrp[0] #TODO: Remove usage of firstCompInGrp as this is a hack. We are working on groups now. To remove it all the functionality has to be ported from single company to a group of companies.
+  unpaidBillsList = []
+  for eachComp in compsInGrp:
+    unpaidBillsList += SelectUnpaidBillsFrom(allBillsDict[eachComp])
 
-    if not len(unpaidBillsList):
-      raise Exception("Alls bills are duly paid by group: {}".format(grpName))
+  if not len(unpaidBillsList):
+    raise Exception("Alls bills are duly paid by group: {}".format(grpName))
 
-    totalDue = TotalDueForGroupAsInt(grpName)
+  totalDue = TotalDueForGroupAsInt(grpName)
 
-    if totalDue <= MINIMUM_AMOUNT_DUE:
-        raise MyException("\nM/s {} has Rs.{} which is less than MINIMUM_AMOUNT_DUE".format(grpName, totalDue))
+  if totalDue <= MINIMUM_AMOUNT_DUE:
+    raise MyException("\nM/s {} has Rs.{} which is less than MINIMUM_AMOUNT_DUE".format(grpName, totalDue))
 
-    toMailList = []
-    ccMailList = GetOption("EMAIL_REMINDER_SECTION", 'CCEmailList').replace(';', ',').split(','),
-    bccMailList = GetOption("EMAIL_REMINDER_SECTION", 'BCCEmailList').replace(';', ',').split(','),
+  toMailList = []
+  ccMailList = GetOption("EMAIL_REMINDER_SECTION", 'CCEmailList').replace(';', ',').split(','),
+  bccMailList = GetOption("EMAIL_REMINDER_SECTION", 'BCCEmailList').replace(';', ',').split(','),
 
-    for eachComp in compsInGrp:
-        toMailList += allCustomersInfo.GetPaymentReminderEmailAsListForCustomer(eachComp)
+  for eachComp in compsInGrp:
+    toMailList += allCustomersInfo.GetPaymentReminderEmailAsListForCustomer(eachComp)
 
-    toMailList = list(set(toMailList)) # Remove duplicates
-    if not toMailList:
-        raise MyException("\nNo mail feeded. Please insert a proper email in 'Cust' sheet of 'Bills.xlsx'")
+  toMailList = list(set(toMailList)) # Remove duplicates
+  if not toMailList:
+    raise MyException("\nNo mail feeded. Please insert a proper email in 'Cust' sheet of 'Bills.xlsx'")
 
-    goAhead = True
-    lastDate = EarlierSentOnDateForThisGrp(firstCompInGrp)
-    if lastDate and not args.isDemo:
-        #Perform this check only when an email was ever sent to this company and this is not a demo.
-        timeDelta = datetime.date.today() - lastDate
-        firstCompInGrp = compsInGrp[0]#TODO: Hack
-        minDaysGap = int(allCustomersInfo.GetMinDaysGapBetweenMails(firstCompInGrp))#TODO: Hack
-        if timeDelta.days < minDaysGap:
-            if 'y' != raw_input("Earlier mail was sent {} days back. Do you still want to send the email?\n(y/n):".format(timeDelta.days)).lower():
-                goAhead = False
+  goAhead = True
+  lastDate = EarlierSentOnDateForThisGrp(firstCompInGrp)
+  if lastDate and not args.isDemo:
+    #Perform this check only when an email was ever sent to this company and this is not a demo.
+    timeDelta = datetime.date.today() - lastDate
+    firstCompInGrp = compsInGrp[0]#TODO: Hack
+    minDaysGap = int(allCustomersInfo.GetMinDaysGapBetweenMails(firstCompInGrp))#TODO: Hack
+    if timeDelta.days < minDaysGap:
+      if 'y' != raw_input("Earlier mail was sent {} days back. Do you still want to send the email?\n(y/n):".format(timeDelta.days)).lower():
+        goAhead = False
 
-    daysSinceOldestUnpaidBill = max([b.daysOfCredit for b in unpaidBillsList])
-    allowedDaysOfCredit = int(allCustomersInfo.GetCreditLimitForCustomer(firstCompInGrp))
+  daysSinceOldestUnpaidBill = max([b.daysOfCredit for b in unpaidBillsList])
+  allowedDaysOfCredit = int(allCustomersInfo.GetCreditLimitForCustomer(firstCompInGrp))
 
-    if daysSinceOldestUnpaidBill < allowedDaysOfCredit:
-        if 'y' != raw_input("All bills are within allowed range. Do you still want to send email?\n(y/n): ").lower():
-            goAhead = False
+  if daysSinceOldestUnpaidBill < allowedDaysOfCredit:
+    if 'y' != raw_input("All bills are within allowed range. Do you still want to send email?\n(y/n): ").lower():
+      goAhead = False
 
-    if goAhead:
-        print("Preparing mail for group M/s {}".format(grpName))
-        emailSubject = "Payment Request (Rs.{})".format(totalDue)
-        if args.isDemo:
-            toMailList = GetOption("EMAIL_REMINDER_SECTION", "TestMailList").replace(';', ',').split(',')
-            ccMailList = None
-            bccMailList = None
-            emailSubject = "[Testing{}]: {}".format(str(random.randint(1, 10000)), emailSubject)
+  if goAhead:
+    print("Preparing mail for group M/s {}".format(grpName))
+    emailSubject = "Payment Request (Rs.{})".format(totalDue)
+    if args.isDemo:
+      toMailList = GetOption("EMAIL_REMINDER_SECTION", "TestMailList").replace(';', ',').split(',')
+      ccMailList = None
+      bccMailList = None
+      emailSubject = "[Testing{}]: {}".format(str(random.randint(1, 10000)), emailSubject)
 
-        mailBody = PrepareMailContentForThisGrp(grpName, allBillsDict, allCustomersInfo, args)
-        section = "EMAIL_REMINDER_SECTION"
-        SendMail(emailSubject,
-                None,
-                GetOption(section, 'Server'),
-                GetOption(section, 'Port'),
-                GetOption(section, 'FromEmailAddress'),
-                toMailList,
-                ccMailList,
-                bccMailList,
-                GetOption(section, 'Mpass'),
-                mailBody,
-                textType="html",
-                fromDisplayName=GetOption(section, "unpaidBillsName")
-                )
+    mailBody = PrepareMailContentForThisGrp(grpName, allBillsDict, allCustomersInfo, args)
+    section = "EMAIL_REMINDER_SECTION"
+    SendMail(emailSubject,
+        None,
+        GetOption(section, 'Server'),
+        GetOption(section, 'Port'),
+        GetOption(section, 'FromEmailAddress'),
+        toMailList,
+        ccMailList,
+        bccMailList,
+        GetOption(section, 'Mpass'),
+        mailBody,
+        textType="html",
+        fromDisplayName=GetOption(section, "unpaidBillsName")
+        )
 
-        if not args.isDemo:
-            print("Saving date...")
-            SaveSentOnDateForThisGrp(firstCompInGrp)
-    else:
-        PrintInBox("Not sending any email for group {}".format(grpName))
-    return
+    if not args.isDemo:
+      print("Saving date...")
+      SaveSentOnDateForThisGrp(firstCompInGrp)
+  else:
+    PrintInBox("Not sending any email for group {}".format(grpName))
+  return
 
 
 def MakeBillRow(*billRowArgs):
-    return TableDataRow(
-            MyColors["BLACK"],
-            MyColors["WHITE"],
-            *billRowArgs)
+  return TableDataRow(
+      MyColors["BLACK"],
+      MyColors["WHITE"],
+      *billRowArgs)
 
 def GetHTMLTableBlockForThisComp(compName, allBillsDict, allCustomersInfo):
-    unpaidBillsList = SelectUnpaidBillsFrom(allBillsDict[compName])
-    unpaidBillsList = RemoveTrackingBills(unpaidBillsList)
+  unpaidBillsList = SelectUnpaidBillsFrom(allBillsDict[compName])
+  unpaidBillsList = RemoveTrackingBills(unpaidBillsList)
 
-    #unpaidBillsList.append(adjSingleBill)
-    unpaidBillsList.sort(key=lambda b: datex(b.invoiceDate))
+  #unpaidBillsList.append(adjSingleBill)
+  unpaidBillsList.sort(key=lambda b: datex(b.invoiceDate))
 
-    companyOfficialName = allCustomersInfo.GetCompanyOfficialName(compName)
-    if not companyOfficialName:
-        raise MyException("\nM/s {} doesnt have a displayable 'name'."
+  companyOfficialName = allCustomersInfo.GetCompanyOfficialName(compName)
+  if not companyOfficialName:
+    raise MyException("\nM/s {} doesnt have a displayable 'name'."
         " Please feed it in the database".format(compName))
 
-    companyCity = allCustomersInfo.GetCustomerCity(compName)
-    if not companyCity:
-        raise MyException("\nM/s {} doesnt have a displayable 'city'."
+  companyCity = allCustomersInfo.GetCustomerCity(compName)
+  if not companyCity:
+    raise MyException("\nM/s {} doesnt have a displayable 'city'."
         " Please feed it in the database".format(compName))
 
-    allowedDaysOfCredit = int(allCustomersInfo.GetCreditLimitForCustomer(compName))
+  allowedDaysOfCredit = int(allCustomersInfo.GetCreditLimitForCustomer(compName))
 
-    if not unpaidBillsList:
-        raise MyException("This function should not be called on empty lists"
+  if not unpaidBillsList:
+    raise MyException("This function should not be called on empty lists"
         " for it has to generate the mail content.")
 
-    for eachBill in unpaidBillsList:
-        assert eachBill.isUnpaid is True,\
-                "This function should only be called on unpaid bills of a single\
-                company."
+  for eachBill in unpaidBillsList:
+    assert eachBill.isUnpaid is True,\
+        "This function should only be called on unpaid bills of a single\
+        company."
 
-    totalDueLiterally = int(sum([eachBill.amount for eachBill in unpaidBillsList]))
+  totalDueLiterally = int(sum([eachBill.amount for eachBill in unpaidBillsList]))
 
-    includeCreditDays = True if ("yes" == str(allCustomersInfo.GetIncludeDaysOrNot(compName)).lower()) else False
-    tableHeadersArgs = ["Bill#", "Invoice Date", "Amount"]
+  includeCreditDays = True if ("yes" == str(allCustomersInfo.GetIncludeDaysOrNot(compName)).lower()) else False
+  tableHeadersArgs = ["Bill#", "Invoice Date", "Amount"]
+  if includeCreditDays:
+    tableHeadersArgs.append("Days of credit")
+
+  tableRows = TableHeaderRow(
+          MyColors["GOOGLE_NEW_INBOX_FOREGROUND"],
+          MyColors["GOOGLE_NEW_INBOX_BASE"],
+          *tableHeadersArgs)
+
+  for b in unpaidBillsList:
+    billRowArgs=[int(b.billNumber),
+        DD_MM_YYYY(b.invoiceDate),
+        Bold("Rs." + str(int(b.amount)))]
+
+    #Add a row to table for each unpaid bill
     if includeCreditDays:
-        tableHeadersArgs.append("Days of credit")
+      if b.daysOfCredit > allowedDaysOfCredit:
+        billRowArgs.append(PastelOrangeText(Bold(str(b.daysOfCredit) + " days")))
+      else:
+        billRowArgs.append(str(b.daysOfCredit) + " days")
 
-    tableRows = TableHeaderRow(
-            MyColors["GOOGLE_NEW_INBOX_FOREGROUND"],
-            MyColors["GOOGLE_NEW_INBOX_BASE"],
-            *tableHeadersArgs)
+    tableRows += MakeBillRow(*billRowArgs)
 
-    for b in unpaidBillsList:
-        billRowArgs=[int(b.billNumber),
-                DD_MM_YYYY(b.invoiceDate),
-                Bold("Rs." + str(int(b.amount)))]
+  adjustmentBills = GetAllCompaniesDict().GetUnAccountedAdjustmentsListForCompany(compName)
+  if adjustmentBills:
+    if len(adjustmentBills) > 1:
+      #TODO: Currently we are accomodating only one adjustment bill
+      raise Exception("There can be only one adjustment bill for a company")
 
-        #Add a row to table for each unpaid bill
-        if includeCreditDays:
-            if b.daysOfCredit > allowedDaysOfCredit:
-                billRowArgs.append(PastelOrangeText(Bold(str(b.daysOfCredit) + " days")))
-            else:
-                billRowArgs.append(str(b.daysOfCredit) + " days")
+    adjSingleBill = adjustmentBills[0]
+    adjSingleBill.billNumber = -1
+    adjSingleBill.invoiceDate = datetime.date.today()
 
-        tableRows += MakeBillRow(*billRowArgs)
-
-    adjustmentBills = GetAllCompaniesDict().GetUnAccountedAdjustmentsListForCompany(compName)
-    if adjustmentBills:
-        if len(adjustmentBills) > 1:
-            #TODO: Currently we are accomodating only one adjustment bill
-            raise Exception("There can be only one adjustment bill for a company")
-
-        adjSingleBill = adjustmentBills[0]
-        adjSingleBill.billNumber = -1
-        adjSingleBill.invoiceDate = datetime.date.today()
-
-        adjRowArgs=[int(adjSingleBill.billNumber),
-                DD_MM_YYYY(adjSingleBill.invoiceDate),
-                Bold("Rs." + str(int(adjSingleBill.amount)))]
-        totalDueLiterally += int(adjSingleBill.amount)
-
-        if includeCreditDays:
-            adjRowArgs.append(" ")
-        tableRows += MakeBillRow(*adjRowArgs)
-
-    totalDue = TotalDueForCompAsInt(compName)
-    if totalDueLiterally != totalDue:
-        raise Exception ("totalDueLiterally:{} != totalDue:{}, these should be equal".format(totalDueLiterally, totalDue))
-    tableFinalRowArgs = [Bold("Total"), "", PastelOrangeText(Big(Bold("Rs." + str(totalDue))))]
+    adjRowArgs=[int(adjSingleBill.billNumber),
+        DD_MM_YYYY(adjSingleBill.invoiceDate),
+        Bold("Rs." + str(int(adjSingleBill.amount)))]
+    totalDueLiterally += int(adjSingleBill.amount)
 
     if includeCreditDays:
-        tableFinalRowArgs.append(" ")
+      adjRowArgs.append(" ")
+    tableRows += MakeBillRow(*adjRowArgs)
 
-    tableRows += MakeBillRow(*tableFinalRowArgs)
+  totalDue = TotalDueForCompAsInt(compName)
+  if totalDueLiterally != totalDue:
+    raise Exception ("totalDueLiterally:{} != totalDue:{}, these should be equal".format(totalDueLiterally, totalDue))
+  tableFinalRowArgs = [Bold("Total"), "", PastelOrangeText(Big(Bold("Rs." + str(totalDue))))]
 
-    caption = "M/s {}, {}<br>{}<br>as on {}".format(
-        companyOfficialName,
-        companyCity,
-        Bold("Rs.{}".format(str(totalDue))),
-        DD_MM_YYYY(datetime.date.today()))
+  if includeCreditDays:
+    tableFinalRowArgs.append(" ")
 
-    d = defaultdict(constant_factory(""))
-    d['tTableRows'] = tableRows
-    d['tCaption'] = caption
-    tableTemplate = Template("""
-            <table border=1 cellpadding=5>
-            <caption>
-            $tCaption
-            </caption>
-            $tTableRows
-            </table>""")
-    htmlTable = tableTemplate.substitute(d)
-    return htmlTable
+  tableRows += MakeBillRow(*tableFinalRowArgs)
+
+  caption = "M/s {}, {}<br>{}<br>as on {}".format(
+      companyOfficialName,
+      companyCity,
+      Bold("Rs.{}".format(str(totalDue))),
+      DD_MM_YYYY(datetime.date.today()))
+
+  d = defaultdict(constant_factory(""))
+  d['tTableRows'] = tableRows
+  d['tCaption'] = caption
+  tableTemplate = Template("""
+          <table border=1 cellpadding=5>
+          <caption>
+          $tCaption
+          </caption>
+          $tTableRows
+          </table>""")
+  htmlTable = tableTemplate.substitute(d)
+  return htmlTable
 
 
 def PrepareMailContentForThisGrp(grpName, allBillsDict, allCustomersInfo, args):
@@ -481,10 +476,10 @@ def PrepareMailContentForThisGrp(grpName, allBillsDict, allCustomersInfo, args):
     return finalMailBody
 
 if __name__ == '__main__':
-    try:
-        custDBwbPath = os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "CustDBRelativePath"))
-        CheckConsistency()
-        main()
-    except MyException as ex:
-        PrintInBox(str(ex))
-        raise ex
+  try:
+    custDBwbPath = os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "CustDBRelativePath"))
+    CheckConsistency()
+    main()
+  except MyException as ex:
+    PrintInBox(str(ex))
+    raise ex
