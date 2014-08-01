@@ -197,12 +197,12 @@ def TotalDueForCompAsInt(compName):
 
     billsList = GetAllCompaniesDict().GetBillsListForThisCompany(compName)
     if billsList:
-        billsList = SelectUnpaidBillsFrom(billsList)
-        billsAmount = sum([b.amount for b in billsList])
+      billsList = SelectUnpaidBillsFrom(billsList)
+      billsAmount = sum([b.amount for b in billsList])
 
     adjustmentsList = GetAllCompaniesDict().GetUnAccountedAdjustmentsListForCompany(compName)
     if adjustmentsList:
-        adjustmentAmount = sum([int(a.amount) for a in adjustmentsList])
+      adjustmentAmount = sum([int(a.amount) for a in adjustmentsList])
 
     return int(billsAmount) + int(adjustmentAmount)
 
@@ -211,7 +211,7 @@ def TotalDueForGroupAsInt(grpName):
     compsInGrp = allCustomersInfo.GetListOfCompNamesForThisGrp(grpName)
     totalDue = 0
     for eachComp in compsInGrp:
-        totalDue += TotalDueForCompAsInt(eachComp)
+      totalDue += TotalDueForCompAsInt(eachComp)
     return totalDue
 
 
@@ -223,10 +223,10 @@ def SendReminderToGrp(grpName, allBillsDict, allCustomersInfo, args):
     firstCompInGrp = compsInGrp[0] #TODO: Remove usage of firstCompInGrp as this is a hack. We are working on groups now.
     unpaidBillsList = []
     for eachComp in compsInGrp:
-        unpaidBillsList += SelectUnpaidBillsFrom(allBillsDict[eachComp])
+      unpaidBillsList += SelectUnpaidBillsFrom(allBillsDict[eachComp])
 
     if not len(unpaidBillsList):
-        raise Exception("Alls bills are duly paid by group: {}".format(grpName))
+      raise Exception("Alls bills are duly paid by group: {}".format(grpName))
 
     totalDue = TotalDueForGroupAsInt(grpName)
 

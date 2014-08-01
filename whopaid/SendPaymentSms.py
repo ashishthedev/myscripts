@@ -1,5 +1,5 @@
 #WIP do it later try ti imitate payment reminders email.
-from UtilWhoPaid import GetBillsListForThisCompany, 
+from UtilWhoPaid import GetBillsListForThisCompany
 from UtilSms import SendSms, CanSendSmsAsOfNow
 def SendSmsToThisCompany(compName):
     allCustInfo = GetAllCustomersInfo()

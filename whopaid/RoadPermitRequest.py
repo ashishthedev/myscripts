@@ -9,15 +9,15 @@
 ##              Openpyxl for Python 3 must be installed
 ###############################################################################
 
-from UtilWhoPaid import GetAllCompaniesDict, GuessCompanyName
-from Util.HTML import UnderLine, Bold, PastelOrangeText
-from CustomersInfo import GetAllCustomersInfo
-from Util.Misc import PrintInBox, DD_MM_YYYY
-from SanityChecks import CheckConsistency
-from Util.Exception import MyException
-from Util.PythonMail import SendMail
+from whopaid.CustomersInfo import GetAllCustomersInfo
+from whopaid.SanityChecks import CheckConsistency
+from whopaid.UtilWhoPaid import GetAllCompaniesDict, GuessCompanyName, SendSMSToThisCompany
+
 from Util.Config import GetOption
-from Util.Sms import SendSms
+from Util.Exception import MyException
+from Util.HTML import UnderLine, Bold, PastelOrangeText
+from Util.Misc import PrintInBox, DD_MM_YYYY
+from Util.PythonMail import SendMail
 
 from datetime import datetime
 from string import Template
@@ -101,58 +101,31 @@ def main():
       if args.mail:
         SendRoadPermitRequest(chosenComp, allBillsDict, args)
       if args.sms:
-        SendSmsIntimation(chosenComp,args)
+        SendSMSToThisCompany(chosenComp, """Dear Sir,
+Kindly issue the road permit. Details have been emailed.
+Thanks.
+""")
     else:
       print("Company containing {} does not exist. Try shorter string")
       exit(1)
     return
 
 
-def SendSmsIntimation(compName, args):
-  allCustInfo = GetAllCustomersInfo()
-  smsNo = allCustInfo.GetSmsDispatchNumber(compName)
-  if not smsNo: raise Exception("No sms no. feeded for customer: {}".format(compName))
-
-  companyOfficialName = allCustInfo.GetCompanyOfficialName(compName)
-  if not companyOfficialName: raise Exception("\nM/s {} doesnt have a displayable 'name'. Please feed it in the database".format(compName))
-
-  d = dict()
-  d["tFromName"] = "From: {}".format(GetOption("SMS_SECTION", 'FromDisplayName'))
-  d["toName"] = "To: {}".format(companyOfficialName)
-
-  smsTemplate = Template("""$tFromName
-$toName
-Dear Sir,
-Kindly issue the road permit. Details have been emailed.
-Thanks.
-""")
-  smsContents = smsTemplate.substitute(d)
-
-  COMMA = ","
-  smsNo = smsNo.replace(';', ',').strip()
-  listOfNos = [x.strip() for x in smsNo.split(COMMA) if x.strip()]
-  PrintInBox(smsContents)
-  for x in listOfNos:
-    print("Sending to this number: {}".format(x))
-    SendSms(x, smsContents)
-  return
-
 def SendRoadPermitRequest(compName, allBillsDict, args):
-
     args.emailSubject = "Road permit required: Bill#{}".format(args.billNumber)
 
-    print("Churning more data...")
+    print("Preparing road permit request mail...")
 
     allCustInfo = GetAllCustomersInfo()
     toMailStr = allCustInfo.GetPaymentReminderEmailsForCustomer(compName)
     if not args.kaPerson:
-        #If no person was specified at command line then pick one from the database.
-        personFromDB = allCustInfo.GetCustomerKindAttentionPerson(compName)
-        if personFromDB and 'y' == raw_input("Mention kind attn: {} (y/n)?".format(personFromDB)).lower():
-            args.kaPerson = personFromDB
+      #If no person was specified at command line then pick one from the database.
+      personFromDB = allCustInfo.GetCustomerKindAttentionPerson(compName)
+      if personFromDB and 'y' == raw_input("Mention kind attn: {} (y/n)?".format(personFromDB)).lower():
+        args.kaPerson = personFromDB
 
     if not toMailStr:
-        raise MyException("\nNo mail feeded. Please insert a proper email in 'Cust' sheet of 'Bills.xlsx'")
+      raise MyException("\nNo mail feeded. Please insert a proper email in 'Cust' sheet of 'Bills.xlsx'")
 
     #Mails in database are generally split either with semicolons or colons.
     #In either case, treat them as separated by , and later split on comma

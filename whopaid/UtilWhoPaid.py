@@ -548,10 +548,49 @@ def StoreNewTimeForBillsFile():
     return
 
 def ShowPendingOrdersOnScreen():
-    allOrdersDict = GetAllCompaniesDict().GetAllOrdersOfAllCompaniesAsDict()
-    for eachComp, orders in allOrdersDict.items():
-        for eachOrder in orders:
-            print(type(eachOrder))
-            PrintInBox(str(eachOrder))
+  allOrdersDict = GetAllCompaniesDict().GetAllOrdersOfAllCompaniesAsDict()
+  for eachComp, orders in allOrdersDict.items():
+    for eachOrder in orders:
+      print(type(eachOrder))
+      PrintInBox(str(eachOrder))
+  return
+
+def SendSMSToThisCompany(compName, msg, sendToCCNumbers=False):
+  from Util.Sms import SendSms
+  from string import Template
+  allCustInfo = GetAllCustomersInfo()
+  smsNo = allCustInfo.GetSmsDispatchNumber(compName)
+  if not smsNo: raise Exception("No sms no. feeded for customer: {}".format(compName))
+
+  companyOfficialName = allCustInfo.GetCompanyOfficialName(compName)
+  if not companyOfficialName: raise Exception("\nM/s {} doesnt have a displayable 'name'. Please feed it in the database".format(compName))
+
+  d = dict()
+  d["tFromName"] = "From: {}".format(GetOption("SMS_SECTION", 'FromDisplayName'))
+  d["toName"] = "To: {}".format(companyOfficialName)
+  d["msg"] = msg
+
+  smsTemplate = Template("""$tFromName
+$toName
+$msg"""
+)
+  smsContents = smsTemplate.substitute(d)
+
+  COMMA = ","
+  smsNo = smsNo.replace(';', COMMA).strip()
+  listOfNos = [x.strip() for x in smsNo.split(COMMA) if x.strip()]
+
+  if sendToCCNumbers:
+    additionalSmsNo = GetOption("SMS_SECTION", "CC_NO")
+    if additionalSmsNo:
+      additionalSmsNo = additionalSmsNo.replace(';', COMMA).strip()
+      listOfNos.extend([x.strip() for x in additionalSmsNo.split(COMMA) if x.strip()])
+
+  PrintInBox(smsContents)
+  for x in listOfNos:
+    print("Sending to this number: {}".format(x))
+    SendSms(x, smsContents)
+  return
+
 if __name__ == "__main__":
     ShowPendingOrdersOnScreen()

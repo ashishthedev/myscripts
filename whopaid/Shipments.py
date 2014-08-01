@@ -11,7 +11,7 @@ from Util.Config import GetOption
 from Util.HTML import UnderLine, Bold, PastelOrangeText, TableHeaderRow, TableDataRow
 from Util.Misc import PrintInBox, GetMsgInBox, DD_MM_YYYY, DD_MMM_YYYY, IsDeliveredAssessFromStatus
 from Util.PythonMail import SendMail
-from Util.Sms import SendSms, CanSendSmsAsOfNow
+from Util.Sms import CanSendSmsAsOfNow
 
 from whopaid.CustomersInfo import GetAllCustomersInfo
 from whopaid.courier.couriers import Courier
@@ -122,8 +122,8 @@ class ShipmentSms(object):
                 return
         SendMaterialDispatchSms(self.bill)
         if not IS_DEMO:
-            self.markShipmentSmsAsSent()
-            self.shipment.saveInDB()
+          self.markShipmentSmsAsSent()
+          self.shipment.saveInDB()
 
 class ShipmentMail(object):
     def __init__(self, shipment, bill):
@@ -271,34 +271,22 @@ class PersistentShipment(object):
 
 
 def SendMaterialDispatchSms(bill):
-    allCustInfo = GetAllCustomersInfo()
-    compName = bill.compName
-    smsNo = allCustInfo.GetSmsDispatchNumber(compName)
-    if not smsNo:
-        raise Exception("No sms no. feeded for customer: {}".format(compName))
+  from whopaid.UtilWhoPaid import SendSMSToThisCompany
+  optionalAmount = ""
+  if GetAllCustomersInfo().IncludeBillAmountInEmails(bill.compName):
+    optionalAmount = "Amount: Rs." + str(int(bill.amount)) + "/-"
 
-    optionalAmount = ""
-    if allCustInfo.IncludeBillAmountInEmails(compName):
-        optionalAmount = "Amount: Rs." + str(int(bill.amount)) + "/-"
+  d = dict()
 
-    companyOfficialName = allCustInfo.GetCompanyOfficialName(compName)
-    if not companyOfficialName:
-        raise Exception("\nM/s {} doesnt have a displayable 'name'. Please feed it in the database".format(compName))
+  d["tBillNo"] = bill.billNumber
+  d["tDocketNumber"] = bill.docketNumber
+  d["tDocketDate"] = DD_MMM_YYYY(bill.docketDate)
+  d["tThrough"] = bill.courierName
+  d["tMaterialDescription"] = bill.materialDesc
+  d["tAmount"] = optionalAmount
 
-    d = dict()
-
-    d["tFromName"] = "From: {}".format(GetOption("SMS_SECTION", 'FromDisplayName'))
-    d["toName"] = "To: {}".format(companyOfficialName)
-    d["tDocketNumber"] = bill.docketNumber
-    d["tDocketDate"] = DD_MMM_YYYY(bill.docketDate)
-    d["tThrough"] = bill.courierName
-    d["tMaterialDescription"] = bill.materialDesc
-    d["tAmount"] = optionalAmount
-
-    smsTemplate = Template("""$tFromName
-_____
-
-$toName
+  smsTemplate = Template("""
+Bill# $tBillNo
 Waybill#: $tDocketNumber
 Date: $tDocketDate
 Through: $tThrough
@@ -306,83 +294,70 @@ Material: $tMaterialDescription
 $tAmount
 Thanks.
 """)
-    smsContents = smsTemplate.substitute(d)
-
-    COMMA = ","
-    smsNo = smsNo.replace(';', ',').strip()
-    listOfNos = [x.strip() for x in smsNo.split(COMMA)]
-    anyAdditionalSmsNo = GetOption("SMS_SECTION", "CC_NO")
-    if anyAdditionalSmsNo:
-        anyAdditionalSmsNo = anyAdditionalSmsNo.replace(';', ',').strip()
-        listOfNos.extend([x.strip() for x in anyAdditionalSmsNo.split(COMMA)])
-
-    for x in listOfNos:
-        print("Sending to this number: {}".format(x))
-        SendSms(x, smsContents)
-
-    return
+  smsContents = smsTemplate.substitute(d)
+  SendSMSToThisCompany(bill.compName, smsContents)
+  return
 
 
 def SendMaterialDispatchMail(bill, ctxt):
-    allCustInfo = GetAllCustomersInfo()
+  allCustInfo = GetAllCustomersInfo()
 
-    optionalAmount = ""
-    if allCustInfo.IncludeBillAmountInEmails(bill.compName):
-      optionalAmount = " Rs." + str(int(bill.amount)) + "/-"
+  optionalAmount = ""
+  if allCustInfo.IncludeBillAmountInEmails(bill.compName):
+    optionalAmount = " Rs." + str(int(bill.amount)) + "/-"
 
-    ctxt.emailSubject = ctxt.emailSubject or "Dispatch Details: {} Bill#{} {amt}".format(bill.docketDate.strftime("%d-%b-%Y"), str(int(bill.billNumber)), amt=optionalAmount)
+  ctxt.emailSubject = ctxt.emailSubject or "Dispatch Details: {} Bill#{} {amt}".format(bill.docketDate.strftime("%d-%b-%Y"), str(int(bill.billNumber)), amt=optionalAmount)
 
+  print("Churning more data...")
 
-    print("Churning more data...")
+  toMailStr = allCustInfo.GetPaymentReminderEmailsForCustomer(bill.compName)
+  if not ctxt.kaPerson:
+    #If no person was specified at command line then pick one from the database.
+    personFromDB = allCustInfo.GetCustomerKindAttentionPerson(bill.compName)
+    if personFromDB and 'y' == raw_input("Mention kind attn: {} (y/n)?".format(personFromDB)).lower():
+      ctxt.kaPerson = personFromDB
 
-    toMailStr = allCustInfo.GetPaymentReminderEmailsForCustomer(bill.compName)
-    if not ctxt.kaPerson:
-        #If no person was specified at command line then pick one from the database.
-        personFromDB = allCustInfo.GetCustomerKindAttentionPerson(bill.compName)
-        if personFromDB and 'y' == raw_input("Mention kind attn: {} (y/n)?".format(personFromDB)).lower():
-            ctxt.kaPerson = personFromDB
+  if not toMailStr:
+    raise ShipmentException("\nNo mail feeded. Please insert a proper email in 'Cust' sheet of 'Bills.xlsx'")
 
-    if not toMailStr:
-        raise ShipmentException("\nNo mail feeded. Please insert a proper email in 'Cust' sheet of 'Bills.xlsx'")
+  #Mails in database are generally split either with semicolons or commas
+  #In either case, treat them as separated by , and later split on comma
+  toMailStr = toMailStr.replace(';', ',')
+  toMailStr = toMailStr.replace(' ', '')
 
-    #Mails in database are generally split either with semicolons or commas
-    #In either case, treat them as separated by , and later split on comma
-    toMailStr = toMailStr.replace(';', ',')
-    toMailStr = toMailStr.replace(' ', '')
+  toMailList = toMailStr.split(',')
 
-    toMailList = toMailStr.split(',')
+  #Remove spaces from eachMail in the list and create a new list
+  toMailList = [eachMail.replace(' ', '') for eachMail in toMailList]
+  ccMailList = GetOption("EMAIL_REMINDER_SECTION", 'CCEmailList').replace(';', ',').split(','),
+  bccMailList = GetOption("EMAIL_REMINDER_SECTION", 'BCCEmailList').replace(';', ',').split(','),
 
-    #Remove spaces from eachMail in the list and create a new list
-    toMailList = [eachMail.replace(' ', '') for eachMail in toMailList]
-    ccMailList = GetOption("EMAIL_REMINDER_SECTION", 'CCEmailList').replace(';', ',').split(','),
-    bccMailList = GetOption("EMAIL_REMINDER_SECTION", 'BCCEmailList').replace(';', ',').split(','),
+  print("Preparing mail...")
+  mailBody = PrepareShipmentEmailForThisBill(bill, ctxt)
 
-    print("Preparing mail...")
-    mailBody = PrepareShipmentEmailForThisBill(bill, ctxt)
+  if ctxt.isDemo:
+    toMailList = GetOption("EMAIL_REMINDER_SECTION", "TestMailList").split(',')
+    ccMailList = None
+    bccMailList = None
+    ctxt.emailSubject = "[Testing{}]: {}".format(str(random.randint(1, 10000)), ctxt.emailSubject)
 
-    if ctxt.isDemo:
-        toMailList = GetOption("EMAIL_REMINDER_SECTION", "TestMailList").split(',')
-        ccMailList = None
-        bccMailList = None
-        ctxt.emailSubject = "[Testing{}]: {}".format(str(random.randint(1, 10000)), ctxt.emailSubject)
+  print("Sending to: " + str(toMailList))
 
-    print("Sending to: " + str(toMailList))
+  section = "EMAIL_REMINDER_SECTION"
+  SendMail(ctxt.emailSubject,
+      None,
+      GetOption(section, 'Server'),
+      GetOption(section, 'Port'),
+      GetOption(section, 'FromEmailAddress'),
+      toMailList,
+      ccMailList,
+      bccMailList,
+      GetOption(section, 'Mpass'),
+      mailBody,
+      textType="html",
+      fromDisplayName=GetOption(section, "shipmentDetailsName"))
 
-    section = "EMAIL_REMINDER_SECTION"
-    SendMail(ctxt.emailSubject,
-            None,
-            GetOption(section, 'Server'),
-            GetOption(section, 'Port'),
-            GetOption(section, 'FromEmailAddress'),
-            toMailList,
-            ccMailList,
-            bccMailList,
-            GetOption(section, 'Mpass'),
-            mailBody,
-            textType="html",
-            fromDisplayName=GetOption(section, "shipmentDetailsName"))
-
-    return
+  return
 
 
 def PrepareShipmentEmailForThisBill(bill, ctxt):
@@ -392,11 +367,11 @@ def PrepareShipmentEmailForThisBill(bill, ctxt):
     letterDate = DD_MM_YYYY(datetime.date.today())
     officalCompName = allCustInfo.GetCompanyOfficialName(bill.compName)
     if not officalCompName:
-        raise ShipmentException("\nM/s {} doesnt have a displayable 'name'. Please feed it in the database".format(bill.compName))
+      raise ShipmentException("\nM/s {} doesnt have a displayable 'name'. Please feed it in the database".format(bill.compName))
 
     companyCity = allCustInfo.GetCustomerCity(bill.compName)
     if not companyCity:
-        raise ShipmentException("\nM/s {} doesnt have a displayable 'city'. Please feed it in the database".format(bill.compName))
+      raise ShipmentException("\nM/s {} doesnt have a displayable 'city'. Please feed it in the database".format(bill.compName))
 
     includeAmount = allCustInfo.IncludeBillAmountInEmails(bill.compName)
     tableHeadersArgs = ["Bill#", "Dispatched Through", "Tracking Number", "Shipping Date", "Material Description"]
@@ -491,7 +466,7 @@ def ParseOptions():
     parser.add_argument("-sus", "--show-undelivered-small", dest='showUndeliveredSmall', action="store_true", default=False,
             help="If present, show undelivered parcels on screen")
 
-    parser.add_argument("-su", "--show-undelivered", dest='showUndelivered', action="store_true", default=False,
+    parser.add_argument("-su", "--show-undelivered", dest='showUndeliveredBig', action="store_true", default=False,
             help="If present, show undelivered parcels on screen")
 
     parser.add_argument("-d", "--days", dest='days', type=int, default=MAX_IN_TRANSIT_DAYS,
@@ -568,7 +543,7 @@ def _NewSnapshotForDocket(docketNumber):
     else:
         print("Could not find the docket {}".format(docketNumber))
 
-def ShowUndeliveredOnScreenWithMinimalInformation():
+def ShowUndeliveredSmalOnScreen():
   shipments = PersistentShipment.GetAllUndeliveredShipments()
   PrintInBox("Following are undelivered shipments:")
   for i, s in enumerate(sorted(shipments, key=lambda s: s.bill.docketDate), start=1):
@@ -619,9 +594,9 @@ def main():
     _FormceMarkShipmentMailAsSent(args.markMailAsSentForDocket)
 
   if args.showUndeliveredSmall:
-    ShowUndeliveredOnScreenWithMinimalInformation()
+    ShowUndeliveredSmalOnScreen()
 
-  if args.showUndelivered:
+  if args.showUndeliveredBig:
     ShowUndeliveredOnScreen()
 
   if args.forceMarkDeliveredDocket:
@@ -724,4 +699,4 @@ if __name__ == '__main__':
   CheckConsistency()
   main()
   SendAutomaticHeartBeat()
-  ShowUndeliveredOnScreenWithMinimalInformation()
+  ShowUndeliveredSmalOnScreen()
