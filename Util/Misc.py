@@ -278,3 +278,9 @@ def GetFirstDateOfThisFinancialYear():
   else:
     d = datetime.date(t.year, 4, 1)
   return d
+
+
+def EnableCGItb():
+  """Calling this function drastically improves the exception description."""
+  import cgitb
+  cgitb.enable(format="text")

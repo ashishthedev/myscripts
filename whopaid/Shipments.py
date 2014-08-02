@@ -278,7 +278,7 @@ def SendMaterialDispatchSms(bill):
 
   d = dict()
 
-  d["tBillNo"] = bill.billNumber
+  d["tBillNo"] = str(int(bill.billNumber))
   d["tDocketNumber"] = bill.docketNumber
   d["tDocketDate"] = DD_MMM_YYYY(bill.docketDate)
   d["tThrough"] = bill.courierName

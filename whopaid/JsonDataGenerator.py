@@ -2,7 +2,7 @@ import os
 import json
 from Util.Config import GetOption
 from UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, datex, RemoveTrackingBills
-from Util.Misc import DD_MM_YYYY, PrintInBox
+from Util.Misc import DD_MM_YYYY
 from CustomersInfo import GetAllCustomersInfo
 
 PMTAPPDIR = os.getenv("PMTAPPDIR")
@@ -52,25 +52,25 @@ data =
 """
 
 def _DumpOrdersDB():
-    allOrdersDict = GetAllCompaniesDict().GetAllOrdersOfAllCompaniesAsDict()
+  allOrdersDict = GetAllCompaniesDict().GetAllOrdersOfAllCompaniesAsDict()
 
-    if os.path.exists(ORDER_JSON_FILE_NAME):
-        os.remove(ORDER_JSON_FILE_NAME)
+  if os.path.exists(ORDER_JSON_FILE_NAME):
+    os.remove(ORDER_JSON_FILE_NAME)
 
-    data = list() #THis will have one day orders
+  data = list() #THis will have one day orders
 
-    for eachCompName, orders in allOrdersDict.items():
-        for eachOrder in orders:
-            singleOrder = dict()
-            singleOrder["custName"] = eachOrder.compName
-            singleOrder["md"] = eachOrder.materialDesc
-            singleOrder["oNum"] = eachOrder.orderNumber
-            singleOrder["oDate"] = DD_MM_YYYY(eachOrder.orderDate)
-            data.append(singleOrder) #Just dump this single order there and we will club them date wise while generating final json
+  for eachCompName, orders in allOrdersDict.items():
+    for eachOrder in orders:
+      singleOrder = dict()
+      singleOrder["custName"] = eachOrder.compName
+      singleOrder["md"] = eachOrder.materialDesc
+      singleOrder["oNum"] = eachOrder.orderNumber
+      singleOrder["oDate"] = DD_MM_YYYY(eachOrder.orderDate)
+      data.append(singleOrder) #Just dump this single order there and we will club them date wise while generating final json
 
-    with open(ORDER_JSON_FILE_NAME, "w+") as f:
-        json.dump(data, f, separators=(',',':'), indent=2)
-    return
+  with open(ORDER_JSON_FILE_NAME, "w+") as f:
+    json.dump(data, f, separators=(',',':'), indent=2)
+  return
 
 
 
@@ -156,21 +156,33 @@ def _DumpPaymentsDB():
   return
 
 def _DumpJSONDB():
-    _DumpPaymentsDB()
-    _DumpOrdersDB()
+  _DumpPaymentsDB()
+  _DumpOrdersDB()
 
 
 def UploadAppWithNewData():
-    import subprocess
-    pushFile = os.path.abspath(os.path.join(PMTAPPDIR, "utils", "push.py"))
-    if not os.path.exists(pushFile):
-        raise Exception("{} does not exist".format(pushFile))
-    e = 'moc.slootdnaseiddradnats@repoleved'
-    v='live'
-    cmd = "python \"{pushFile}\" --email={e} --version={v} --oauth2".format(pushFile=pushFile, e=e[::-1], v=v)
-    subprocess.check_call(cmd)
+  import subprocess
+  pushFile = os.path.abspath(os.path.join(PMTAPPDIR, "utils", "push.py"))
+  if not os.path.exists(pushFile):
+    raise Exception("{} does not exist".format(pushFile))
+  e = 'moc.slootdnaseiddradnats@repoleved'
+  v='live'
+  cmd = "python \"{pushFile}\" --email={e} --version={v} --oauth2".format(pushFile=pushFile, e=e[::-1], v=v)
+  subprocess.check_call(cmd)
+  return
 
 
+def ParseOptions():
+  import argparse
+  parser = argparse.ArgumentParser()
+
+  parser.add_argument("-gj", "--generate-json",
+      dest='generateJson', action="store_true",
+      default=False, help="If present, only then json data will be generated.")
+
+  return parser.parse_args()
 
 if __name__ == "__main__":
-  _DumpJSONDB()
+  args = ParseOptions()
+  if args.generateJson:
+    _DumpJSONDB()

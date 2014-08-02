@@ -9,7 +9,7 @@
 ###############################################################################
 
 from UtilWhoPaid import datex, GetAllCompaniesDict, SelectUnpaidBillsFrom, \
-        GuessCompanyGroupName, RemoveTrackingBills
+        GuessCompanyGroupName, RemoveTrackingBills, SendSMSToThisCompany
 from Util.HTML import UnderLine, Bold, Big, PastelOrangeText, TableHeaderRow,\
         TableDataRow
 from Util.Colors import MyColors
@@ -83,6 +83,13 @@ def ParseOptions():
   parser.add_argument("-llb", "--last-line-bold", dest='last_line_bold', type=str,
       default=None, help="If present, emails will be sent with this as "
       "last line.")
+
+  parser.add_argument("--sms", dest="sendsms", default=False, action="store_true",
+      help="If present, an sms will be sent for payment")
+
+  parser.add_argument("--mail", dest="sendmail", default=False, action="store_true",
+      help="If present, a mail will be sent for payment")
+
   parser.add_argument("-ol", "--only-list-no-send", dest="onlyListNoSend",
       default=False, action="store_true", help="Only list names, do not "
       "send. To be used with automatic reminders")
@@ -104,7 +111,19 @@ def AskQuestionsFromUserAndSendMail(args):
         if personFromDB and 'y' == raw_input("Mention kind attn: {} (y/n)?".format(personFromDB)).lower():
           args.kaPerson = personFromDB
           break
-    SendReminderToGrp(grpName, allBillsDict, allCustomersInfo, args)
+
+    if args.sendmail:
+      SendReminderToGrp(grpName, allBillsDict, allCustomersInfo, args)
+
+    if args.sendsms:
+      #TODO: Take sms out of mail block and use same chosen company may be throgh singleton
+      compsInGrp = allCustomersInfo.GetListOfCompNamesForThisGrp(grpName)
+      firstCompInGrp = compsInGrp[0]
+      SendSMSToThisCompany(firstCompInGrp, """Dear Sir,
+Kindly release the payment. Details have been emailed.
+Thanks""")
+
+
 
 
 def SendAutomaticReminderToAllCompanies(args):
@@ -142,7 +161,8 @@ def main():
     SendAutomaticReminderToAllCompanies(args)
     return
 
-  AskQuestionsFromUserAndSendMail(args)
+  if args.sendmail or args.sendsms:
+    AskQuestionsFromUserAndSendMail(args)
 
 def ShouldWeSendAutomaticEmailForGroup(grpName, allBillsDict, allCustomersInfo):
   compsInGrp = allCustomersInfo.GetListOfCompNamesForThisGrp(grpName)
