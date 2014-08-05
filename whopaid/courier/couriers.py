@@ -40,6 +40,7 @@ class Courier():
         print("The server couldn't fulfil the request\nError code: {}".format(e.code))
     except Exception as e:
       print(str(e))
+      raise e #TODO: Remove
       return ""
 
   def StoreSnapshot(self):
@@ -132,6 +133,8 @@ class ProfessionalCourier():
     self.reqUrl = "http://www.tpcindia.com/Tracking2014.aspx?id={docket}&type=0&service=0".format(docket=self.bill.docketNumber.strip())
 
   def GetStatus(self):
+    if not hasattr(self, "reqUrl"):
+      self.reqUrl = "http://www.tpcindia.com/Tracking2014.aspx?id={docket}&type=0&service=0".format(docket=self.bill.docketNumber.strip())
     req = urllib2.Request(self.reqUrl)
     req.add_header('Host', 'www.tpcindia.com')
     req.add_header('Referer', 'http://www.tpcindia.com/')
@@ -222,9 +225,11 @@ class FirstFlightCourier():
   def __init__(self, bill):
     self.bill = bill
     self.FORM_DATA = ""
-    self.reqUrl = urllib2.Request("""http://www.firstflight.net/n_contrac_new_12Digit_New.asp?tracking1={docket}""".format(docket=self.bill.docketNumber.strip()))
+    self.reqUrl = "http://www.firstflight.net/n_contrac_new_12Digit_New.asp?tracking1={docket}".format(docket=self.bill.docketNumber.strip())
 
   def GetStatus(self):
+    if not hasattr(self, "reqUrl"):
+      self.reqUrl = "http://www.firstflight.net/n_contrac_new_12Digit_New.asp?tracking1={docket}".format(docket=self.bill.docketNumber.strip())
     req = urllib2.Request(self.reqUrl)
     req.add_header('Host', 'www.firstflight.net')
     resp = urllib2.urlopen(req)
@@ -241,6 +246,7 @@ class FirstFlightCourier():
     recordingStatus = False
     status = ""
     for eachLine in html.split("\n"):
+      if not eachLine: continue
       bareLine = StripHTMLTags(eachLine.strip())
       if bareLine.lower().find(self.bill.docketNumber.lower()) != -1:
         recordingStatus = True
@@ -299,6 +305,8 @@ class OverniteCourier():
     self.reqUrl = "http://www.overnitenet.com/WebTrack.aspx"
 
   def GetStatus(self):
+    if not hasattr(self, "reqUrl"):
+      self.reqUrl = "http://www.overnitenet.com/WebTrack.aspx"
     req = urllib2.Request(self.reqUrl)
     req.add_header("Content-Type" , "application/x-www-form-urlencoded")
     req.add_header('Referer', 'http://www.overnitenet.com/WebTrack.aspx')
