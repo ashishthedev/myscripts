@@ -105,40 +105,41 @@ class ShipmentTrack(object):
 
 class ShipmentSms(object):
     def __init__(self, shipment, bill):
-        self.bill = bill
-        self.shipment = shipment #Back reference to parent shipment object
-        self.shipmentSmsSent = False
+      self.bill = bill
+      self.shipment = shipment #Back reference to parent shipment object
+      self.shipmentSmsSent = False
 
     def markShipmentSmsAsSent(self):
-        self.shipmentSmsSent = True
+      self.shipmentSmsSent = True
 
     def wasShipmentSmsEverSent(self):
-        return self.shipmentSmsSent
+      return self.shipmentSmsSent
 
     def sendSmsForThisShipment(self):
-        if self.wasShipmentSmsEverSent():
-            if str(raw_input("A shipment sms has already been sent to {}. Do you want to send again(y/n)?".format(self.bill.compName))).lower() != 'y':
-                print("Not sending sms")
-                return
-        SendMaterialDispatchSms(self.bill)
-        if not IS_DEMO:
-          self.markShipmentSmsAsSent()
-          self.shipment.saveInDB()
+      if self.wasShipmentSmsEverSent():
+        if str(raw_input("A shipment sms has already been sent to {}. Do you want to send again(y/n)?".format(self.bill.compName))).lower() != 'y':
+          print("Not sending sms")
+          return
+      SendMaterialDispatchSms(self.bill)
+      if not IS_DEMO:
+        self.markShipmentSmsAsSent()
+        self.shipment.saveInDB()
 
 class ShipmentMail(object):
     def __init__(self, shipment, bill):
-        self.bill = bill
-        self.shipment = shipment #Back reference to parent shipment object
-        self.shipmentMailSent = False
-        pass
+      self.bill = bill
+      self.shipment = shipment #Back reference to parent shipment object
+      self.shipmentMailSent = False
+      pass
 
     def markShipmentMailAsSent(self):
-        print("_"*70)
-        print("Marking shipment mail as sent for : {}".format(self.bill.compName))
-        self.shipmentMailSent = True
+      print("_"*70)
+      print("Marking shipment mail as sent for : {}".format(self.bill.compName))
+      self.shipmentMailSent = True
+      return
 
     def wasShipmentMailEverSent(self):
-        return self.shipmentMailSent
+      return self.shipmentMailSent
 
     def sendMailForThisShipment(self):
       if self.wasShipmentMailEverSent():
@@ -271,7 +272,7 @@ class PersistentShipment(object):
 
 
 def SendMaterialDispatchSms(bill):
-  from whopaid.UtilWhoPaid import SendSMSToThisCompany
+  from whopaid.OffComm import SendSMSToThisCompany
   optionalAmount = ""
   if GetAllCustomersInfo().IncludeBillAmountInEmails(bill.compName):
     optionalAmount = "Amount: Rs." + str(int(bill.amount)) + "/-"
@@ -595,6 +596,7 @@ def main():
 
   if args.showUndeliveredSmall:
     ShowUndeliveredSmalOnScreen()
+    import sys; sys.exit(0)
 
   if args.showUndeliveredBig:
     ShowUndeliveredOnScreen()

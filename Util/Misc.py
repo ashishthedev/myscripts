@@ -93,6 +93,7 @@ def _GetHashForDir(dir_root):
         hashObj.update(chunk)
   return hashObj.hexdigest()
 
+
 def GetPickledObject(workbookPath, createrFunction):
   curVer = GetHash(workbookPath)
 
@@ -265,10 +266,10 @@ def GetConfirmation():
     raise Exception()
 
 def IsDeliveredAssessFromStatus(status):
-    yes_words = status.lower().find("delivered") != -1
-    no_words = ( status.lower().find("not") != -1 or status.lower().find("undelivered") != -1)
-    delivered = yes_words and not no_words #If has the word delivered but not the word not
-    return delivered
+  yes_words = status.lower().find("delivered") != -1
+  no_words = ( status.lower().find("not") != -1 or status.lower().find("undelivered") != -1)
+  delivered = yes_words and not no_words #If has the word delivered but not the word not
+  return delivered
 
 def GetFirstDateOfThisFinancialYear():
   t = datetime.datetime.today()

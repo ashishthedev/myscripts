@@ -11,7 +11,8 @@
 
 from whopaid.CustomersInfo import GetAllCustomersInfo
 from whopaid.SanityChecks import CheckConsistency
-from whopaid.UtilWhoPaid import GetAllCompaniesDict, GuessCompanyName, SendSMSToThisCompany
+from whopaid.UtilWhoPaid import GetAllCompaniesDict, GuessCompanyName
+from whopaid.OffComm import SendOfficialSMSAndMarkCC
 
 from Util.Config import GetOption
 from Util.Exception import MyException
@@ -101,7 +102,7 @@ def main():
       if args.mail:
         SendRoadPermitRequest(chosenComp, allBillsDict, args)
       if args.sms:
-        SendSMSToThisCompany(chosenComp, """Dear Sir,
+        SendOfficialSMSAndMarkCC(chosenComp, """Dear Sir,
 Kindly issue the road permit. Details have been emailed.
 Thanks.
 """)

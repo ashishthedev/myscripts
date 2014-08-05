@@ -8,23 +8,26 @@
 ##              Openpyxl for Python 3 must be installed
 ###############################################################################
 
-from UtilWhoPaid import datex, GetAllCompaniesDict, SelectUnpaidBillsFrom, \
-        GuessCompanyGroupName, RemoveTrackingBills, SendSMSToThisCompany
+from Util.Colors import MyColors
+from Util.Config import GetOption, GetAppDir
+from Util.Decorators import timeThisFunction
+from Util.Exception import MyException
 from Util.HTML import UnderLine, Bold, Big, PastelOrangeText, TableHeaderRow,\
         TableDataRow
-from Util.Colors import MyColors
-from Util.PythonMail import SendMail
-from Util.Exception import MyException
 from Util.Misc import PrintInBox, DD_MM_YYYY, AnyFundooProcessingMsg
-from CustomersInfo import GetAllCustomersInfo
-from Util.Decorators import timeThisFunction
-from Util.Config import GetOption, GetAppDir
-from SanityChecks import CheckConsistency
+from Util.PythonMail import SendMail
 
-import datetime
+from whopaid.CustomersInfo import GetAllCustomersInfo
+from whopaid.UtilWhoPaid import datex, GetAllCompaniesDict, SelectUnpaidBillsFrom, \
+        GuessCompanyGroupName, RemoveTrackingBills
+from whopaid.SanityChecks import CheckConsistency
+from whopaid.offcomm import SendOfficialSMS
+
 from string import Template
-import argparse
 from contextlib import closing
+
+import argparse
+import datetime
 import shelve
 import random
 import os
@@ -98,30 +101,31 @@ def ParseOptions():
 
 
 def AskQuestionsFromUserAndSendMail(args):
-    PrintInBox(AnyFundooProcessingMsg())
-    allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
-    allCustomersInfo = GetAllCustomersInfo()
+  PrintInBox(AnyFundooProcessingMsg())
+  allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
+  allCustomersInfo = GetAllCustomersInfo()
 
-    grpName = GuessCompanyGroupName(args.comp)
+  grpName = GuessCompanyGroupName(args.comp)
 
-    if not args.kaPerson:
-      #If no person was specified at command line then pick one from the database.
-      for eachComp in allCustomersInfo.GetListOfCompNamesForThisGrp(grpName):
-        personFromDB = allCustomersInfo.GetCustomerKindAttentionPerson(eachComp)
-        if personFromDB and 'y' == raw_input("Mention kind attn: {} (y/n)?".format(personFromDB)).lower():
-          args.kaPerson = personFromDB
-          break
+  if not args.kaPerson:
+    #If no person was specified at command line then pick one from the database.
+    for eachComp in allCustomersInfo.GetListOfCompNamesForThisGrp(grpName):
+      personFromDB = allCustomersInfo.GetCustomerKindAttentionPerson(eachComp)
+      if personFromDB and 'y' == raw_input("Mention kind attn: {} (y/n)?".format(personFromDB)).lower():
+        args.kaPerson = personFromDB
+        break
 
-    if args.sendmail:
-      SendReminderToGrp(grpName, allBillsDict, allCustomersInfo, args)
+  if args.sendmail:
+    SendReminderToGrp(grpName, allBillsDict, allCustomersInfo, args)
 
-    if args.sendsms:
-      #TODO: Take sms out of mail block and use same chosen company may be throgh singleton
-      compsInGrp = allCustomersInfo.GetListOfCompNamesForThisGrp(grpName)
-      firstCompInGrp = compsInGrp[0]
-      SendSMSToThisCompany(firstCompInGrp, """Dear Sir,
+  if args.sendsms:
+    #TODO: Take sms out of mail block and use same chosen company may be throgh singleton
+    compsInGrp = allCustomersInfo.GetListOfCompNamesForThisGrp(grpName)
+    firstCompInGrp = compsInGrp[0]
+    SendOfficialSMS(firstCompInGrp, """Dear Sir,
 Kindly release the payment. Details have been emailed.
 Thanks""")
+  return
 
 
 
@@ -138,6 +142,7 @@ def SendAutomaticReminderToAllCompanies(args):
         SendReminderToGrp(eachGrp, allBillsDict, allCustomersInfo, args)
     except Exception as ex:
       PrintInBox("Exception while processing: {}\n{}".format(eachGrp, str(ex)))
+  return
 
 def OnlyListCompaniesOnScreen(args):
   allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
@@ -146,6 +151,7 @@ def OnlyListCompaniesOnScreen(args):
   for eachGrp in uniqueCompGrpNames:
     if ShouldWeSendAutomaticEmailForGroup(eachGrp, allBillsDict, allCustomersInfo):
       print("We should send mail to {}".format(eachGrp))
+  return
 
 
 @timeThisFunction
