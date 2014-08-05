@@ -10,7 +10,7 @@ var destinationFile = system.args[1]
 var docket = system.args[2]
 var FORM_DATA = system.args[3]
 
-var REQUEST_URL = "http://www.tpcindia.com/Tracking2014.aspx?id=" + docket + "&type=0&service=0";
+var REQUEST_URL = system.args[4];
 
 page.onConsoleMessage = function (msg) {
     console.log(msg);

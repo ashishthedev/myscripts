@@ -14,10 +14,10 @@ page.customHeaders = {
 page.onConsoleMessage = function (msg) {
     console.log(msg);
 };
-var REQUEST_URL= "http://www.bluedart.com/servlet/RoutingServlet";
 var destinationFile = system.args[1]
 var docket = system.args[2]
-var FORM_DATA="handler=tnt&action=awbquery&awb=awb&numbers=" + docket;
+var FORM_DATA=system.args[3];
+var REQUEST_URL= system.args[4];
 
 try {
     page.open(REQUEST_URL, 'POST', FORM_DATA, function (status) {

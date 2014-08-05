@@ -11,11 +11,9 @@ class TestShipment():
         self.ps._removeFromDB()
 
 def main():
-
-
     bill = CreateATestBill()
-    bill.courierName = "Professional Courier"
-    bill.docketNumber = "GZB2207318"
+    bill.courierName = "Nitco"
+    bill.docketNumber = "I725735"
     with TestShipment(bill) as ts:
         ts.Track()
         print("Status: {}".format(ts.status))

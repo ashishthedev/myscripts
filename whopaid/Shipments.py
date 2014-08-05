@@ -272,7 +272,7 @@ class PersistentShipment(object):
 
 
 def SendMaterialDispatchSms(bill):
-  from whopaid.OffComm import SendSMSToThisCompany
+  from whopaid.OffComm import SendOfficialSMS
   optionalAmount = ""
   if GetAllCustomersInfo().IncludeBillAmountInEmails(bill.compName):
     optionalAmount = "Amount: Rs." + str(int(bill.amount)) + "/-"
@@ -296,7 +296,7 @@ $tAmount
 Thanks.
 """)
   smsContents = smsTemplate.substitute(d)
-  SendSMSToThisCompany(bill.compName, smsContents)
+  SendOfficialSMS(bill.compName, smsContents)
   return
 
 
