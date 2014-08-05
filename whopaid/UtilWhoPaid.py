@@ -9,7 +9,8 @@ from Util.Exception import MyException
 from Util.Config import GetOption, GetAppDir
 from Util.ExcelReader import LoadIterableWorkbook
 from Util.Misc import GetPickledObject, ParseDateFromString, DD_MM_YYYY, PrintInBox
-from CustomersInfo import GetAllCustomersInfo
+
+from whopaid.CustomersInfo import GetAllCustomersInfo
 
 import os
 import shelve
@@ -18,8 +19,8 @@ from contextlib import closing
 
 BILLS_FILE_LAST_CHANGE_SHELF_ID = "BillsFileLastChangedAt"
 PERSISTENT_STORAGE_PATH = os.path.join(
-        GetOption("CONFIG_SECTION", "TempPath"),
-        GetOption("CONFIG_SECTION", "PersistentStorageDB"))
+    GetOption("CONFIG_SECTION", "TempPath"),
+    GetOption("CONFIG_SECTION", "PersistentStorageDB"))
 
 def GetWorkBookPath():
     return os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "WorkbookRelativePath"))
@@ -486,58 +487,59 @@ def CreateSingleBillRow(row):
 
 
 def GuessCompanyGroupName(token):
-    """Take a small string from user and try to guess the companyGroupName.
-    Return None if it doesn't exist"""
-    allCustomersInfo = GetAllCustomersInfo()
-    uniqueCompGrpNames = [allCustomersInfo.GetCompanyGroupName(eachComp) for eachComp in allCustomersInfo]
+  """Take a small string from user and try to guess the companyGroupName.
+  Return None if it doesn't exist"""
+  allCustomersInfo = GetAllCustomersInfo()
+  uniqueCompGrpNames = [allCustomersInfo.GetCompanyGroupName(eachComp) for eachComp in allCustomersInfo]
 
-    if not token:
-        token = raw_input("Enter company name:")
+  if not token:
+    token = raw_input("Enter company name:")
 
-    token.replace(' ', '')
-    uniqueCompGrpNames = [u for u in uniqueCompGrpNames if u]
-    uniqueCompGrpNames = list(set(uniqueCompGrpNames))
-    for eachGrp in uniqueCompGrpNames:
-        if eachGrp.lower().replace(' ', '').find(token.lower()) != -1:
-            if raw_input("You mean: {0}\n(y/n):".format(eachGrp)).lower() == 'y':
-                return eachGrp
-    else:
-        raise MyException("{} does not exist. Try a shorter string".format(token))
+  token.replace(' ', '')
+  uniqueCompGrpNames = [u for u in uniqueCompGrpNames if u]
+  uniqueCompGrpNames = list(set(uniqueCompGrpNames))
+  for eachGrp in uniqueCompGrpNames:
+    if eachGrp.lower().replace(' ', '').find(token.lower()) != -1:
+      if raw_input("You mean: {0}\n(y/n):".format(eachGrp)).lower() == 'y':
+        return eachGrp
+  else:
+    raise MyException("{} does not exist. Try a shorter string".format(token))
 
 def GuessCompanyName(token):
-    """Take a small string from user and try to guess the companyName.
-    Return None if it doesn't exist"""
+  """Take a small string from user and try to guess the companyName.
+  Return None if it doesn't exist"""
 
-    allCustomersInfo = GetAllCustomersInfo()
-    uniqueCompNames = [x for x in allCustomersInfo if x]
+  allCustomersInfo = GetAllCustomersInfo()
+  uniqueCompNames = [x for x in allCustomersInfo if x]
 
-    if not token:
-        token = raw_input("Enter company name:")
+  if not token:
+    token = raw_input("Enter company name:")
 
-    token.replace(' ', '')
-    for eachComp in uniqueCompNames:
-        if eachComp.lower().replace(' ', '').find(token.lower()) != -1:
-            if raw_input("You mean: {0}\n(y/n):".format(eachComp)).lower() == 'y':
-                return eachComp
-    else:
-        raise MyException("{} does not exist. Try a shorter string".format(token))
+  token.replace(' ', '')
+  for eachComp in uniqueCompNames:
+    if eachComp.lower().replace(' ', '').find(token.lower()) != -1:
+      if raw_input("You mean: {0}\n(y/n):".format(eachComp)).lower() == 'y':
+        return eachComp
+  else:
+    raise MyException("{} does not exist. Try a shorter string".format(token))
 
 
 def TotalAmountDueForThisCompany(allBillsDict, compName):
-    """Returns the sum of total unpaid amount for this company"""
-    allBillsForThisComp = allBillsDict[compName]
-    newBillList = SelectUnpaidBillsFrom(allBillsForThisComp)
-    return int(sum([b.amount for b in newBillList]))
+  """Returns the sum of total unpaid amount for this company"""
+  allBillsForThisComp = allBillsDict[compName]
+  newBillList = SelectUnpaidBillsFrom(allBillsForThisComp)
+  return int(sum([b.amount for b in newBillList]))
 
 
-def BillsFileChangedSinceLastTime():
-    """
-    This function will read the last stored time and let the user know if file has been changed since last time it was read.
-    """
-    with closing(shelve.open(PERSISTENT_STORAGE_PATH)) as sh:
-      if sh.has_key(BILLS_FILE_LAST_CHANGE_SHELF_ID):
-          return sh[BILLS_FILE_LAST_CHANGE_SHELF_ID] != os.path.getmtime(GetWorkBookPath())
-    return True
+def HasBillsFileChangedSinceLastTime():
+  """
+  This function will read the last stored time and let the user know if file has been changed since last time it was read.
+  """
+  PrintInBox("PERSISTENT_STORAGE_PATH = {}".format(PERSISTENT_STORAGE_PATH))
+  with closing(shelve.open(PERSISTENT_STORAGE_PATH)) as sh:
+    if sh.has_key(BILLS_FILE_LAST_CHANGE_SHELF_ID):
+      return sh[BILLS_FILE_LAST_CHANGE_SHELF_ID] != os.path.getmtime(GetWorkBookPath())
+  return True
 
 def StoreNewTimeForBillsFile():
     """

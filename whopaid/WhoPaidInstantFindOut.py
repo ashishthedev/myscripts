@@ -10,7 +10,7 @@ from Util.Misc import PrintInBox, GetSizeOfFileInMB, AnyFundooProcessingMsg
 from Util.Config import GetOption
 from Util.Exception import MyException
 from whopaidInstantDBGenerate import StartDBGeneration
-from UtilWhoPaid import BillsFileChangedSinceLastTime, StoreNewTimeForBillsFile
+from UtilWhoPaid import HasBillsFileChangedSinceLastTime, StoreNewTimeForBillsFile
 from argparse import ArgumentParser
 from contextlib import closing
 import shelve
@@ -18,59 +18,60 @@ import os
 
 @timeThisFunction
 def main():
-    parser = ArgumentParser()
-    parser.add_argument("-f", "--fresh", dest='freshDB', action='store_true', help="If present database will be created afresh. Takes more time to execute when present.")
-    parser.add_argument("-d", "--dumpDB", dest='dumpDB', action='store_true', help="If present database will be dumped as a text file.")
-    parser.add_argument("paymentMade", type=int, help="Amount paid by unknown company.")
-    args = parser.parse_args()
+  parser = ArgumentParser()
+  parser.add_argument("-f", "--fresh", dest='freshDB', action='store_true', help="If present database will be created afresh. Takes more time to execute when present.")
+  parser.add_argument("-d", "--dumpDB", dest='dumpDB', action='store_true', help="If present database will be dumped as a text file.")
+  parser.add_argument("paymentMade", type=int, help="Amount paid by unknown company.")
+  args = parser.parse_args()
 
-    paymentMade = args.paymentMade
-    shelfFilePath = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), GetOption("CONFIG_SECTION", "WhoPaidDatabase"))
+  paymentMade = args.paymentMade
+  shelfFilePath = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), GetOption("CONFIG_SECTION", "WhoPaidDatabase"))
 
-    slCompList = FindOutWhoPaidFromDB(shelfFilePath, paymentMade)
-    if slCompList:
-        for c in slCompList:
-            c.PrintAsStr()
+  slCompList = FindOutWhoPaidFromDB(shelfFilePath, paymentMade)
+  if slCompList:
+    for c in slCompList:
+      c.PrintAsStr()
 
-    startAfresh = False
-    if args.freshDB:
-        startAfresh = True
-    if not os.path.exists(shelfFilePath):
-        startAfresh = True
-    if BillsFileChangedSinceLastTime():
-        startAfresh = True
+  startAfresh = False
+  if args.freshDB:
+    startAfresh = True
+  if not os.path.exists(shelfFilePath):
+    startAfresh = True
+  if HasBillsFileChangedSinceLastTime():
+    startAfresh = True
 
-    dumpFilePath = None
-    if args.dumpDB:
-        dumpFilePath = "B:\\desktop\\DB.txt"
+  dumpFilePath = None
+  if args.dumpDB:
+    dumpFilePath = "B:\\desktop\\DB.txt"
 
-    if startAfresh:
-        PrintInBox("But wait... Things have changed since last time. Searching thoroughly now.")
-        StartDBGeneration(shelfFilePath, DumpDBAsTextAtThisLocation=dumpFilePath)
-        PrintInBox("Size of newly created DB is : {}Mb".format(GetSizeOfFileInMB(shelfFilePath)))
-        slCompList2 = FindOutWhoPaidFromDB(shelfFilePath, paymentMade)
-        if slCompList2 != slCompList:
-            for c in slCompList2:
-                c.PrintAsStr()
-        StoreNewTimeForBillsFile()
+  if startAfresh:
+    PrintInBox("But wait... Things have changed since last time. Searching thoroughly now.")
+    StartDBGeneration(shelfFilePath, DumpDBAsTextAtThisLocation=dumpFilePath)
+    PrintInBox("Size of newly created DB is : {}Mb".format(GetSizeOfFileInMB(shelfFilePath)))
+    slCompList2 = FindOutWhoPaidFromDB(shelfFilePath, paymentMade)
+    if slCompList2 != slCompList:
+      for c in slCompList2:
+        c.PrintAsStr()
+    StoreNewTimeForBillsFile()
 
-    return
+  return
 
 def FindOutWhoPaidFromDB(shelfFileName, paymentMade):
-    paymentMade = str(int(paymentMade))
-    with closing(shelve.open(shelfFileName)) as sh:
-        if sh.has_key(paymentMade):
-            slicedCompaniesList = sh[paymentMade]  # More than once company can pay this amount. We need to show both.
-            return slicedCompaniesList
-        else:
-            PrintInBox("Cannot detect from already stored records who made the payment of Rs." + paymentMade)
-            return None
+  paymentMade = str(int(paymentMade))
+  with closing(shelve.open(shelfFileName)) as sh:
+    if sh.has_key(paymentMade):
+      slicedCompaniesList = sh[paymentMade]  # More than once company can pay this amount. We need to show both.
+      return slicedCompaniesList
+    else:
+      PrintInBox("Cannot detect from already stored records who made the payment of Rs." + paymentMade)
+      return None
+  return
 
 
 if __name__ == '__main__':
-    PrintInBox(AnyFundooProcessingMsg())
-    try:
-        main()
-        CheckConsistency()
-    except MyException as ex:
-        PrintInBox(str(ex))
+  PrintInBox(AnyFundooProcessingMsg())
+  try:
+    main()
+    CheckConsistency()
+  except MyException as ex:
+    PrintInBox(str(ex))
