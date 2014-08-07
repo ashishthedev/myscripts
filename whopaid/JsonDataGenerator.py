@@ -160,7 +160,7 @@ def _DumpJSONDB():
   _DumpOrdersDB()
 
 
-def UploadAppWithNewData():
+def AskUberObserverToUploadJsons():
   import subprocess
   pushFile = os.path.abspath(os.path.join(PMTAPPDIR, "utils", "push.py"))
   if not os.path.exists(pushFile):

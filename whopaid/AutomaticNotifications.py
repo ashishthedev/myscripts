@@ -54,14 +54,14 @@ def CalculateProjectedSaleForThisYear():
 
 class PersistantMonthlySmsDetails(Persistant):
   @classmethod
-  def Key(cls, date):
+  def GenerateKey(cls, date):
     return date.strftime("%b-%y")
 
   def __init__(self):
     super(PersistantMonthlySmsDetails, self).__init__(self.__class__.__name__)
 
   def wasSmsSentForMonthHavingThisDate(self, date):
-    if self.Key(date) in self.allKeys:
+    if self.GenerateKey(date) in self.allKeys:
       return True
     return False
 
@@ -98,8 +98,7 @@ $topFiveStrList
       print("{}".format(smsContents))
       SendSms(n, smsContents)
 
-    k = self.Key(date)
-    self.put(k, DD_MMM_YYYY(datetime.date.today()))
+    self[self.GenerateKey(date)] = DD_MMM_YYYY(datetime.date.today())
     return
 
 
@@ -108,7 +107,7 @@ class PersistantWeeklySmsDetails(Persistant):
     super(PersistantWeeklySmsDetails, self).__init__(self.__class__.__name__)
 
   def wasSMSSentForWeekStartingFrom(self, day):
-    if PersistantWeeklySmsDetails.Key(day) in self.allKeys:
+    if self.GenerateKey(day) in self.allKeys:
       return True
     return False
 
@@ -149,12 +148,12 @@ Top Two:
       #raw_input("About to send sms but will not send because of testing...");return #TODO: Delete this line
       SendSms(n, smsContents)
 
-    self.put(PersistantWeeklySmsDetails.Key(firstDay), DD_MMM_YYYY(datetime.date.today()))
+    self[self.GenerateKey(firstDay)] =  DD_MMM_YYYY(datetime.date.today())
 
     return
 
   @classmethod
-  def Key(cls, day):
+  def GenerateKey(cls, day):
     return "Weekly-{}".format(DD_MMM_YYYY(day))
 
 

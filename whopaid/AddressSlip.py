@@ -190,48 +190,50 @@ def GenerateAddressSlipForThisCompany(compName, args):
 
 
 class PersistantEnvelopes(Persistant):
-    def __init__(self):
-      self.allBills = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
-      super(PersistantEnvelopes, self).__init__(self.__class__.__name__)
+  def __init__(self):
+    self.allBills = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict() #For speed imporovement, made a class member
+    super(PersistantEnvelopes, self).__init__(self.__class__.__name__)
 
-    def __str__(self):
-      s = ""
-      for eachComp in self.allKeys:
-        obj = self.get(eachComp)
-        num = obj[0]
-        date = obj[1]
-        s += "{:<5} {:<20} {:<20}\n".format(num, DD_MM_YYYY(date), eachComp)
+  def __str__(self):
+    s = ""
+    for eachComp in self.allKeys:
+      obj = self[eachComp]
+      num = obj[0]
+      date = obj[1]
+      s += "{:<5} {:<20} {:<20}\n".format(num, DD_MM_YYYY(date), eachComp)
+    return s
 
-      return s
-
-    def MarkPrinted(self, compName, numOfEnv, date):
-      if numOfEnv > 1:
-        obj = (numOfEnv, date)
-        self.put(compName, obj)
-      return
-
-
-    def HowManyLeftForThisCompany(self, compName):
-      numOfEnv, date = self.get(compName)
-      if not self.allBills.has_key(compName): return 0
-      billList = self.allBills[compName]
-      billList = SelectBillsAfterDate(billList, date)
-      return numOfEnv - len(billList)
-
-    def PrintAllInfo(self):
-      l = sorted(self.allKeys[:], key=lambda compName: self.HowManyLeftForThisCompany(compName), reverse=True)
-      for compName in l:
-        print("{} envelopes for {}".format(self.HowManyLeftForThisCompany(compName), compName))
-      return
+  def MarkPrinted(self, compName, numOfEnv, date):
+    if numOfEnv > 1:
+      obj = (numOfEnv, date)
+      self[compName] = obj
+    return
 
 
-    def PredictFuturePrints(self):
-      compNames = [c for c in self.allKeys if self.HowManyLeftForThisCompany(c) <=1 ]
-      if compNames:
-        PrintInBox("Please print the envelopes for following companies:")
-        for i, name in enumerate(compNames):
-          print("{:<5} {}".format(i, name))
-      return
+  def HowManyLeftForThisCompany(self, compName):
+    obj = self[compName]
+    numOfEnv = obj[0]
+    date = obj[1]
+    if not self.allBills.has_key(compName):
+      return 0
+    billList = self.allBills[compName]
+    billList = SelectBillsAfterDate(billList, date)
+    return numOfEnv - len(billList)
+
+  def PrintAllInfo(self):
+    l = sorted(self.allKeys[:], key=lambda compName: self.HowManyLeftForThisCompany(compName), reverse=True)
+    for compName in l:
+      print("{} envelopes for {}".format(self.HowManyLeftForThisCompany(compName), compName))
+    return
+
+
+  def PredictFuturePrints(self):
+    compNames = [c for c in self.allKeys if self.HowManyLeftForThisCompany(c) <=1 ]
+    if compNames:
+      PrintInBox("Please print the envelopes for following companies:")
+      for i, name in enumerate(compNames):
+        print("{:<5} {}".format(i, name))
+    return
 
 
 def main():

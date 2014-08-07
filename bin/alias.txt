@@ -39,6 +39,7 @@ cfg=gvim %XDATDOCSDIR%\pycrm.cfg
 g=gvim $*
 z=start /w %VIM_EXE_DIR%\gvim.exe $*
 ff=@echo "Finding for file name" && where /T /R . *$**
+ffe=@echo "Finding for file name" && where /T /R . $*
 fs=findstr /i /s /n $*
 ls=dir /x $*
 lw=dir /w $*
@@ -123,14 +124,11 @@ fit=@echo "Finding inside .txt files" && findstr /i /s /n $* *.txt
 fih=@echo "Finding inside .html files" && findstr /i /s /n $* *.html
 fia=@echo "Finding inside all files" && findstr /i /s /n $* *.*
 fic=@echo "Finding inside all files" && findstr /i /s /n $* *.py *.html *.js *.css
-esice= pushd %XDATDOCSDIR%\ESIC
+esice= pushd %XDATDOCSDIR%\ESIC and start.
 
 q=exit
 pyprof = %XDATDOCSDIR%\MyScripts\bin\pyprofile.py "$*"
 
-rgc = rgrun v2New.py v5New.py > log.txt
-rgc = rgrun v2New.py v5AvoidCollision.py --game-seed 439560545 > log.txt
-grobot = pushd %XDATDOCSDIR%\..\ve_robot && scripts\activate && cd app
 slip1 = pushd %XDATDOCSDIR%\myscripts\whopaid && AddressSlip.py -n1 $* && popd
 slip2 = pushd %XDATDOCSDIR%\myscripts\whopaid && AddressSlip.py -n2 $* && popd
 slip3 = pushd %XDATDOCSDIR%\myscripts\whopaid && AddressSlip.py -n3 $* && popd

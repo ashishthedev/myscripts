@@ -8,10 +8,10 @@
 ###############################################################################
 
 from whopaid.AutomaticNotifications import SendAutomaticSmsReportsIfRequired
-from whopaid.JsonDataGenerator import UploadAppWithNewData
-from whopaid.MarkBillsAsPaid import ReportBillWhichShouldBeMarkAsPaid
-from whopaid.UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate, SingleBillRow
 from whopaid.CustomersInfo import GetAllCustomersInfo
+from whopaid.JsonDataGenerator import AskUberObserverToUploadJsons
+from whopaid.MarkBillsAsPaid import ReportBillWhichShouldBeMarkAsPaid
+from whopaid.UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate
 
 from Util.Config import GetOption
 from Util.Decorators import timeThisFunction
@@ -19,14 +19,14 @@ from Util.Exception import MyException
 from Util.Misc import PrintInBox, ParseDateFromString, IsDeliveredAssessFromStatus
 
 from collections import defaultdict
-import datetime
 
 def SendAutomaticHeartBeat():
   #A heart beat will be sent every now and then whenever this function is called.
   #The receivers should not have any side effects and can expect back to back or no heartbeat at all. They should be resilient enough.
   CheckConsistency()
-  UploadAppWithNewData()
+  AskUberObserverToUploadJsons()
   SendAutomaticSmsReportsIfRequired()
+  return
 
 
 def CheckConsistency():

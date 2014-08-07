@@ -36,7 +36,7 @@ class TestShipment():
 def main():
     bill = CreateATestBill()
     bill.courierName = "Nitco"
-    bill.docketNumber = "I725735"
+    bill.docketNumber = "I725736"
     with TestShipment(bill) as ts:
         ts.Track()
         print("Status: {}".format(ts.status))

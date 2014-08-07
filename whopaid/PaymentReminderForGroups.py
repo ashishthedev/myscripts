@@ -21,7 +21,7 @@ from whopaid.CustomersInfo import GetAllCustomersInfo
 from whopaid.UtilWhoPaid import datex, GetAllCompaniesDict, SelectUnpaidBillsFrom, \
         GuessCompanyGroupName, RemoveTrackingBills
 from whopaid.SanityChecks import CheckConsistency
-from whopaid.offcomm import SendOfficialSMS
+from whopaid.OffComm import SendOfficialSMS
 
 from string import Template
 from contextlib import closing
