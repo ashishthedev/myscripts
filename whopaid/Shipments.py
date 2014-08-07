@@ -223,37 +223,37 @@ class PersistentShipment(object):
 
     @classmethod
     def GetAllUndeliveredShipments(cls):
-        allShipments = cls.GetAllStoredShipments()
-        return [s for s in allShipments if s.isUndelivered()]
+      allShipments = cls.GetAllStoredShipments()
+      return [s for s in allShipments if s.isUndelivered()]
 
     @property
     def uid_string(self):
-        return self.bill.uid_string
+      return self.bill.uid_string
 
     @classmethod
     def GetOrCreateShipmentForBill(cls, bill):
-        #Only place where it gets instantiated
-        with closing(shelve.open(cls.shelfFileName)) as sh:
-            obj = None
-            key = bill.uid_string
-            if sh.has_key(key):
-                obj = sh[key]
-            else:
-                obj = cls(bill)
-                obj.saveInDB()
-        return obj
+      #Only place where it gets instantiated
+      with closing(shelve.open(cls.shelfFileName)) as sh:
+        obj = None
+        key = bill.uid_string
+        if sh.has_key(key):
+          obj = sh[key]
+        else:
+          obj = cls(bill)
+          obj.saveInDB()
+      return obj
 
     @property
     def status(self):
-        return self._track.status
+      return self._track.status
 
     @status.setter
     def status(self, value):
-        self._track.status = value
+      self._track.status = value
 
     @property
     def description(self):
-        return GetMsgInBox("\n".join(str(self).split(":")))
+      return GetMsgInBox("\n".join(str(self).split(":")))
 
     def __str__(self):
         b = self.bill

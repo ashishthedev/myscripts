@@ -5,11 +5,13 @@ import os
 
 class Persistant(object):
   """Its a very blunt persistant key value pair.
-Usage:
+Declaration:
 class MyPersistantClass(Persistant):
   def __init__(self):
     super(MyPersistantClass, self).__init__(self.__class__.__name__)
+    #done
 
+Usage:
 p = MyPersistantClass()
 p[key] = obj
 key in p
@@ -24,7 +26,6 @@ print(p[key])
     return self
 
   def __setitem__(self, key, value):
-    print("Setting m[{}] to {}".format(key, value))
     return self.put(key, value)
 
   def __getitem__(self, key):
