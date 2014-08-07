@@ -242,7 +242,7 @@ class SingleBillRow(SingleRow):
         if not paymentDate:
             paymentDate = "-----------"
         else:
-            paymentDate = DD_MM_YYYY(self.PaymentReceivingDate)
+            paymentDate = DD_MM_YYYY(self.paymentReceivingDate)
 
         return "Rs.{:<5} Bill:{:<5} {} {:<5} {}".format(
             int(self.amount),

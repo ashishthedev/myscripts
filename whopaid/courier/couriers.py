@@ -40,7 +40,6 @@ class Courier():
         print("The server couldn't fulfil the request\nError code: {}".format(e.code))
     except Exception as e:
       print(str(e))
-      raise e #TODO: Remove
       return ""
 
   def StoreSnapshot(self):
@@ -179,10 +178,10 @@ class NitcoTransport():
   def _get_status_from_nitco_html_resp(self, html):
     resultsId = "ctl00_ContentPlaceHolder1_Label7".lower()
     for eachLine in html.split("\n"):
-      if eachLine.find(resultsId) != -1:
+      if eachLine.lower().find(resultsId) != -1:
         return StripHTMLTags(eachLine.strip())
     else:
-      raise Exception("Cannot parse Nitco response for bill: {}".format(self.bill))
+      raise Exception("Exception: Cannot parse Nitco response for bill: {}".format(self.bill))
 
   def StoreSnapshot(self):
     StoreSnapshotWithPhantomScript(self.bill, "courier\\nitco.js", self.FORM_DATA, self.reqUrl)
