@@ -5,11 +5,10 @@
 ## Author: Ashish Anand
 ## Date: 24-Nov-2011
 
-import os, tempfile, shutil, ConfigParser
+import os, tempfile, shutil
 from Util.Misc import printNow, PrintInBox, GetHash
 from datetime import datetime
 import Util.PythonMail
-from Util.Config import GetOption
 
 HASH_SECTION = "DEFAULT"
 
@@ -170,57 +169,27 @@ def EmailFile(emailSubject, path, config):
             fromDisplayName=config.fromDisplayName)
 
 def DeleteFileIfExists(AbsolutePath):
-    if os.path.exists(AbsolutePath):
-        os.remove(AbsolutePath)
-    return
+  if os.path.exists(AbsolutePath):
+    os.remove(AbsolutePath)
+  return
 
-def GenerateConfigParserIdForPath(path):
-    """
-    Prepares a value by which the hash will be stored in database
-    """
-    if os.path.isdir(path):
-        leafDir = os.path.basename(path)
-        parentDirName = os.path.basename(os.path.dirname(path))
-        retVal = os.path.join(parentDirName, leafDir)
-    else:
-        #Just return the filename
-        retVal = os.path.basename(path)
-
-    return retVal
-
-def GetDBPath():
-    section = "CONFIG_SECTION"
-    dbPath = os.path.join(GetOption(section, "TempPath"), GetOption(section, "Md5ValuesFileName"))
-    if not os.path.exists(dbPath):
-        with open(dbPath, "w"):
-            #Just create the file and leave it as is.
-            pass
-    return dbPath
+def PersistantEmailBackupHashes():
+  def __init__(self):
+    super(PersistantEmailBackupHashes, self).__init__(self.__class__.__name__)
 
 def isHashSame(dirPath):
-    config = ConfigParser.ConfigParser()
-    dbPath = GetDBPath()
-    config.read(dbPath)
+  p = PersistantEmailBackupHashes()
+  freshHash = GetHash(dirPath)
+  if dirPath not in p:
+    #The directory is newly created, Set the hash for this directory to 0
+    print(dirPath + " is being backed up for the first time")
+    return False
+  oldHash = p[dirPath]
+  return freshHash == oldHash
 
-    freshHash = GetHash(dirPath)
-
-    # We identify each dir by its last name only
-    try:
-        oldHash = config.get(HASH_SECTION, GenerateConfigParserIdForPath(dirPath))
-    except ConfigParser.NoOptionError:
-        #The directory is newly created, Set the hash for this directory to 0
-        print(dirPath + " is being backed up for the first time")
-        return False
-    return freshHash == oldHash
 
 def SaveNewHash(dirPath):
-    #A hash is strored to detect if the directory has changed.
-    config = ConfigParser.ConfigParser()
-    dbPath = GetDBPath()
-    config.read(dbPath)
-    config.set(HASH_SECTION, GenerateConfigParserIdForPath(dirPath), GetHash(dirPath))
-    with open(dbPath, "w") as dbf:
-        config.write(dbf)
-    return
-
-
+  #A hash is strored to detect if the directory has changed.
+  p = PersistantEmailBackupHashes()
+  p[dirPath] = GetHash(dirPath)
+  return
