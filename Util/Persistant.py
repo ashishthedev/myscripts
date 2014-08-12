@@ -16,32 +16,31 @@ p = MyPersistantClass()
 p[key] = obj
 key in p
 print(p[key])
+del p[key]
   """
   def __init__(self, name):
     self.shelfFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), name + ".shelf")
 
-  def put(self, key, value):
+  def __setitem__(self, key, value):
     with closing(shelve.open(self.shelfFileName)) as sh:
       sh[str(key)] = value
     return self
 
-  def __setitem__(self, key, value):
-    return self.put(key, value)
-
   def __getitem__(self, key):
-    return self.get(key)
-
-  def __contains__(self, key):
-    return key in self.allKeys
-
-  def remove(self, key):
-    with closing(shelve.open(self.shelfFileName)) as sh:
-      del sh[str(key)]
-    return self
-
-  def get(self, key):
     with closing(shelve.open(self.shelfFileName)) as sh:
       return sh[str(key)]
+
+  def __contains__(self, key):
+    return str(key) in self.allKeys
+
+#  def __del__(self, key):
+#    with closing(shelve.open(self.shelfFileName)) as sh:
+#      del sh[str(key)]
+#    return self
+#
+  def __iter__(self):
+    with closing(shelve.open(self.shelfFileName)) as sh:
+      return iter([str(k) for k in sh.keys()])
 
   @property
   def allKeys(self):
@@ -52,6 +51,3 @@ print(p[key])
   def allValues(self):
     with closing(shelve.open(self.shelfFileName)) as sh:
       return sh.values()
-
-
-

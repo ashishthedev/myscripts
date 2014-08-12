@@ -1,4 +1,4 @@
-BILL_PDF_FILE_PATH = "B:\\desktop\\b\\Bill-2014-03.pdf"
+BILL_PDF_FILE_PATH = "B:\\desktop\\m.pdf"
 #########################
 ## This file is meant to extract meaningful information from the text file converted directly from mobile bill pdf
 ##
@@ -28,17 +28,20 @@ class CallRecord(object):
         self.duration = duration
         self.amount = amount
         self.personName = personName
-        self.isMessage = True if (duration == "1") else False
+        self.isMessage = True if (duration == None and number != None) else False
+        self.isMobileInternet = True if (duration == None and time == None) else False
         self.isCall = not self.isMessage
 
     def __str__(self):
         if self.personName:
             identification = self.personName
         else:
-            identification = self.number + "<<<<<<<<<<<<<<<<<<<<"
+            identification = str(self.number) + "<<<<<<<<<<<<<<<<<<<<"
 
         if self.isMessage:
             duration = "SMS"
+        elif self.isMobileInternet:
+            duration = "MOBILE_INTERNET"
         else:
             duration = self.duration
 
@@ -69,9 +72,11 @@ def CreateRecordFromThisString(recordString):
         date = recordString[MSG_SEMANTICS.DATE_FROM:MSG_SEMANTICS.DATE_TO]
         time = recordString[MSG_SEMANTICS.TIME_FROM : MSG_SEMANTICS.TIME_TO]
         number = recordString[MSG_SEMANTICS.NUMBER_FROM : MSG_SEMANTICS.NUMBER_TO]
+        duration = None
         amount = recordString[MSG_SEMANTICS.AMOUNT_FROM: MSG_SEMANTICS.AMOUNT_TO]
         personName = FindName(number)
         return CallRecord(number, date, time, duration, amount, personName)
+
     elif RECORD_TYPE.ROAMING == rcType:
         date = recordString[ROAMING_SEMANTICS.DATE_FROM:ROAMING_SEMANTICS.DATE_TO]
         time = recordString[ROAMING_SEMANTICS.TIME_FROM : ROAMING_SEMANTICS.TIME_TO]
@@ -80,8 +85,17 @@ def CreateRecordFromThisString(recordString):
         personName = FindName(number)
         return CallRecord(number, date, time, duration, amount, personName)
 
+    elif RECORD_TYPE.MOBILE_INTERNET == rcType:
+        date = recordString[  MOBILE_INTERNET_SEMANTICS.DATE_FROM:MOBILE_INTERNET_SEMANTICS.DATE_TO]
+        time = None
+        number = None
+        duration = None
+        amount = recordString[MOBILE_INTERNET_SEMANTICS.AMOUNT_FROM: MOBILE_INTERNET_SEMANTICS.AMOUNT_TO]
+        personName = None
+        return CallRecord(number, date, time, duration, amount, personName)
+
     else:
-        print("Cannot understand what is: '{}'".format(recordString))
+        print("Cannot understand: Len: {} | {}".format(len(recordString), recordString))
         return None
 
 class CALL_SEMANTICS:
@@ -114,9 +128,9 @@ class MSG_SEMANTICS:
     AMOUNT_TO = 34
 
 class ROAMING_SEMANTICS:
-"""
+    """
 05-apr-201420:43:43airtel-upwest9389620396 00:34 0.75**2
-"""
+    """
     DATE_FROM = 0
     DATE_TO = 11
     TIME_FROM = 11
@@ -127,40 +141,46 @@ class ROAMING_SEMANTICS:
     AMOUNT_FROM = 30
     AMOUNT_TO = 34
 
+class MOBILE_INTERNET_SEMANTICS:
+    """
+06-aug-2014mobile internet usage650366263.4031
+    """
+    DATE_FROM = 0
+    DATE_TO = 11
+    AMOUNT_FROM = 40
+    AMOUNT_TO = 44
+
 def process_text_and_get_list_of_records(text):
-    text = text.lower()
-    listOfRecords = list()
-    pivots = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
-    #Everything starts from the name of month. They are the pivots for our parsing mechanism.
+  text = text.lower()
+  listOfRecords = list()
+  pivots = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+  #Everything starts from the name of month. They are the pivots for our parsing mechanism.
 
-    for pivot in pivots:
-        pos = text.find(pivot, 0)
-        while pos != -1:
-            #Continue until you cannot find any more instances of this pivot
-            nextPos = text.find(pivot, pos + 1)
-            if nextPos == -1: break
-            recordString = text[pos-3 : nextPos-3]
-            if len(recordString) < 100 :
-                interpretedRecord = TryToDeduceTypeOfRecord(recordString)
-                if interpretedRecord == RECORD_TYPE.DONT_KNOW:
-                    print("Cannot understand what is: {}".format(recordString))
-                else:
-
-                    listOfRecords.append(interpretedRecord)
-            pos = text.find(pivot, pos+1)
-    return listOfRecords
+  for pivot in pivots:
+    pos = text.find(pivot, 0)
+    while pos != -1:
+      #Continue until you cannot find any more instances of this pivot
+      nextPos = text.find(pivot, pos + 1)
+      if nextPos == -1: break
+      recordString = text[pos-3 : nextPos-3]
+      if len(recordString) < 100 :
+        listOfRecords.append(CreateRecordFromThisString(recordString))
+      pos = text.find(pivot, pos+1)
+  return listOfRecords
 
 
 def FindName(number):
-    for c in CONTACT_LIST:
-        if c.strippedNo == number:
-            return c.name
-    return None
+  for c in CONTACT_LIST:
+    if c.strippedNo == number:
+      return c.name
+  return None
 
 
 def TryToDeduceTypeOfRecord(recordString):
     zones = ["east", "west", "north", "south"]
     #The ordering of following if else blocks is important
+    if recordString.find("mobile internet usage") != -1:
+        return RECORD_TYPE.MOBILE_INTERNET
     if recordString.find(".com") != -1:
         return RECORD_TYPE.GPRS
     elif len([z for z in zones if recordString.find(z) != -1]) >0: #IF any zone is present
@@ -181,66 +201,57 @@ class RECORD_TYPE:
     MSG = 3
     ROAMING = 4
     GPRS = 5
+    MOBILE_INTERNET = 6
 
 
 def DebugPDFSemantics(text):
     text = text.lower()
     listOfRecords = list()
     pivots = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
-    zones = ["east", "west", "north", "south"]
     #Everything starts from the name of month. They are the pivots for our parsing mechanism.
 
     for pivot in pivots:
-        pos = text.find(pivot, 0)
+      pos = text.find(pivot, 0)
 
-        while pos != -1:
-            #Continue until you cannot find any more instances of this pivot
-            nextPos = text.find(pivot, pos + 1)
-            if nextPos == -1:
-                break
-            recordString = text[pos-3 : nextPos-3]
-            #Sample record is given below
-            #Call = 09-Aug-201315:55:34XXXXXXXXXX00:470.00
-            #msg  = 12-Aug-201310:39:31997160277710.30**XX
-            if len(recordString) < 100:
-                rcType = None
-                if recordString.find(".com") != -1:
-                    rcType = "GPRS"
-                elif len([z for z in zones if recordString.find(z) != -1]) >0: #IF any zone is present
-                    rcType = "ROAMING"
-                elif recordString.count(":") == 2: #Only 2 colons in time stamps
-                    rcType = "MESG"
-                elif recordString.count(":") == 3: #Only 3 colons in time stamp and durations
-                    rcType = "CALL"
-                if rcType:
-                    print("{} | {}".format(rcType, recordString))
-                else:
-                    print("Cannot understand: Len: {} | {}".format(len(recordString), recordString))
-
-            pos = text.find(pivot, pos+1)
+      while pos != -1:
+        #Continue until you cannot find any more instances of this pivot
+        nextPos = text.find(pivot, pos + 1)
+        if nextPos == -1:
+          break
+        recordString = text[pos-3 : nextPos-3]
+        if len(recordString) < 100:
+          rcType = TryToDeduceTypeOfRecord(recordString)
+          if rcType is RECORD_TYPE.DONT_KNOW:
+            print("Cannot understand: Len: {} | {}".format(len(recordString), recordString))
+        pos = text.find(pivot, pos+1)
     return listOfRecords
 
 
 def main():
+  import argparse
+  parser = argparse.ArgumentParser()
+  parser.add_argument("-d", "--debug", dest='debug', action="store_true",
+      default=False, help="If present, debug messages will be print")
+  parser.add_argument("-f", "--file", dest='fileName', type=str,
+      default=BILL_PDF_FILE_PATH, help="Path of the pdf file to be analyzed")
+  args = parser.parse_args()
 
-    import sys
-    text = ""
-    if len(sys.argv)>1:
-        fileName = sys.argv[1]
-    else:
-        fileName = BILL_PDF_FILE_PATH
-    with open(fileName, "rb") as f:
-        pdf = pyPdf.PdfFileReader(f)
-        pdf.decrypt(raw_input("Enter password: "))
-        for page in pdf.pages:
-            text += page.extractText()
+  text = ""
+  with open(args.fileName, "rb") as f:
+    pdf = pyPdf.PdfFileReader(f)
+    pdf.decrypt(raw_input("Enter password: "))
+    for page in pdf.pages:
+      text += page.extractText()
 
-    #DebugPDFSemantics(text); return
-    listOfRecords = process_text_and_get_list_of_records(text)
-    listOfRecords = sorted(listOfRecords, key = lambda r: (r.date, r.time))
+  if args.debug:
+    DebugPDFSemantics(text);
+    return
+  listOfRecords = process_text_and_get_list_of_records(text)
+  listOfRecords = [l for l in listOfRecords if l]
+  listOfRecords = sorted(listOfRecords, key = lambda r: (r.date, r.time))
 
-    for r in listOfRecords:
-        print(r)
+  for r in listOfRecords:
+    print(r)
 
 if __name__ == '__main__':
     main()

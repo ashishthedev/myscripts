@@ -15,49 +15,44 @@ from Util.Exception import MyException
 from Util.HTML import UnderLine, Bold, Big, PastelOrangeText, TableHeaderRow,\
         TableDataRow
 from Util.Misc import PrintInBox, DD_MM_YYYY, AnyFundooProcessingMsg
+from Util.Persistant import Persistant
 from Util.PythonMail import SendMail
 
 from whopaid.CustomersInfo import GetAllCustomersInfo
+from whopaid.OffComm import SendOfficialSMS
+from whopaid.SanityChecks import CheckConsistency
 from whopaid.UtilWhoPaid import datex, GetAllCompaniesDict, SelectUnpaidBillsFrom, \
         GuessCompanyGroupName, RemoveTrackingBills
-from whopaid.SanityChecks import CheckConsistency
-from whopaid.OffComm import SendOfficialSMS
 
+from collections import defaultdict
 from string import Template
-from contextlib import closing
 
 import argparse
 import datetime
-import shelve
 import random
 import os
-from collections import defaultdict
 
 MINIMUM_AMOUNT_DUE = 2000
-LAST_EMAIL_DATE_DB = GetOption("CONFIG_SECTION", "LastEmailDatesSavedIn")
 def constant_factory(value):
     from itertools import repeat
     return repeat(value).next
 
-def EarlierSentOnDateForThisGrp(grpName):
+class LastEmailSentOnPersistantDates(Persistant):
+  def __init__(self):
+    super(LastEmailSentOnPersistantDates, self).__init__(self.__class__.__name__)
+
+def EarlierSentOnDateForThisGrp(grpName):#TODO: Use persistent
   """Returns a dateObject representing the date on which an email was last sent to this company"""
-  dateObject = None
-  shelfFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), LAST_EMAIL_DATE_DB)
+  p = LastEmailSentOnPersistantDates()
+  if grpName in p:
+    return p[grpName]
+  return None
 
-  with closing(shelve.open(shelfFileName)) as d:
-    if str(grpName) in d:
-      dateObject = d[str(grpName)]
-  if type(dateObject) == datetime.datetime:
-    dateObject = dateObject.date()
-  return dateObject
-
-def SaveSentOnDateForThisGrp(compName):
+def SaveSentOnDateForThisGrp(grpName):
   """Registers today() as the date on which last email was sent to company."""
-  shelfFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), LAST_EMAIL_DATE_DB)
-  with closing(shelve.open(shelfFileName)) as d:
-    d[str(compName)] = datetime.date.today()
+  p = LastEmailSentOnPersistantDates()
+  p[grpName] = datetime.date.today()
   return
-
 
 def ParseOptions():
   parser = argparse.ArgumentParser()
@@ -201,7 +196,7 @@ def ShouldWeSendAutomaticEmailForGroup(grpName, allBillsDict, allCustomersInfo):
   if daysSinceOldestUnpaidBill <= allowedDaysOfCredit:
     return False
 
-  lastDate = EarlierSentOnDateForThisGrp(firstCompInGrp)
+  lastDate = EarlierSentOnDateForThisGrp(grpName)
   if lastDate:
     #Perform this check only when an email was ever sent to this company and this is not a demo.
     timeDelta = datetime.date.today() - lastDate
@@ -266,7 +261,7 @@ def SendReminderToGrp(grpName, allBillsDict, allCustomersInfo, args):
     raise MyException("\nNo mail feeded. Please insert a proper email in 'Cust' sheet of 'Bills.xlsx'")
 
   goAhead = True
-  lastDate = EarlierSentOnDateForThisGrp(firstCompInGrp)
+  lastDate = EarlierSentOnDateForThisGrp(grpName)
   if lastDate and not args.isDemo:
     #Perform this check only when an email was ever sent to this company and this is not a demo.
     timeDelta = datetime.date.today() - lastDate
@@ -310,7 +305,7 @@ def SendReminderToGrp(grpName, allBillsDict, allCustomersInfo, args):
 
     if not args.isDemo:
       print("Saving date...")
-      SaveSentOnDateForThisGrp(firstCompInGrp)
+      SaveSentOnDateForThisGrp(grpName)
   else:
     PrintInBox("Not sending any email for group {}".format(grpName))
   return
@@ -358,9 +353,9 @@ def GetHTMLTableBlockForThisComp(compName, allBillsDict, allCustomersInfo):
     tableHeadersArgs.append("Days of credit")
 
   tableRows = TableHeaderRow(
-          MyColors["GOOGLE_NEW_INBOX_FOREGROUND"],
-          MyColors["GOOGLE_NEW_INBOX_BASE"],
-          *tableHeadersArgs)
+      MyColors["GOOGLE_NEW_INBOX_FOREGROUND"],
+      MyColors["GOOGLE_NEW_INBOX_BASE"],
+      *tableHeadersArgs)
 
   for b in unpaidBillsList:
     billRowArgs=[int(b.billNumber),
@@ -414,13 +409,12 @@ def GetHTMLTableBlockForThisComp(compName, allBillsDict, allCustomersInfo):
   d = defaultdict(constant_factory(""))
   d['tTableRows'] = tableRows
   d['tCaption'] = caption
-  tableTemplate = Template("""
-          <table border=1 cellpadding=5>
-          <caption>
-          $tCaption
-          </caption>
-          $tTableRows
-          </table>""")
+  tableTemplate = Template("""<table border=1 cellpadding=5>
+  <caption>
+  $tCaption
+  </caption>
+  $tTableRows
+  </table>""")
   htmlTable = tableTemplate.substitute(d)
   return htmlTable
 
@@ -434,28 +428,28 @@ def PrepareMailContentForThisGrp(grpName, allBillsDict, allCustomersInfo, args):
     compsInGrp = allCustomersInfo.GetListOfCompNamesForThisGrp(grpName)
     htmlTables = ""
     for eachCompName in compsInGrp:
-        htmlTables += "<br>" + GetHTMLTableBlockForThisComp(eachCompName, allBillsDict, allCustomersInfo)
+      htmlTables += "<br>" + GetHTMLTableBlockForThisComp(eachCompName, allBillsDict, allCustomersInfo)
 
     letterDate = datetime.date.today().strftime("%A, %d-%b-%Y")
     d = defaultdict(constant_factory(""))
 
     if args.first_line:
-        d['tFirstLine'] = args.first_line + '<br><br>'
+      d['tFirstLine'] = args.first_line + '<br><br>'
 
     if args.first_line_bold:
-        d['tFirstLine'] = Bold(args.first_line_bold) + '<br><br>'
+      d['tFirstLine'] = Bold(args.first_line_bold) + '<br><br>'
 
     if args.second_line:
-        d['tSecondLine'] = args.second_line + '<br><br>'
+      d['tSecondLine'] = args.second_line + '<br><br>'
 
     if args.last_line:
-        d['tLastLine'] = args.last_line + '<br><br>'
+      d['tLastLine'] = args.last_line + '<br><br>'
 
     if args.last_line_bold:
-        d['tLastLine'] = Bold(args.last_line_bold) + '<br><br>'
+      d['tLastLine'] = Bold(args.last_line_bold) + '<br><br>'
 
     if args.kaPerson:
-        d['tPerson'] = Bold("Kind Attention: " + args.kaPerson + '<br><br>')
+      d['tPerson'] = Bold("Kind Attention: " + args.kaPerson + '<br><br>')
 
     d['tLetterDate'] = letterDate
     d['tTotalDue'] = totalDue

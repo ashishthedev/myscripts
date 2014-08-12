@@ -196,7 +196,7 @@ class PersistantEnvelopes(Persistant):
 
   def __str__(self):
     s = ""
-    for eachComp in self.allKeys:
+    for eachComp in self:
       obj = self[eachComp]
       num = obj[0]
       date = obj[1]
@@ -226,9 +226,8 @@ class PersistantEnvelopes(Persistant):
       print("{} envelopes for {}".format(self.HowManyLeftForThisCompany(compName), compName))
     return
 
-
   def PredictFuturePrints(self):
-    compNames = [c for c in self.allKeys if self.HowManyLeftForThisCompany(c) <=1 ]
+    compNames = [c for c in self if self.HowManyLeftForThisCompany(c) <=1 ]
     if compNames:
       PrintInBox("Please print the envelopes for following companies:")
       for i, name in enumerate(compNames):

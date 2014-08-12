@@ -104,170 +104,170 @@ class ShipmentTrack(object):
 
 
 class ShipmentSms(object):
-    def __init__(self, shipment, bill):
-      self.bill = bill
-      self.shipment = shipment #Back reference to parent shipment object
-      self.shipmentSmsSent = False
+  def __init__(self, shipment, bill):
+    self.bill = bill
+    self.shipment = shipment #Back reference to parent shipment object
+    self.shipmentSmsSent = False
 
-    def markShipmentSmsAsSent(self):
-      self.shipmentSmsSent = True
+  def markShipmentSmsAsSent(self):
+    self.shipmentSmsSent = True
 
-    def wasShipmentSmsEverSent(self):
-      return self.shipmentSmsSent
+  def wasShipmentSmsEverSent(self):
+    return self.shipmentSmsSent
 
-    def sendSmsForThisShipment(self):
-      if self.wasShipmentSmsEverSent():
-        if str(raw_input("A shipment sms has already been sent to {}. Do you want to send again(y/n)?".format(self.bill.compName))).lower() != 'y':
-          print("Not sending sms")
-          return
-      SendMaterialDispatchSms(self.bill)
-      if not IS_DEMO:
-        self.markShipmentSmsAsSent()
-        self.shipment.saveInDB()
+  def sendSmsForThisShipment(self):
+    if self.wasShipmentSmsEverSent():
+      if str(raw_input("A shipment sms has already been sent to {}. Do you want to send again(y/n)?".format(self.bill.compName))).lower() != 'y':
+        print("Not sending sms")
+        return
+    SendMaterialDispatchSms(self.bill)
+    if not IS_DEMO:
+      self.markShipmentSmsAsSent()
+      self.shipment.saveInDB()
 
 class ShipmentMail(object):
-    def __init__(self, shipment, bill):
-      self.bill = bill
-      self.shipment = shipment #Back reference to parent shipment object
-      self.shipmentMailSent = False
-      pass
+  def __init__(self, shipment, bill):
+    self.bill = bill
+    self.shipment = shipment #Back reference to parent shipment object
+    self.shipmentMailSent = False
+    pass
 
-    def markShipmentMailAsSent(self):
+  def markShipmentMailAsSent(self):
+    print("_"*70)
+    print("Marking shipment mail as sent for : {}".format(self.bill.compName))
+    self.shipmentMailSent = True
+    return
+
+  def wasShipmentMailEverSent(self):
+    return self.shipmentMailSent
+
+  def sendMailForThisShipment(self):
+    if self.wasShipmentMailEverSent():
+      if str(raw_input("A shipment mail has already been sent to {}. Do you want to send again(y/n)?".format(self.bill.compName))).lower() != 'y':
+        print("Not sending mail")
+        return
+    if self.bill.billingCategory.lower().startswith("tracking"):
       print("_"*70)
-      print("Marking shipment mail as sent for : {}".format(self.bill.compName))
-      self.shipmentMailSent = True
-      return
-
-    def wasShipmentMailEverSent(self):
-      return self.shipmentMailSent
-
-    def sendMailForThisShipment(self):
-      if self.wasShipmentMailEverSent():
-        if str(raw_input("A shipment mail has already been sent to {}. Do you want to send again(y/n)?".format(self.bill.compName))).lower() != 'y':
-          print("Not sending mail")
-          return
-      if self.bill.billingCategory.lower().startswith("tracking"):
-        print("_"*70)
-        print("This is a tracking shipment. Not sendign any mail")
-        print(self)
-        #return
-      ctxt = DispatchMailContext()
-      ctxt.isDemo = IS_DEMO
-      SendMaterialDispatchMail(self.bill, ctxt)
-      if not IS_DEMO:
-        self.markShipmentMailAsSent()
-        self.shipment.saveInDB()
+      print("This is a tracking shipment. Not sendign any mail")
+      print(self)
+      #return
+    ctxt = DispatchMailContext()
+    ctxt.isDemo = IS_DEMO
+    SendMaterialDispatchMail(self.bill, ctxt)
+    if not IS_DEMO:
+      self.markShipmentMailAsSent()
+      self.shipment.saveInDB()
 
 
 class PersistentShipment(object):
-    shelfFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"),
+  shelfFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"),
             GetOption("CONFIG_SECTION", "ShipmentStatus"))
 
-    def __init__(self, bill):
-        self.bill = bill
-        self._mail = ShipmentMail(self, bill)
-        self._track = ShipmentTrack(self, bill)
-        self._sms = ShipmentSms(self, bill)
+  def __init__(self, bill):
+    self.bill = bill
+    self._mail = ShipmentMail(self, bill)
+    self._track = ShipmentTrack(self, bill)
+    self._sms = ShipmentSms(self, bill)
 
-    def wasShipmentMailEverSent(self):
-        return self._mail.wasShipmentMailEverSent()
+  def wasShipmentMailEverSent(self):
+    return self._mail.wasShipmentMailEverSent()
 
-    def sendMailForThisShipment(self):
-        return self._mail.sendMailForThisShipment()
+  def sendMailForThisShipment(self):
+    return self._mail.sendMailForThisShipment()
 
-    def wasShipmentSmsEverSent(self):
-        return self._sms.wasShipmentSmsEverSent()
+  def wasShipmentSmsEverSent(self):
+    return self._sms.wasShipmentSmsEverSent()
 
-    def isSMSNoAvailable(self):
-        if GetAllCustomersInfo().GetSmsDispatchNumber(self.bill.compName):
-            return True
-        return False
+  def isSMSNoAvailable(self):
+    if GetAllCustomersInfo().GetSmsDispatchNumber(self.bill.compName):
+      return True
+    return False
 
-    def sendSmsForThisShipment(self):
-        return self._sms.sendSmsForThisShipment()
+  def sendSmsForThisShipment(self):
+    return self._sms.sendSmsForThisShipment()
 
-    @property
-    def isDelivered(self):
-        return self._track.isDelivered
+  @property
+  def isDelivered(self):
+    return self._track.isDelivered
 
-    def isUndelivered(self):
-        return not self.isDelivered
+  def isUndelivered(self):
+    return not self.isDelivered
 
-    def markShipmentMailAsSent(self):
-        self._mail.markShipmentMailAsSent()
+  def markShipmentMailAsSent(self):
+    self._mail.markShipmentMailAsSent()
 
-    def markAsDelivered(self):
-        self._track.markAsDelivered()
+  def markAsDelivered(self):
+    self._track.markAsDelivered()
 
-    def TakeNewSnapshot(self):
-        self._track.TakeNewSnapshot()
+  def TakeNewSnapshot(self):
+    self._track.TakeNewSnapshot()
 
-    def ShouldWeTrackThis(self):
-        return self._track.ShouldWeTrackThis()
+  def ShouldWeTrackThis(self):
+    return self._track.ShouldWeTrackThis()
 
-    def Track(self):
-        return self._track.Track()
+  def Track(self):
+    return self._track.Track()
 
-    def saveInDB(self):
-        with closing(shelve.open(self.shelfFileName)) as sh:
-            sh[self.uid_string] = self
+  def saveInDB(self):
+    with closing(shelve.open(self.shelfFileName)) as sh:
+      sh[self.uid_string] = self
 
-    def _removeFromDB(self):
-        with closing(shelve.open(self.shelfFileName)) as sh:
-            del sh[self.uid_string]
+  def _removeFromDB(self):
+    with closing(shelve.open(self.shelfFileName)) as sh:
+      del sh[self.uid_string]
 
-    @classmethod
-    def GetAllStoredShipments(cls):
-        with closing(shelve.open(cls.shelfFileName)) as sh:
-            return sh.values()
+  @classmethod
+  def GetAllStoredShipments(cls):
+    with closing(shelve.open(cls.shelfFileName)) as sh:
+      return sh.values()
 
-    @classmethod
-    def GetAllUndeliveredShipments(cls):
-      allShipments = cls.GetAllStoredShipments()
-      return [s for s in allShipments if s.isUndelivered()]
+  @classmethod
+  def GetAllUndeliveredShipments(cls):
+    allShipments = cls.GetAllStoredShipments()
+    return [s for s in allShipments if s.isUndelivered()]
 
-    @property
-    def uid_string(self):
-      return self.bill.uid_string
+  @property
+  def uid_string(self):
+    return self.bill.uid_string
 
-    @classmethod
-    def GetOrCreateShipmentForBill(cls, bill):
-      #Only place where it gets instantiated
-      with closing(shelve.open(cls.shelfFileName)) as sh:
-        obj = None
-        key = bill.uid_string
-        if sh.has_key(key):
-          obj = sh[key]
-        else:
-          obj = cls(bill)
-          obj.saveInDB()
-      return obj
+  @classmethod
+  def GetOrCreateShipmentForBill(cls, bill):
+    #Only place where it gets instantiated
+    with closing(shelve.open(cls.shelfFileName)) as sh:
+      obj = None
+      key = bill.uid_string
+      if sh.has_key(key):
+        obj = sh[key]
+      else:
+        obj = cls(bill)
+        obj.saveInDB()
+    return obj
 
-    @property
-    def status(self):
-      return self._track.status
+  @property
+  def status(self):
+    return self._track.status
 
-    @status.setter
-    def status(self, value):
-      self._track.status = value
+  @status.setter
+  def status(self, value):
+    self._track.status = value
 
-    @property
-    def description(self):
-      return GetMsgInBox("\n".join(str(self).split(":")))
+  @property
+  def description(self):
+    return GetMsgInBox("\n".join(str(self).split(":")))
 
-    def __str__(self):
-        b = self.bill
-        return " | ".join([b.compName,
-            "Bill# {}".format(str(int(b.billNumber))),
-            DD_MM_YYYY(b.docketDate),
-            b.docketNumber,
-            b.courierName,
-            b.materialDesc,
-            str(self.status)])
+  def __str__(self):
+    b = self.bill
+    return " | ".join([b.compName,
+        "Bill# {}".format(str(int(b.billNumber))),
+        DD_MM_YYYY(b.docketDate),
+        b.docketNumber,
+        b.courierName,
+        b.materialDesc,
+        str(self.status)])
 
-    @property
-    def daysPassed(self):
-        return (datetime.date.today() - self.bill.docketDate).days
+  @property
+  def daysPassed(self):
+    return (datetime.date.today() - self.bill.docketDate).days
 
 
 
@@ -611,12 +611,14 @@ def main():
   if args.newSnapshotForDocket:
     _NewSnapshotForDocket(args.newSnapshotForDocket)
 
-  if args.sendMailToAllCompanies:
-    SendMailToAllComapnies(args)
-
-  if args.sendDispatchSms:
-    PrintInBox("Preparing to send SMS now")
-    SendDispatchSMSToAllCompanies(args)
+#  if args.sendMailToAllCompanies:
+#    SendMailToAllComapnies(args)
+#
+#  if args.sendDispatchSms:
+#    PrintInBox("Preparing to send SMS now")
+#    SendDispatchSMSToAllCompanies(args)
+#
+  SendMailToAllComapnies(args)
 
   if args.trackAllUndeliveredCouriers:
     TrackAllShipments(args)
@@ -661,16 +663,23 @@ def SendMailToAllComapnies(args):
   shipments = [s for s in shipments if s.daysPassed < MAX_DAYS_FOR_SENDING_NOTIFICATION]
   shipments.sort(key=lambda s: s.bill.docketDate, reverse=True)
 
-  try:
-    for eachShipment in shipments:
-      print("_"*70)
-      if 'y' == raw_input("Send mail for {} (y/n)?".format(eachShipment)).lower():
-        eachShipment.sendMailForThisShipment()
-      else:
-        print("Not sending mail...")
-  except ShipmentException as ex:
-    print(ex)
-    #eat the exception after printing. We have printed our custom exception, its good enough.
+  for eachShipment in shipments:
+    try:
+      if args.sendMailToAllCompanies:
+        print("_"*70)
+        if 'y' == raw_input("Send mail for {} (y/n)?".format(eachShipment)).lower():
+          eachShipment.sendMailForThisShipment()
+        else:
+          print("Not sending mail...")
+      if args.sendDispatchSms:
+        print("_"*70)
+        if 'y' == raw_input("Send sms for {} (y/n)?".format(eachShipment)).lower():
+          eachShipment.sendSmsForThisShipment()
+        else:
+          print("Not sending sms...")
+    except ShipmentException as ex:
+      print(ex)
+      #eat the exception after printing. We have printed our custom exception, its good enough.
   return
 
 def TrackAllShipments(args):
@@ -696,6 +705,8 @@ def TrackAllShipments(args):
     except ShipmentException as ex:
       PrintInBox(str(ex), outliner="X")
       pass
+
+  return
 
 if __name__ == '__main__':
   CheckConsistency()

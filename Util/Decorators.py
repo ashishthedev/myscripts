@@ -44,20 +44,21 @@ def timeThisFunction(function_to_decorate):
 def RetryNTimesIfFailed(function_to_decorate, noOfTimes):
     """A decorator that will call the function 5 times if it fails(i.e. throws exception) and will bail out in the end."""
     def retry_wrapper_around_original_function(*args, **kwargs):
-        missionAccomplished = False
-        attempts = 0
-        while not missionAccomplished and (attempts < noOfTimes):
-            try:
-                attempts += 1
-                retVal = function_to_decorate(*args, **kwargs)
-                missionAccomplished = True  # If no exception thrown, it means it went through.
-                return retVal
-            except Exception as ex:
-                PrintInBox(str(ex))
-                if attempts < noOfTimes:
-                    print("Retrying one more time...")
-                else:
-                    PrintInBox("Bailing out. Enough for today...")
+      missionAccomplished = False
+      attempts = 0
+      while not missionAccomplished and (attempts < noOfTimes):
+        try:
+          attempts += 1
+          retVal = function_to_decorate(*args, **kwargs)
+          missionAccomplished = True  # If no exception thrown, it means it went through.
+          return retVal
+        except Exception as ex:
+          PrintInBox(str(ex))
+          if attempts < noOfTimes:
+            print("Retrying one more time...")
+          else:
+            PrintInBox("Bailing out. Enough for today...")
+            raise ex
     return retry_wrapper_around_original_function
 
 
