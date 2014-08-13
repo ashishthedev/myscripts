@@ -81,8 +81,8 @@ class PersistantMonthlySmsDetails(Persistant):
     d["topFiveStrList"] = GetTopFiveClientsAsString(bills)
     smsContents = Template(
 """M/s $compSmallName
-Sale for $month: Rs.$totalSale/-
-Projected Sale for this year: Rs.$projectedSaleForThisYear Cr
+$month: Rs.$totalSale/-
+Projected: Rs.$projectedSaleForThisYear Cr
 Top customers:
 $topFiveStrList
 """).substitute(d)

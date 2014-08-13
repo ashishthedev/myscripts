@@ -594,8 +594,7 @@ def SendComplaintMessageForShipment(shipment):
   d["tPhone"] = allCustInfo.GetCustomerPhoneNumber(bill.compName)
 
 
-  smsTemplate = Template("""
-The following parcel is not delivered. Kindly get it delivered.
+  smsTemplate = Template("""The following parcel is not delivered. Kindly get it delivered.
 Date: $tDocketDate
 Docket: $tDocketNumber
 Name: $tOfficialCompanyName

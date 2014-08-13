@@ -183,15 +183,16 @@ def PrepareMailContentForThisComp(compName, allBillsDict, args):
     if not companyCity:
         raise MyException("\nM/s {} doesnt have a displayable 'city'. Please feed it in the database".format(compName))
 
-    dictVal = dict()
+    from collections import OrderedDict
+    dictVal = OrderedDict()
     dictVal["Company Name"] = companyName
     dictVal["Bill#"] = int(args.billNumber)
     dictVal["Invoice Date"] = DD_MM_YYYY(args.invoiceDate)
     dictVal["Amount after Tax"] = "Rs." + args.billAmount
     dictVal["Material"]= args.materialDesc
     tableRows = TableHeaderCol(MyColors["BLACK"],
-            MyColors["SOLARIZED_GREY"],
-            dictVal)
+        MyColors["SOLARIZED_GREY"],
+        dictVal)
 
     if False: #Set this to True temporarily to test colors
         args.isDemo = True
