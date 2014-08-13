@@ -281,7 +281,9 @@ class QuarterlyClubbedFORMC(object):
             Dear Sir,<br>
             <br>
             $tOptAdditionalLine
-            You are requested to provide FORM-C for following quarters:<br>
+            Please find below the details of invoices issued to your firm for which Sales Tax Forms were not received by us.
+
+            We request you to take immediate steps to issue the same and oblige.<br>
             <br>
             $tTable
             <hr>

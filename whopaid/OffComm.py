@@ -4,10 +4,26 @@
 ## Date: 2013-Jul-30 Tue 12:39 PM
 ##############################################################################
 from Util.Config import GetOption
+from Util.PythonMail import SendMail
 from Util.Sms import SendSms
 
 from whopaid.CustomersInfo import GetAllCustomersInfo
 
+
+def SendOfficialEmail(emailSubject, zfilename, toMailList, ccMailList, bccMailList, bodyText, textType, fromDisplayName):
+    section = "EMAIL_REMINDER_SECTION"
+    return SendMail(emailSubject=emailSubject,
+            zfilename=zfilename,
+            SMTP_SERVER=GetOption(section, 'Server'),
+            SMTP_PORT=GetOption(section, 'Port'),
+            FROM_EMAIL=GetOption(section, 'FromEmailAddress'),
+            TO_EMAIL_LIST=toMailList,
+            CC_EMAIL_LIST=ccMailList,
+            BCC_EMAIL_LIST=bccMailList,
+            MPASS=GetOption(section, 'Mpass'),
+            BODYTEXT=bodyText,
+            textType=textType,
+            fromDisplayName=fromDisplayName)
 
 def SendOfficialSMSAndMarkCC(compName, msg):
   return _SendOfficialSMS(compName, msg, sendToCCNumbers=True)

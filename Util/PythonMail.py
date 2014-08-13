@@ -10,67 +10,68 @@ from Util.Decorators import RetryFor5TimesIfFailed
 from Util.Misc import flattenList
 
 @RetryFor5TimesIfFailed
-def SendMail(emailSubject, zfilename, SMTP_SERVER, SMTP_PORT, FROM_EMAIL, TO_EMAIL_LIST, CC_EMAIL_LIST, BCC_EMAIL_LIST, MPASS, BODYTEXT="File Attached", textType="plain", fromDisplayName="Hello"):
-    from email.mime.base import MIMEBase
-    from email.mime.text import MIMEText
-    from email import encoders
-    from email.mime.multipart import MIMEMultipart
-    import os
-    import smtplib
+def SendMail(emailSubject, zfilename, SMTP_SERVER, SMTP_PORT, FROM_EMAIL, TO_EMAIL_LIST, CC_EMAIL_LIST, BCC_EMAIL_LIST, MPASS, BODYTEXT, textType, fromDisplayName):
+  from email import encoders
+  from email.mime.base import MIMEBase
+  from email.mime.multipart import MIMEMultipart
+  from email.mime.text import MIMEText
 
-    if isinstance(TO_EMAIL_LIST, basestring):
-        TO_EMAIL_LIST = TO_EMAIL_LIST.replace(";", ",").split(",")
+  import os
+  import smtplib
 
-    if isinstance(CC_EMAIL_LIST, basestring):
-        CC_EMAIL_LIST = CC_EMAIL_LIST.replace(";", ",").split(",")
+  if isinstance(TO_EMAIL_LIST, basestring):
+    TO_EMAIL_LIST = TO_EMAIL_LIST.replace(";", ",").split(",")
 
-    if isinstance(BCC_EMAIL_LIST, basestring):
-        BCC_EMAIL_LIST = BCC_EMAIL_LIST.replace(";", ",").split(",")
+  if isinstance(CC_EMAIL_LIST, basestring):
+    CC_EMAIL_LIST = CC_EMAIL_LIST.replace(";", ",").split(",")
+
+  if isinstance(BCC_EMAIL_LIST, basestring):
+    BCC_EMAIL_LIST = BCC_EMAIL_LIST.replace(";", ",").split(",")
 
 
-    COMMASPACE = ", "
+  COMMASPACE = ", "
 
-    msg = MIMEMultipart()
+  msg = MIMEMultipart()
 
-    finalReciepients = list()
+  finalReciepients = list()
 
-    #Support both: python list as well as comma separated lists
-    flattenedToList = flattenList(TO_EMAIL_LIST)
-    flattenedCCList = flattenList(CC_EMAIL_LIST)
-    flattenedBCCList = flattenList(BCC_EMAIL_LIST) # At this point we are sure either these are None or a valid list
+  #Support both: python list as well as comma separated lists
+  flattenedToList = flattenList(TO_EMAIL_LIST)
+  flattenedCCList = flattenList(CC_EMAIL_LIST)
+  flattenedBCCList = flattenList(BCC_EMAIL_LIST) # At this point we are sure either these are None or a valid list
 
-    msg['From'] = fromDisplayName + "<" + FROM_EMAIL + ">"
+  msg['From'] = fromDisplayName + "<" + FROM_EMAIL + ">"
 
-    if flattenedToList:
-        msg['To'] = COMMASPACE.join(flattenedToList)
-        finalReciepients.extend(flattenedToList)
-    if flattenedCCList:
-        msg['CC'] = COMMASPACE.join(flattenedCCList)
-        finalReciepients.extend(flattenedCCList)
-    if flattenedBCCList:
-        msg['BCC'] = COMMASPACE.join(flattenedBCCList)
-        finalReciepients.extend(flattenedBCCList)
+  if flattenedToList:
+    msg['To'] = COMMASPACE.join(flattenedToList)
+    finalReciepients.extend(flattenedToList)
+  if flattenedCCList:
+    msg['CC'] = COMMASPACE.join(flattenedCCList)
+    finalReciepients.extend(flattenedCCList)
+  if flattenedBCCList:
+    msg['BCC'] = COMMASPACE.join(flattenedBCCList)
+    finalReciepients.extend(flattenedBCCList)
 
-    print("TO  | {}".format(msg['To']))
-    print("CC  | {}".format(msg['CC']))
-    print("BCC | {}".format(msg['BCC']))
+  print("TO  | {}".format(msg['To']))
+  print("CC  | {}".format(msg['CC']))
+  print("BCC | {}".format(msg['BCC']))
 
-    msg['Subject'] = emailSubject
+  msg['Subject'] = emailSubject
 
-    msg.attach(MIMEText(BODYTEXT, textType))
+  msg.attach(MIMEText(BODYTEXT, textType))
 
-    if zfilename is not None:
-        part = MIMEBase('application', 'octet-stream')
-        part.set_payload(open(zfilename, 'rb').read())
-        encoders.encode_base64(part)
-        part.add_header('Content-Disposition', 'attachment; filename="%s"' % os.path.basename(zfilename))
-        msg.attach(part)
+  if zfilename is not None:
+    part = MIMEBase('application', 'octet-stream')
+    part.set_payload(open(zfilename, 'rb').read())
+    encoders.encode_base64(part)
+    part.add_header('Content-Disposition', 'attachment; filename="%s"' % os.path.basename(zfilename))
+    msg.attach(part)
 
-    mailServer = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-    mailServer.ehlo()
-    mailServer.starttls()
-    mailServer.login(FROM_EMAIL, MPASS)
-    if not TESTING:
-        mailServer.sendmail(FROM_EMAIL, finalReciepients, msg.as_string())
-    mailServer.close()    # Should be mailServer.quit(), but that crashes...
-    return
+  mailServer = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+  mailServer.ehlo()
+  mailServer.starttls()
+  mailServer.login(FROM_EMAIL, MPASS)
+  if not TESTING:
+    mailServer.sendmail(FROM_EMAIL, finalReciepients, msg.as_string())
+  mailServer.close()    # Should be mailServer.quit(), but that crashes...
+  return

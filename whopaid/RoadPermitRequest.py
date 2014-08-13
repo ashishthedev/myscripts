@@ -73,7 +73,7 @@ def ParseOptions():
             default=None, help="If present, emails will be sent with this as "
             "last line.")
 
-    p.add_argument("-fp", "--file-path", dest="file_path", type=str,
+    p.add_argument("-sb", "--scanned-bill", dest="file_path", type=str,
              default=None, help = "If present file will be sent as attachment")
 
 
@@ -101,7 +101,7 @@ def main():
     if chosenComp:
       if args.mail:
         SendRoadPermitRequest(chosenComp, allBillsDict, args)
-      if args.sms:
+      if args.sms and not args.isDemo:
         SendOfficialSMSAndMarkCC(chosenComp, """Dear Sir,
 Kindly issue the road permit. Details have been emailed.
 Thanks.
@@ -141,10 +141,8 @@ def SendRoadPermitRequest(compName, allBillsDict, args):
     bccMailList = GetOption("EMAIL_REMINDER_SECTION", 'BCCEmailList').replace(';', ',').split(','),
 
     print("Preparing mail...")
-    filePath = None
     if args.file_path:
-        filePath = args.file_path
-        if not os.path.exists(filePath):
+        if not os.path.exists(args.file_path):
             raise Exception("{} does not exist. This path is given as an attachment to be sent along with road permit")
     mailBody = PrepareMailContentForThisComp(compName, allBillsDict, args)
 
@@ -156,7 +154,7 @@ def SendRoadPermitRequest(compName, allBillsDict, args):
 
     section = "EMAIL_REMINDER_SECTION"
     SendMail(args.emailSubject,
-            filePath,
+            args.file_path,
             GetOption(section, 'Server'),
             GetOption(section, 'Port'),
             GetOption(section, 'FromEmailAddress'),
@@ -186,6 +184,7 @@ def PrepareMailContentForThisComp(compName, allBillsDict, args):
         raise MyException("\nM/s {} doesnt have a displayable 'city'. Please feed it in the database".format(compName))
 
     dictVal = dict()
+    dictVal["Company Name"] = companyName
     dictVal["Bill#"] = int(args.billNumber)
     dictVal["Invoice Date"] = DD_MM_YYYY(args.invoiceDate)
     dictVal["Amount after Tax"] = "Rs." + args.billAmount
@@ -203,20 +202,22 @@ def PrepareMailContentForThisComp(compName, allBillsDict, args):
             for eachFGColr in [MyColors["WHITE"], MyColors["BLACK"]]:
                 tableRows += "<br>"
                 tableRows += TableHeaderRow(
-                        eachFGColr,
-                        MyColors[eachBGColor],
-                        "Bill#",
-                        "Invoice Date",
-                        "Amount",
-                        "Material Description",
-                        "Color")
+                    eachFGColr,
+                    MyColors[eachBGColor],
+                    "Company Name",
+                    "Bill#",
+                    "Invoice Date",
+                    "Amount",
+                    "Material Description",
+                    "Color")
 
                 tableRows += TableDataRow(
-                        int(args.billNumber),
-                        DD_MM_YYYY(args.invoiceDate),
-                        "Rs." + args.billAmount,
-                        args.materialDesc,
-                        eachBGColor)
+                    companyName,
+                    int(args.billNumber),
+                    DD_MM_YYYY(args.invoiceDate),
+                    "Rs." + args.billAmount,
+                    args.materialDesc,
+                    eachBGColor)
 
     def constant_factory(value):
         from itertools import repeat

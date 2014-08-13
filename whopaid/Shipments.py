@@ -10,11 +10,10 @@ from Util.Colors import MyColors
 from Util.Config import GetOption
 from Util.HTML import UnderLine, Bold, PastelOrangeText, TableHeaderRow, TableDataRow
 from Util.Misc import PrintInBox, GetMsgInBox, DD_MM_YYYY, DD_MMM_YYYY, IsDeliveredAssessFromStatus
-from Util.PythonMail import SendMail
-from Util.Sms import CanSendSmsAsOfNow
 
 from whopaid.CustomersInfo import GetAllCustomersInfo
 from whopaid.courier.couriers import Courier
+from whopaid.OffComm import SendOfficialSMS
 from whopaid.SanityChecks import SendAutomaticHeartBeat, CheckConsistency
 from whopaid.UtilWhoPaid import GetAllBillsInLastNDays, RemoveTrackingBills
 
@@ -34,6 +33,7 @@ import urllib2
 MAX_IN_TRANSIT_DAYS = 15
 MAX_DAYS_FOR_SENDING_NOTIFICATION = 4
 IS_DEMO = True
+NOT_PROVIDED = "Not provided"
 
 #Shipment
 # |-ShipmentMail
@@ -161,7 +161,7 @@ class ShipmentMail(object):
 
 class PersistentShipment(object):
   shelfFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"),
-            GetOption("CONFIG_SECTION", "ShipmentStatus"))
+      GetOption("CONFIG_SECTION", "ShipmentStatus"))
 
   def __init__(self, bill):
     self.bill = bill
@@ -272,7 +272,6 @@ class PersistentShipment(object):
 
 
 def SendMaterialDispatchSms(bill):
-  from whopaid.OffComm import SendOfficialSMS
   optionalAmount = ""
   if GetAllCustomersInfo().IncludeBillAmountInEmails(bill.compName):
     optionalAmount = "Amount: Rs." + str(int(bill.amount)) + "/-"
@@ -345,116 +344,114 @@ def SendMaterialDispatchMail(bill, ctxt):
   print("Sending to: " + str(toMailList))
 
   section = "EMAIL_REMINDER_SECTION"
-  SendMail(ctxt.emailSubject,
+  from whopaid.OffComm import SendOfficialEmail
+  SendOfficialEmail(ctxt.emailSubject,
       None,
-      GetOption(section, 'Server'),
-      GetOption(section, 'Port'),
-      GetOption(section, 'FromEmailAddress'),
       toMailList,
       ccMailList,
       bccMailList,
-      GetOption(section, 'Mpass'),
       mailBody,
       textType="html",
-      fromDisplayName=GetOption(section, "shipmentDetailsName"))
-
+      fromDisplayName = GetOption(section,"shipmentDetailsName"))
   return
 
 
 def PrepareShipmentEmailForThisBill(bill, ctxt):
-    """Given a company, this function will prepare an email for shipment details."""
+  """
+  Given a company, this function will prepare an email for shipment details.
+  """
 
-    allCustInfo = GetAllCustomersInfo()
-    letterDate = DD_MM_YYYY(datetime.date.today())
-    officalCompName = allCustInfo.GetCompanyOfficialName(bill.compName)
-    if not officalCompName:
-      raise ShipmentException("\nM/s {} doesnt have a displayable 'name'. Please feed it in the database".format(bill.compName))
+  allCustInfo = GetAllCustomersInfo()
+  letterDate = DD_MM_YYYY(datetime.date.today())
+  officalCompName = allCustInfo.GetCompanyOfficialName(bill.compName)
+  if not officalCompName:
+    raise ShipmentException("\nM/s {} doesnt have a displayable 'name'. Please feed it in the database".format(bill.compName))
 
-    companyCity = allCustInfo.GetCustomerCity(bill.compName)
-    if not companyCity:
-      raise ShipmentException("\nM/s {} doesnt have a displayable 'city'. Please feed it in the database".format(bill.compName))
+  companyCity = allCustInfo.GetCustomerCity(bill.compName)
+  if not companyCity:
+    raise ShipmentException("\nM/s {} doesnt have a displayable 'city'. Please feed it in the database".format(bill.compName))
 
-    includeAmount = allCustInfo.IncludeBillAmountInEmails(bill.compName)
-    tableHeadersArgs = ["Bill#", "Dispatched Through", "Tracking Number", "Shipping Date", "Material Description"]
-    tableDataRowArgs = [ str(int(bill.billNumber)), str(bill.courierName), str(bill.docketNumber), DD_MM_YYYY(bill.docketDate), bill.materialDesc]
+  includeAmount = allCustInfo.IncludeBillAmountInEmails(bill.compName)
+  tableHeadersArgs = ["Bill#", "Dispatched Through", "Tracking Number", "Shipping Date", "Material Description"]
+  tableDataRowArgs = [ str(int(bill.billNumber)), str(bill.courierName), str(bill.docketNumber), DD_MM_YYYY(bill.docketDate), bill.materialDesc]
 
-    if includeAmount:
-        tableHeadersArgs.append("Bill Amount")
-        tableDataRowArgs.append("Rs.{}/-".format(str(int(bill.amount))))
+  if includeAmount:
+    tableHeadersArgs.append("Bill Amount")
+    tableDataRowArgs.append("Rs.{}/-".format(str(int(bill.amount))))
 
-    tableRows = TableHeaderRow(
-            MyColors["BLACK"],
-            MyColors["SOLARIZED_GREY"],
-            *tableHeadersArgs)
+  tableRows = TableHeaderRow(
+      MyColors["BLACK"],
+      MyColors["SOLARIZED_GREY"],
+      *tableHeadersArgs)
 
-    tableRows += TableDataRow(
-            MyColors["BLACK"],
-            MyColors["WHITE"],
-            *tableDataRowArgs)
+  tableRows += TableDataRow(
+      MyColors["BLACK"],
+      MyColors["WHITE"],
+      *tableDataRowArgs)
 
-    def constant_factory(value):
-        return repeat(value).next
+  def constant_factory(value):
+    return repeat(value).next
 
-    d = defaultdict(constant_factory(""))
+  d = defaultdict(constant_factory(""))
 
-    if ctxt.first_line:
-        d['tFirstLine'] = ctxt.first_line + '<br><br>'
+  if ctxt.first_line:
+    d['tFirstLine'] = ctxt.first_line + '<br><br>'
 
-    if ctxt.second_line:
-        d['tSecondLine'] = ctxt.second_line + '<br><br>'
+  if ctxt.second_line:
+    d['tSecondLine'] = ctxt.second_line + '<br><br>'
 
-    if ctxt.last_line:
-        d['tLastLine'] = ctxt.last_line + '<br><br>'
+  if ctxt.last_line:
+    d['tLastLine'] = ctxt.last_line + '<br><br>'
 
-    if ctxt.kaPerson:
-        d['tPerson'] = Bold("Kind Attention: " + ctxt.kaPerson + '<br><br>')
+  if ctxt.kaPerson:
+    d['tPerson'] = Bold("Kind Attention: " + ctxt.kaPerson + '<br><br>')
 
-    d['tLetterDate'] = letterDate
-    d['tOfficialCompanyName'] = officalCompName
-    d['tCompanyCity'] = companyCity
-    d['tTableRows'] = tableRows
-    d['tBodySubject'] = PastelOrangeText(Bold(UnderLine(ctxt.emailSubject)))
-    d['tSignature'] = GetOption("EMAIL_REMINDER_SECTION", "Signature")
+  d['tLetterDate'] = letterDate
+  d['tOfficialCompanyName'] = officalCompName
+  d['tCompanyCity'] = companyCity
+  d['tTableRows'] = tableRows
+  d['tBodySubject'] = PastelOrangeText(Bold(UnderLine(ctxt.emailSubject)))
+  d['tSignature'] = GetOption("EMAIL_REMINDER_SECTION", "Signature")
 
-    templateMailBody = Template("""
-  <html>
-      <head>
-      </head>
-      <body style=" font-family: Helvetica, Georgia, Verdana, Arial, 'sans-serif'; font-size: 1.1em; line-height: 1.5em;" >
-      <p>
-      $tLetterDate<br>
-      <br>
-      To,<br>
-      M/s $tOfficialCompanyName,<br>
-      $tCompanyCity.<br>
-      <br>
-      $tBodySubject<br>
-      <br>
-      $tPerson
-      Dear Sir,<br>
-      <br>
-      $tFirstLine
-      $tSecondLine
-      Please find below the details of the dispatched material:
-      <table border=1 cellpadding=5>
-      $tTableRows
-      </table>
-      </p>
-      <br>
-      $tLastLine
-      <hr>
-      <p>
-      <font color="grey"> <small>
-      $tSignature
-      </small></font>
-      </p>
-      </body>
-  </html>
-  """)
+  templateMailBody = Template("""
+<html>
+    <head>
+    </head>
+    <body style=" font-family: Helvetica, Georgia, Verdana, Arial, 'sans-serif'; font-size: 1.1em; line-height: 1.5em;" >
+    <p>
+    $tLetterDate<br>
+    <br>
+    To,<br>
+    M/s $tOfficialCompanyName,<br>
+    $tCompanyCity.<br>
+    <br>
+    $tBodySubject<br>
+    <br>
+    $tPerson
+    Dear Sir,<br>
+    <br>
+    $tFirstLine
+    $tSecondLine
+    Please find below the details of dispatched material:
+    <table border=1 cellpadding=5>
+    $tTableRows
+    </table>
+    </p>
+    <br>
+    $tLastLine
+    <hr>
+    <p>
+    <font color="grey"> <small>
+    $tSignature
+    </small></font>
+    </p>
+    </body>
+</html>
+""")
 
-    finalMailBody = templateMailBody.substitute(d)
+  finalMailBody = templateMailBody.substitute(d)
 
-    return finalMailBody
+  return finalMailBody
 
 
 
@@ -462,41 +459,42 @@ def ParseOptions():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("-mmas", "--mark-mail-as-sent", dest='markMailAsSentForDocket', type=str, default=None,
-            help="Mark the mail as sent.")
+        help="Mark the mail as sent.")
 
     parser.add_argument("-sus", "--show-undelivered-small", dest='showUndeliveredSmall', action="store_true", default=False,
-            help="If present, show undelivered parcels on screen")
+        help="If present, show undelivered parcels on screen")
 
     parser.add_argument("-su", "--show-undelivered", dest='showUndeliveredBig', action="store_true", default=False,
-            help="If present, show undelivered parcels on screen")
+        help="If present, show undelivered parcels on screen")
 
     parser.add_argument("-d", "--days", dest='days', type=int, default=MAX_IN_TRANSIT_DAYS,
-            help="Last N days in which courier status will be checked.")
+        help="Last N days in which courier status will be checked.")
 
     parser.add_argument("--clearDB", dest='clearDB', action='store_true',
-            default=False, help="Clears the database")
+        default=False, help="Clears the database")
 
     parser.add_argument("-ns", "--new-snapshot", dest='newSnapshotForDocket', type=str, default=None,
-            help="Take new snapshot for docket")
+        help="Take new snapshot for docket")
 
     parser.add_argument("-rt", "--remove-tracking", dest='removeTrackingForDocket', type=str, default=None,
-            help="If you want to temprarily remove a docket from tracking - Use it")
+        help="If you want to temprarily remove a docket from tracking - Use it")
 
     parser.add_argument("-fmd", "--force-mark-delivered", dest='forceMarkDeliveredDocket', type=str, default=None,
-            help="If you want to remove a docket from tracking(for ex/- very old docket). If the docket comes falls under purview of default days, it will be added to tracking index again.")
+        help="If you want to remove a docket from tracking(for ex/- very old docket). If the docket comes falls under purview of default days, it will be added to tracking index again.")
 
     parser.add_argument("--mail", dest="sendMailToAllCompanies", action="store_true",
-            default=False, help="Send shipment mail to eligible companies")
+        default=False, help="Send shipment mail to eligible companies")
 
     parser.add_argument("-sms", "--dispatch-sms-all", dest='sendDispatchSms', action="store_true", default=False,
-            help="Send the sms to parties about dispatches.")
+        help="Send the sms to parties about dispatches.")
 
     parser.add_argument("--track", dest="trackAllUndeliveredCouriers", action="store_true",
-            default=False, help="Track all undelivered couriers")
+        default=False, help="Track all undelivered couriers")
 
     parser.add_argument("--demo", dest="isDemo", action="store_true", default=False,
-            help="Set this for a demo run")
+        help="Set this for a demo run")
 
+    parser.add_argument("--complaint", dest="complaintDocket", action="store_true", default=False, help="Will send a complaint to appropriate local courier agent")
     return parser.parse_args()
 
 
@@ -535,14 +533,15 @@ def _RemoveDocketFromIndex(docketNumber):
   return
 
 def _NewSnapshotForDocket(docketNumber):
-    print("About to take a new snapshot for docket: {}".format(docketNumber))
-    for s in PersistentShipment.GetAllStoredShipments():
-        if s.bill.docketNumber == docketNumber:
-            print("Taking snapshot for docket {}".format(docketNumber))
-            s.TakeNewSnapshot()
-            break
-    else:
-        print("Could not find the docket {}".format(docketNumber))
+  print("About to take a new snapshot for docket: {}".format(docketNumber))
+  for s in PersistentShipment.GetAllStoredShipments():
+    if s.bill.docketNumber == docketNumber:
+      print("Taking snapshot for docket {}".format(docketNumber))
+      s.TakeNewSnapshot()
+      break
+  else:
+    print("Could not find the docket {}".format(docketNumber))
+  return
 
 def ShowUndeliveredSmalOnScreen():
   shipments = PersistentShipment.GetAllUndeliveredShipments()
@@ -580,12 +579,62 @@ def ShowUndeliveredOnScreen():
           "Address: " + address,
           "Ph: " + str(phNo),
           ]))
+  return
+
+def SendComplaintMessageForShipment(shipment):
+  allCustInfo = GetAllCustomersInfo()
+  bill = shipment.bill
+  d = dict()
+
+  d["tDocketNumber"] = bill.docketNumber
+  d["tDocketDate"] = DD_MMM_YYYY(bill.docketDate)
+  d["tDocketDate"] = DD_MMM_YYYY(bill.docketDate)
+  d["tOfficialCompanyName"] = allCustInfo.GetCompanyOfficialName(bill.compName)
+  d["tDeliveryAddress"] = allCustInfo.GetCustomerDeliveryAddress(bill.compName)
+  d["tPhone"] = allCustInfo.GetCustomerPhoneNumber(bill.compName)
+
+
+  smsTemplate = Template("""
+The following parcel is not delivered. Kindly get it delivered.
+Date: $tDocketDate
+Docket: $tDocketNumber
+Name: $tOfficialCompanyName
+Add: $tDeliveryAddress
+Ph: $tPhone
+Thanks.
+""")
+
+  smsContents = smsTemplate.substitute(d)
+  from Util.Sms import SendSms
+  smsNo = GetOption("COURIER_COMPLAINT_R", bill.courierName)[::-1]
+
+  PrintInBox(smsContents)
+  if raw_input("Send to {} {}: (y/n)".format(bill.courierName, smsNo)).lower() == "y":
+    SendSms(smsNo, smsContents)
+  else:
+    print("Not sending sms...")
+  return
+
+def SendComplaintMessageForDocket(docketNumber):
+  shipments = PersistentShipment.GetAllUndeliveredShipments()
+  for s in shipments:
+    if s.bill.docketNumber == docketNumber:
+      return SendComplaintMessageForShipment(s)
+  else:
+    raise ShipmentException("Sorry no such docket is entered in system: {}".format(docketNumber))
+  return
+
 
 def main():
   args = ParseOptions()
 
   global IS_DEMO
   IS_DEMO = args.isDemo
+
+  if args.complaintDocket:
+    complaintDocket = raw_input("Enter the docket for which complaint has to be sent: ")
+    SendComplaintMessageForDocket(complaintDocket)
+    import sys; sys.exit(0)
 
   if args.clearDB:
     PrintInBox("Starting afresh")
@@ -611,47 +660,10 @@ def main():
   if args.newSnapshotForDocket:
     _NewSnapshotForDocket(args.newSnapshotForDocket)
 
-#  if args.sendMailToAllCompanies:
-#    SendMailToAllComapnies(args)
-#
-#  if args.sendDispatchSms:
-#    PrintInBox("Preparing to send SMS now")
-#    SendDispatchSMSToAllCompanies(args)
-#
   SendMailToAllComapnies(args)
 
   if args.trackAllUndeliveredCouriers:
     TrackAllShipments(args)
-
-def SendDispatchSMSToAllCompanies(args):
-  bills = [b for b in GetAllBillsInLastNDays(args.days) if b.docketDate]
-  #bills = RemoveTrackingBills(bills)
-  [PersistentShipment.GetOrCreateShipmentForBill(b) for b in bills]
-  shipments = PersistentShipment.GetAllStoredShipments()
-  shipments = [s for s in shipments if s.ShouldWeTrackThis()] #Filter our deliverd shipments
-  shipments = [s for s in shipments if not s.wasShipmentSmsEverSent()]
-  shipments = [s for s in shipments if s.isSMSNoAvailable()]
-  shipments = [s for s in shipments if s.daysPassed < MAX_DAYS_FOR_SENDING_NOTIFICATION]
-  shipments.sort(key=lambda s: s.bill.docketDate, reverse=True)
-
-  if len(shipments) != 0:
-    if not CanSendSmsAsOfNow():
-      raise Exception("Sorry. SMS cannot be sent as of now. The phone might not be nearby or not paired with this computer.")
-  else:
-    PrintInBox("All the SMSes that could have been sent have been sent.")
-    return
-
-  try:
-    for eachShipment in shipments:
-      print("_"*70)
-      if 'y' == raw_input("Send sms for {} (y/n)?".format(eachShipment)).lower():
-        eachShipment.sendSmsForThisShipment()
-      else:
-        print("Not sending sms...")
-  except ShipmentException as ex:
-    print(ex)
-    #eat the exception after printing. We have printed our custom exception, its good enough.
-  return
 
 def SendMailToAllComapnies(args):
   bills = [b for b in GetAllBillsInLastNDays(args.days) if b.docketDate]
@@ -663,18 +675,16 @@ def SendMailToAllComapnies(args):
   shipments = [s for s in shipments if s.daysPassed < MAX_DAYS_FOR_SENDING_NOTIFICATION]
   shipments.sort(key=lambda s: s.bill.docketDate, reverse=True)
 
-  for eachShipment in shipments:
+  for shipment in shipments:
     try:
-      if args.sendMailToAllCompanies:
-        print("_"*70)
-        if 'y' == raw_input("Send mail for {} (y/n)?".format(eachShipment)).lower():
-          eachShipment.sendMailForThisShipment()
+      if args.sendMailToAllCompanies and not shipment.wasShipmentMailEverSent():
+        if 'y' == raw_input("{}\nSend mail for {} (y/n)?".format("_"*70, shipment)).lower():
+          shipment.sendMailForThisShipment()
         else:
           print("Not sending mail...")
-      if args.sendDispatchSms:
-        print("_"*70)
-        if 'y' == raw_input("Send sms for {} (y/n)?".format(eachShipment)).lower():
-          eachShipment.sendSmsForThisShipment()
+      if args.sendDispatchSms and not shipment.wasShipmentSmsEverSent():
+        if 'y' == raw_input("{}\nSend sms for {} (y/n)?".format("_"*70, shipment)).lower():
+          shipment.sendSmsForThisShipment()
         else:
           print("Not sending sms...")
     except ShipmentException as ex:

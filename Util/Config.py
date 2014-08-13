@@ -32,24 +32,24 @@ def _GetConfigFilePath(currentPath):
     return os.path.abspath(result)
 
 def GetAppDir():
-    #Assumption: The pycrm.cfg is always one level down of APPDIR
-    return os.path.dirname(_GetConfigFilePath(os.getcwd()))
+  #Assumption: The pycrm.cfg is always one level down of APPDIR
+  return os.path.dirname(_GetConfigFilePath(os.getcwd()))
 
 def GetAppDirPath():
-    return GetAppDir()
+  return GetAppDir()
 
 def GetConfigFilePath():
-    return _GetConfigFilePath(os.getcwd())
+  return _GetConfigFilePath(os.getcwd())
 
 def GetOption(sectionName, optionName):
-    configFilePath = _GetConfigFilePath(os.getcwd())
-    parser = SafeConfigParser()
-    parser.read(configFilePath)
+  configFilePath = _GetConfigFilePath(os.getcwd())
+  parser = SafeConfigParser()
+  parser.read(configFilePath)
 
-    if not parser.has_section(sectionName):
-        raise MyException("'%s' does not have any section named '%s'" % (configFilePath, sectionName))
+  if not parser.has_section(sectionName):
+    raise MyException("'%s' does not have any section named '%s'" % (configFilePath, sectionName))
 
-    if not parser.has_option(sectionName, optionName):
-        raise MyException("'%s' does not have any option named '%s' under section '%s'" % (configFilePath, optionName, sectionName))
+  if not parser.has_option(sectionName, optionName):
+    raise MyException("'%s' does not have any option named '%s' under section '%s'" % (configFilePath, optionName, sectionName))
 
-    return parser.get(sectionName, optionName)
+  return parser.get(sectionName, optionName)

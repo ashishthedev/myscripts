@@ -20,6 +20,7 @@ import argparse
 import datetime
 import os
 
+#TODO: Remove names already entered.
 
 
 def ParseOptions():

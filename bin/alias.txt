@@ -107,6 +107,7 @@ analyze = pushd %XDATDOCSDIR%\\myscripts\\misc\\PhoneBillAnalysis && AnalyzeBill
 
 trs = pushd %XDATDOCSDIR%\MyScripts\whopaid && Shipments.py --track $* && pushd %XDATDOCSDIR%\..\DocketPODs && start. && popd
 undelivered = pushd %XDATDOCSDIR%\MyScripts\whopaid && Shipments.py --show-undelivered-small && popd
+parcom = pushd %XDATDOCSDIR%\MyScripts\whopaid && Shipments.py --show-undelivered-small && Shipments.py --complaint $* && popd
 lfp = pushd %XDATDOCSDIR%\MyScripts\whopaid && Statement.py --last-few-payments && popd
 
 opybk = "B:\Read\Python\The Quick Python Book 2e - Vernon Ceder - Manning (2010).pdf"

@@ -112,50 +112,33 @@ SMSOBJECT = AndriodSMSGateway()
 
 @RetryFor5TimesIfFailed
 def CanSendSmsAsOfNow():
-    return SMSOBJECT.CanSendSmsAsOfNow()
+  return SMSOBJECT.CanSendSmsAsOfNow()
 
 @RetryFor2TimesIfFailed
 def SendSms(toThisNumber, smsContents):
-    return SMSOBJECT.SendSms(toThisNumber, smsContents)
+  return SMSOBJECT.SendSms(toThisNumber, smsContents)
 
 def PrefetchResources():
-    return SMSOBJECT.PrefetchResources()
+  return SMSOBJECT.PrefetchResources()
 
 def StripHTMLTags(html):
-    from HTMLParser import HTMLParser
-    class MLStripper(HTMLParser):
-        def __init__(self):
-            self.reset()
-            self.fed = []
-        def handle_data(self, d):
-            self.fed.append(d)
-        def get_data(self):
-            SPACE = ' '
-            return SPACE.join(self.fed)
+  from HTMLParser import HTMLParser
+  class MLStripper(HTMLParser):
+    def __init__(self):
+      self.reset()
+      self.fed = []
+    def handle_data(self, d):
+      self.fed.append(d)
+    def get_data(self):
+      SPACE = ' '
+      return SPACE.join(self.fed)
 
-    s = MLStripper()
-    s.feed(html)
-    return s.get_data()
+  s = MLStripper()
+  s.feed(html)
+  return s.get_data()
 
 if __name__ == "__main__":
-    TEST_NUMBER = "4430890569"[::-1]
-    SMSOBJECT = AndriodSMSGateway()
-    if SMSOBJECT.CanSendSmsAsOfNow():
-        SMSOBJECT.SendSms(TEST_NUMBER, "Hi this is from program")
-    #for i in range(2):
-    #    #Send 2 sms and see if there is any problem in sending them very fast
-    #    d = datetime.datetime.now()
-    #    msg = "Sending at {}".format(d)
-    #    SendSmsFromAndriodUsingSMSGateway(TEST_NUMBER, msg)
-
-
-
-    #if CanSendSmsAsOfNow():
-    #    PrintInBox("SMS can now be sent")
-    #else:
-    #    PrintInBox("Sorry. There is some problem and smses cannot be sent as of now.")
-    #s=""
-    #for x in range(200):
-    #    s += str(x) + " "
-    #SendSms("7599120471", s)
-
+  TEST_NUMBER = "4430890569"[::-1]
+  SMSOBJECT = AndriodSMSGateway()
+  if SMSOBJECT.CanSendSmsAsOfNow():
+    SMSOBJECT.SendSms(TEST_NUMBER, "Hi this is from program")
