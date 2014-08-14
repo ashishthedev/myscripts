@@ -11,7 +11,7 @@ from Util.Misc import printNow
 
 class SingleFile(object):
   """This class represents a entity having filename and last modified time."""
-  def __init__(self, path, lastModTime):
+  def __init__(self, path, lastModTime=None):
     super(SingleFile, self).__init__()
     self.path = path
     self.lastModTime = lastModTime
@@ -19,6 +19,13 @@ class SingleFile(object):
     return self.lastModTime < other.lastModTime
 
 
+def TopLevelFilesInThisDirectory(directory):
+  """It all starts here."""
+  allFiles = [os.path.join(directory, fl) for fl in os.listdir(directory)]
+  return [SingleFile(f) for f in allFiles]
+
+
+  return allFiles
 def AllFilesInThisDirectory(directory):
   """It all starts here."""
   allFiles = list()
