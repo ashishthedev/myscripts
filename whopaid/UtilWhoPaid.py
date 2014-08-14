@@ -290,7 +290,7 @@ def GetAllBillsInLastNDays(nDays):
     #TODO:Super slow needs optimization
     allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
     totalBillList = list()
-    for compName, compBillList in allBillsDict.items():
+    for compName, compBillList in allBillsDict.iteritems():
         totalBillList.extend(compBillList)
     dateObject = datetime.date.today() - datetime.timedelta(days=nDays)
     return SelectBillsAfterDate(totalBillList, dateObject)
@@ -551,7 +551,7 @@ def StoreNewTimeForBillsFile():
 
 def ShowPendingOrdersOnScreen():
   allOrdersDict = GetAllCompaniesDict().GetAllOrdersOfAllCompaniesAsDict()
-  for eachComp, orders in allOrdersDict.items():
+  for eachComp, orders in allOrdersDict.iteritems():
     for eachOrder in orders:
       print(type(eachOrder))
       PrintInBox(str(eachOrder))

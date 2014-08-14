@@ -59,7 +59,7 @@ def _DumpOrdersDB():
 
   data = list() #THis will have one day orders
 
-  for eachCompName, orders in allOrdersDict.items():
+  for eachCompName, orders in allOrdersDict.iteritems():
     for eachOrder in orders:
       singleOrder = dict()
       singleOrder["custName"] = eachOrder.compName
@@ -111,7 +111,7 @@ def _DumpPaymentsDB():
   data = {}
   allCustomers = []
 
-  for eachCompName, eachCompBills in allBillsDict.items():
+  for eachCompName, eachCompBills in allBillsDict.iteritems():
     adjustmentList = allAdjustmentsDict.get(eachCompName, [])
     unpaidBillList = SelectUnpaidBillsFrom(eachCompBills)
     unpaidBillList = RemoveTrackingBills(unpaidBillList)
@@ -147,7 +147,7 @@ def _DumpPaymentsDB():
 
   data["customers"] = allCustomers
   allPayments = GetAllCompaniesDict().GetAllPaymentsByAllCompaniesAsDict()
-  recentPmtDate = max([p.pmtDate for comp, payments in allPayments.items() for p in payments])
+  recentPmtDate = max([p.pmtDate for comp, payments in allPayments.iteritems() for p in payments])
   compSmallName = GetOption("CONFIG_SECTION", "SmallName")
   data ["showVerbatimOnTop"] = "{} last pmt: {}".format(compSmallName, DD_MM_YYYY(recentPmtDate))
 

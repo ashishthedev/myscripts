@@ -158,8 +158,8 @@ class QuarterlyClubbedFORMC(object):
         """)
 
         yearDict = self.GetYearDict()
-        for eachYear, quarterDict in sorted(yearDict.items()):
-            for eachQuarter, billList in sorted(quarterDict.items()):
+        for eachYear, quarterDict in sorted(yearDict.iteritems()):
+            for eachQuarter, billList in sorted(quarterDict.iteritems()):
                 tableHTML = ""
                 rowSpanAdded = False
                 for eachBill in sorted(billList):

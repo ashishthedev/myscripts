@@ -76,12 +76,12 @@ def StartDBGeneration(shelfFilePath, DumpDBAsTextAtThisLocation=None):
     allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
     with closing(shelve.open(shelfFilePath)) as sh:
         sh.clear()
-        for eachCompName, eachComp in allBillsDict.items():
+        for eachCompName, eachComp in allBillsDict.iteritems():
             if len(SelectUnpaidBillsFrom(eachComp)) > int(GetOption("CONFIG_SECTION", "MaxUnpaidBills")):
                 print("Skipping :" + str(eachCompName))
                 continue
             d = DifferentStrAmountsThatCanBePaidByThisCompany(eachComp)
-            for eachAmt, listOfComps in d.items():
+            for eachAmt, listOfComps in d.iteritems():
                 if sh.has_key(eachAmt):
                     l = sh[eachAmt]
                     l.extend(listOfComps)

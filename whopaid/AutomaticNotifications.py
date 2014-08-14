@@ -32,10 +32,10 @@ def GetTopFiveClientsAsString(bills):
       d[grpName] = 0
     d[grpName] += int(b.amount)
 
-  od = OrderedDict(sorted(d.items(), key=lambda t: t[1], reverse=True))
+  od = OrderedDict(sorted(d.iteritems(), key=lambda t: t[1], reverse=True))
   res = ""
   i=1
-  for compName, amount in od.items()[:5]:
+  for compName, amount in od.iteritems()[:5]:
     res += "\n{}. Rs.{} {}".format(i, amount, compName)
     i+=1
   return res

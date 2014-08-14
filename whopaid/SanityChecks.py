@@ -50,7 +50,7 @@ def CheckIfAnyBillsShouldBeMarkedAsPaid(allBillsDict):
     raise Exception(msg)
 
 def CheckCancelledAmount(allBillsDict):
-  for (eachCompName, eachComp) in allBillsDict.items():
+  for (eachCompName, eachComp) in allBillsDict.iteritems():
     if eachCompName.lower().find("cancel") != -1:
       for eachBill in eachComp:
         if eachBill.amount != 0:
@@ -58,18 +58,18 @@ def CheckCancelledAmount(allBillsDict):
 
 
 def CheckBillingCategory(allBillsDict):
-  for (eachCompName, eachComp) in allBillsDict.items():
+  for (eachCompName, eachComp) in allBillsDict.iteritems():
     eachComp.CheckEachBillsBillingCategory()
 
 def CheckBillsCalculation(allBillsDict):
-  for (eachCompName, eachComp) in allBillsDict.items():
+  for (eachCompName, eachComp) in allBillsDict.iteritems():
     eachComp.CheckEachBillsCalculation()
 
 def ReportMissingOrDuplicateBillsSince(allBillsDict):
   d = defaultdict(list)
 
   #First sort all bills category wise
-  for eachCompName, eachComp in allBillsDict.items():
+  for eachCompName, eachComp in allBillsDict.iteritems():
     for eachBill in eachComp:
       d[eachBill.billingCategory].append(eachBill)
 

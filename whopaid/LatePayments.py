@@ -80,7 +80,7 @@ def DefaultersAsHTMLWithLessDesc(defaultedBillsDict, allBillsDict):
     """Late Payments as HTML """
     result = "\n"
     result += UnderLine("<H1>Payment Chase-up List</H1>")
-    l = list(defaultedBillsDict.items())
+    l = list(defaultedBillsDict.iteritems())
 
     YardStick = DelayInPayment
     YardStick = AmountStuckWithInterest
@@ -98,7 +98,7 @@ def DefaultersAsHTMLWithLessDesc(defaultedBillsDict, allBillsDict):
 
 def DefaultersAsStrWithLessDesc(defaultedBillsDict, allBillsDict):
     result = "\n"
-    l = list(defaultedBillsDict.items())
+    l = list(defaultedBillsDict.iteritems())
 
     YardStick = DelayInPayment
     YardStick = AmountStuckWithInterest
@@ -112,7 +112,7 @@ def DefaultersAsStrWithLessDesc(defaultedBillsDict, allBillsDict):
 
 def DefaultersAsStr(defaultedBillsDict):
     result = "\n"
-    l = list(defaultedBillsDict.items())#l contains the list of names
+    l = list(defaultedBillsDict.iteritems())#l contains the list of names
 
     YardStick = AmountStuckWithInterest
     YardStick = DelayInPayment
@@ -209,7 +209,7 @@ def AmountStuckWithInterest(billList):
 def FindDefaulters(allBillsDict):
     """Traverse each company, create a list of all bills and see what is the average number of days in which the payment is made"""
     defaultersDict = CompaniesDict()
-    for eachCompName, billList in allBillsDict.items():
+    for eachCompName, billList in allBillsDict.iteritems():
         averageDays = AveragePaymentDays(billList) + GRACEPERIOD
         unpaidBillsList = SelectUnpaidBillsFrom(billList)
         if len(unpaidBillsList):
