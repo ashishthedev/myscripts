@@ -52,55 +52,55 @@ class DispatchMailContext(object):
     last_line = None
 
 class ShipmentTrack(object):
-    def __init__(self, shipment, bill):
-        self.bill = bill
-        self.shipment = shipment #Back reference to parent shipment object
-        self.courier = Courier(bill)
-        self.status = "Not Tracked Yet"
-        self.isDelivered = False
-        pass
+  def __init__(self, shipment, bill):
+    self.bill = bill
+    self.shipment = shipment #Back reference to parent shipment object
+    self.courier = Courier(bill)
+    self.status = "Not Tracked Yet"
+    self.isDelivered = False
+    pass
 
-    def isDeliveredFn(self):
-        return self.isDelivered
+  def isDeliveredFn(self):
+    return self.isDelivered
 
-    def markAsDelivered(self):
-        self.isDelivered = True
+  def markAsDelivered(self):
+    self.isDelivered = True
 
-    def TakeNewSnapshot(self):
-        #For whatever reason, take a new snapshot.
-        self.courier.StoreSnapshot()
+  def TakeNewSnapshot(self):
+    #For whatever reason, take a new snapshot.
+    self.courier.StoreSnapshot()
 
-    def ShouldWeTrackThis(self):
-        #if self.shipment.daysPassed == 0:
-        #    return False
+  def ShouldWeTrackThis(self):
+    #if self.shipment.daysPassed == 0:
+    #    return False
 
-        if not self.bill.docketDate:
-            return False
+    if not self.bill.docketDate:
+        return False
 
-        if not self.bill.courierName:
-            return False
+    if not self.bill.courierName:
+        return False
 
-        if self.isDelivered:
-            return False
+    if self.isDelivered:
+        return False
 
-        return True
+    return True
 
-    def Track(self):
-        if self.isDelivered:
-            return # No need to do anything else
+  def Track(self):
+    if self.isDelivered:
+        return # No need to do anything else
 
-        try:
-            self.status = self.courier.GetStatus()
-        except urllib2.URLError:
-            raise ShipmentException("URL Error")
-        self.isDelivered  = IsDeliveredAssessFromStatus(self.status)
+    try:
+      self.status = self.courier.GetStatus()
+    except urllib2.URLError:
+      raise ShipmentException("URL Error")
+    self.isDelivered  = IsDeliveredAssessFromStatus(self.status)
 
-        if self.isDelivered:
-            self.courier.StoreSnapshot()
+    if self.isDelivered:
+      self.courier.StoreSnapshot()
 
-        self.shipment.saveInDB()
+    self.shipment.saveInDB()
 
-        return self.status
+    return self.status
 
 
 class ShipmentSms(object):
@@ -659,12 +659,12 @@ def main():
   if args.newSnapshotForDocket:
     _NewSnapshotForDocket(args.newSnapshotForDocket)
 
-  SendMailToAllComapnies(args)
+  FanOutDispatchInfoToAllComapnies(args)
 
   if args.trackAllUndeliveredCouriers:
     TrackAllShipments(args)
 
-def SendMailToAllComapnies(args):
+def FanOutDispatchInfoToAllComapnies(args):
   bills = [b for b in GetAllBillsInLastNDays(args.days) if b.docketDate]
   bills = RemoveTrackingBills(bills)
   [PersistentShipment.GetOrCreateShipmentForBill(b) for b in bills]

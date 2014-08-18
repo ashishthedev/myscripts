@@ -50,6 +50,10 @@ def ParseArguments():
             default=False, help="If present, margin will be left on top for"
             " the letterhead.")
 
+    p.add_argument("-s", "--sms", dest='sendSMS', action="store_true",
+            default=False, help="If present email will be sent to company else"
+            " a file will be saved to desktop.")
+
     p.add_argument("-e", "--email", dest='sendEmail', action="store_true",
             default=False, help="If present email will be sent to company else"
             " a file will be saved to desktop.")
@@ -81,12 +85,17 @@ def main():
     print("Churning data...")
 
     chosenComp = GuessCompanyName(args.comp)
-    GenerateFORMCForCompany(chosenComp, args)
+    SendFORMCMailToCompany(chosenComp, args)
+    SendFORMCSMSToCompany(chosenComp, args)
     CheckConsistency()
 
 
 def ShouldSendEmail(args):
-    return False if args.isDemo else args.sendEmail
+  return False if args.isDemo else args.sendEmail
+
+def ShouldSendSMS(args):
+  return False if args.isDemo else args.sendSMS
+
 
 
 class QuarterlyClubbedFORMC(object):
@@ -116,19 +125,19 @@ class QuarterlyClubbedFORMC(object):
     def _GetQuarterForThisBill(self, bill):
         """Given a bill returns the quarter in string form"""
         d = {
-                "1": "4",
-                "2": "4",
-                "3": "4",
-                "4": "1",
-                "5": "1",
-                "6": "1",
-                "7": "2",
-                "8": "2",
-                "9": "2",
-                "10": "3",
-                "11": "3",
-                "12": "3",
-                }
+            "1": "4",
+            "2": "4",
+            "3": "4",
+            "4": "1",
+            "5": "1",
+            "6": "1",
+            "7": "2",
+            "8": "2",
+            "9": "2",
+            "10": "3",
+            "11": "3",
+            "12": "3",
+            }
         return "Quarter" + d[str(bill.invoiceDate.month)]
 
     def SpitTableHTML(self, args):
@@ -314,7 +323,19 @@ class QuarterlyClubbedFORMC(object):
         return yearDict
 
 
-def GenerateFORMCForCompany(compName, args):
+def SendFORMCSMSToCompany(compName, args):
+  if ShouldSendSMS(args):
+    from whopaid.OffComm import SendOfficialSMSAndMarkCC
+    SendOfficialSMSAndMarkCC(compName, """Dear Sir,
+Kindly issue the road permit. Details have been emailed.
+Thanks.
+""")
+  else:
+    PrintInBox("Not sending SMS to company")
+  return
+
+
+def SendFORMCMailToCompany(compName, args):
     billList = GetAllCompaniesDict().GetBillsListForThisCompany(compName)
 
     #TODO: Remove args and take separate params

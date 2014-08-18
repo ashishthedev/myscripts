@@ -191,7 +191,8 @@ import sys
 import vim
 
 #Appdir has a defined structure inside it. Add desirable directories to path
-relativePath = "myscripts\pythonmodules"
+relativePath = "myscripts\Util"
+relativePath = "myscripts"
 if "appdir" in os.environ:
     path = os.path.join(GetSDATDir(), relativePath)
     path = os.path.normpath(path)

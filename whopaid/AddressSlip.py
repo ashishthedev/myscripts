@@ -6,13 +6,15 @@
 ##              Openpyxl for Python 3 must be installed
 ###############################################################################
 
-from whopaid.UtilWhoPaid import GuessCompanyName, GetAllCompaniesDict, SelectBillsAfterDate
-from whopaid.CustomersInfo import GetAllCustomersInfo
-from whopaid.SanityChecks import CheckConsistency
 from Util.Config import GetOption
 from Util.Exception import MyException
 from Util.Misc import PrintInBox, OpenFileForViewing, MakeSureDirExists, DD_MM_YYYY
 from Util.Persistant import Persistant
+
+from whopaid.UtilWhoPaid import GuessCompanyName, GetAllCompaniesDict, SelectBillsAfterDate
+from whopaid.CustomersInfo import GetAllCustomersInfo
+from whopaid.SanityChecks import CheckConsistency
+
 
 from string import Template
 
