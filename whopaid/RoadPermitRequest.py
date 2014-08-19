@@ -103,7 +103,7 @@ def main():
         SendRoadPermitRequest(chosenComp, allBillsDict, args)
       if args.sms and not args.isDemo:
         SendOfficialSMSAndMarkCC(chosenComp, """Dear Sir,
-Kindly issue the road permit. Details have been emailed.
+Kindly issue the road permit. The details have been sent to your email address.
 Thanks.
 """)
     else:

@@ -114,99 +114,99 @@ class KIND(object):
     PUNTED_ORDER = 5
 
 def GuessKindFromValue(val):
-    if val:
-        val = val.lower()
-        if val.lower() == "bill": return KIND.BILL
-        elif val.lower() == "payment": return KIND.PAYMENT
-        elif val.lower() == "adjustment": return KIND.ADJUSTMENT
-        elif val.lower() == "order": return KIND.ORDER
-        elif val.lower() == "punted": return KIND.PUNTED_ORDER
-    return None
+  if val:
+    val = val.lower()
+    if val.lower() == "bill": return KIND.BILL
+    elif val.lower() == "payment": return KIND.PAYMENT
+    elif val.lower() == "adjustment": return KIND.ADJUSTMENT
+    elif val.lower() == "order": return KIND.ORDER
+    elif val.lower() == "punted": return KIND.PUNTED_ORDER
+  return None
 
 def GuessKindFromRow(row):
-    for cell in row:
-        col = cell.column
-        val = cell.internal_value
+  for cell in row:
+    col = cell.column
+    val = cell.internal_value
 
-        if col == SheetCols.KindOfEntery:
-            return GuessKindFromValue(val)
-    return None
+    if col == SheetCols.KindOfEntery:
+      return GuessKindFromValue(val)
+  return None
 
 class _AllCompaniesDict(CompaniesDict):
-    """
-    This class represents the heart of logic.
-    It is an aggregation of all companies.
-    It is a dictonary of dict. Ist level ["BILL"/"PAYMENT"]. Second level company names. Values are list of all bills or payments.
-    Each member in the dict is a single company.
-    Each Single company holds the list of all bills ever issued to them.
-    """
-    def __init__(self, workbookPath):
-        super(_AllCompaniesDict, self).__init__()
-        wb = LoadIterableWorkbook(workbookPath)
-        ws = wb.get_sheet_by_name(GetOption("CONFIG_SECTION", "NameOfSaleSheet"))
-        MAX_ROW = ws.get_highest_row()
-        MIN_ROW = int(GetOption("CONFIG_SECTION", "DataStartsAtRow"))
-        rowNumber = 0
+  """
+  This class represents the heart of logic.
+  It is an aggregation of all companies.
+  It is a dictonary of dict. Ist level ["BILL"/"PAYMENT"]. Second level company names. Values are list of all bills or payments.
+  Each member in the dict is a single company.
+  Each Single company holds the list of all bills ever issued to them.
+  """
+  def __init__(self, workbookPath):
+    super(_AllCompaniesDict, self).__init__()
+    wb = LoadIterableWorkbook(workbookPath)
+    ws = wb.get_sheet_by_name(GetOption("CONFIG_SECTION", "NameOfSaleSheet"))
+    MAX_ROW = ws.get_highest_row()
+    MIN_ROW = int(GetOption("CONFIG_SECTION", "DataStartsAtRow"))
+    rowNumber = 0
 
-        for row in ws.iter_rows():
-            #TODO: Can we give a range to it with MIN_ROW and MAX_ROW?
-            rowNumber += 1
-            if rowNumber < MIN_ROW: continue
-            if rowNumber >= MAX_ROW: break
+    for row in ws.iter_rows():
+      #TODO: Can we give a range to it with MIN_ROW and MAX_ROW?
+      rowNumber += 1
+      if rowNumber < MIN_ROW: continue
+      if rowNumber >= MAX_ROW: break
 
-            kind = GuessKindFromRow(row)
-            if kind == KIND.BILL:
-                self.AddBill(CreateSingleBillRow(row))
-            elif kind == KIND.PAYMENT:
-                self.AddPayment(CreateSinglePaymentRow(row))
-            elif kind == KIND.ADJUSTMENT:
-                self.AddAdjustment(CreateSingleAdjustmentRow(row))
-            elif kind == KIND.ORDER:
-                self.AddOrder(CreateSingleOrderRow(row))
-            elif kind == KIND.PUNTED_ORDER:
-                pass #DO NOT DO ANYTHING FOR PUNTED ORDERS
-            else:
-                raise Exception("Error in row number: {} Kind of entry is invalid".format(rowNumber))
+      kind = GuessKindFromRow(row)
+      if kind == KIND.BILL:
+        self.AddBill(CreateSingleBillRow(row))
+      elif kind == KIND.PAYMENT:
+        self.AddPayment(CreateSinglePaymentRow(row))
+      elif kind == KIND.ADJUSTMENT:
+        self.AddAdjustment(CreateSingleAdjustmentRow(row))
+      elif kind == KIND.ORDER:
+        self.AddOrder(CreateSingleOrderRow(row))
+      elif kind == KIND.PUNTED_ORDER:
+        pass #DO NOT DO ANYTHING FOR PUNTED ORDERS
+      else:
+        raise Exception("Error in row number: {} Kind of entry is invalid".format(rowNumber))
 
 class Company(list):
+  """
+  For us, the company is same as the list of all bills. If any further info is required, it needs some overhauling.
+  """
+  def __init__(self, name):
+    super(Company, self).__init__(list())
+    self.compName = name  # Use this name. Do not pick name from first bill.
+
+  def __eq__(self, other):
     """
-    For us, the company is same as the list of all bills. If any further info is required, it needs some overhauling.
+    Crude Check. If sum of bill numbers is same, then the two lists are same.
     """
-    def __init__(self, name):
-        super(Company, self).__init__(list())
-        self.compName = name  # Use this name. Do not pick name from first bill.
+    return sum([int(b.billNumber) for b in self]) == sum ([int(b.billNumber) for b in other])
 
-    def __eq__(self, other):
-        """
-        Crude Check. If sum of bill numbers is same, then the two lists are same.
-        """
-        return sum([int(b.billNumber) for b in self]) == sum ([int(b.billNumber) for b in other])
-
-    def __str__(self):
-        res = "Company: M/s " + self.compName
-        if len(self) > 0:
-            for b in self:
-                res += "\n" + str(b)
-        else:
-            res +=  " has no bills"
-
-        return res
-
-    def CheckEachBillsCalculation(self):
+  def __str__(self):
+      res = "Company: M/s " + self.compName
+      if len(self) > 0:
         for b in self:
-            b.CheckCalculation()
+          res += "\n" + str(b)
+      else:
+        res +=  " has no bills"
 
-    def CheckEachBillsBillingCategory(self):
-        uniqueCategory = set()
-        #Create a unique set
-        for b in self:
-            if b.billingCategory.lower() not in ["jobwork", "tracking"]:
-                uniqueCategory.add(b.billingCategory.lower())
+      return res
 
-        if len(uniqueCategory) > 1:
-            for u in uniqueCategory:
-                print(u)
-            raise MyException("Bills are issued in more than two category for company: " + str(self.compName))
+  def CheckEachBillsCalculation(self):
+    for b in self:
+      b.CheckCalculation()
+
+  def CheckEachBillsBillingCategory(self):
+    uniqueCategory = set()
+    #Create a unique set
+    for b in self:
+      if b.billingCategory.lower() not in ["jobwork", "tracking", "builty"]:
+        uniqueCategory.add(b.billingCategory.lower())
+
+    if len(uniqueCategory) > 1:
+      for u in uniqueCategory:
+        print(u)
+      raise MyException("Bills are issued in more than two category for company: " + str(self.compName))
 
 
 class SingleRow(object):
@@ -421,69 +421,69 @@ def CreateSinglePaymentRow(row):
 
 
 def CreateSingleBillRow(row):
-    b = SingleBillRow()
-    for cell in row:
-        col = cell.column
-        val = cell.internal_value
+  b = SingleBillRow()
+  for cell in row:
+    col = cell.column
+    val = cell.internal_value
 
-        if col == SheetCols.InvoiceAmount:
-            b.amount = val
-        elif col == SheetCols.KindOfEntery:
-            if not val: raise Exception("No type of entery in row: {} and col: {}".format(cell.row, col))
-            b.kindOfEntery = val
-        elif col == SheetCols.BillingCategory:
-            b.billingCategory = val
-        elif col == SheetCols.InvoiceNumberCol:
-            if not val: raise Exception("Row: {} seems not to have any bill number.".format(cell.row))
-            b.billNumber = val
-        elif col == SheetCols.CompanyFriendlyNameCol:
-            if not val: raise Exception("Row: {} seems empty. Please fix the database".format(cell.row))
-            b.compName = val
-        elif col == SheetCols.Courier:
-            b.courier = val
-        elif col == SheetCols.InvoiceDateCol:
-            if not val: raise Exception("No invoice date in row: {} and col: {}".format(cell.row, col))
-            b.invoiceDate = ParseDateFromString(val)
-        elif col == SheetCols.GoodsValue:
-            #if not val: raise Exception("No goods value in row: {} and col: {}".format(cell.row, col))
-            b.goodsValue = val
-        elif col == SheetCols.PaymentReceivingDate:
-            if val is not None:
-                b.paymentReceivingDate = ParseDateFromString(val)
-            else:
-                b.paymentReceivingDate = val
-        elif col == SheetCols.Tax:
-            #if not val: raise Exception("No tax in row: {} and col: {}".format(cell.row, col))
-            b.tax = val
-        elif col == SheetCols.PaymentStatus:
-            b.paymentStatus = val
-        elif col == SheetCols.DocketNumber:
-            if type(val) == float:
-                b.docketNumber = str(int(val))
-            elif type(val) == int:
-                b.docketNumber = str(val)
-            else:
-                b.docketNumber = val
-        elif col == SheetCols.DocketDate:
-            if val:
-                b.docketDate = ParseDateFromString(val)
-            else:
-                b.docketDate = val
-        elif col == SheetCols.CourierName:
-            b.courierName = val
-        elif col == SheetCols.MaterialDesc:
-            if isinstance(val, basestring):
-              b.materialDesc = val
-            elif val is None:
-              b.materialDesc = "--"
-            else:
-              raise Exception("The material description should be string and not {} in row: {} and col: {}".format(type(val), cell.row, col))
-        elif col == SheetCols.FormCReceivingDate:
-            if val is not None:
-                b.formCReceivingDate = ParseDateFromString(val)
-            else:
-                b.formCReceivingDate = val
-    return b
+    if col == SheetCols.InvoiceAmount:
+      b.amount = val
+    elif col == SheetCols.KindOfEntery:
+      if not val: raise Exception("No type of entery in row: {} and col: {}".format(cell.row, col))
+      b.kindOfEntery = val
+    elif col == SheetCols.BillingCategory:
+      b.billingCategory = val
+    elif col == SheetCols.InvoiceNumberCol:
+      if not val: raise Exception("Row: {} seems not to have any bill number.".format(cell.row))
+      b.billNumber = val
+    elif col == SheetCols.CompanyFriendlyNameCol:
+      if not val: raise Exception("Row: {} seems empty. Please fix the database".format(cell.row))
+      b.compName = val
+    elif col == SheetCols.Courier:
+      b.courier = val
+    elif col == SheetCols.InvoiceDateCol:
+      if not val: raise Exception("No invoice date in row: {} and col: {}".format(cell.row, col))
+      b.invoiceDate = ParseDateFromString(val)
+    elif col == SheetCols.GoodsValue:
+      #if not val: raise Exception("No goods value in row: {} and col: {}".format(cell.row, col))
+      b.goodsValue = val
+    elif col == SheetCols.PaymentReceivingDate:
+      if val is not None:
+        b.paymentReceivingDate = ParseDateFromString(val)
+      else:
+        b.paymentReceivingDate = val
+    elif col == SheetCols.Tax:
+      #if not val: raise Exception("No tax in row: {} and col: {}".format(cell.row, col))
+      b.tax = val
+    elif col == SheetCols.PaymentStatus:
+      b.paymentStatus = val
+    elif col == SheetCols.DocketNumber:
+      if type(val) == float:
+        b.docketNumber = str(int(val))
+      elif type(val) == int:
+        b.docketNumber = str(val)
+      else:
+        b.docketNumber = val
+    elif col == SheetCols.DocketDate:
+      if val:
+        b.docketDate = ParseDateFromString(val)
+      else:
+        b.docketDate = val
+    elif col == SheetCols.CourierName:
+        b.courierName = val
+    elif col == SheetCols.MaterialDesc:
+      if isinstance(val, basestring):
+        b.materialDesc = val
+      elif val is None:
+        b.materialDesc = "--"
+      else:
+        raise Exception("The material description should be string and not {} in row: {} and col: {}".format(type(val), cell.row, col))
+    elif col == SheetCols.FormCReceivingDate:
+      if val is not None:
+        b.formCReceivingDate = ParseDateFromString(val)
+      else:
+        b.formCReceivingDate = val
+  return b
 
 
 def GuessCompanyGroupName(token):
@@ -542,12 +542,12 @@ def HasBillsFileChangedSinceLastTime():
   return True
 
 def StoreNewTimeForBillsFile():
-    """
-    This function will store new time for bills file.
-    """
-    with closing(shelve.open(PERSISTENT_STORAGE_PATH)) as sh:
-      sh[BILLS_FILE_LAST_CHANGE_SHELF_ID] = os.path.getmtime(GetWorkBookPath())
-    return
+  """
+  This function will store new time for bills file.
+  """
+  with closing(shelve.open(PERSISTENT_STORAGE_PATH)) as sh:
+    sh[BILLS_FILE_LAST_CHANGE_SHELF_ID] = os.path.getmtime(GetWorkBookPath())
+  return
 
 def ShowPendingOrdersOnScreen():
   allOrdersDict = GetAllCompaniesDict().GetAllOrdersOfAllCompaniesAsDict()

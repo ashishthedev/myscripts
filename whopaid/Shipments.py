@@ -273,8 +273,8 @@ class PersistentShipment(object):
 
 def SendMaterialDispatchSms(bill):
   optionalAmount = ""
-  if GetAllCustomersInfo().IncludeBillAmountInEmails(bill.compName):
-    optionalAmount = "Amount: Rs." + str(int(bill.amount)) + "/-"
+  if IncludeAmountForBillInDispatchInfo(bill):
+      optionalAmount = "Amount: Rs." + str(int(bill.amount)) + "/-"
 
   d = dict()
 
@@ -299,11 +299,17 @@ Thanks.
   return
 
 
+def IncludeAmountForBillInDispatchInfo(bill):
+  if bill.billingCategory.lower() not in ["builty", "tracking"]:
+    if GetAllCustomersInfo().IncludeBillAmountInEmails(bill.compName):
+      return True
+  return False
+
 def SendMaterialDispatchMail(bill, ctxt):
   allCustInfo = GetAllCustomersInfo()
 
   optionalAmount = ""
-  if allCustInfo.IncludeBillAmountInEmails(bill.compName):
+  if IncludeAmountForBillInDispatchInfo(bill):
     optionalAmount = " Rs." + str(int(bill.amount)) + "/-"
 
   ctxt.emailSubject = ctxt.emailSubject or "Dispatch Details: {} Bill#{} {amt}".format(bill.docketDate.strftime("%d-%b-%Y"), str(int(bill.billNumber)), amt=optionalAmount)
@@ -371,11 +377,10 @@ def PrepareShipmentEmailForThisBill(bill, ctxt):
   if not companyCity:
     raise ShipmentException("\nM/s {} doesnt have a displayable 'city'. Please feed it in the database".format(bill.compName))
 
-  includeAmount = allCustInfo.IncludeBillAmountInEmails(bill.compName)
   tableHeadersArgs = ["Bill#", "Dispatched Through", "Tracking Number", "Shipping Date", "Material Description"]
   tableDataRowArgs = [ str(int(bill.billNumber)), str(bill.courierName), str(bill.docketNumber), DD_MM_YYYY(bill.docketDate), bill.materialDesc]
 
-  if includeAmount:
+  if IncludeAmountForBillInDispatchInfo(bill):
     tableHeadersArgs.append("Bill Amount")
     tableDataRowArgs.append("Rs.{}/-".format(str(int(bill.amount))))
 

@@ -369,6 +369,7 @@ noremap - gt
 :execute "noremap ,blog   :e ".GetSDATDir()."\\FrequentFliers\\blogs.txt<CR>"
 :execute "noremap ,comp   :e ".GetSDATDir()."\\FrequentFliers\\compList.txt<CR>"
 :execute "noremap ,eret   :e ".GetSDATDir()."\\SalesTaxReturnFiles\\eReturnInfo.txt<CR>"
+:execute "noremap ,ereto   :e ".GetSDATDir()."\\SalesTaxReturnFiles\\eReturnInfo.txt<CR>"
 :execute "noremap ,act    :e ".GetSDATDir()."\\FrequentFliers\\actions.txt<CR>"
 :execute "noremap ,note   :e ".GetSDATDir()."\\FrequentFliers\\Notes.xml<CR>"
 :execute "noremap ,book   :e ".GetSDATDir()."\\FrequentFliers\\Notes.xml<CR>"

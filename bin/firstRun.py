@@ -36,7 +36,7 @@ def SetAPPDIREnvVariable():
     binDir = os.getcwd()
     appDir = Abspath(os.path.join(binDir, "..", ".."))
     if raw_input("APPDIR=={} (y/n)".format(appDir)) != 'y':
-        appdir = raw_input("Enter the appdirPath(Hint: parent of pycrm.cfg)")
+        appDir = raw_input("Enter the appdirPath(Hint: parent of pycrm.cfg)")
     Setx("APPDIR", appDir)
     return appDir
 
@@ -52,11 +52,11 @@ def main ():
     homeDir = os.path.expanduser("~")
     shutil.copy(
             os.path.join(appDir, "myscripts", "misc", "gitFiles", "gitconfigHome.txt"),
-            os.path.join(os.path.expanduser("~"), ".gitconfig")
+            os.path.join(homeDir, ".gitconfig")
     )
     shutil.copy(
             os.path.join(appDir, "myscripts", "misc", "vimFiles", "_gvimrc sample place in Documents Folder"),
-            os.path.join(os.path.expanduser("~"), ".vimrc")
+            os.path.join(homeDir, ".vimrc")
     )
 
 if __name__ == "__main__":

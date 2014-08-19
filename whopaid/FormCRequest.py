@@ -327,7 +327,7 @@ def SendFORMCSMSToCompany(compName, args):
   if ShouldSendSMS(args):
     from whopaid.OffComm import SendOfficialSMSAndMarkCC
     SendOfficialSMSAndMarkCC(compName, """Dear Sir,
-Kindly issue the FORM-C. Details have been emailed.
+Kindly issue the FORM-C. The details have been sent to your email address.
 Thanks.
 """)
   else:

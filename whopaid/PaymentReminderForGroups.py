@@ -41,7 +41,7 @@ class LastEmailSentOnPersistantDates(Persistant):
   def __init__(self):
     super(LastEmailSentOnPersistantDates, self).__init__(self.__class__.__name__)
 
-def EarlierSentOnDateForThisGrp(grpName):#TODO: Use persistent
+def EarlierSentOnDateForThisGrp(grpName):
   """Returns a dateObject representing the date on which an email was last sent to this company"""
   p = LastEmailSentOnPersistantDates()
   if grpName in p:
@@ -118,7 +118,7 @@ def AskQuestionsFromUserAndSendMail(args):
     compsInGrp = allCustomersInfo.GetListOfCompNamesForThisGrp(grpName)
     firstCompInGrp = compsInGrp[0]
     SendOfficialSMS(firstCompInGrp, """Dear Sir,
-Kindly release the payment. Details have been emailed.
+Kindly release the payment. The details have been sent your mail address.
 Thanks""")
   return
 
