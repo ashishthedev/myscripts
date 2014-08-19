@@ -71,11 +71,10 @@ GVIM = %WINDIR_ENV%\gvim.bat
 ::b178::ICICI A/c No: 125605500178{enter}Name: Vishal Anand{enter}Branch: Ambedkar Road, Ghaziabad.{enter}IFSC Code: ICIC0001256
 ::buco::UCO A/c No: 08500100002243{enter}Name: Ashok Anand{enter}Branch: Rakesh Marg, Ghaziabad.
 ::srps::From: Standard Dies And Tools{enter}Dear Sir,{enter}Kindly send the road permit. Details have been emailed.{enter}Thanks.
-::orps::From: Standard Dies And Tools{enter}Dear Sir,{enter}Kindly send the road permit. Details have been emailed.{enter}Thanks.
-::opr::From: Omega Dies{enter}Dear Sir,{enter}Kindly release the payment.  Details have been emailed.{enter}Thanks.
 
 ::sdatinfo::Standard Dies And Tools{enter}501, Old Arya Nagar, Ghaziabad.{enter}TIN No: 09990700496{enter}anand.dies@gmail.com{enter}HDFC Ac No: 05732560000238{enter}RTGS/NEFT Code: HDFC0000573{enter}Branch: 35 Ambedkar Road, Gandhinagar, Ghaziabad.
 ::odatinfo::Omega Dies And Tools{enter}KH-178, Kavinagar, Ghaziabad.{enter}TIN No: 09388823011C{enter}omegadiesandtools@gmail.com{enter}ICICI Ac No: 125605500120{enter}RTGS/NEFT Code: ICIC0001256
+::otin::09388823011
 
 ;______________________________
 ;Omega official bank ID - ICICI

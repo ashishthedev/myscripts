@@ -35,6 +35,7 @@ MAX_DAYS_FOR_SENDING_NOTIFICATION = 4
 IS_DEMO = True
 NOT_PROVIDED = "Not provided"
 
+DELIVERED_SHIPMENTS_IN_THIS_SCAN = list()
 #Shipment
 # |-ShipmentMail
 # |-ShipmentCourier
@@ -197,6 +198,7 @@ class PersistentShipment(object):
     self._mail.markShipmentMailAsSent()
 
   def markAsDelivered(self):
+    DELIVERED_SHIPMENTS_IN_THIS_SCAN.append(self)
     self._track.markAsDelivered()
 
   def TakeNewSnapshot(self):
@@ -596,7 +598,7 @@ def SendComplaintMessageForShipment(shipment):
   d["tDocketDate"] = DD_MMM_YYYY(bill.docketDate)
   d["tOfficialCompanyName"] = allCustInfo.GetCompanyOfficialName(bill.compName)
   d["tDeliveryAddress"] = allCustInfo.GetCustomerDeliveryAddress(bill.compName)
-  d["tPhone"] = allCustInfo.GetCustomerPhoneNumber(bill.compName)
+  d["tPhone"] = str(int(allCustInfo.GetCustomerPhoneNumber(bill.compName)))
 
 
   smsTemplate = Template("""The following parcel is not delivered. Kindly get it delivered.
@@ -611,12 +613,17 @@ Thanks.
   smsContents = smsTemplate.substitute(d)
   from Util.Sms import SendSms
   smsNo = GetOption("COURIER_COMPLAINT_R", bill.courierName)[::-1]
+  smsNoList = smsNo.replace(",", ";").split(";")
+  smsNoList = [x.strip() for x in smsNoList if str.isdigit(x.strip())]
+
 
   PrintInBox(smsContents)
-  if raw_input("Send to {} {}: (y/n)".format(bill.courierName, smsNo)).lower() == "y":
-    SendSms(smsNo, smsContents)
-  else:
-    print("Not sending sms...")
+  print("Will send complaint to {}".format(smsNo))
+  for x in smsNoList:
+    if raw_input("Send to {} (y/n)".format(x)).lower() == "y":
+      SendSms(x, smsContents)
+    else:
+      print("Not sending sms...")
   return
 
 def SendComplaintMessageForDocket(docketNumber):
@@ -668,6 +675,13 @@ def main():
 
   if args.trackAllUndeliveredCouriers:
     TrackAllShipments(args)
+    if DELIVERED_SHIPMENTS_IN_THIS_SCAN:
+      PrintInBox("Following are undelivered shipments:")
+      for i, s in enumerate(sorted(DELIVERED_SHIPMENTS_IN_THIS_SCAN, key=lambda s: s.bill.docketDate), start=1):
+        print("{}.{:<50} : {:<15} : {}".format(i, s.bill.compName, DD_MMM_YYYY(s.bill.docketDate), s.bill.docketNumber))
+      return
+
+
 
 def FanOutDispatchInfoToAllComapnies(args):
   bills = [b for b in GetAllBillsInLastNDays(args.days) if b.docketDate]
