@@ -161,8 +161,8 @@ class TestFunctions(unittest.TestCase):
     def test_UPVAT_Same_MainForm_TaxPaidBankForm(self):
         #This test will check that upvat  amount is same on two pages or not
         self.assertEqual(
-                getFloatValueFromXmlFile(UPVAT_MAINFORM_FILE, "net_tax"),
-                SumFloat(UPVAT_BANKDETAIL_FILE, "tax_amount"))
+            max(0, getFloatValueFromXmlFile(UPVAT_MAINFORM_FILE, "net_tax")), #To accommodate negative ITC input
+            SumFloat(UPVAT_BANKDETAIL_FILE, "tax_amount"))
 
         return
 

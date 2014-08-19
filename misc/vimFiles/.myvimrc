@@ -377,7 +377,7 @@ noremap - gt
 :execute "noremap ,voc    :e ".GetSDATDir()."\\FrequentFliers\\Vocab.txt<CR>"
 :execute "noremap ,prt    :e ".GetSDATDir()."\\SDAT\\KennametalAll\\PriceIncreaseTemplate.txt<CR>"
 :execute "noremap ,tally  :e ".GetSDATDir()."\\FrequentFliers\\tally.txt<CR>"
-:execute "noremap ,ahk    :e ".GetSDATDir()."\\myscripts\\misc\\MyAutoHotKeys.ahk<CR>"
+:execute "noremap ,ahk    :e ".GetSDATDir()."\\FrequentFliers\\MyAutoHotKeys.ahk<CR>"
 :execute "noremap ,hc     :e ".GetSDATDir()."\\Personal\\bh\\HC.txt \\|set lines=130 \\| set columns=82 \\| winpos 560 0<CR>"
 :execute "noremap ,cn     :e ".GetSDATDir()."\\Personal\\bh\\c.txt  \\|set lines=130 \\| set columns=82 \\| winpos 560 0<CR>"
 :execute "noremap ,gg     :e ".GetSDATDir()."\\Personal\\bh\\g.txt  \\|set lines=130 \\| set columns=82 \\| winpos 560 0<CR>"
