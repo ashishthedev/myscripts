@@ -266,6 +266,8 @@ def GetConfirmation():
     raise Exception()
 
 def IsDeliveredAssessFromStatus(status):
+  if not status:
+    return False
   yes_words = status.lower().find("delivered") != -1
   no_words = ( status.lower().find("not") != -1 or status.lower().find("undelivered") != -1)
   delivered = yes_words and not no_words #If has the word delivered but not the word not

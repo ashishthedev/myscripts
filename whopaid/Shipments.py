@@ -33,7 +33,6 @@ import urllib2
 MAX_IN_TRANSIT_DAYS = 15
 MAX_DAYS_FOR_SENDING_NOTIFICATION = 4
 IS_DEMO = True
-NOT_PROVIDED = "Not provided"
 
 LIST_OF_SHIPMENTS_IN_THIS_SCAN = list()
 #Shipment
@@ -61,10 +60,7 @@ class ShipmentTrack(object):
     self.isDelivered = False
     pass
 
-  def isDeliveredFn(self):
-    return self.isDelivered
-
-  def markAsDelivered(self):
+  def markTrackerAsDelivered(self):
     self.isDelivered = True
 
   def TakeNewSnapshot(self):
@@ -94,9 +90,11 @@ class ShipmentTrack(object):
       self.status = self.courier.GetStatus()
     except urllib2.URLError:
       raise ShipmentException("URL Error")
-    self.isDelivered  = IsDeliveredAssessFromStatus(self.status)
 
-    if self.isDelivered:
+    if IsDeliveredAssessFromStatus(self.status):
+      self.isDelivered = True
+      raw_input("Marking this as delivered. This should show at the bottom: {}...".format(self.bill.docketNumber))
+      LIST_OF_SHIPMENTS_IN_THIS_SCAN.append(self)
       self.courier.StoreSnapshot()
 
     self.shipment.saveInDB()
@@ -197,10 +195,9 @@ class PersistentShipment(object):
   def markShipmentMailAsSent(self):
     self._mail.markShipmentMailAsSent()
 
-  def markAsDelivered(self):
-    PrintInBox("Marking this as delivered. This should show at the bottom: {}".format(self.bill.docketNumber))
-    LIST_OF_SHIPMENTS_IN_THIS_SCAN.append(self)
-    self._track.markAsDelivered()
+  def markPersistantShipmentAsDelivered(self):
+    self._track.markTrackerAsDelivered()
+    self.saveInDB()
 
   def TakeNewSnapshot(self):
     self._track.TakeNewSnapshot()
@@ -472,9 +469,6 @@ def ParseOptions():
     parser.add_argument("-sus", "--show-undelivered-small", dest='showUndeliveredSmall', action="store_true", default=False,
         help="If present, show undelivered parcels on screen")
 
-    parser.add_argument("-su", "--show-undelivered", dest='showUndeliveredBig', action="store_true", default=False,
-        help="If present, show undelivered parcels on screen")
-
     parser.add_argument("-d", "--days", dest='days', type=int, default=MAX_IN_TRANSIT_DAYS,
         help="Last N days in which courier status will be checked.")
 
@@ -523,8 +517,7 @@ def _ForceMarkDocketAsDelivered(docketNumber):
     if s.bill.docketNumber == docketNumber:
       s.status = "This shipment was force marked as delivered on {}".format(DD_MM_YYYY(datetime.date.today()))
       print(s.status)
-      s.markAsDelivered()
-      s.saveInDB()
+      s.markPersistantShipmentAsDelivered()
   return
 
 def _RemoveDocketFromIndex(docketNumber):
@@ -555,38 +548,7 @@ def ShowUndeliveredSmalOnScreen():
   shipments = PersistentShipment.GetAllUndeliveredShipments()
   PrintInBox("Following are undelivered shipments:")
   for i, s in enumerate(sorted(shipments, key=lambda s: s.bill.docketDate), start=1):
-    print("{}.{:<50} : {:<15} : {}".format(i, s.bill.compName, DD_MMM_YYYY(s.bill.docketDate), s.bill.docketNumber))
-  return
-
-def ShowUndeliveredOnScreen():
-  print("Following parcels are still underlivered as on {}".format(DD_MM_YYYY(datetime.date.today())))
-  shipments = PersistentShipment.GetAllUndeliveredShipments()
-  shipments.sort(key=lambda s: s.bill.docketDate, reverse=False)
-  coll = set()
-  for s in shipments:
-    coll.add(s.bill.courierName)
-
-  for c in coll:
-    PrintInBox(c)
-    print("Kindly provide scanned copy of PODs for following parcels:\n")
-    for s in shipments:
-      if s.bill.courierName == c:
-        allCustInfo = GetAllCustomersInfo()
-        companyOfficialName = allCustInfo.GetCompanyOfficialName(s.bill.compName) or "NA"
-        address = allCustInfo.GetCustomerDeliveryAddress(s.bill.compName) or "NA"
-        phNo = allCustInfo.GetCustomerPhoneNumber(s.bill.compName) or "NA"
-        print("_"*70)
-        print(s.bill.compName)
-        print(DD_MM_YYYY(s.bill.docketDate))
-        print(address)
-
-        print("\n".join([
-          "Docket Date: " + DD_MM_YYYY(s.bill.docketDate),
-          "Docket: " + str(s.bill.docketNumber),
-          "CompName: " + companyOfficialName,
-          "Address: " + address,
-          "Ph: " + str(phNo),
-          ]))
+    print("{}.{:<50} | {:<15} | {}".format(i, s.bill.compName, DD_MMM_YYYY(s.bill.docketDate), s.bill.docketNumber))
   return
 
 def SendComplaintMessageForShipment(shipment):
@@ -599,7 +561,9 @@ def SendComplaintMessageForShipment(shipment):
   d["tDocketDate"] = DD_MMM_YYYY(bill.docketDate)
   d["tOfficialCompanyName"] = allCustInfo.GetCompanyOfficialName(bill.compName)
   d["tDeliveryAddress"] = allCustInfo.GetCustomerDeliveryAddress(bill.compName)
-  d["tPhone"] = str(int(allCustInfo.GetCustomerPhoneNumber(bill.compName)))
+  d["tPhone"] = allCustInfo.GetCustomerPhoneNumber(bill.compName)
+  if isinstance(d["tPhone"], float):
+    d["tPhone"] = str(int(allCustInfo.GetCustomerPhoneNumber(bill.compName))) #Removing .0 in the end if its an integer
 
 
   smsTemplate = Template("""The following parcel is not delivered. Kindly get it delivered.
@@ -659,9 +623,6 @@ def main():
     ShowUndeliveredSmalOnScreen()
     import sys; sys.exit(0)
 
-  if args.showUndeliveredBig:
-    ShowUndeliveredOnScreen()
-
   if args.forceMarkDeliveredDocket:
     _ForceMarkDocketAsDelivered(args.forceMarkDeliveredDocket)
 
@@ -677,9 +638,10 @@ def main():
   if args.trackAllUndeliveredCouriers:
     TrackAllShipments(args)
     if LIST_OF_SHIPMENTS_IN_THIS_SCAN:
-      PrintInBox("Following were delivered in this scan:", outliner="Delivered")
+      PrintInBox("Following were delivered in this scan:")
       for i, s in enumerate(sorted(LIST_OF_SHIPMENTS_IN_THIS_SCAN, key=lambda s: s.bill.docketDate), start=1):
         print("{}.{:<50} : {:<15} : {}".format(i, s.bill.compName, DD_MMM_YYYY(s.bill.docketDate), s.bill.docketNumber))
+      raw_input("Press any key...")
       return
 
 
@@ -695,7 +657,9 @@ def FanOutDispatchInfoToAllComapnies(args):
 
   for shipment in shipments:
     try:
-      if args.sendMailToAllCompanies and not shipment.wasShipmentMailEverSent() and not s.bill.billingCategory.lower() in ["tracking"]:
+      if args.sendMailToAllCompanies and \
+          not shipment.wasShipmentMailEverSent() and \
+          shipment.bill.billingCategory.lower() not in ["tracking"]:
         if 'y' == raw_input("{}\nSend mail for {} (y/n)?".format("_"*70, shipment)).lower():
           shipment.sendMailForThisShipment()
         else:

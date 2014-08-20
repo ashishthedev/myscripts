@@ -85,7 +85,6 @@ gclsim = java -jar %WEBDIR%\scripts\bin\GoogleClosureCompiler\compiler.jar --com
 gclwhite = java -jar %WEBDIR%\scripts\bin\GoogleClosureCompiler\compiler.jar --compilation_level WHITESPACE_ONLY      --js $1 --js_output_file $2
 gprog = pushd %ProgramFiles%
 gphungsuk = pushd %PHUNGSUKDIR%
-utw = %WEBDIR%\Scripts\unittests.py
 gimg = pushd %WEBDIR%\static\images
 gweb = pushd "%WEBDIR%"
 gwb = pushd "%WEBDIR%"
@@ -96,7 +95,6 @@ elwsf = start %ComSpec% /k dev_appserver.py --skip_sdk_update_check True "%WEBDI
 elws = start %ComSpec% /k dev_appserver.py "%WEBDIR%"
 phserver = "B:\Tools\PhantomJS\phantomjs-1.9.1-windows\phantomjs.exe" --proxy=127.0.0.1:8118 $*
 ph = "B:\Tools\PhantomJS\phantomjs-1.9.1-windows\phantomjs.exe" $*
-gpyt = pushd "B:\\py_test\\"
 gplib = pushd "B:\\Python27\\Lib\\"
 gpod = pushd %APPDIR%\\DocketPODs
 gpods = pushd %APPDIR%\\DocketPODs
