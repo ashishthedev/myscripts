@@ -22,9 +22,6 @@ import argparse
 import datetime
 import os
 
-#TODO: Remove names already entered.
-
-
 def ParseOptions():
     parser = argparse.ArgumentParser()
 
@@ -44,6 +41,8 @@ def ParseOptions():
             default=False, help="Do not print company name")
     parser.add_argument("-l", "--longEnv", dest="longEnvelope", action="store_true",
             default=False, help="Do not print company name")
+    parser.add_argument("-r", "--remove", dest="removeCompName", type=str, default=None,
+        help="Remove the company from listing.")
 
     return parser.parse_args()
 
@@ -238,6 +237,23 @@ class PersistantEnvelopes(Persistant):
     return
 
 
+def RemoveCompFromList(pe, args):
+    from copy import copy
+    keyList = sorted(copy(pe.allKeys))
+    compName = args.removeCompName.lower()
+    keyList = [k for k in keyList if k.replace(" ", "").lower().find(compName) != -1]
+    if not keyList:
+      print("No such company: {}".format(args.removeCompName))
+      return
+    for i, key in enumerate(keyList, start=1):
+      print("{}. {}".format(i, key))
+    sno = raw_input("Enter s.no for key which has to be deleted: ")
+    if not sno: return
+    k = keyList[int(sno) -1]
+    print("Will try to delete {}".format(k))
+    del pe[k]
+    return
+
 def main():
   args = ParseOptions()
   pe = PersistantEnvelopes()
@@ -245,12 +261,26 @@ def main():
     pe.PrintAllInfo()
     return
 
+  if args.removeCompName:
+    return RemoveCompFromList(pe, args)
+
+
+
   chosenComp = GuessCompanyName(args.comp)
   if args.howManyLeft:
     print("{} envelopers left for {}".format(pe.HowManyLeftForThisCompany(chosenComp), chosenComp))
     return
 
+  t = args.num
+  args.num = 1
   GenerateAddressSlipForThisCompany(chosenComp, args)
+
+  from time import sleep
+  sleep(2) # This sleep is so that browser can render the generated file coz next html will be generated in same filename and will overwrite previous one.
+
+  args.num = t
+  GenerateAddressSlipForThisCompany(chosenComp, args)
+
   pe.MarkPrinted(chosenComp, args.num, datetime.date.today())
   pe.PredictFuturePrints()
   return

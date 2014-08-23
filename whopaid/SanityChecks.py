@@ -11,7 +11,7 @@ from whopaid.AutomaticNotifications import SendAutomaticSmsReportsIfRequired
 from whopaid.CustomersInfo import GetAllCustomersInfo
 from whopaid.JsonDataGenerator import AskUberObserverToUploadJsons
 from whopaid.MarkBillsAsPaid import ReportBillWhichShouldBeMarkAsPaid
-from whopaid.UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate
+from whopaid.UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate, ShrinkWorkingArea
 
 from Util.Config import GetOption
 from Util.Decorators import timeThisFunction
@@ -26,6 +26,7 @@ def SendAutomaticHeartBeat():
   CheckConsistency()
   AskUberObserverToUploadJsons()
   SendAutomaticSmsReportsIfRequired()
+  ShrinkWorkingArea()
   return
 
 
@@ -81,7 +82,7 @@ def ReportMissingOrDuplicateBillsSince(allBillsDict):
 
   #In each category try to find missing bills in the permissible date range
   for eachCategory in d:
-    if eachCategory.lower() in ["tracking", ]:
+    if eachCategory.lower() in ["tracking"]:
       continue
     billList = d[eachCategory]
     billList = SelectBillsAfterDate(billList, startDateObject)

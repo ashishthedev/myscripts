@@ -93,7 +93,6 @@ class ShipmentTrack(object):
 
     if IsDeliveredAssessFromStatus(self.status):
       self.isDelivered = True
-      raw_input("Marking this as delivered. This should show at the bottom: {}...".format(self.bill.docketNumber))
       LIST_OF_SHIPMENTS_IN_THIS_SCAN.append(self)
       self.courier.StoreSnapshot()
 
@@ -641,7 +640,6 @@ def main():
       PrintInBox("Following were delivered in this scan:")
       for i, s in enumerate(sorted(LIST_OF_SHIPMENTS_IN_THIS_SCAN, key=lambda s: s.bill.docketDate), start=1):
         print("{}.{:<50} : {:<15} : {}".format(i, s.bill.compName, DD_MMM_YYYY(s.bill.docketDate), s.bill.docketNumber))
-      raw_input("Press any key...")
       return
 
 

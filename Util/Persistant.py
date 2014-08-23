@@ -4,11 +4,12 @@ import shelve
 import os
 
 class Persistant(object):
+  #TODO: Spelling error, it should be persistent instead of Persistant
   """Its a very blunt persistant key value pair.
 Declaration:
 class MyPersistantClass(Persistant):
   def __init__(self):
-    super(MyPersistantClass, self).__init__(self.__class__.__name__)
+    super(self.__class__, self).__init__(self.__class__.__name__)
     #done
 
 Usage:
@@ -17,6 +18,7 @@ p[key] = obj
 key in p
 print(p[key])
 del p[key]
+p.allKeys
   """
   def __init__(self, name):
     self.shelfFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), name + ".shelf")
@@ -33,11 +35,11 @@ del p[key]
   def __contains__(self, key):
     return str(key) in self.allKeys
 
-#  def __del__(self, key):
-#    with closing(shelve.open(self.shelfFileName)) as sh:
-#      del sh[str(key)]
-#    return self
-#
+  def __delitem__(self, key):
+    with closing(shelve.open(self.shelfFileName)) as sh:
+      del sh[str(key)]
+    return self
+
   def __iter__(self):
     with closing(shelve.open(self.shelfFileName)) as sh:
       return iter([str(k) for k in sh.keys()])

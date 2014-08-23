@@ -9,6 +9,7 @@ from Util.Exception import MyException
 from Util.Config import GetOption, GetAppDir
 from Util.ExcelReader import LoadIterableWorkbook
 from Util.Misc import GetPickledObject, ParseDateFromString, DD_MM_YYYY, PrintInBox
+from Util.Persistant import Persistant
 
 from whopaid.CustomersInfo import GetAllCustomersInfo
 
@@ -132,6 +133,67 @@ def GuessKindFromRow(row):
       return GuessKindFromValue(val)
   return None
 
+def ShrinkWorkingArea():
+  return FirstReadablePersistantRow().SetFirstRow()
+
+class FirstReadablePersistantRow(Persistant):
+  """
+  It keeps a persistant track of the first row where meaningful data should be read from
+  """
+  identifier = "firstRow"
+  def __init__(self):
+    super(self.__class__, self).__init__(self.__class__.__name__)
+
+  def _SetFirstRow(self, rowNumber):
+    self[self.identifier] = rowNumber
+
+  def GetFirstRow(self):
+    if GetOption("CONFIG_SECTION", "ShrinkWorkingArea").lower() == "true":
+      if self.identifier in self:
+        return self[self.identifier]
+    return None
+
+  def SetFirstRow(self):
+    """
+    This does not run all the time but only sometimes
+    """
+    if GetOption("CONFIG_SECTION", "ShrinkWorkingArea").lower() != "true": return
+
+    import random
+    probabilityToExecute = 30
+    if random.randint(1, round(100/probabilityToExecute)) != 1:
+      print("Not shrinking. May be next time")
+      return
+    print("Shrinking working area. This can take time...")
+    import datetime
+    initial = datetime.datetime.now()
+
+    allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
+    c, billList = allBillsDict.popitem()
+    firstRow = billList[0].rowNumber + 100000
+    allBills = list()
+    for c, billList in allBillsDict.iteritems():
+      allBills.extend(billList)
+
+    allBills = [b for b in allBills if b.billingCategory.lower() in ["central"]]
+
+    for b in allBills:
+      if b.rowNumber < firstRow: # We only look at rows which have are lower than which is already found.
+        if b.formCReceivingDate is None:
+          firstRow = b.rowNumber
+        if b.paymentReceivingDate is None:
+          firstRow = b.rowNumber
+
+    print("Identified first row is : {}".format(firstRow))
+    self[self.identifier] = firstRow
+
+    delta = datetime.datetime.now() - initial
+    print("Took {} seconds".format(delta.seconds))
+
+    return
+
+
+
 class _AllCompaniesDict(CompaniesDict):
   """
   This class represents the heart of logic.
@@ -148,10 +210,11 @@ class _AllCompaniesDict(CompaniesDict):
     MIN_ROW = int(GetOption("CONFIG_SECTION", "DataStartsAtRow"))
     rowNumber = 0
 
+    frr = FirstReadablePersistantRow().GetFirstRow() or MIN_ROW
+
     for row in ws.iter_rows():
-      #TODO: Can we give a range to it with MIN_ROW and MAX_ROW?
       rowNumber += 1
-      if rowNumber < MIN_ROW: continue
+      if rowNumber < frr: continue  #We are not reading anything before frr. This might save us from reading couple thousand lines.
       if rowNumber >= MAX_ROW: break
 
       kind = GuessKindFromRow(row)
@@ -426,6 +489,7 @@ def CreateSingleBillRow(row):
     col = cell.column
     val = cell.internal_value
 
+    b.rowNumber = cell.row
     if col == SheetCols.InvoiceAmount:
       b.amount = val
     elif col == SheetCols.KindOfEntery:
@@ -480,7 +544,10 @@ def CreateSingleBillRow(row):
         raise Exception("The material description should be string and not {} in row: {} and col: {}".format(type(val), cell.row, col))
     elif col == SheetCols.FormCReceivingDate:
       if val is not None:
-        b.formCReceivingDate = ParseDateFromString(val)
+        try:
+          b.formCReceivingDate = ParseDateFromString(val)
+        except:
+          b.formCReceivingDate = val
       else:
         b.formCReceivingDate = val
   return b
