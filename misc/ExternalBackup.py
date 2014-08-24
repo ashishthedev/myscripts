@@ -31,7 +31,7 @@ def main():
     for source, foldername in SOURCES:
         finalDestination = os.path.join(destination, foldername)
         PrintInBox("Copying {} \n to \n {}".format(source, finalDestination))
-        shutil.copytree(source, finalDestination, shutil.ignore_patterns(*IGNORE_LIST))
+        shutil.copytree(source, finalDestination, ignore=shutil.ignore_patterns(*IGNORE_LIST))
     return
 
 if __name__ == '__main__':
