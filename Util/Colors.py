@@ -27,7 +27,7 @@ green     #859900  2/2 green     64 #5f8700 60 -20  65 133 153   0  68 100  60
 """
 http://ethanschoonover.com/solarized
 """
-Solarized = {
+_Solarized = {
 
 "base03"    :"#002b36",
 "base02"    :"#073642",
@@ -46,6 +46,11 @@ Solarized = {
 "cyan"      :"#2aa198",
 "green"     :"#859900",
 }
+
+def GetSolarizedColor(name):
+  if name in _Solarized:
+    return _Solarized[name]
+  raise Exception("{} not defined in solarized panel".format(name))
 
 MyColors = {
     "GOOGLE_NEW_INBOX_BASE"         : "#737373",

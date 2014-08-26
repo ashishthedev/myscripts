@@ -73,7 +73,7 @@ def ParseOptions():
             default=None, help="If present, emails will be sent with this as "
             "last line.")
 
-    p.add_argument("-sb", "--scanned-bill", dest="file_path", type=str,
+    p.add_argument("-sb", "--scanned-bill", dest="scannedBillPath", type=str,
              default=None, help = "If present file will be sent as attachment")
 
 
@@ -141,8 +141,8 @@ def SendRoadPermitRequest(compName, allBillsDict, args):
     bccMailList = GetOption("EMAIL_REMINDER_SECTION", 'BCCEmailList').replace(';', ',').split(','),
 
     print("Preparing mail...")
-    if args.file_path:
-        if not os.path.exists(args.file_path):
+    if args.scannedBillPath:
+        if not os.path.exists(args.scannedBillPath):
             raise Exception("{} does not exist. This path is given as an attachment to be sent along with road permit")
     mailBody = PrepareMailContentForThisComp(compName, allBillsDict, args)
 
@@ -154,7 +154,7 @@ def SendRoadPermitRequest(compName, allBillsDict, args):
 
     section = "EMAIL_REMINDER_SECTION"
     SendMail(args.emailSubject,
-            args.file_path,
+            args.scannedBillPath,
             GetOption(section, 'Server'),
             GetOption(section, 'Port'),
             GetOption(section, 'FromEmailAddress'),
@@ -239,6 +239,18 @@ def PrepareMailContentForThisComp(compName, allBillsDict, args):
     if args.kaPerson:
         d['tPerson'] = Bold("Kind Attention: " + args.kaPerson + '<br><br>')
 
+    if args.scannedBillPath:
+      content = "Please find scanned copy of the bill attached with this email."
+      d['tIsScannedCopyAttached'] = """<br>
+      <table border="0" cellspacing="0" cellpadding="0" width="auto" bgcolor="#ececec">
+<tbody>
+<tr>
+<td style="font-weight:bold;color:#3f3f3f;padding-left:24px; padding-right:24px" height="44" valign="center">{content}</td>
+</tr>
+</tbody>
+</table>
+""".format(content=content)
+
     d['tLetterDate'] = DD_MM_YYYY(datetime.today())
     d['tCompanyName'] = companyName
     d['tCompanyCity'] = companyCity
@@ -270,6 +282,7 @@ def PrepareMailContentForThisComp(compName, allBillsDict, args):
       $tTableRows
       </table>
       </p>
+      $tIsScannedCopyAttached
       <br>
       $tLastLine
       <hr>
