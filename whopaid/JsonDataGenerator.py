@@ -1,9 +1,14 @@
-import os
-import json
+
 from Util.Config import GetOption
-from UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, datex, RemoveTrackingBills
-from Util.Misc import DD_MM_YYYY
-from CustomersInfo import GetAllCustomersInfo
+from Util.Misc import DD_MM_YYYY, DD_MMM_YYYY
+from Util.Decorators import timeThisFunction
+
+from whopaid.CustomersInfo import GetAllCustomersInfo
+from whopaid.KMPendingOrders import GetAllKMOrders, GetAllPendingOrders, GetAllReceivedOrders
+from whopaid.UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, datex, RemoveTrackingBills
+
+import json
+import os
 
 PMTAPPDIR = os.getenv("PMTAPPDIR")
 DUMPING_DIR = os.path.join(PMTAPPDIR, "static", "dbs")
@@ -11,6 +16,7 @@ SMALL_NAME = GetOption("CONFIG_SECTION", "SmallName")
 EXT = ".json"
 PMT_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "PMT_" + SMALL_NAME + EXT))
 ORDER_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "ORDER_" + SMALL_NAME + EXT))
+KMO_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "KMORDER_" + SMALL_NAME + EXT))
 """
 OrderDB:
 data =
@@ -51,6 +57,7 @@ data =
 ]
 """
 
+@timeThisFunction
 def _DumpOrdersDB():
   allOrdersDict = GetAllCompaniesDict().GetAllOrdersOfAllCompaniesAsDict()
 
@@ -100,6 +107,7 @@ data=
 }
 
 """
+@timeThisFunction
 def _DumpPaymentsDB():
   allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
   allAdjustmentsDict = GetAllCompaniesDict().GetAllAdjustmentsOfAllCompaniesAsDict()
@@ -155,12 +163,51 @@ def _DumpPaymentsDB():
     json.dump(data, f, separators=(',',':'), indent=2)
   return
 
+@timeThisFunction
+def _DumpKMPendingOrdersDB():
+  po = GetAllKMOrders()
+  po = GetAllPendingOrders(po)
+
+  if os.path.exists(KMO_JSON_FILE_NAME):
+    os.remove(KMO_JSON_FILE_NAME)
+
+  data = dict()
+  from collections import defaultdict
+  allKMOrders = defaultdict(list)
+  superSmallName = GetOption("CONFIG_SECTION", "SuperSmallName")
+
+  for o in po:
+    key =  "{} | {}".format(o.pelletSize, superSmallName)
+    singleKMOrder = dict()
+    singleKMOrder["poDateISOFormat"] = o.poDate.isoformat()
+    singleKMOrder["poDateISOFormat"] = DD_MMM_YYYY(o.poDate.isoformat())
+    singleKMOrder["pelletSize"] = key
+    singleKMOrder["boreSize"] = o.boreSize
+    singleKMOrder["grade"] = o.grade
+    singleKMOrder["quantity"] = o.quantity
+    singleKMOrder["deliveryInstructions"] = o.deliveryInstructions
+    singleKMOrder["oaNumber"] = o.oaNumber
+    allKMOrders[key].append(singleKMOrder) #Just dump this single order there and we will club them pelletSize wise while generating final json
+
+  ro = GetAllKMOrders()
+  ro = GetAllReceivedOrders(ro)
+
+  data['allKMOrders'] = allKMOrders
+  lastInvoiceDate = max([o.invoiceDate for o in ro])
+  compSmallName = GetOption("CONFIG_SECTION", "SmallName")
+  data ["showVerbatimOnTop"] = "{} : {}".format(compSmallName, DD_MM_YYYY(lastInvoiceDate))
+  with open(KMO_JSON_FILE_NAME, "w+") as f:
+    json.dump(data, f, separators=(',',':'), indent=2)
+  return
+
 def _DumpJSONDB():
+  _DumpKMPendingOrdersDB()
   _DumpPaymentsDB()
   _DumpOrdersDB()
-
+  return
 
 def AskUberObserverToUploadJsons():
+  #TODO:There is an extremely tight coupling within pmtapp and jsongenerator. For ex jsongenerator has to know the path of pushfile to execute it. Need a more elegant way to invoke uploads.
   import subprocess
   pushFile = os.path.abspath(os.path.join(PMTAPPDIR, "utils", "push.py"))
   if not os.path.exists(pushFile):

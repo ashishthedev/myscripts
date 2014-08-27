@@ -95,6 +95,7 @@ def _GetHashForDir(dir_root):
 
 
 def GetPickledObject(workbookPath, createrFunction):
+  #TODO: Use time here instead of hashes
   curVer = GetHash(workbookPath)
 
   pickleDir = GetOption("CONFIG_SECTION", "TempPath")
@@ -107,6 +108,7 @@ def GetPickledObject(workbookPath, createrFunction):
       oldVer, oldObj = pickle.load(pf)
       if curVer == oldVer:
         return oldObj
+
   newObj = createrFunction(workbookPath)
   with open(pickledFile, "wb") as pf:
     pickle.dump((curVer, newObj), pf)
