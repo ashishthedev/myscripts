@@ -5,14 +5,16 @@ from __future__ import print_function, division, absolute_import, unicode_litera
 ## Intent: To read bills.xlsx and check who paid for this amount. Also perform some sanity testing
 ## Requirement: Python Interpretor must be installed
 ######################################################
-from Util.Decorators import memoize, timeThisFunction
-from UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict
-from LatePayments import CandidateCompaniesDict
-from SanityChecks import CheckConsistency
-from Util.Misc import PrintInBox, printNow
-from Util.Exception import MyException
-from argparse import ArgumentParser
 from Util.Config import GetOption
+from Util.Decorators import memoize, timeThisFunction
+from Util.Exception import MyException
+from Util.Misc import PrintInBox, printNow
+
+from whopaid.LatePayments import CandidateCompaniesDict
+from whopaid.SanityChecks import CheckConsistency
+from whopaid.UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict
+
+from argparse import ArgumentParser
 
 
 @timeThisFunction
@@ -36,16 +38,16 @@ def BeginWhoPaid(paymentMade):
 def WhoPaid(paymentMade):
     """Traverse each company, create a list of unpaid bills and see if it can pay for any combination"""
     candidatesDict = CandidateCompaniesDict()
-    allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsList()
-    for eachCompName in allBillsDict:
-        billsList = allBillsDict[eachCompName]
-        unpaidBillsList = SelectUnpaidBillsFrom(billsList)
-        if len(unpaidBillsList) > int(GetOption("CONFIG_SECTION", "MaxUnpaidBills")):
-            continue
+    allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
+    for eachCompName, billsList in allBillsDict.iteritems():
+      billsList = SelectUnpaidBillsFrom(billsList)
+      unpaidBillsList = SelectUnpaidBillsFrom(billsList)
+      if len(unpaidBillsList) > int(GetOption("CONFIG_SECTION", "MaxUnpaidBills")):
+          continue
 
-        (can, returnBillsList) = CanThisCompanyPay(unpaidBillsList, paymentMade)
-        if can:
-            [candidatesDict.AddBill(eachBill) for eachBill in returnBillsList]
+      (can, returnBillsList) = CanThisCompanyPay(unpaidBillsList, paymentMade)
+      if can:
+          [candidatesDict.AddBill(eachBill) for eachBill in returnBillsList]
 
     return candidatesDict
 
@@ -57,14 +59,14 @@ def CanThisCompanyPay(billsList, paymentMade):
     """
     totalUnpaidAmount = sum([bill.amount for bill in billsList])
 
-    if(totalUnpaidAmount == paymentMade):
+    if totalUnpaidAmount == paymentMade :
         return (True, billsList)
 
     for i in range(len(billsList)):
         #Heart of creating different combinations. Delete each value and call recursively to check the payment feasability
-        newBillsList = list(billsList)
+        newBillsList = billsList[:]
         del newBillsList[i]
-        (can, returnBillsList) = CanThisCompanyPay(newBillsList, paymentMade)
+        can, returnBillsList = CanThisCompanyPay(newBillsList, paymentMade)
         if can:
             return (True, returnBillsList)
     return (False, None)
@@ -73,4 +75,4 @@ if __name__ == '__main__':
     try:
         main()
     except MyException as ex:
-        PrintInBox(str(ex))
+        PrintInBox(ex)
