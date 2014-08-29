@@ -1,12 +1,16 @@
 
 from Util.Config import GetOption
 from Util.Misc import DD_MM_YYYY, DD_MMM_YYYY
-from Util.Decorators import timeThisFunction
 
 from whopaid.CustomersInfo import GetAllCustomersInfo
 from whopaid.KMPendingOrders import GetAllKMOrders, GetAllPendingOrders, GetAllReceivedOrders
 from whopaid.UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, datex, RemoveTrackingBills
+from whopaid.UtilFormC import QuarterlyClubbedFORMC
 
+from collections import defaultdict
+from pprint import pprint
+
+import datetime
 import json
 import os
 
@@ -17,6 +21,7 @@ EXT = ".json"
 PMT_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "PMT_" + SMALL_NAME + EXT))
 ORDER_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "ORDER_" + SMALL_NAME + EXT))
 KMO_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "KMORDER_" + SMALL_NAME + EXT))
+FORMC_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "FORMC_" + SMALL_NAME + EXT))
 """
 OrderDB:
 data =
@@ -57,7 +62,6 @@ data =
 ]
 """
 
-@timeThisFunction
 def _DumpOrdersDB():
   allOrdersDict = GetAllCompaniesDict().GetAllOrdersOfAllCompaniesAsDict()
 
@@ -107,7 +111,6 @@ data=
 }
 
 """
-@timeThisFunction
 def _DumpPaymentsDB():
   allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
   allAdjustmentsDict = GetAllCompaniesDict().GetAllAdjustmentsOfAllCompaniesAsDict()
@@ -163,7 +166,6 @@ def _DumpPaymentsDB():
     json.dump(data, f, separators=(',',':'), indent=2)
   return
 
-@timeThisFunction
 def _DumpKMPendingOrdersDB():
   po = GetAllKMOrders()
   po = GetAllPendingOrders(po)
@@ -172,7 +174,6 @@ def _DumpKMPendingOrdersDB():
     os.remove(KMO_JSON_FILE_NAME)
 
   data = dict()
-  from collections import defaultdict
   allKMOrders = defaultdict(list)
   superSmallName = GetOption("CONFIG_SECTION", "SuperSmallName")
 
@@ -180,7 +181,7 @@ def _DumpKMPendingOrdersDB():
     key =  "{} | {}".format(o.pelletSize, superSmallName)
     singleKMOrder = dict()
     singleKMOrder["poDateISOFormat"] = o.poDate.isoformat()
-    singleKMOrder["poDateISOFormat"] = DD_MMM_YYYY(o.poDate.isoformat())
+    singleKMOrder["poDateISOFormat"] = DD_MMM_YYYY(o.poDate.isoformat())#TODO: Use a different name for this field and fix mobile code too.
     singleKMOrder["pelletSize"] = key
     singleKMOrder["boreSize"] = o.boreSize
     singleKMOrder["grade"] = o.grade
@@ -200,7 +201,66 @@ def _DumpKMPendingOrdersDB():
     json.dump(data, f, separators=(',',':'), indent=2)
   return
 
+def _DumpFormCData():
+  allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
+
+  lastFormCEnteredOnDate = datetime.date(datetime.date.today().year-100, 1, 1) # Choose a really low date
+  for eachComp, billList in allBillsDict.iteritems():
+    t = [b.invoiceDate for b in billList if b.formCReceivingDate]
+    if t:
+      lastFormCEnteredOnDate = max(lastFormCEnteredOnDate, max(t))
+
+  from copy import deepcopy
+  formCReceivableDict = deepcopy(allBillsDict)
+  for eachComp, billList in formCReceivableDict.items():
+    newList = [b for b in billList if not b.formCReceivingDate and b.billingCategory.lower() in ["central"]] #inplace removal of bills
+    if newList:
+      formCReceivableDict[eachComp] = [b for b in billList if not b.formCReceivingDate and b.billingCategory.lower() in ["central"]] #inplace removal of bills
+    else:
+      del formCReceivableDict[eachComp]
+
+
+  superSmallName = GetOption("CONFIG_SECTION", "SuperSmallName")
+
+  def BillNoDateAmountDict(bill):
+    singleBill = dict()
+    singleBill["billNumber"] = int(bill.billNumber)
+    singleBill["invoiceDateAsText"] = DD_MMM_YYYY(bill.invoiceDate)
+    singleBill["invoiceDateIsoFormat"] = bill.invoiceDate.isoformat()
+    singleBill["amount"] = str(int(bill.amount))
+    return singleBill
+
+  data = dict()
+  allCompsFormC = list()
+  for eachComp, billList in formCReceivableDict.iteritems():
+    key = "{} | {}".format(eachComp, superSmallName)
+    yd = QuarterlyClubbedFORMC(billList).GetYearDict()
+    """
+    year(dict)
+     |--quarter(dict)
+         |--bills(list)
+    """
+    for eachYear, quarters in yd.iteritems():
+      for eachQuarter, billList in quarters.iteritems():
+        quarters[eachQuarter]  = [BillNoDateAmountDict(bill) for bill in billList] #In place replacement of billList with smaller objcets containing only necessary data.
+    singleCompFormC = {
+        "key":key,
+        "yd":yd,
+        }
+
+    allCompsFormC.append(singleCompFormC)
+
+  data["allCompsFormC"] = allCompsFormC
+  compSmallName = GetOption("CONFIG_SECTION", "SmallName")
+  data ["showVerbatimOnTop"] = "{} : {}".format(compSmallName, DD_MM_YYYY(lastFormCEnteredOnDate))
+
+  with open(FORMC_JSON_FILE_NAME, "w+") as f:
+    json.dump(data, f, separators=(',',':'), indent=2)
+  return
+  return
+
 def _DumpJSONDB():
+  _DumpFormCData()
   _DumpKMPendingOrdersDB()
   _DumpPaymentsDB()
   _DumpOrdersDB()
