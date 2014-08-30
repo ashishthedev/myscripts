@@ -181,7 +181,7 @@ def _DumpKMPendingOrdersDB():
     key =  "{} | {}".format(o.pelletSize, superSmallName)
     singleKMOrder = dict()
     singleKMOrder["poDateISOFormat"] = o.poDate.isoformat()
-    singleKMOrder["poDateISOFormat"] = DD_MMM_YYYY(o.poDate.isoformat())#TODO: Use a different name for this field and fix mobile code too.
+    singleKMOrder["poDateAsNormalText"] = DD_MMM_YYYY(o.poDate.isoformat())#TODO: Use a different name for this field and fix mobile code too.
     singleKMOrder["pelletSize"] = key
     singleKMOrder["boreSize"] = o.boreSize
     singleKMOrder["grade"] = o.grade
