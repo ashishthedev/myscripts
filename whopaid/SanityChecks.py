@@ -1,24 +1,26 @@
 ###############################################################################
 ## Author: Ashish Anand
 ## Date: 2012-09-06 Thu 03:07 PM
-## Intent: To check if the bills issued to have corresponding name in customer 
+## Intent: To check if the bills issued to have corresponding name in customer
 ## table
 ## Requirement: Python 3 Interpretor must be installed
 ##              Openpyxl for Python 3 must be installed
 ###############################################################################
 
-from whopaid.AutomaticNotifications import SendAutomaticSmsReportsIfRequired
-from whopaid.CustomersInfo import GetAllCustomersInfo
-from whopaid.JsonDataGenerator import AskUberObserverToUploadJsons
-from whopaid.MarkBillsAsPaid import ReportBillWhichShouldBeMarkAsPaid
-from whopaid.UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate, ShrinkWorkingArea
-
 from Util.Config import GetOption
 from Util.Decorators import timeThisFunction
 from Util.Exception import MyException
 from Util.Misc import PrintInBox, ParseDateFromString, IsDeliveredAssessFromStatus
+from Util.Persistant import Persistant
+
+from whopaid.AutomaticNotifications import SendAutomaticSmsReportsIfRequired
+from whopaid.CustomersInfo import GetAllCustomersInfo
+from whopaid.JsonDataGenerator import AskUberObserverToUploadJsons
+from whopaid.MarkBillsAsPaid import ReportBillWhichShouldBeMarkAsPaid
+from whopaid.UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate, ShrinkWorkingArea, GetWorkBookPath
 
 from collections import defaultdict
+import os
 
 def SendAutomaticHeartBeat():
   #A heart beat will be sent every now and then whenever this function is called.
@@ -30,7 +32,27 @@ def SendAutomaticHeartBeat():
   return
 
 
+
+class PersistentInfoForConsistencyCheck(Persistant):
+  identifier = "LastModifiedTimeForBillsFile"
+  def __init__(self):
+    super(self.__class__, self).__init__(self.__class__.__name__)
+
+  def isCheckRequired(self):
+    if self.identifier not in self:
+      return True #This is the first time it is called or persitent file was removed for some reason. Returning true so that check is made.
+    return self[self.identifier] != os.path.getmtime(GetWorkBookPath())
+
+  def saveNewFileTimeAtWhichConsistencyCheckWasDone(self):
+    self[self.identifier] = os.path.getmtime(GetWorkBookPath())
+
+
+
 def CheckConsistency():
+  pcc = PersistentInfoForConsistencyCheck()
+
+  if not pcc.isCheckRequired(): return #We successfully ran no need to check again.
+
   functionList = [
       CheckCustomerExistenceInDB,
       ReportMissingOrDuplicateBillsSince,
@@ -43,6 +65,7 @@ def CheckConsistency():
   allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
   for eachFunc in functionList:
     eachFunc(allBillsDict)
+  pcc.saveNewFileTimeAtWhichConsistencyCheckWasDone()
   return
 
 def CheckIfAnyBillsShouldBeMarkedAsPaid(allBillsDict):

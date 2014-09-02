@@ -64,6 +64,8 @@ class PersistantMonthlySmsDetails(Persistant):
 
   def sendSmsForMonthHavingThisDate(self, date):
     PrintInBox("Sending monthly sale sms")
+    if raw_input("Send (y/n) ?").lower() != "y":
+      return
     d = dict()
     bills = [b for b in GetAllBillsInLastNDays(60)]
     firstDay = datetime.date(date.year, date.month, 1)
@@ -93,7 +95,7 @@ $topFiveStrList
     for n in nos:
       print("Sending sms to {}".format(n))
       print("{}".format(smsContents))
-      #SendSms(n, smsContents) #TODO remove comment
+      SendSms(n, smsContents)
 
     self[date] = DD_MMM_YYYY(datetime.date.today())
     return
@@ -142,7 +144,6 @@ Top Two:
     for n in nos:
       print("Sending sms to {}".format(n))
       print("{}".format(smsContents))
-      #raw_input("About to send sms but will not send because of testing...");return #TODO: Delete this line
       SendSms(n, smsContents)
 
     self[firstDay] =  DD_MMM_YYYY(datetime.date.today())

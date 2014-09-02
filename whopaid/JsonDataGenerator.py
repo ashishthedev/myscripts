@@ -206,7 +206,7 @@ def _DumpFormCData():
 
   lastFormCEnteredOnDate = datetime.date(datetime.date.today().year-100, 1, 1) # Choose a really low date
   for eachComp, billList in allBillsDict.iteritems():
-    t = [b.invoiceDate for b in billList if b.formCReceivingDate]
+    t = [b.formCReceivingDate for b in billList if isinstance(b.formCReceivingDate, type(datetime))]
     if t:
       lastFormCEnteredOnDate = max(lastFormCEnteredOnDate, max(t))
 
@@ -275,6 +275,7 @@ def AskUberObserverToUploadJsons():
   e = 'moc.slootdnaseiddradnats@repoleved'
   v='live'
   cmd = "python \"{pushFile}\" --email={e} --version={v} --oauth2".format(pushFile=pushFile, e=e[::-1], v=v)
+  print("Running: {}".format(cmd))
   subprocess.check_call(cmd)
   return
 

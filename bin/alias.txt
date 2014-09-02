@@ -124,7 +124,7 @@ fit=@echo "Finding inside .txt files" && findstr /i /s /n $* *.txt
 fih=@echo "Finding inside .html files" && findstr /i /s /n $* *.html
 fia=@echo "Finding inside all files" && findstr /i /s /n $* *.*
 fic=@echo "Finding inside all files" && findstr /i /s /n $* *.py *.html *.js *.css
-esice= pushd %XDATDOCSDIR%\ESIC and start.
+esice=pushd %XDATDOCSDIR%\ESIC && start.
 
 q=exit
 pyprof = %XDATDOCSDIR%\MyScripts\bin\pyprofile.py "$*"
