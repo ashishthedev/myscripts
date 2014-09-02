@@ -206,7 +206,7 @@ def _DumpFormCData():
 
   lastFormCEnteredOnDate = datetime.date(datetime.date.today().year-100, 1, 1) # Choose a really low date
   for eachComp, billList in allBillsDict.iteritems():
-    t = [b.formCReceivingDate for b in billList if isinstance(b.formCReceivingDate, type(datetime))]
+    t = [b.formCReceivingDate for b in billList if isinstance(b.formCReceivingDate, datetime.date)]
     if t:
       lastFormCEnteredOnDate = max(lastFormCEnteredOnDate, max(t))
 
