@@ -210,11 +210,15 @@ class QuarterlyClubbedFORMC(object):
             $tOptPerson
             <br>
             Dear Sir,<br>
-            <br>
-            $tOptAdditionalLine
-            Please find below the details of invoices issued to your firm for which Sales Tax Forms were not received by us.
+            Greetings!<br>
+            I hope you have received this mail in the best of spirit.<br>
 
+            $tOptAdditionalLine
+
+            Please find below for your kind reference the list of pending bills for which C-FORMS is yet to be issued.<br>
             We request you to take immediate steps to issue the same and oblige.<br>
+            For any query or assistance, please feel free to contact us.<br>
+            We wish to hear from you as soon as possible.<br>
             <br>
             $tTable
             <hr>

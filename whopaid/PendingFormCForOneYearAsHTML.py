@@ -12,6 +12,7 @@ from CustomersInfo import GetAllCustomersInfo
 from whopaid.UtilFormC import QuarterlyClubbedFORMC
 from Util.PythonMail import SendMail
 from Util.Exception import MyException
+from Util.HTML import Bold
 from Util.Misc import ParseDateFromString, PrintInBox, OpenFileForViewing,\
         MakeSureDirExists, DD_MM_YYYY
 from SanityChecks import CheckConsistency

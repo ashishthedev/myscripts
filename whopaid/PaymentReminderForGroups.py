@@ -428,6 +428,7 @@ def PrepareMailContentForThisGrp(grpName, allBillsDict, allCustomersInfo, args):
     compsInGrp = allCustomersInfo.GetListOfCompNamesForThisGrp(grpName)
     htmlTables = ""
     for eachCompName in compsInGrp:
+      if not SelectUnpaidBillsFrom(allBillsDict[eachCompName]): continue
       htmlTables += "<br>" + GetHTMLTableBlockForThisComp(eachCompName, allBillsDict, allCustomersInfo)
 
     letterDate = datetime.date.today().strftime("%A, %d-%b-%Y")
