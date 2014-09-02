@@ -211,11 +211,10 @@ class QuarterlyClubbedFORMC(object):
             <br>
             Dear Sir,<br>
             Greetings!<br>
-            I hope you have received this mail in the best of spirit.<br>
 
             $tOptAdditionalLine
 
-            Please find below for your kind reference the list of pending bills for which C-FORMS is yet to be issued.<br>
+            Please find below for your kind reference the list of pending bills for which FORM-C is yet to be issued.<br>
             We request you to take immediate steps to issue the same and oblige.<br>
             For any query or assistance, please feel free to contact us.<br>
             We wish to hear from you as soon as possible.<br>
