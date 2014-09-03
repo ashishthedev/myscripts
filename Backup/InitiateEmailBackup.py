@@ -3,10 +3,12 @@
 #Author: Ashish Anand
 #Date: 24-Nov-2011
 
-from UtilBackup import AllBackupLocations, SingleBackupLocation, Backup, Config
-from UtilConfig import GetOption, GetConfigFilePath
+from Util.Backup import AllBackupLocations, SingleBackupLocation, Backup, Config
+from Util.Config import GetOption, GetConfigFilePath
+from Util.Exception import MyException
+
 from ConfigParser import SafeConfigParser
-from UtilException import MyException
+
 import os
 
 
