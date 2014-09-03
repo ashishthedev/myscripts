@@ -8,7 +8,6 @@ from whopaid.UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, date
 from whopaid.UtilFormC import QuarterlyClubbedFORMC
 
 from collections import defaultdict
-from pprint import pprint
 
 import datetime
 import json
@@ -197,6 +196,7 @@ def _DumpKMPendingOrdersDB():
   lastInvoiceDate = max([o.invoiceDate for o in ro])
   compSmallName = GetOption("CONFIG_SECTION", "SmallName")
   data ["showVerbatimOnTop"] = "{} : {}".format(compSmallName, DD_MM_YYYY(lastInvoiceDate))
+  data ["showVerbatimOnTopDateISO"] = { compSmallName : lastInvoiceDate.isoformat()}
   with open(KMO_JSON_FILE_NAME, "w+") as f:
     json.dump(data, f, separators=(',',':'), indent=2)
   return
