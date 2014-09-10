@@ -184,13 +184,21 @@ def ShouldWeSendAutomaticEmailForGroup(grpName, allBillsDict, allCustomersInfo):
     return False
 
   #Check if we dont want the customer to be included in automatic mails
-  if not allCustomersInfo.IncludeCustInAutomaticMails(firstCompInGrp):
-    return False
+  #if not allCustomersInfo.IncludeCustInAutomaticMails(firstCompInGrp):
+  #  return False
 
   #Email present
   if not allCustomersInfo.GetPaymentReminderEmailAsListForCustomer(firstCompInGrp):
     return False
 
+  #We should send email after some time since last payment was received.
+  allPayments = GetAllCompaniesDict().GetAllPaymentsByAllCompaniesAsDict()
+  recentPmtDate = max([p.pmtDate for comp, payments in allPayments.iteritems() for p in payments])
+  daysSinceLastPmt = (recentPmtDate - datetime.date.today()).days
+  if daysSinceLastPmt < allCustomersInfo.GetMinDaysGapBetweenMails(firstCompInGrp):
+    return False
+
+  #Check any bill should have elapsed minimum days
   daysSinceOldestUnpaidBill = max([b.daysOfCredit for b in unpaidBillsList])
   allowedDaysOfCredit = int(allCustomersInfo.GetCreditLimitForCustomer(firstCompInGrp))
   if daysSinceOldestUnpaidBill <= allowedDaysOfCredit:

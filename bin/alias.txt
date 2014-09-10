@@ -137,6 +137,7 @@ slip5 = pushd %XDATDOCSDIR%\myscripts\whopaid && AddressSlip.py -n5 $* && popd
 slip6 = pushd %XDATDOCSDIR%\myscripts\whopaid && AddressSlip.py -n6 $* && popd
 slip = pushd %XDATDOCSDIR%\myscripts\whopaid && AddressSlip.py $* && popd
 er = pushd %XDATDOCSDIR%\myscripts\whopaid && PaymentReminderForGroups.py --mail $* && popd
+erm = pushd %XDATDOCSDIR%\myscripts\whopaid && PaymentReminderForGroups.py --mail $* && popd
 ers = pushd %XDATDOCSDIR%\myscripts\whopaid && PaymentReminderForGroups.py --sms $* && popd
 erms = pushd %XDATDOCSDIR%\myscripts\whopaid && PaymentReminderForGroups.py --mail --sms $* && popd
 erd = pushd %XDATDOCSDIR%\myscripts\whopaid && PaymentReminderForGroups.py --mail --demo $* && popd
@@ -223,6 +224,8 @@ rollbackpmt = pushd %PMTAPPDIR%\ && appcfg.py rollback .  --oauth2 --version="li
 gcloudlogin = gcloud auth login --no-launch-browser
 
 
+;======================================================
+gtrk = pushd %XDATDOCSDIR%\myscripts\whopaid
 ;======================================================
 ;= Lean Tricks
 glt = pushd %LEANDIR%

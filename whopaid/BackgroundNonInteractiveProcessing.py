@@ -15,23 +15,26 @@ import os
 
 LOG_FILE_PATH = "b:\\desktop\\lastrun.txt"
 
-if os.path.exists(LOG_FILE_PATH):
-  os.remove(LOG_FILE_PATH)
+def DeleteLogIfExists():
+  if os.path.exists(LOG_FILE_PATH):
+    os.remove(LOG_FILE_PATH)
 
 def log(msg):
-  with open(LOG_FILE_PATH, "w+") as f:
-    f.write(msg)
+  with open(LOG_FILE_PATH, "a") as f:
+    f.write("\n{}: {}".format(datetime.datetime.now(), msg))
 
 def main():
+  #DeleteLogIfExists()
   try:
-    log("Attempting to run  at time: {} ".format(datetime.datetime.now()))
+    t = datetime.datetime.now()
+    log("Initiating {}".format(__file__))
     from whopaid.SanityChecks import SendAutomaticHeartBeat #This should be within the try block so that we can see the exception if it happens.
     SendAutomaticHeartBeat()
-    log("Ran successfully last at time: {} ".format(datetime.datetime.now()))
+    dt = datetime.datetime.now() - t
+    log("Ran successfully. Took {} seconds".format(dt.seconds))
   except Exception as ex:
-    log("At time: {} following error occurred:\n{}".format(datetime.datetime.now(), str(ex)))
+    log("Following error occurred:\n{}".format(str(ex)))
     print(str(ex))
-    raw_input("...")
     raise
 
 main()

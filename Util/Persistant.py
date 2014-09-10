@@ -22,6 +22,9 @@ p.allKeys
   """
   def __init__(self, name):
     self.shelfFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), name + ".shelf")
+    if not os.path.exists(self.shelfFileName):
+      with closing(shelve.open(self.shelfFileName)) as sh:
+        pass #Just create it
 
   def __setitem__(self, key, value):
     with closing(shelve.open(self.shelfFileName)) as sh:
