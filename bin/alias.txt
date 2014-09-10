@@ -3,7 +3,7 @@
 ;= @echo off
 ; = Invoke it like this:
 ;= 1. D:\Windows\System32\cmd.exe /k setenv.bat
-;= 2. doskey /MACROFILE="%APPDIR%\MyScripts\bin\alias.txt"
+;= 2. doskey /MACROFILE="%APPDIR%\code\bin\alias.txt"
 ;= rem Call DOSKEY and use this file as the macrofile
 ;= %SystemRoot%\system32\doskey /listsize=1000 /macrofile=%0%
 ;= rem In batch mode, jump to the end of the file
@@ -27,14 +27,14 @@
 
 gitclean = git gc --aggressive --prune
 gitamend = git commit --amend --no-edit
-re=pushd %XDATDOCSDIR%\MyScripts\bin && doskey /Macrofile=alias.txt && popd
+re=pushd %XDATDOCSDIR%\code\bin && doskey /Macrofile=alias.txt && popd
 ..=cd..
 ...=cd..\..
 
-idle = %XDATDOCSDIR%\myscripts\bin\idle.lnk
+idle = %XDATDOCSDIR%\code\bin\idle.lnk
 mv=move $*
-al=gvim %XDATDOCSDIR%\myscripts\bin\alias.txt
-al=pushd %XDATDOCSDIR%\MyScripts\bin && gvim alias.txt && popd
+al=gvim %XDATDOCSDIR%\code\bin\alias.txt
+al=pushd %XDATDOCSDIR%\code\bin && gvim alias.txt && popd
 cfg=gvim %XDATDOCSDIR%\pycrm.cfg
 g=gvim $*
 z=start /w %VIM_EXE_DIR%\gvim.exe $*
@@ -52,22 +52,22 @@ egs = start /w "%USERPROFILE%\AppData\Local\Google\Chrome\Application\chrome.exe
 
 gds=pushd b:\desktop
 gtest = pushd b:\desktop && pushd test
-gms=pushd %XDATDOCSDIR%\myscripts
-gbin=pushd %XDATDOCSDIR%\myscripts\bin
+gms=pushd %XDATDOCSDIR%\code
+gbin=pushd %XDATDOCSDIR%\code\bin
 ghome = pushd %HOMEPATH%
-gwp  = pushd %XDATDOCSDIR%\MyScripts\whopaid
+gwp  = pushd %XDATDOCSDIR%\code\whopaid
 ggoogle = pushd "%PROGRAMFILES%\Google\google_appengine"
-gutils = pushd %XDATDOCSDIR%\MyScripts\Util
-gutil = pushd %XDATDOCSDIR%\MyScripts\Util
+gutils = pushd %XDATDOCSDIR%\code\Util
+gutil = pushd %XDATDOCSDIR%\code\Util
 gbundle = pushd "d:\users\Ichigo\vimfiles\bundle\"
 doc = pushd %XDATDOCSDIR%
 gdoc = pushd %XDATDOCSDIR%
-gsony= pushd %XDATDOCSDIR%\MyScripts\SonyPhoneBookMerge
-gmisc = pushd %XDATDOCSDIR%\MyScripts\misc
-gahk = pushd %XDATDOCSDIR%\MyScripts\AHK
+gsony= pushd %XDATDOCSDIR%\code\SonyPhoneBookMerge
+gmisc = pushd %XDATDOCSDIR%\code\misc
+gahk = pushd %XDATDOCSDIR%\code\AHK
 gtools = pushd "b:\tools\"
 gread = pushd b:\read
-gkeyl = pushd %XDATDOCSDIR%\MyScripts\keyl
+gkeyl = pushd %XDATDOCSDIR%\code\keyl
 gff = pushd %XDATDOCSDIR%\FrequentFliers
 gydl = pushd "B:\\YoutubeVideosDownloaded\\"
 rollbacksdat = pushd %WEBDIR%\ && appcfg.py rollback . --no_cookies --email="developer@standarddiesandtools.com" $*
@@ -101,13 +101,13 @@ gpods = pushd %APPDIR%\\DocketPODs
 fpod =  pushd %APPDIR%\\DocketPODs && where /T /R . *$**
 cust2odat = copy "%APPDIR%\\SDATDocs\\Bills\\Cust.xlsx" "%APPDIR%\\ODATDocs\\Bills\\Cust.xlsx"
 
-analyze = pushd %XDATDOCSDIR%\\myscripts\\misc\\PhoneBillAnalysis && AnalyzeBill.py $*
+analyze = pushd %XDATDOCSDIR%\\code\\misc\\PhoneBillAnalysis && AnalyzeBill.py $*
 
-trs = pushd %XDATDOCSDIR%\MyScripts\whopaid && Shipments.py --track $* && pushd %XDATDOCSDIR%\..\DocketPODs && start. && popd
-undelivered = pushd %XDATDOCSDIR%\MyScripts\whopaid && Shipments.py --show-undelivered-small && popd
-parcom = pushd %XDATDOCSDIR%\MyScripts\whopaid && Shipments.py --show-undelivered-small && Shipments.py --complaint $* && popd
-watch = pushd %XDATDOCSDIR%\MyScripts\misc && watchydl.py -s $* && popd
-lfp = pushd %XDATDOCSDIR%\MyScripts\whopaid && Statement.py --last-few-payments && popd
+trs = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --track $* && pushd %XDATDOCSDIR%\..\DocketPODs && start. && popd
+undelivered = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --show-undelivered-small && popd
+parcom = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --show-undelivered-small && Shipments.py --complaint $* && popd
+watch = pushd %XDATDOCSDIR%\code\misc && watchydl.py -s $* && popd
+lfp = pushd %XDATDOCSDIR%\code\whopaid && Statement.py --last-few-payments && popd
 
 opybk = "B:\Read\Python\The Quick Python Book 2e - Vernon Ceder - Manning (2010).pdf"
 ogaebk2 = "b:\Read\Google App Engine\Programming GAE V2.pdf"
@@ -127,86 +127,86 @@ fic=@echo "Finding inside all files" && findstr /i /s /n $* *.py *.html *.js *.c
 esice=pushd %XDATDOCSDIR%\ESIC && start.
 
 q=exit
-pyprof = %XDATDOCSDIR%\MyScripts\bin\pyprofile.py "$*"
+pyprof = %XDATDOCSDIR%\code\bin\pyprofile.py "$*"
 
-slip1 = pushd %XDATDOCSDIR%\myscripts\whopaid && AddressSlip.py -n1 $* && popd
-slip2 = pushd %XDATDOCSDIR%\myscripts\whopaid && AddressSlip.py -n2 $* && popd
-slip3 = pushd %XDATDOCSDIR%\myscripts\whopaid && AddressSlip.py -n3 $* && popd
-slip4 = pushd %XDATDOCSDIR%\myscripts\whopaid && AddressSlip.py -n4 $* && popd
-slip5 = pushd %XDATDOCSDIR%\myscripts\whopaid && AddressSlip.py -n5 $* && popd
-slip6 = pushd %XDATDOCSDIR%\myscripts\whopaid && AddressSlip.py -n6 $* && popd
-slip = pushd %XDATDOCSDIR%\myscripts\whopaid && AddressSlip.py $* && popd
-er = pushd %XDATDOCSDIR%\myscripts\whopaid && PaymentReminderForGroups.py --mail $* && popd
-erm = pushd %XDATDOCSDIR%\myscripts\whopaid && PaymentReminderForGroups.py --mail $* && popd
-ers = pushd %XDATDOCSDIR%\myscripts\whopaid && PaymentReminderForGroups.py --sms $* && popd
-erms = pushd %XDATDOCSDIR%\myscripts\whopaid && PaymentReminderForGroups.py --mail --sms $* && popd
-erd = pushd %XDATDOCSDIR%\myscripts\whopaid && PaymentReminderForGroups.py --mail --demo $* && popd
-erol = pushd %XDATDOCSDIR%\myscripts\whopaid && PaymentReminderForGroups.py --allCompanies --only-list-no-send --demo $* && popd
+slip1 = pushd %XDATDOCSDIR%\code\whopaid && AddressSlip.py -n1 $* && popd
+slip2 = pushd %XDATDOCSDIR%\code\whopaid && AddressSlip.py -n2 $* && popd
+slip3 = pushd %XDATDOCSDIR%\code\whopaid && AddressSlip.py -n3 $* && popd
+slip4 = pushd %XDATDOCSDIR%\code\whopaid && AddressSlip.py -n4 $* && popd
+slip5 = pushd %XDATDOCSDIR%\code\whopaid && AddressSlip.py -n5 $* && popd
+slip6 = pushd %XDATDOCSDIR%\code\whopaid && AddressSlip.py -n6 $* && popd
+slip = pushd %XDATDOCSDIR%\code\whopaid && AddressSlip.py $* && popd
+er = pushd %XDATDOCSDIR%\code\whopaid && PaymentReminderForGroups.py --mail $* && popd
+erm = pushd %XDATDOCSDIR%\code\whopaid && PaymentReminderForGroups.py --mail $* && popd
+ers = pushd %XDATDOCSDIR%\code\whopaid && PaymentReminderForGroups.py --sms $* && popd
+erms = pushd %XDATDOCSDIR%\code\whopaid && PaymentReminderForGroups.py --mail --sms $* && popd
+erd = pushd %XDATDOCSDIR%\code\whopaid && PaymentReminderForGroups.py --mail --demo $* && popd
+erol = pushd %XDATDOCSDIR%\code\whopaid && PaymentReminderForGroups.py --allCompanies --only-list-no-send --demo $* && popd
 gform38 = pushd %XDATDOCSDIR%\Form38Actual\Receipt && start.
-fcr  = pushd %XDATDOCSDIR%\myscripts\whopaid && FormCRequest.py -o $* && popd
-fcrl = pushd %XDATDOCSDIR%\myscripts\whopaid && FormCRequest.py -o --letterHead --desktopOnly $* && popd
-fcrd = pushd %XDATDOCSDIR%\myscripts\whopaid && FormCRequest.py -o --demo $* && popd
-fcre = pushd %XDATDOCSDIR%\myscripts\whopaid && FormCRequest.py --email --sms $* && popd
-rpr  = pushd %XDATDOCSDIR%\myscripts\whopaid && RoadPermitRequest.py --mail --sms $* && popd
-rprm  = pushd %XDATDOCSDIR%\myscripts\whopaid && RoadPermitRequest.py --mail $* && popd
-rprs  = pushd %XDATDOCSDIR%\myscripts\whopaid && RoadPermitRequest.py --sms $* && popd
-rprd = pushd %XDATDOCSDIR%\myscripts\whopaid && RoadPermitRequest.py --mail --sms --demo $* && popd
-dis   = pushd %XDATDOCSDIR%\myscripts\whopaid && Shipments.py --mail --dispatch-sms-all $* && Shipments.py --track && pushd %XDATDOCSDIR%\..\DocketPODs && start. && popd && popd
-dis10 = pushd %XDATDOCSDIR%\myscripts\whopaid && Shipments.py --mail --dispatch-sms-all --days=10 $* && popd
-disd  = pushd %XDATDOCSDIR%\myscripts\whopaid && Shipments.py --mail --dispatch-sms-all --demo $* && popd
-rgb = %XDATDOCSDIR%\myscripts\misc\rgb2hex.py $*
+fcr  = pushd %XDATDOCSDIR%\code\whopaid && FormCRequest.py -o $* && popd
+fcrl = pushd %XDATDOCSDIR%\code\whopaid && FormCRequest.py -o --letterHead --desktopOnly $* && popd
+fcrd = pushd %XDATDOCSDIR%\code\whopaid && FormCRequest.py -o --demo $* && popd
+fcre = pushd %XDATDOCSDIR%\code\whopaid && FormCRequest.py --email --sms $* && popd
+rpr  = pushd %XDATDOCSDIR%\code\whopaid && RoadPermitRequest.py --mail --sms $* && popd
+rprm  = pushd %XDATDOCSDIR%\code\whopaid && RoadPermitRequest.py --mail $* && popd
+rprs  = pushd %XDATDOCSDIR%\code\whopaid && RoadPermitRequest.py --sms $* && popd
+rprd = pushd %XDATDOCSDIR%\code\whopaid && RoadPermitRequest.py --mail --sms --demo $* && popd
+dis   = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --mail --dispatch-sms-all $* && Shipments.py --track && pushd %XDATDOCSDIR%\..\DocketPODs && start. && popd && popd
+dis10 = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --mail --dispatch-sms-all --days=10 $* && popd
+disd  = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --mail --dispatch-sms-all --demo $* && popd
+rgb = %XDATDOCSDIR%\code\misc\rgb2hex.py $*
 info = gvim %XDATDOCSDIR%\FrequentFliers\Info.txt
-etrv = %XDATDOCSDIR%\myscripts\misc\TaxReturnLocalValidation.py
+etrv = %XDATDOCSDIR%\code\misc\TaxReturnLocalValidation.py
 eret = gvim %XDATDOCSDIR%\SalesTaxReturnFiles\eReturnInfo.txt
 tre = start %XDATDOCSDIR%\SalesTaxReturnFiles\
 gtaxret = pushd %XDATDOCSDIR%\SalesTaxReturnFiles\
 fm = "D:\Program Files\FreeMind\Freemind.exe"
-lc = %XDATDOCSDIR%\MyScripts\LineCount.py
-dup = %XDATDOCSDIR%\MyScripts\misc\FindDuplicateFiles.py
-stmt = pushd %XDATDOCSDIR%\myscripts\whopaid && Statement.py $* && popd
+lc = %XDATDOCSDIR%\code\LineCount.py
+dup = %XDATDOCSDIR%\code\misc\FindDuplicateFiles.py
+stmt = pushd %XDATDOCSDIR%\code\whopaid && Statement.py $* && popd
 h = doskey /history
-ggno = pushd %XDATDOCSDIR%\myscripts\misc\gnokii
-sms = pushd %XDATDOCSDIR%\myscripts\sms && sendsms.py && popd
+ggno = pushd %XDATDOCSDIR%\code\misc\gnokii
+sms = pushd %XDATDOCSDIR%\code\sms && sendsms.py && popd
 
 ;= Take Email backup with tkbkem (TaKe BacKup = tkbk)
-tkbk = %XDATDOCSDIR%\MyScripts\Backup\InitiateEmailBackup.py
-chk  = %XDATDOCSDIR%\MyScripts\whopaid\SanityChecks.py
+tkbk = %XDATDOCSDIR%\code\Backup\InitiateEmailBackup.py
+chk  = %XDATDOCSDIR%\code\whopaid\SanityChecks.py
 
 ;= rem Test Observer
-to   = %XDATDOCSDIR%\MyScripts\web\UberObserver.pyk
+to   = %XDATDOCSDIR%\code\web\UberObserver.pyk
 kdd  = taskkill /F /IM DisplayDriver.exe
 tc   = dev_appserver.py b:\gaetest\clock
 
-wpold = pushd %XDATDOCSDIR%\myscripts\whopaid && DepricatedWhoPaid.py $* && popd
-wp    = pushd %XDATDOCSDIR%\MyScripts\whopaid && whopaidInstantFindOut.py $* && popd
-wpi   = pushd %XDATDOCSDIR%\MyScripts\whopaid && whopaidInstantFindOut.py $* && popd
-wpf   = pushd %XDATDOCSDIR%\MyScripts\whopaid && whopaidInstantFindOut.py --fresh $* && popd
+wpold = pushd %XDATDOCSDIR%\code\whopaid && DepricatedWhoPaid.py $* && popd
+wp    = pushd %XDATDOCSDIR%\code\whopaid && whopaidInstantFindOut.py $* && popd
+wpi   = pushd %XDATDOCSDIR%\code\whopaid && whopaidInstantFindOut.py $* && popd
+wpf   = pushd %XDATDOCSDIR%\code\whopaid && whopaidInstantFindOut.py --fresh $* && popd
 
 ;= Fraud Detection
-efd   = %XDATDOCSDIR%\Myscripts\ymail\FraudDetection.py $*
-efdv  = %XDATDOCSDIR%\Myscripts\ymail\FraudDetection.py $*
-efdnv = %XDATDOCSDIR%\Myscripts\ymail\FraudDetection.py -nv $*
-efdt  = %XDATDOCSDIR%\Myscripts\ymail\FraudDetection.py -t $*
-efdtnv = %XDATDOCSDIR%\Myscripts\ymail\FraudDetection.py -nv -t $*
+efd   = %XDATDOCSDIR%\code\ymail\FraudDetection.py $*
+efdv  = %XDATDOCSDIR%\code\ymail\FraudDetection.py $*
+efdnv = %XDATDOCSDIR%\code\ymail\FraudDetection.py -nv $*
+efdt  = %XDATDOCSDIR%\code\ymail\FraudDetection.py -t $*
+efdtnv = %XDATDOCSDIR%\code\ymail\FraudDetection.py -nv -t $*
 
 
 pypy = B:\Tools\pypy-2.0-beta2\pypy.exe $*
 
-eydl = start %XDATDOCSDIR%\Myscripts\misc\ydl.py
+eydl = start %XDATDOCSDIR%\code\misc\ydl.py
 oydl = gvim b:\YoutubeVideosDownloaded\YoutubeURLsQueue.txt
-edelta = %XDATDOCSDIR%\MyScripts\SonyPhoneBookMerge\Delta.py
+edelta = %XDATDOCSDIR%\code\SonyPhoneBookMerge\Delta.py
 
-eCleanMp3 = %XDATDOCSDIR%\MyScripts\misc\SanitizeMp3Names.py
+eCleanMp3 = %XDATDOCSDIR%\code\misc\SanitizeMp3Names.py
 
-fgmail = gvim %XDATDOCSDIR%\MyScripts\misc\gmailAttachmentSizeLabels.py
-fgmutil = gvim %XDATDOCSDIR%\Myscripts\PythonModules\UtilGmail.py
+fgmail = gvim %XDATDOCSDIR%\code\misc\gmailAttachmentSizeLabels.py
+fgmutil = gvim %XDATDOCSDIR%\code\PythonModules\UtilGmail.py
 
-readab = pushd %XDATDOCSDIR%\MyScripts\misc\readability && Scripts\activate.bat
+readab = pushd %XDATDOCSDIR%\code\misc\readability && Scripts\activate.bat
 tree = b:\Tools\TreeSize\TreeSizeFree.exe
 gch = pushd %XDATDOCSDIR%\..\chess
 
 privoxy = pushd b:\tools\PrivoxyInstalled\ && start privoxy.exe && popd
-torsdat = pushd b:\tools\PrivoxyInstalled\ && start privoxy.exe && popd && %XDATDOCSDIR%\MyScripts\misc\TorPython.py --url "http://www.standarddiesandtools.com/about" --interval 20
+torsdat = pushd b:\tools\PrivoxyInstalled\ && start privoxy.exe && popd && %XDATDOCSDIR%\code\misc\TorPython.py --url "http://www.standarddiesandtools.com/about" --interval 20
 ;= :end
 ;= rem ******************************************************************
 ;= rem * EOF - Don't remove the following line.  It clears out the ';'
@@ -225,7 +225,7 @@ gcloudlogin = gcloud auth login --no-launch-browser
 
 
 ;======================================================
-gtrk = pushd %XDATDOCSDIR%\myscripts\whopaid
+gtrk = pushd %XDATDOCSDIR%\code\whopaid
 ;======================================================
 ;= Lean Tricks
 glt = pushd %LEANDIR%
