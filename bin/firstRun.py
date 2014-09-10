@@ -49,14 +49,14 @@ def main ():
     currentPath = os.environ["PATH"]
     currentPath = AddThisToGlobalPath(currentPath, PYTHON_BASE_DIR)
     currentPath = AddThisToGlobalPath(currentPath, os.path.join(PYTHON_BASE_DIR, "Scripts"))
-    currentPath = AddThisToGlobalPath(currentPath, os.path.join(appDir, "myscripts", "bin"))
+    currentPath = AddThisToGlobalPath(currentPath, os.path.join(appDir, "code", "bin"))
     homeDir = os.path.expanduser("~")
     shutil.copy(
-        os.path.join(appDir, "myscripts", "misc", "gitFiles", "gitconfigHome.txt"),
+        os.path.join(appDir, "code", "misc", "gitFiles", "gitconfigHome.txt"),
         os.path.join(homeDir, ".gitconfig")
     )
     shutil.copy(
-        os.path.join(appDir, "myscripts", "misc", "vimFiles", "_gvimrc sample place in Documents Folder"),
+        os.path.join(appDir, "code", "misc", "vimFiles", "_gvimrc sample place in Documents Folder"),
         os.path.join(homeDir, ".vimrc")
     )
 

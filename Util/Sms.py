@@ -13,7 +13,7 @@ from Util.Misc import PrintInBox
 import urllib2
 from Util.Decorators import RetryFor5TimesIfFailed
 
-GNOKII_PATH = os.path.join(GetAppDirPath(), "myscripts", "misc", "gnokii", "gnokii.exe")
+GNOKII_PATH = os.path.join(GetAppDirPath(), "code", "misc", "gnokii", "gnokii.exe")
 if not os.path.exists(GNOKII_PATH):
     raise Exception("{} does not exist".format(GNOKII_PATH))
 
