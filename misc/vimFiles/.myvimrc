@@ -40,7 +40,7 @@ endfunction
 
 
 let WEBSITE_DIR = GetAPPDIR()."\\website\\"
-let WHOPAID_DIR = GetSDATDir()."\\myscripts\\whopaid\\"
+let WHOPAID_DIR = GetSDATDir()."\\code\\whopaid\\"
 
 
 "1. VIM Customizations
@@ -81,9 +81,9 @@ set directory=%temp%
 
 " When vimrc is edited, reload it
 autocmd bufwritepost .myvimrc source <sfile> "When this file changes resource it
-execute "noremap <leader>v :e   ".GetSDATDir()."\\MyScripts\\misc\\vimFiles\\.myvimrc"."<CR>"
-execute "noremap <leader>nv :sp ".GetSDATDir()."\\MyScripts\\misc\\vimFiles\\.myvimrc"."<CR>"
-execute "noremap ,re :source ".GetSDATDir()."\\MyScripts\\misc\\vimFiles\\.myvimrc"."<CR>"
+execute "noremap <leader>v :e   ".GetSDATDir()."\\code\\misc\\vimFiles\\.myvimrc"."<CR>"
+execute "noremap <leader>nv :sp ".GetSDATDir()."\\code\\misc\\vimFiles\\.myvimrc"."<CR>"
+execute "noremap ,re :source ".GetSDATDir()."\\code\\misc\\vimFiles\\.myvimrc"."<CR>"
 
 
 
@@ -147,8 +147,8 @@ endif
 " 2. PYTHON CUSTOMIZATIONS STARTS
 "______________________________________________________________________________
 " Source http://sontek.net/blog/detail/turning-vim-into-a-modern-python-ide
-execute "source "GetSDATDir()."\\myscripts\\misc\\vimFiles\\vim\\autoload\\pathogen.vim"
-let bundlePath=GetSDATDir()."\\myscripts\\misc\\vimFiles\\vim\\bundle\\{}"
+execute "source "GetSDATDir()."\\code\\misc\\vimFiles\\vim\\autoload\\pathogen.vim"
+let bundlePath=GetSDATDir()."\\code\\misc\\vimFiles\\vim\\bundle\\{}"
 call pathogen#infect('bundle/{}', bundlePath)
 "call pathogen#incubate()
 "call pathogen#helptags()
@@ -191,8 +191,8 @@ import sys
 import vim
 
 #Appdir has a defined structure inside it. Add desirable directories to path
-relativePath = "myscripts\Util"
-relativePath = "myscripts"
+relativePath = "code\Util"
+relativePath = "code"
 if "appdir" in os.environ:
     path = os.path.join(GetSDATDir(), relativePath)
     path = os.path.normpath(path)
@@ -262,8 +262,8 @@ set spell
 python << EOF
 def InvokeSendSmsFromVim():
   appPath = GetSDATDir()
-  smsDir = os.path.join(appPath, "myscripts", "sms")
-  pythonModulesDir = os.path.join(appPath, "myscripts", "PythonModules")
+  smsDir = os.path.join(appPath, "code", "sms")
+  pythonModulesDir = os.path.join(appPath, "code", "PythonModules")
   sys.path.append(smsDir)
   sys.path.append(pythonModulesDir)
   from sendsms import SendSMSToThisBlobHavingNumbersAndContents
@@ -441,7 +441,7 @@ if has("gui_running")
     set guioptions-=r "c=No menus and e=
 endif
 set background=dark
-"execute "source "GetSDATDir()."\\myscripts\\misc\\vimFiles\\solarized.vim"
+"execute "source "GetSDATDir()."\\code\\misc\\vimFiles\\solarized.vim"
 colorscheme solarized
 
 
