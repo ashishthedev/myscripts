@@ -12,12 +12,12 @@ set LEANDIR=%APPDIR%\leantricks
 set PMTAPPDIR=%APPDIR%\pmtsdat
 set XDATDOCSDIR=%APPDIR%\SDATDocs
 set PHUNGSUKDIR="%APPDIR%"\phungsuk_jibabo\detect_change_app
-set RELATIVEPATH=Myscripts\bin\alias.txt
+set RELATIVEPATH=code\bin\alias.txt
 set TCL_LIBRARY=b:\Python27\tcl\tcl8.5\
 set GOPATH=%APPDIR%\goscripts
 
 doskey /MACROFILE="%XDATDOCSDIR%\%RELATIVEPATH%"
 set PYTHONDONTWRITEBYTECODE=1
-set PYTHONPATH=%XDATDOCSDIR%\myscripts\
+set PYTHONPATH=%XDATDOCSDIR%\code\
 
-pushd %XDATDOCSDIR%\myscripts\whopaid
+pushd %XDATDOCSDIR%\code\whopaid
