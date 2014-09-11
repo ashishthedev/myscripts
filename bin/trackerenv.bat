@@ -7,7 +7,7 @@ REM D:\Windows\system32\cmd.exe /k E:\Dev\WorkSpace\setenv.bat
 
 
 set XDATDOCSDIR=%APPDIR%\trackerdir\GZBDocs
-set PMTAPPDIR=%APPDIR%\trackerdir\trackerpmt
+set UBEROBSERVERDIR=%APPDIR%\trackerdir\observer
 set RELATIVEPATH=code\bin\alias.txt
 set TCL_LIBRARY=b:\Python27\tcl\tcl8.5\
 
