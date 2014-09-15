@@ -300,15 +300,16 @@ class BluedartCourier():
 class OverniteCourier():
   def __init__(self, bill):
     self.bill = bill
-    self.FORM_DATA="""__EVENTTARGET=&__EVENTARGUMENT=&__VIEWSTATE=%2FwEPDwULLTE1NDYzMTY4ODIPZBYCZg9kFgICAw9kFgICCQ9kFgYCAQ9kFgICAQ9kFgQCDA9kFgJmD2QWAgIBDzwrAA0AZAISDw8WAh4HVmlzaWJsZWhkZAICDw8WAh4EVGV4dGVkZAIDDw8WAh8BZWRkGAMFHl9fQ29udHJvbHNSZXF1aXJlUG9zdEJhY2tLZXlfXxYBBSdjdGwwMCRDbnRQbGFjZUhvbGRlckRldGFpbHMkaW1nYnRuVHJhY2sFJmN0bDAwJENudFBsYWNlSG9sZGVyRGV0YWlscyRNdWx0aVZpZXcxDw9kZmQFKWN0bDAwJENudFBsYWNlSG9sZGVyRGV0YWlscyRHcmlkVmlld091dGVyD2dkMSE0LqZK0ZL38hBQ3Gv6wMSkxZM%3D&__EVENTVALIDATION=%2FwEWBwKl555GAvj1jOsHAvn1jOsHAveapoULAuO8sPcNAtfns4QGAoDqqgXeq2tHc%2FT29q2XzNumidYjUn%2F9MQ%3D%3D&ctl00%24CntPlaceHolderDetails%24rdbListTrackType=1&ctl00%24CntPlaceHolderDetails%24txtAWB={docket}&ctl00%24CntPlaceHolderDetails%24ValidatorCalloutExtender6_ClientState=&ctl00%24CntPlaceHolderDetails%24imgbtnTrack.x=21&ctl00%24CntPlaceHolderDetails%24imgbtnTrack.y=12""".format(docket = self.bill.docketNumber)
     self.reqUrl = "http://www.overnitenet.com/WebTrack.aspx"
 
   def GetStatus(self):
+    self.FORM_DATA="""__EVENTTARGET=&__EVENTARGUMENT=&__VIEWSTATE=%2FwEPDwUINjI1NjcyOTQPZBYCZg9kFgICAw9kFgICCQ9kFgYCAQ9kFgICAQ9kFgQCDA9kFgJmD2QWAgIBDzwrAA0AZAISDw8WAh4HVmlzaWJsZWhkZAICDw8WAh4EVGV4dGVkZAIDDw8WAh8BZWRkGAMFHl9fQ29udHJvbHNSZXF1aXJlUG9zdEJhY2tLZXlfXxYBBSdjdGwwMCRDbnRQbGFjZUhvbGRlckRldGFpbHMkaW1nYnRuVHJhY2sFJmN0bDAwJENudFBsYWNlSG9sZGVyRGV0YWlscyRNdWx0aVZpZXcxDw9kZmQFKWN0bDAwJENudFBsYWNlSG9sZGVyRGV0YWlscyRHcmlkVmlld091dGVyD2dkyjnzKNlK1F0lha2VPD203I0wnWY%3D&__EVENTVALIDATION=%2FwEWBwL5m5XfBgL49YzrBwL59YzrBwL3mqaFCwLjvLD3DQLX57OEBgKA6qoFptDBWKLK0LmchCP7GBi3QkiQbAA%3D&ctl00%24CntPlaceHolderDetails%24rdbListTrackType=1&ctl00%24CntPlaceHolderDetails%24txtAWB={docket}&ctl00%24CntPlaceHolderDetails%24ValidatorCalloutExtender6_ClientState=&ctl00%24CntPlaceHolderDetails%24imgbtnTrack.x=29&ctl00%24CntPlaceHolderDetails%24imgbtnTrack.y=1""".format(docket = self.bill.docketNumber)
     if not hasattr(self, "reqUrl"):
       self.reqUrl = "http://www.overnitenet.com/WebTrack.aspx"
     req = urllib2.Request(self.reqUrl)
+    req.add_header("Host" , "www.overnitenet.com")
     req.add_header("Content-Type" , "application/x-www-form-urlencoded")
-    req.add_header('Referer', 'http://www.overnitenet.com/WebTrack.aspx')
+    req.add_header('Referer', self.reqUrl)
     req.add_header('Origin', 'http://www.overnitenet.com')
     resp = urllib2.urlopen(req, self.FORM_DATA)
     html = resp.read()

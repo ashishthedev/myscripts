@@ -7,6 +7,7 @@ var page = require('webpage').create(),
     fs = require('fs');
 
 page.customHeaders = {
+    "Host": "www.overnitenet.com",
     "Content-Type" : "application/x-www-form-urlencoded",
     'Referer': 'http://www.overnitenet.com/WebTrack.aspx',
     'Origin': 'http://www.overnitenet.com',
