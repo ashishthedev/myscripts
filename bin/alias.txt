@@ -237,4 +237,3 @@ gexport = pushd %XDATDOCSDIR%\Export && start.
 galkhaleej = pushd %XDATDOCSDIR%\Export\AlkhaleejSteelsDubai && start.
 ghandy = pushd %XDATDOCSDIR%\SDAT\LettersSent\HandyWire && start.
 governite = pushd %XDATDOCSDIR%\SDAT\Courier && start.
-

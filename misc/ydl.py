@@ -93,7 +93,7 @@ def YoutubeDownload(args, onlyAudio=False):
       if line.find("playlist") != -1:
         playlistInfo = "%(playlist)s" + "-" + "_%(playlist_index)s_"
       FINAL_NAME_FORMAT = "-o " + os.path.join("B:\\", "YoutubeVideosDownloaded") + os.path.sep + playlistInfo + "%(title)s-%(id)s.%(ext)s"
-      ydlParametersList = ["--restrict-filenames", "--continue", "--console-title", FINAL_NAME_FORMAT]
+      ydlParametersList = ["--no-mtime", "--restrict-filenames", "--continue", "--console-title", FINAL_NAME_FORMAT]
 
       flagsAndUrl = line.split()
       assert len(flagsAndUrl) > 0, "Why are we processing an empty line"
@@ -121,7 +121,7 @@ def YoutubeDownload(args, onlyAudio=False):
         result = subprocess.call(cmd)
         if result == 0 : # 0 means success
           #Success
-          RemoveUrlFromList(newUrl)
+          RemoveUrlFromList(line)
           YLog("+++++++Download successful for {}".format(newUrl))
           break
 
@@ -130,7 +130,7 @@ def YoutubeDownload(args, onlyAudio=False):
         if retries == MAX_RETIRES:
           retries = 0
           if raw_input("The url:{} could not be downloaded in {} retries. You want to delete it?(y/n)".format(newUrl, MAX_RETIRES)).lower() == 'y':
-            RemoveUrlFromList(newUrl)
+            RemoveUrlFromList(line)
             #Bailing out. This url is faulty and cannot be downloaded
             break
     YLog("Execution Ends Now\n{}".format("_"*60))

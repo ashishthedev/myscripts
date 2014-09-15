@@ -4,13 +4,16 @@
 ## Intent: To read the instant database and query for who paid this amount
 ## Requirement: Python Interpretor must be installed
 #############################################################################
-from Util.Decorators import timeThisFunction
-from SanityChecks import CheckConsistency
-from Util.Misc import PrintInBox, GetSizeOfFileInMB, AnyFundooProcessingMsg
 from Util.Config import GetOption
+from Util.Decorators import timeThisFunction
 from Util.Exception import MyException
-from whopaidInstantDBGenerate import StartDBGeneration
-from UtilWhoPaid import HasBillsFileChangedSinceLastTime, StoreNewTimeForBillsFile
+from Util.Misc import PrintInBox, GetSizeOfFileInMB, AnyFundooProcessingMsg
+from Util.Persistant import Persistant
+
+from whopaid.whopaidInstantDBGenerate import StartDBGeneration
+from whopaid.SanityChecks import CheckConsistency
+from whopaid.UtilWhoPaid import GetWorkBookPath
+
 from argparse import ArgumentParser
 from contextlib import closing
 import shelve
@@ -37,7 +40,8 @@ def main():
     startAfresh = True
   if not os.path.exists(shelfFilePath):
     startAfresh = True
-  if HasBillsFileChangedSinceLastTime():
+  pt = PersitentTimeBillsFileChangeAt()
+  if pt.HasBillsFileChangedSinceLastTime():
     startAfresh = True
 
   dumpFilePath = None
@@ -52,7 +56,7 @@ def main():
     if slCompList2 != slCompList:
       for c in slCompList2:
         c.PrintAsStr()
-    StoreNewTimeForBillsFile()
+    pt.StoreNewTimeForBillsFile()
 
   return
 
@@ -66,6 +70,19 @@ def FindOutWhoPaidFromDB(shelfFileName, paymentMade):
       PrintInBox("Cannot detect from already stored records who made the payment of Rs." + paymentMade)
       return None
   return
+
+class PersitentTimeBillsFileChangeAt(Persistant):
+  identifier = "lastChangeTime"
+  def __init__(self):
+    super(self.__class__, self).__init__(self.__class__.__name__)
+
+  def HasBillsFileChangedSinceLastTime(self):
+    if self.identifier in self:
+      return self[self.identifier] == os.path.getmtime(GetWorkBookPath())
+    return True
+
+  def StoreNewTimeForBillsFile(self):
+    self[self.identifier] = os.path.getmtime(GetWorkBookPath())
 
 
 if __name__ == '__main__':

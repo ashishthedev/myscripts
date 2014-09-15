@@ -14,14 +14,7 @@ from Util.Persistant import Persistant
 from whopaid.CustomersInfo import GetAllCustomersInfo
 
 import os
-import shelve
 import datetime
-from contextlib import closing
-
-BILLS_FILE_LAST_CHANGE_SHELF_ID = "BillsFileLastChangedAt"
-PERSISTENT_STORAGE_PATH = os.path.join(
-    GetOption("CONFIG_SECTION", "TempPath"),
-    GetOption("CONFIG_SECTION", "PersistentStorageDB"))
 
 def GetWorkBookPath():
     return os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "WorkbookRelativePath"))
@@ -104,7 +97,7 @@ class CompaniesDict(dict):#TODO: Name it as DB
 def GetAllCompaniesDict():
     workbookPath = GetWorkBookPath()
     def _CreateAllCompaniesDict(workbookPath):
-        return _AllCompaniesDict(workbookPath)
+      return _AllCompaniesDict(workbookPath)
     return GetPickledObject(workbookPath, _CreateAllCompaniesDict)
 
 class KIND(object):
@@ -598,23 +591,6 @@ def TotalAmountDueForThisCompany(allBillsDict, compName):
   return int(sum([b.amount for b in newBillList]))
 
 
-def HasBillsFileChangedSinceLastTime():
-  """
-  This function will read the last stored time and let the user know if file has been changed since last time it was read.
-  """
-  PrintInBox("PERSISTENT_STORAGE_PATH = {}".format(PERSISTENT_STORAGE_PATH))
-  with closing(shelve.open(PERSISTENT_STORAGE_PATH)) as sh:
-    if sh.has_key(BILLS_FILE_LAST_CHANGE_SHELF_ID):
-      return sh[BILLS_FILE_LAST_CHANGE_SHELF_ID] != os.path.getmtime(GetWorkBookPath())
-  return True
-
-def StoreNewTimeForBillsFile():
-  """
-  This function will store new time for bills file.
-  """
-  with closing(shelve.open(PERSISTENT_STORAGE_PATH)) as sh:
-    sh[BILLS_FILE_LAST_CHANGE_SHELF_ID] = os.path.getmtime(GetWorkBookPath())
-  return
 
 def ShowPendingOrdersOnScreen():
   allOrdersDict = GetAllCompaniesDict().GetAllOrdersOfAllCompaniesAsDict()
