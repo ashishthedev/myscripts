@@ -192,7 +192,7 @@ def ShouldWeSendAutomaticEmailForGroup(grpName, allCustomersInfo):
   if not allCustomersInfo.GetPaymentReminderEmailAsListForCustomer(firstCompInGrp):
     return False
 
-  #We should send email after some time since last payment was received.
+  #Dont send email immediately after receiving payment.
   recentPmtDate = max([p.pmtDate for comp, payments in ALL_PAYMENTS_DICT.iteritems() for p in payments])
   daysSinceLastPmt = (recentPmtDate - datetime.date.today()).days
   if daysSinceLastPmt < allCustomersInfo.GetMinDaysGapBetweenMails(firstCompInGrp):

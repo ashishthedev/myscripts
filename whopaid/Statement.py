@@ -6,11 +6,13 @@
 ##              Openpyxl for Python 3 must be installed
 ##################################################################################################
 
-from whopaid.UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate,\
-        SelectBillsBeforeDate, GuessCompanyName, SelectUnpaidBillsFrom
+
 from Util.Exception import MyException
 from Util.Misc import ParseDateFromString, PrintInBox, DD_MMM_YYYY
-from SanityChecks import CheckConsistency
+
+from whopaid.SanityChecks import CheckConsistency
+from whopaid.UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate,\
+        SelectBillsBeforeDate, GuessCompanyName, SelectUnpaidBillsFrom
 
 from datetime import date
 import argparse

@@ -46,3 +46,20 @@ def VLookup(workbookPath, sheetName, lookUpValue, lookUpColumn, correspondingCol
                 if i == i2:
                     return val2
     return None
+
+def GetRows(workbookPath, sheetName, firstRow, includeLastRow):
+  wb = LoadIterableWorkbook(workbookPath)
+  ws = wb.get_sheet_by_name(sheetName)
+  MAX_ROW = ws.get_highest_row()
+  if includeLastRow:
+    MAX_ROW = MAX_ROW + 1
+  MIN_ROW = int(firstRow)
+  rowNumber = 0
+
+  for row in ws.iter_rows():
+    rowNumber += 1
+    if rowNumber < MIN_ROW: continue  #We are not reading anything before MIN_ROW. This might save us from reading couple thousand lines.
+    if rowNumber >= MAX_ROW: break
+    yield row
+
+  return

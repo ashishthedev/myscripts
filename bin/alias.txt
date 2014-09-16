@@ -37,6 +37,7 @@ al=gvim %XDATDOCSDIR%\code\bin\alias.txt
 al=pushd %XDATDOCSDIR%\code\bin && gvim alias.txt && popd
 cfg=gvim %XDATDOCSDIR%\pycrm.cfg
 g=gvim $*
+s=b:\Tools\SublimeText\ST3Portable\subl.exe $*
 z=start /w %VIM_EXE_DIR%\gvim.exe $*
 ff=@echo "Finding for file name" && where /T /R . *$**
 ffe=@echo "Finding for file name" && where /T /R . $*
