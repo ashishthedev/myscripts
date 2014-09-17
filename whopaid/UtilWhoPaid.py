@@ -5,9 +5,10 @@
 ## with it
 ## Requirement: Python Interpretor must be installed
 ###############################################################################
-from Util.Exception import MyException
 from Util.Config import GetOption, GetAppDir
+from Util.Decorators import memoize
 from Util.ExcelReader import LoadIterableWorkbook
+from Util.Exception import MyException
 from Util.Misc import GetPickledObject, ParseDateFromString, DD_MM_YYYY, PrintInBox
 from Util.Persistant import Persistant
 
@@ -67,6 +68,7 @@ class CompaniesDict(dict):#TODO: Name it as DB
         self._AddEntry(KIND.ORDER, o)
 
 
+    @memoize
     def GetAllBillsOfAllCompaniesAsDict(self):
         return self[KIND.BILL]
 
@@ -94,6 +96,7 @@ class CompaniesDict(dict):#TODO: Name it as DB
         return self.GetAllOrdersOfAllCompaniesAsDict().get(compName, None)
 
 
+@memoize
 def GetAllCompaniesDict():
     workbookPath = GetWorkBookPath()
     def _CreateAllCompaniesDict(workbookPath):
@@ -107,7 +110,7 @@ class KIND(object):
     ORDER = 4
     PUNTED_ORDER = 5
 
-def GuessKindFromValue(val):
+def _GuessKindFromValue(val):
   if val:
     val = val.lower()
     if val.lower() == "bill": return KIND.BILL
@@ -123,7 +126,7 @@ def GuessKindFromRow(row):
     val = cell.internal_value
 
     if col == SheetCols.KindOfEntery:
-      return GuessKindFromValue(val)
+      return _GuessKindFromValue(val)
   return None
 
 def ShrinkWorkingArea():
@@ -212,7 +215,7 @@ class _AllCompaniesDict(CompaniesDict):
 
       kind = GuessKindFromRow(row)
       if kind == KIND.BILL:
-        self.AddBill(CreateSingleBillRow(row))
+        self.AddBill(_CreateSingleBillRow(row))
       elif kind == KIND.PAYMENT:
         self.AddPayment(CreateSinglePaymentRow(row))
       elif kind == KIND.ADJUSTMENT:
@@ -342,8 +345,8 @@ class SingleBillRow(SingleRow):
         return "{}{}{}".format(str(self.billNumber), DD_MM_YYYY(self.invoiceDate), str(self.docketNumber))
 
 
+@memoize
 def GetAllBillsInLastNDays(nDays):
-    #TODO:Super slow needs optimization
     allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
     totalBillList = list()
     for compName, compBillList in allBillsDict.iteritems():
@@ -455,7 +458,7 @@ def CreateSinglePaymentRow(row):
             r.amount = val
         elif col == SheetCols.KindOfEntery:
             if not val: raise Exception("No type of entery in row: {} and col: {}".format(cell.row, col))
-            r.kindOfEntery = GuessKindFromValue(val)
+            r.kindOfEntery = _GuessKindFromValue(val)
         elif col == SheetCols.BillingCategory:
             if not val: raise Exception("No bank name in row: {} and col: {}".format(cell.row, col))
             r.bankName = val
@@ -476,7 +479,7 @@ def CreateSinglePaymentRow(row):
     return r
 
 
-def CreateSingleBillRow(row):
+def _CreateSingleBillRow(row):
   b = SingleBillRow()
   for cell in row:
     col = cell.column

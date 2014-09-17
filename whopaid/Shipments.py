@@ -177,7 +177,7 @@ class PersistentShipment(object):
     return self._sms.wasShipmentSmsEverSent()
 
   def isSMSNoAvailable(self):
-    if GetAllCustomersInfo().GetSmsDispatchNumber(self.bill.compName):
+    if ALL_CUST_INFO.GetSmsDispatchNumber(self.bill.compName):
       return True
     return False
 
@@ -300,12 +300,13 @@ Thanks.
 
 def IncludeAmountForBillInDispatchInfo(bill):
   if bill.billingCategory.lower() not in ["builty", "tracking"]:
-    if GetAllCustomersInfo().IncludeBillAmountInEmails(bill.compName):
+    if ALL_CUST_INFO.IncludeBillAmountInEmails(bill.compName):
       return True
   return False
 
+ALL_CUST_INFO = GetAllCustomersInfo()
+
 def SendMaterialDispatchMail(bill, ctxt):
-  allCustInfo = GetAllCustomersInfo()
 
   optionalAmount = ""
   if IncludeAmountForBillInDispatchInfo(bill):
@@ -315,10 +316,10 @@ def SendMaterialDispatchMail(bill, ctxt):
 
   print("Churning more data...")
 
-  toMailStr = allCustInfo.GetPaymentReminderEmailsForCustomer(bill.compName)
+  toMailStr = ALL_CUST_INFO.GetPaymentReminderEmailsForCustomer(bill.compName)
   if not ctxt.kaPerson:
     #If no person was specified at command line then pick one from the database.
-    personFromDB = allCustInfo.GetCustomerKindAttentionPerson(bill.compName)
+    personFromDB = ALL_CUST_INFO.GetCustomerKindAttentionPerson(bill.compName)
     if personFromDB and 'y' == raw_input("Mention kind attn: {} (y/n)?".format(personFromDB)).lower():
       ctxt.kaPerson = personFromDB
 
@@ -366,13 +367,12 @@ def PrepareShipmentEmailForThisBill(bill, ctxt):
   Given a company, this function will prepare an email for shipment details.
   """
 
-  allCustInfo = GetAllCustomersInfo()
   letterDate = DD_MM_YYYY(datetime.date.today())
-  officalCompName = allCustInfo.GetCompanyOfficialName(bill.compName)
+  officalCompName = ALL_CUST_INFO.GetCompanyOfficialName(bill.compName)
   if not officalCompName:
     raise ShipmentException("\nM/s {} doesnt have a displayable 'name'. Please feed it in the database".format(bill.compName))
 
-  companyCity = allCustInfo.GetCustomerCity(bill.compName)
+  companyCity = ALL_CUST_INFO.GetCustomerCity(bill.compName)
   if not companyCity:
     raise ShipmentException("\nM/s {} doesnt have a displayable 'city'. Please feed it in the database".format(bill.compName))
 
@@ -551,18 +551,17 @@ def ShowUndeliveredSmalOnScreen():
   return
 
 def SendComplaintMessageForShipment(shipment):
-  allCustInfo = GetAllCustomersInfo()
   bill = shipment.bill
   d = dict()
 
   d["tDocketNumber"] = bill.docketNumber
   d["tDocketDate"] = DD_MMM_YYYY(bill.docketDate)
   d["tDocketDate"] = DD_MMM_YYYY(bill.docketDate)
-  d["tOfficialCompanyName"] = allCustInfo.GetCompanyOfficialName(bill.compName)
-  d["tDeliveryAddress"] = allCustInfo.GetCustomerDeliveryAddress(bill.compName)
-  d["tPhone"] = allCustInfo.GetCustomerPhoneNumber(bill.compName)
+  d["tOfficialCompanyName"] = ALL_CUST_INFO.GetCompanyOfficialName(bill.compName)
+  d["tDeliveryAddress"] = ALL_CUST_INFO.GetCustomerDeliveryAddress(bill.compName)
+  d["tPhone"] = ALL_CUST_INFO.GetCustomerPhoneNumber(bill.compName)
   if isinstance(d["tPhone"], float):
-    d["tPhone"] = str(int(allCustInfo.GetCustomerPhoneNumber(bill.compName))) #Removing .0 in the end if its an integer
+    d["tPhone"] = str(int(ALL_CUST_INFO.GetCustomerPhoneNumber(bill.compName))) #Removing .0 in the end if its an integer
 
 
   smsTemplate = Template("""The following parcel is not delivered. Kindly get it delivered.
