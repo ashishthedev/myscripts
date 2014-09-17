@@ -1,6 +1,6 @@
 import xml.dom.minidom, os, unittest
 from Util.Config import GetAppDir
-FOLDER_NAME             = "2014-07"
+FOLDER_NAME             = "2014-08"
 BASEPATH                = os.path.join(GetAppDir(), "SalesTaxReturnFiles", "2014-2015")
 ANNEXUREA               = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureA.xml")
 ANNEXUREA2              = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureA2.xml")
@@ -139,6 +139,8 @@ class TestFunctions(unittest.TestCase):
         """
         Tests whether ANNEXUREB values(summation) is properly cross referenced in various places
         """
+        if not os.path.exists(ANNEXUREB):
+          return
         totalOutputTaxAnnxB = SumFloat(ANNEXUREB, "TaxCharged") + SumFloat(ANNEXUREB, "SatCharged")
 
         self.assertEqual(
@@ -171,6 +173,7 @@ class TestFunctions(unittest.TestCase):
         This test will check if the number of digits in Form38 are 14 or not.
         """
         REQUIRED_LENGTH_OF_FORM38_NUMBERS = 14
+        REQUIRED_LENGTH_OF_FORM38_NUMBERS_MANUAL = 7
         REQUIRED_LENGTH_OF_ESANCHARAN_NUMBERS = 20
 
         form38Numbers = GetAllNodesByNameFromFile(ANNEXUREC, "F_38No")
@@ -179,7 +182,10 @@ class TestFunctions(unittest.TestCase):
             if number.find("ES") != -1:
               self.assertEqual(len(number), REQUIRED_LENGTH_OF_ESANCHARAN_NUMBERS, "There is some problem in length of ESANCHARAN number: {}".format(number))
             else:
-              self.assertEqual(len(number), REQUIRED_LENGTH_OF_FORM38_NUMBERS, "There is some problem in length of Form38 number: {}".format(number))
+              self.assertTrue(any([
+                len(number) == REQUIRED_LENGTH_OF_FORM38_NUMBERS,
+                len(number) == REQUIRED_LENGTH_OF_FORM38_NUMBERS_MANUAL
+                ]), "There is some problem in length of Form38 number: {}".format(number))
 
         return
     def test_AnnexureA_Part1_Values(self):
