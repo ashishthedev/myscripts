@@ -26,11 +26,12 @@ class KMInfoCol:
   OANumberCol = "I"
 
 
+from Util.ExcelReader import GetCellValue
 def CreateSingleKMOrder(row):
   c = SingleKMOrderInfo()
   for cell in row:
     col = cell.column
-    val = cell.value
+    val = GetCellValue(cell)
 
     if col == KMInfoCol.RowNoCol:
       c.rowNumberInTable = val
