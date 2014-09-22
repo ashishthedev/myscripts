@@ -471,6 +471,9 @@ def PrepareShipmentEmailForThisBill(bill, ctxt):
 def ParseOptions():
     parser = argparse.ArgumentParser()
 
+    parser.add_argument("-dbm", "--deleted_by_mistake", dest='dbDeletedByMistake', action="store_true", default=False,
+        help="Will try to bring the shipments status back to normal as much as possible.")
+
     parser.add_argument("-mmas", "--mark-mail-as-sent", dest='markMailAsSentForDocket', type=str, default=None,
         help="Mark the mail as sent.")
 
@@ -614,6 +617,10 @@ def main():
   global IS_DEMO
   IS_DEMO = args.isDemo
 
+  if args.dbDeletedByMistake:
+    DBDeletedDoWhatEverIsNecessary();
+    import sys; sys.exit(0)
+
   if args.complaintDocket:
     complaintDocket = raw_input("Enter the docket for which complaint has to be sent: ")
     SendComplaintMessageForDocket(complaintDocket)
@@ -708,6 +715,8 @@ def TrackAllShipments(args):
 
 def DBDeletedDoWhatEverIsNecessary():
   """This will help when the db is accidently deleted. In that case, just mark all the information as already sent"""
+  if raw_input("All the dockets will be marked as information_sent. Do you want to proceed (y/n)").lower()!='y': 
+    return
   NO_OF_DAYS=90
   bills = [b for b in GetAllBillsInLastNDays(NO_OF_DAYS) if b.docketDate]
   bills = RemoveTrackingBills(bills)
@@ -724,7 +733,6 @@ def DBDeletedDoWhatEverIsNecessary():
 
 
 if __name__ == '__main__':
-  #DBDeletedDoWhatEverIsNecessary(); import sys; sys.exit(0)
   CheckConsistency()
   main()
   SendAutomaticHeartBeat()
