@@ -7,6 +7,7 @@
 #######################################################
 from Util.Misc import GetPickledObject
 from Util.Config import GetOption, GetAppDir
+from Util.ExcelReader import GetRows, GetCellValue
 
 import os
 
@@ -45,7 +46,7 @@ def CreateSingleCustomerInfo(row):
     c = SingleCompanyInfo()
     for cell in row:
         col = cell.column
-        val = cell.value
+        val = GetCellValue(cell)
 
         if col == CustomerInfoCol.CompanyFriendlyNameCol:
             c.companyFriendlyName = val
@@ -74,7 +75,11 @@ def CreateSingleCustomerInfo(row):
         elif col == CustomerInfoCol.EmailForFormC:
             c.emailForFormC = val.replace("\n", "") if val else val
         elif col == CustomerInfoCol.KindAttentionCol:
+          if val:
             c.kindAttentionPerson = val
+            print("{} = {}".format(val, c.companyFriendlyName))
+          else:
+            c.kindAttentionPerson = None
         elif col == CustomerInfoCol.TrustCol:
             c.trust = val
         elif col == CustomerInfoCol.IncludeDaysCol:
@@ -103,7 +108,6 @@ class _AllCustomersInfo(dict):
     """Base Class which is basically a dictionary. Key is compName and Value is a list of info"""
     def __init__(self, custDBwbPath):
         super(_AllCustomersInfo, self).__init__(dict())
-        from Util.ExcelReader import GetRows
         for row in GetRows(
             workbookPath=custDBwbPath,
             sheetName=GetOption("CONFIG_SECTION", "NameOfCustSheet"),

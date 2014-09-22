@@ -7,7 +7,7 @@
 ###############################################################################
 from Util.Config import GetOption, GetAppDir
 from Util.Decorators import memoize
-from Util.ExcelReader import LoadIterableWorkbook
+from Util.ExcelReader import GetRows, GetCellValue
 from Util.Exception import MyException
 from Util.Misc import GetPickledObject, ParseDateFromString, DD_MM_YYYY, PrintInBox
 from Util.Persistent import Persistent
@@ -200,19 +200,12 @@ class _AllCompaniesDict(CompaniesDict):
   """
   def __init__(self, workbookPath):
     super(_AllCompaniesDict, self).__init__()
-    wb = LoadIterableWorkbook(workbookPath)
-    ws = wb.get_sheet_by_name(GetOption("CONFIG_SECTION", "NameOfSaleSheet"))
-    MAX_ROW = ws.get_highest_row()
-    MIN_ROW = int(GetOption("CONFIG_SECTION", "DataStartsAtRow"))
-    rowNumber = 0
+    rows = GetRows(workbookPath=workbookPath,
+        sheetName = GetOption("CONFIG_SECTION", "NameOfSaleSheet"),
+        firstRow = GetOption("CONFIG_SECTION", "DataStartsAtRow"),
+        includeLastRow=False)
 
-    frr = FirstReadablePersistentRow().GetFirstRow() or MIN_ROW
-
-    for row in ws.iter_rows():
-      rowNumber += 1
-      if rowNumber < frr: continue  #We are not reading anything before frr. This might save us from reading couple thousand lines.
-      if rowNumber >= MAX_ROW: break
-
+    for row in rows:
       kind = GuessKindFromRow(row)
       if kind == KIND.BILL:
         self.AddBill(_CreateSingleBillRow(row))
@@ -225,7 +218,8 @@ class _AllCompaniesDict(CompaniesDict):
       elif kind == KIND.PUNTED_ORDER:
         pass #DO NOT DO ANYTHING FOR PUNTED ORDERS
       else:
-        raise Exception("Error in row number: {} Kind of entry is invalid".format(rowNumber))
+        firstCell = row[0]
+        raise Exception("Error in {} row number: {} Kind of entry is invalid".format(firstCell.row))
 
 class Company(list):
   """

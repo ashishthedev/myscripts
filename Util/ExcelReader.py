@@ -12,7 +12,8 @@ from Util.Decorators import memoize
 def LoadNonIterableWorkbook(workbookPath):
     """Helper function to load a workbook in an iterable fashion"""
     tempCopy = MakeTempCopy(workbookPath)
-    loadedWB = load_workbook(tempCopy, use_iterators=False, data_only=True, guess_types=True)
+    loadedWB = load_workbook(tempCopy, use_iterators=False)
+    #loadedWB = load_workbook(tempCopy, use_iterators=False, data_only=True, guess_types=True)
     return loadedWB
 
 
@@ -20,7 +21,7 @@ def LoadNonIterableWorkbook(workbookPath):
 def LoadIterableWorkbook(workbookPath):
     """Helper function to load a workbook in an iterable fashion"""
     tempCopy = MakeTempCopy(workbookPath)
-    loadedWB = load_workbook(tempCopy, use_iterators=True, data_only=True, guess_types=False)
+    loadedWB = load_workbook(tempCopy, use_iterators=True)
     return loadedWB
 
 
@@ -46,6 +47,11 @@ def VLookup(workbookPath, sheetName, lookUpValue, lookUpColumn, correspondingCol
                 if i == i2:
                     return val2
     return None
+
+def GetCellValue(cell):
+  if hasattr(cell, "value"):
+    return cell.value
+  return cell.internal_value
 
 def GetRows(workbookPath, sheetName, firstRow, includeLastRow):
   wb = LoadIterableWorkbook(workbookPath)
