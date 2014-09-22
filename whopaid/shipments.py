@@ -11,11 +11,11 @@ from Util.Config import GetOption
 from Util.HTML import UnderLine, Bold, PastelOrangeText, TableHeaderRow, TableDataRow
 from Util.Misc import PrintInBox, GetMsgInBox, DD_MM_YYYY, DD_MMM_YYYY, IsDeliveredAssessFromStatus
 
-from whopaid.CustomersInfo import GetAllCustomersInfo
+from whopaid.customers_info import GetAllCustomersInfo
 from whopaid.courier.couriers import Courier
-from whopaid.OffComm import SendOfficialSMS
-from whopaid.SanityChecks import SendAutomaticHeartBeat, CheckConsistency
-from whopaid.UtilWhoPaid import GetAllBillsInLastNDays, RemoveTrackingBills
+from whopaid.off_comm import SendOfficialSMS
+from whopaid.sanity_checks import SendAutomaticHeartBeat, CheckConsistency
+from whopaid.util_whopaid import GetAllBillsInLastNDays, RemoveTrackingBills
 
 from collections import defaultdict
 from contextlib import closing
@@ -203,7 +203,7 @@ class PersistentShipment(object):
   def markShipmentMailAsSent(self):
     self._sms.markShipmentSmsAsSent()
 
-  def markPersistantShipmentAsDelivered(self):
+  def markPersistentShipmentAsDelivered(self):
     self._track.markTrackerAsDelivered()
     self.saveInDB()
 
@@ -359,7 +359,7 @@ def SendMaterialDispatchMail(bill, ctxt):
   print("Sending to: " + str(toMailList))
 
   section = "EMAIL_REMINDER_SECTION"
-  from whopaid.OffComm import SendOfficialEmail
+  from whopaid.off_comm import SendOfficialEmail
   SendOfficialEmail(ctxt.emailSubject,
       None,
       toMailList,
@@ -525,7 +525,7 @@ def _ForceMarkDocketAsDelivered(docketNumber):
     if s.bill.docketNumber == docketNumber:
       s.status = "This shipment was force marked as delivered on {}".format(DD_MM_YYYY(datetime.date.today()))
       print(s.status)
-      s.markPersistantShipmentAsDelivered()
+      s.markPersistentShipmentAsDelivered()
   return
 
 def _RemoveDocketFromIndex(docketNumber):
@@ -718,7 +718,7 @@ def DBDeletedDoWhatEverIsNecessary():
     s.markShipmentSmsAsSent()
     s.markShipmentSmsAsSent()
     if s.IsSnapshotSaved():
-      s.markPersistantShipmentAsDelivered()
+      s.markPersistentShipmentAsDelivered()
     s.saveInDB()
 
 

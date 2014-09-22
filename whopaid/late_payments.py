@@ -12,9 +12,9 @@ from Util.Exception import MyException
 from Util.HTML import Html, Body, UnderLine, Table, tr, td
 from Util.Misc import PrintInBox, OpenFileForViewing
 
-from whopaid.CustomersInfo import GetAllCustomersInfo
-from whopaid.SanityChecks import CheckConsistency
-from whopaid.UtilWhoPaid import CompaniesDict, GetAllCompaniesDict,\
+from whopaid.customers_info import GetAllCustomersInfo
+from whopaid.sanity_checks import CheckConsistency
+from whopaid.util_whopaid import CompaniesDict, GetAllCompaniesDict,\
         SelectUnpaidBillsFrom, floatx ,TotalAmountDueForThisCompany
 
 import os

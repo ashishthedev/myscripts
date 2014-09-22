@@ -9,11 +9,11 @@
 from Util.Config import GetOption
 from Util.Exception import MyException
 from Util.Misc import PrintInBox, OpenFileForViewing, MakeSureDirExists, DD_MM_YYYY
-from Util.Persistant import Persistant
+from Util.Persistent import Persistent
 
-from whopaid.UtilWhoPaid import GuessCompanyName, GetAllCompaniesDict, SelectBillsAfterDate
-from whopaid.CustomersInfo import GetAllCustomersInfo
-from whopaid.SanityChecks import CheckConsistency
+from whopaid.util_whopaid import GuessCompanyName, GetAllCompaniesDict, SelectBillsAfterDate
+from whopaid.customers_info import GetAllCustomersInfo
+from whopaid.sanity_checks import CheckConsistency
 
 
 from string import Template
@@ -191,10 +191,10 @@ def GenerateAddressSlipForThisCompany(compName, args):
 
 
 
-class PersistantEnvelopes(Persistant):
+class PersistentEnvelopes(Persistent):
   def __init__(self):
     self.allBills = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict() #For speed imporovement, made a class member
-    super(PersistantEnvelopes, self).__init__(self.__class__.__name__)
+    super(self.__class__.__name__, self).__init__(self.__class__.__name__)
 
   def __str__(self):
     s = ""
@@ -256,7 +256,7 @@ def RemoveCompFromList(pe, args):
 
 def main():
   args = ParseOptions()
-  pe = PersistantEnvelopes()
+  pe = PersistentEnvelopes()
   if args.showAll:
     pe.PrintAllInfo()
     return

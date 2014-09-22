@@ -10,8 +10,8 @@
 from Util.Exception import MyException
 from Util.Misc import ParseDateFromString, PrintInBox, DD_MMM_YYYY
 
-from whopaid.SanityChecks import CheckConsistency
-from whopaid.UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate,\
+from whopaid.sanity_checks import CheckConsistency
+from whopaid.util_whopaid import GetAllCompaniesDict, SelectBillsAfterDate,\
         SelectBillsBeforeDate, GuessCompanyName, SelectUnpaidBillsFrom
 
 from datetime import date

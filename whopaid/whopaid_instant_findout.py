@@ -8,16 +8,16 @@ from Util.Config import GetOption
 from Util.Decorators import timeThisFunction
 from Util.Exception import MyException
 from Util.Misc import PrintInBox, GetSizeOfFileInMB, AnyFundooProcessingMsg
-from Util.Persistant import Persistant
+from Util.Persistent import Persistent
 
+from whopaid.sanity_checks import CheckConsistency
+from whopaid.util_whopaid import GetWorkBookPath
 from whopaid.whopaidInstantDBGenerate import StartDBGeneration
-from whopaid.SanityChecks import CheckConsistency
-from whopaid.UtilWhoPaid import GetWorkBookPath
 
 from argparse import ArgumentParser
 from contextlib import closing
-import shelve
 import os
+import shelve
 
 @timeThisFunction
 def main():
@@ -71,7 +71,7 @@ def FindOutWhoPaidFromDB(shelfFileName, paymentMade):
       return None
   return
 
-class PersitentTimeBillsFileChangeAt(Persistant):
+class PersitentTimeBillsFileChangeAt(Persistent):
   identifier = "lastChangeTime"
   def __init__(self):
     super(self.__class__, self).__init__(self.__class__.__name__)

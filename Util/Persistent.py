@@ -3,17 +3,16 @@ from Util.Config import GetOption
 import shelve
 import os
 
-class Persistant(object):
-  #TODO: Spelling error, it should be persistent instead of Persistant
-  """Its a very blunt persistant key value pair.
+class Persistent(object):
+  """Its a very blunt Persistent key value pair.
 Declaration:
-class MyPersistantClass(Persistant):
+class MyPersistentClass(Persistent):
   def __init__(self):
     super(self.__class__, self).__init__(self.__class__.__name__)
     #done
 
 Usage:
-p = MyPersistantClass()
+p = MyPersistentClass()
 p[key] = obj
 key in p
 print(p[key])

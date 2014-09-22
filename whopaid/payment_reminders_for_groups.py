@@ -15,13 +15,13 @@ from Util.Exception import MyException
 from Util.HTML import UnderLine, Bold, Big, PastelOrangeText, TableHeaderRow,\
         TableDataRow
 from Util.Misc import PrintInBox, DD_MM_YYYY, AnyFundooProcessingMsg
-from Util.Persistant import Persistant
+from Util.Persistent import Persistent
 from Util.PythonMail import SendMail
 
-from whopaid.CustomersInfo import GetAllCustomersInfo
-from whopaid.OffComm import SendOfficialSMS
-from whopaid.SanityChecks import CheckConsistency
-from whopaid.UtilWhoPaid import datex, GetAllCompaniesDict, SelectUnpaidBillsFrom, \
+from whopaid.customers_info import GetAllCustomersInfo
+from whopaid.off_comm import SendOfficialSMS
+from whopaid.sanity_checks import CheckConsistency
+from whopaid.util_whopaid import datex, GetAllCompaniesDict, SelectUnpaidBillsFrom, \
         GuessCompanyGroupName, RemoveTrackingBills
 
 from collections import defaultdict
@@ -41,20 +41,20 @@ def constant_factory(value):
     from itertools import repeat
     return repeat(value).next
 
-class LastEmailSentOnPersistantDates(Persistant):
+class LastEmailSentOnPersistentDates(Persistent):
   def __init__(self):
-    super(LastEmailSentOnPersistantDates, self).__init__(self.__class__.__name__)
+    super(LastEmailSentOnPersistentDates, self).__init__(self.__class__.__name__)
 
 def EarlierSentOnDateForThisGrp(grpName):
   """Returns a dateObject representing the date on which an email was last sent to this company"""
-  p = LastEmailSentOnPersistantDates()
+  p = LastEmailSentOnPersistentDates()
   if grpName in p:
     return p[grpName]
   return None
 
 def SaveSentOnDateForThisGrp(grpName):
   """Registers today() as the date on which last email was sent to company."""
-  p = LastEmailSentOnPersistantDates()
+  p = LastEmailSentOnPersistentDates()
   p[grpName] = datetime.date.today()
   return
 

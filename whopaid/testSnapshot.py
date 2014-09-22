@@ -1,7 +1,8 @@
 #from whopaid.SanityChecks import CreateATestBill
-from whopaid.UtilWhoPaid import SingleBillRow
 
 from Util.Misc import ParseDateFromString
+
+from whopaid.util_whopaid import SingleBillRow
 
 import datetime
 

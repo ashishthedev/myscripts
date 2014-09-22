@@ -10,9 +10,9 @@ from Util.Decorators import memoize
 from Util.ExcelReader import LoadIterableWorkbook
 from Util.Exception import MyException
 from Util.Misc import GetPickledObject, ParseDateFromString, DD_MM_YYYY, PrintInBox
-from Util.Persistant import Persistant
+from Util.Persistent import Persistent
 
-from whopaid.CustomersInfo import GetAllCustomersInfo
+from whopaid.customers_info import GetAllCustomersInfo
 
 import os
 import datetime
@@ -113,11 +113,11 @@ class KIND(object):
 def _GuessKindFromValue(val):
   if val:
     val = val.lower()
-    if val.lower() == "bill": return KIND.BILL
-    elif val.lower() == "payment": return KIND.PAYMENT
-    elif val.lower() == "adjustment": return KIND.ADJUSTMENT
-    elif val.lower() == "order": return KIND.ORDER
-    elif val.lower() == "punted": return KIND.PUNTED_ORDER
+    if val == "bill": return KIND.BILL
+    elif val == "payment": return KIND.PAYMENT
+    elif val == "adjustment": return KIND.ADJUSTMENT
+    elif val == "order": return KIND.ORDER
+    elif val == "punted": return KIND.PUNTED_ORDER
   return None
 
 def GuessKindFromRow(row):
@@ -130,11 +130,11 @@ def GuessKindFromRow(row):
   return None
 
 def ShrinkWorkingArea():
-  return FirstReadablePersistantRow().SetFirstRow()
+  return FirstReadablePersistentRow().SetFirstRow()
 
-class FirstReadablePersistantRow(Persistant):
+class FirstReadablePersistentRow(Persistent):
   """
-  It keeps a persistant track of the first row where meaningful data should be read from
+  It keeps a Persistent track of the first row where meaningful data should be read from
   """
   identifier = "firstRow"
   def __init__(self):
@@ -206,7 +206,7 @@ class _AllCompaniesDict(CompaniesDict):
     MIN_ROW = int(GetOption("CONFIG_SECTION", "DataStartsAtRow"))
     rowNumber = 0
 
-    frr = FirstReadablePersistantRow().GetFirstRow() or MIN_ROW
+    frr = FirstReadablePersistentRow().GetFirstRow() or MIN_ROW
 
     for row in ws.iter_rows():
       rowNumber += 1

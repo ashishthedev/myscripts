@@ -173,12 +173,12 @@ def DeleteFileIfExists(AbsolutePath):
     os.remove(AbsolutePath)
   return
 
-def PersistantEmailBackupHashes():
+def PersistentEmailBackupHashes():
   def __init__(self):
-    super(PersistantEmailBackupHashes, self).__init__(self.__class__.__name__)
+    super(self.__class__.__name__, self).__init__(self.__class__.__name__)
 
 def isHashSame(dirPath):
-  p = PersistantEmailBackupHashes()
+  p = PersistentEmailBackupHashes()
   freshHash = GetHash(dirPath)
   if dirPath not in p:
     #The directory is newly created, Set the hash for this directory to 0
@@ -190,6 +190,6 @@ def isHashSame(dirPath):
 
 def SaveNewHash(dirPath):
   #A hash is strored to detect if the directory has changed.
-  p = PersistantEmailBackupHashes()
+  p = PersistentEmailBackupHashes()
   p[dirPath] = GetHash(dirPath)
   return

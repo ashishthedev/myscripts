@@ -10,9 +10,9 @@ from Util.Decorators import memoize, timeThisFunction
 from Util.Exception import MyException
 from Util.Misc import PrintInBox, printNow
 
-from whopaid.LatePayments import CandidateCompaniesDict
-from whopaid.SanityChecks import CheckConsistency
-from whopaid.UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict
+from whopaid.late_payments import CandidateCompaniesDict
+from whopaid.sanity_checks import CheckConsistency
+from whopaid.util_whopaid import SelectUnpaidBillsFrom, GetAllCompaniesDict
 
 from argparse import ArgumentParser
 

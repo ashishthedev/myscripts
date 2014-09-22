@@ -13,7 +13,7 @@ from Util.HTML import UnderLine, Bold, PastelOrangeText
 from Util.Colors import MyColors
 from Util.Exception import MyException
 
-from whopaid.CustomersInfo import GetAllCustomersInfo
+from whopaid.customers_info import GetAllCustomersInfo
 
 from string import Template
 from collections import defaultdict

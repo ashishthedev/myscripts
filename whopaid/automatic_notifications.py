@@ -8,11 +8,11 @@
 
 from Util.Config import GetOption
 from Util.Misc import PrintInBox, DD_MMM_YYYY, GetFirstDateOfThisFinancialYear
-from Util.Persistant import Persistant
+from Util.Persistent import Persistent
 from Util.Sms import SendSms
 
-from whopaid.UtilWhoPaid import SelectBillsAfterDate, SelectBillsBeforeDate, GetAllBillsInLastNDays
-from whopaid.CustomersInfo import GetAllCustomersInfo
+from whopaid.util_whopaid import SelectBillsAfterDate, SelectBillsBeforeDate, GetAllBillsInLastNDays
+from whopaid.customers_info import GetAllCustomersInfo
 
 from collections import OrderedDict
 from string import Template
@@ -52,10 +52,10 @@ def CalculateProjectedSaleForThisYear():
   projectedSaleForThisYear = (projectedSaleForThisYear/daysPassedInThisYear)*365
   return projectedSaleForThisYear
 
-class PersistantMonthlySmsDetails(Persistant):
+class PersistentMonthlySmsDetails(Persistent):
 
   def __init__(self):
-    super(PersistantMonthlySmsDetails, self).__init__(self.__class__.__name__)
+    super(PersistentMonthlySmsDetails, self).__init__(self.__class__.__name__)
 
   def wasSmsSentForMonthHavingThisDate(self, date):
     if date in self:
@@ -101,9 +101,9 @@ $topFiveStrList
     return
 
 
-class PersistantWeeklySmsDetails(Persistant):
+class PersistentWeeklySmsDetails(Persistent):
   def __init__(self):
-    super(PersistantWeeklySmsDetails, self).__init__(self.__class__.__name__)
+    super(PersistentWeeklySmsDetails, self).__init__(self.__class__.__name__)
 
   def wasSMSSentForWeekStartingFrom(self, day):
     if day in self:
@@ -177,7 +177,7 @@ def SendWeeklySalesAsSmsIfNotSentAlready():
     t = t + minusOne
 
   previousMonday = t
-  pwsd = PersistantWeeklySmsDetails()
+  pwsd = PersistentWeeklySmsDetails()
 
   if not pwsd.wasSMSSentForWeekStartingFrom(previousMonday):
     pwsd.sendSmsForWeekStartingFrom(previousMonday)
@@ -194,7 +194,7 @@ def SendMonthlySaleAsSmsIfNotSentAlready():
 
   previousMonthLastDate  = t - datetime.timedelta(days=t.day+1)
 
-  pmsd = PersistantMonthlySmsDetails()
+  pmsd = PersistentMonthlySmsDetails()
 
   if not pmsd.wasSmsSentForMonthHavingThisDate(previousMonthLastDate):
     pmsd.sendSmsForMonthHavingThisDate(previousMonthLastDate)

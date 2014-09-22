@@ -28,7 +28,7 @@ def main():
   try:
     t = datetime.datetime.now()
     log("Initiating {}".format(__file__))
-    from whopaid.SanityChecks import SendAutomaticHeartBeat #This should be within the try block so that we can see the exception if it happens.
+    from whopaid.sanity_checks import SendAutomaticHeartBeat #This should be within the try block so that we can see the exception if it happens.
     SendAutomaticHeartBeat()
     dt = datetime.datetime.now() - t
     log("Ran successfully. Took {} seconds".format(dt.seconds))

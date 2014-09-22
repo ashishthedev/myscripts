@@ -1,4 +1,3 @@
-DATA_STARTS_AT_ROW = 26
 #######################################################
 ## Author: Ashish Anand
 ## Date: 2014-Aug-27 Wed 12:00 PM
@@ -66,18 +65,14 @@ class SingleKMOrderInfo():
 class _AllKMOrdersObject(list):
   """Base Class which is basically a list."""
   def __init__(self, kmOrdersDBPath):
-    super(_AllKMOrdersObject, self).__init__(list())
-    from Util.ExcelReader import LoadIterableWorkbook
-    wb = LoadIterableWorkbook(kmOrdersDBPath)
-    ws = wb.get_sheet_by_name(GetOption("CONFIG_SECTION", "NameOfKMOrdersSheet"))
-    MAX_ROW = ws.get_highest_row()
-    rowNumber = 0
-    for row in ws.iter_rows():
-      rowNumber += 1
-      if rowNumber < DATA_STARTS_AT_ROW:
-        continue
-      if rowNumber >= MAX_ROW:
-        break
+    super(_AllKMOrdersObject, self).__init__()
+    from Util.ExcelReader import GetRows
+    rows = GetRows(workbookPath=kmOrdersDBPath,
+      sheetName=GetOption("KM_TRANS_SECTION", "SheetName"),
+      firstRow= GetOption("KM_TRANS_SECTION", "DataStartsAtRow"),
+      includeLastRow=False)
+
+    for row in rows:
       c = CreateSingleKMOrder(row)
       self.append(c)
     return
@@ -90,7 +85,7 @@ def GetAllPendingOrders(orderList):
   return sorted(po, key=lambda po: (po.pelletSize, po.boreSize, po.poDate))
 
 def GetAllKMOrders():
-  kmOrdersDBPath = os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "KMOrdersRelativePath"))
+  kmOrdersDBPath = os.path.join(GetAppDir(), GetOption("KM_TRANS_SECTION", "WorkbookRelativePath"))
   def _CreateAllKMOrdersObject(kmOrdersDBPath):
     return _AllKMOrdersObject(kmOrdersDBPath)
   return GetPickledObject(kmOrdersDBPath, createrFunction=_CreateAllKMOrdersObject)

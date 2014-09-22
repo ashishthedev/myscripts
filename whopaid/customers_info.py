@@ -1,4 +1,3 @@
-DATA_STARTS_AT_ROW = 2
 #######################################################
 ## Author: Ashish Anand
 ## Date: 25-Dec-2012
@@ -104,19 +103,14 @@ class _AllCustomersInfo(dict):
     """Base Class which is basically a dictionary. Key is compName and Value is a list of info"""
     def __init__(self, custDBwbPath):
         super(_AllCustomersInfo, self).__init__(dict())
-        from Util.ExcelReader import LoadIterableWorkbook
-        wb = LoadIterableWorkbook(custDBwbPath)
-        ws = wb.get_sheet_by_name(GetOption("CONFIG_SECTION", "NameOfCustSheet"))
-        MAX_ROW = ws.get_highest_row()
-        rowNumber = 0
-        for row in ws.iter_rows():
-            rowNumber += 1
-            if rowNumber < DATA_STARTS_AT_ROW:
-                continue
-            if rowNumber >= MAX_ROW:
-                break
-            c = CreateSingleCustomerInfo(row)
-            self[c.companyFriendlyName] = c
+        from Util.ExcelReader import GetRows
+        for row in GetRows(
+            workbookPath=custDBwbPath,
+            sheetName=GetOption("CONFIG_SECTION", "NameOfCustSheet"),
+            firstRow=GetOption("CONFIG_SECTION", "CustomerDataStartsAtRow"),
+            includeLastRow=False):
+              c = CreateSingleCustomerInfo(row)
+              self[c.companyFriendlyName] = c
 
     def GetListOfCompNamesForThisGrp(self, grpName):
         res = []

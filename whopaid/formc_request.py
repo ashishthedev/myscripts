@@ -14,10 +14,10 @@ from Util.Exception import MyException
 from Util.Misc import ParseDateFromString, PrintInBox, OpenFileForViewing, MakeSureDirExists
 from Util.PythonMail import SendMail
 
-from whopaid.CustomersInfo import GetAllCustomersInfo
-from whopaid.SanityChecks import CheckConsistency
-from whopaid.UtilFormC import QuarterlyClubbedFORMC
-from whopaid.UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate,\
+from whopaid.customers_info import GetAllCustomersInfo
+from whopaid.sanity_checks import CheckConsistency
+from whopaid.util_formc import QuarterlyClubbedFORMC
+from whopaid.util_whopaid import GetAllCompaniesDict, SelectBillsAfterDate,\
         SelectBillsBeforeDate, GuessCompanyName, RemoveTrackingBills
 
 
@@ -98,7 +98,7 @@ def ShouldSendSMS(args):
 
 def SendFORMCSMSToCompany(compName, args):
   if ShouldSendSMS(args):
-    from whopaid.OffComm import SendOfficialSMSAndMarkCC
+    from whopaid.off_comm import SendOfficialSMSAndMarkCC
     SendOfficialSMSAndMarkCC(compName, """Dear Sir,
 Kindly issue the FORM-C. The details have been sent to your email address.
 Thanks.

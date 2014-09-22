@@ -50,16 +50,18 @@ def VLookup(workbookPath, sheetName, lookUpValue, lookUpColumn, correspondingCol
 def GetRows(workbookPath, sheetName, firstRow, includeLastRow):
   wb = LoadIterableWorkbook(workbookPath)
   ws = wb.get_sheet_by_name(sheetName)
-  MAX_ROW = ws.get_highest_row()
+  max_row = ws.get_highest_row()
+
   if includeLastRow:
-    MAX_ROW = MAX_ROW + 1
-  MIN_ROW = int(firstRow)
+    #Sometimes table has a total row which we dont want to include
+    max_row += 1
+  firstRow = int(firstRow)
   rowNumber = 0
 
   for row in ws.iter_rows():
     rowNumber += 1
-    if rowNumber < MIN_ROW: continue  #We are not reading anything before MIN_ROW. This might save us from reading couple thousand lines.
-    if rowNumber >= MAX_ROW: break
+    if rowNumber < firstRow: continue  #We are not reading anything before MIN_ROW. This might save us from reading couple thousand lines.
+    if rowNumber >= max_row: break
     yield row
 
   return

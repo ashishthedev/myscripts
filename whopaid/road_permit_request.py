@@ -9,16 +9,16 @@
 ##              Openpyxl for Python 3 must be installed
 ###############################################################################
 
-from whopaid.CustomersInfo import GetAllCustomersInfo
-from whopaid.SanityChecks import CheckConsistency
-from whopaid.UtilWhoPaid import GetAllCompaniesDict, GuessCompanyName
-from whopaid.OffComm import SendOfficialSMSAndMarkCC
-
 from Util.Config import GetOption
 from Util.Exception import MyException
 from Util.HTML import UnderLine, Bold, PastelOrangeText
 from Util.Misc import PrintInBox, DD_MM_YYYY
 from Util.PythonMail import SendMail
+
+from whopaid.customers_info import GetAllCustomersInfo
+from whopaid.sanity_checks import CheckConsistency
+from whopaid.util_whopaid import GetAllCompaniesDict, GuessCompanyName
+from whopaid.off_comm import SendOfficialSMSAndMarkCC
 
 from datetime import datetime
 from string import Template

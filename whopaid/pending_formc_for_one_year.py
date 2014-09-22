@@ -6,18 +6,19 @@
 ##              Openpyxl for Python must be installed
 ###############################################################################
 
-from UtilWhoPaid import GetAllCompaniesDict, SelectBillsAfterDate,\
-        SelectBillsBeforeDate
-from CustomersInfo import GetAllCustomersInfo
-from whopaid.UtilFormC import QuarterlyClubbedFORMC
-from Util.PythonMail import SendMail
+from Util.Config import GetOption
+from Util.Decorators import timeThisFunction
 from Util.Exception import MyException
 from Util.HTML import Bold
 from Util.Misc import ParseDateFromString, PrintInBox, OpenFileForViewing,\
         MakeSureDirExists, DD_MM_YYYY
-from SanityChecks import CheckConsistency
-from Util.Config import GetOption
-from Util.Decorators import timeThisFunction
+from Util.PythonMail import SendMail
+
+from whopaid.customers_info import GetAllCustomersInfo
+from whopaid.sanity_checks import CheckConsistency
+from whopaid.util_formc import QuarterlyClubbedFORMC
+from whopaid.util_whopaid import GetAllCompaniesDict, SelectBillsAfterDate,\
+        SelectBillsBeforeDate
 
 import datetime
 import argparse

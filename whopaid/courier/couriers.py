@@ -1,10 +1,11 @@
-import urllib2
-from HTMLParser import HTMLParser
-from Util.Misc import YYYY_MM_DD, StripHTMLTags
+
 from Util.Config import GetAppDir, GetOption
-import subprocess
-from urllib2 import URLError
+from Util.Misc import YYYY_MM_DD, StripHTMLTags
+
+from HTMLParser import HTMLParser
 import os
+import subprocess
+import urllib2
 
 class Courier():
   """
@@ -33,7 +34,7 @@ class Courier():
   def GetStatus(self):
     try:
       return self.courier.GetStatus()
-    except URLError as e:
+    except urllib2.URLError as e:
       if hasattr(e, 'reason'):
         print("We failed to reach the server.\nReason {}".format(self.courier.bill.courierName, e.reason))
       elif hasattr(e, 'code'):
@@ -95,10 +96,10 @@ def StoreSnapshotWithPhantomScript(b, scriptPath, formData, reqUrl):
 class TrackonCourier():
   def __init__(self, bill):
     self.bill = bill
-    self.FORM_DATA="""__VIEWSTATE=%2FwEPDwUKMTM2ODMyNjQ5NA9kFgJmD2QWAgICD2QWCAIFDw8WAh4HVmlzaWJsZWhkZAIHDw8WAh8AaGRkAgkPDxYCHgRUZXh0ZWRkAgsPZBYEAgEPZBYCAgEPFgIeA3NyYwUafi9pbWFnZXMvdHJhY2tTaGlwbWVudC5qcGdkAgMPFgIeC18hSXRlbUNvdW50AgEWAgIBD2QWBGYPFQQJMzQ1MTM4MDAwCURFTElWRVJFRAswMSBKdWwgMjAxMw53aXRoIFNJR05BVFVSRWQCAQ8WAh8DAgMWBgIBD2QWAmYPFQYJR0hBWklBQkFEABFERUxISSBIRUFEIE9GRklDRQwxMDAzNDA5NDkxNDkKMjkvMDYvMjAxMwUxOTozOWQCAg9kFgJmDxUGCkRFTEhJIEguTy4AFVBBVEhBTktPVC0wMTg2MjIzNDM1MgwxMDAwMzA0MTIyMjAKMzAvMDYvMjAxMwUyMDowN2QCAw9kFgJmDxUGCVBBVEhBTktPVAAFICAtICABMAowMS8wNy8yMDEzBTE1OjA2ZBgBBR5fX0NvbnRyb2xzUmVxdWlyZVBvc3RCYWNrS2V5X18WAQUdY3RsMDAkTG9naW4yJGltZ3RyYWNrb25TdWJtaXRTjdVBMrmra84ziY%2F00Eqw1oHLhA%3D%3D&ctl00%24Login2%24txtUsername=&ctl00%24Login2%24txtPassword=&ctl00%24ContentPlaceHolder1%24Tracking1%24hidAWB=1{docket}&ctl00%24ContentPlaceHolder1%24Tracking1%24trackno={docket}&ctl00%24ContentPlaceHolder1%24Tracking1%24trackonSubmit=&ctl00%24ContentPlaceHolder1%24Tracking1%24primetrackno=&__EVENTVALIDATION=%2FwEWCQLUq4iMCAK00vXCBwLx3cW8DwKtpJblAwL4ya2YBgK5jN%2BIBgL8nsXZCgLCs5bTDALIlpeaCdsVYmlvDIpNyXh9yAT0H9sQIYi4""".format(docket=self.bill.docketNumber)
     self.reqUrl = "http://trackoncourier.com/TrackonConsignment.aspx"
 
   def GetStatus(self):
+    self.FORM_DATA="""__VIEWSTATE=%2FwEPDwUKMTM2ODMyNjQ5NA9kFgJmD2QWAgICD2QWCAIFDw8WAh4HVmlzaWJsZWhkZAIHDw8WAh8AaGRkAgkPDxYCHgRUZXh0ZWRkAgsPZBYEAgEPZBYCAgEPFgIeA3NyYwUafi9pbWFnZXMvdHJhY2tTaGlwbWVudC5qcGdkAgMPFgIeC18hSXRlbUNvdW50AgEWAgIBD2QWBGYPFQQJMzQ1MTM4MDAwCURFTElWRVJFRAswMSBKdWwgMjAxMw53aXRoIFNJR05BVFVSRWQCAQ8WAh8DAgMWBgIBD2QWAmYPFQYJR0hBWklBQkFEABFERUxISSBIRUFEIE9GRklDRQwxMDAzNDA5NDkxNDkKMjkvMDYvMjAxMwUxOTozOWQCAg9kFgJmDxUGCkRFTEhJIEguTy4AFVBBVEhBTktPVC0wMTg2MjIzNDM1MgwxMDAwMzA0MTIyMjAKMzAvMDYvMjAxMwUyMDowN2QCAw9kFgJmDxUGCVBBVEhBTktPVAAFICAtICABMAowMS8wNy8yMDEzBTE1OjA2ZBgBBR5fX0NvbnRyb2xzUmVxdWlyZVBvc3RCYWNrS2V5X18WAQUdY3RsMDAkTG9naW4yJGltZ3RyYWNrb25TdWJtaXRTjdVBMrmra84ziY%2F00Eqw1oHLhA%3D%3D&ctl00%24Login2%24txtUsername=&ctl00%24Login2%24txtPassword=&ctl00%24ContentPlaceHolder1%24Tracking1%24hidAWB=1{docket}&ctl00%24ContentPlaceHolder1%24Tracking1%24trackno={docket}&ctl00%24ContentPlaceHolder1%24Tracking1%24trackonSubmit=&ctl00%24ContentPlaceHolder1%24Tracking1%24primetrackno=&__EVENTVALIDATION=%2FwEWCQLUq4iMCAK00vXCBwLx3cW8DwKtpJblAwL4ya2YBgK5jN%2BIBgL8nsXZCgLCs5bTDALIlpeaCdsVYmlvDIpNyXh9yAT0H9sQIYi4""".format(docket=self.bill.docketNumber)
     req = urllib2.Request(self.reqUrl)
     req.add_header("Content-Type" , "application/x-www-form-urlencoded")
     req.add_header('Referer', 'http://trackoncourier.com/Default.aspx')
@@ -140,10 +141,10 @@ class TrackonCourier():
 class ProfessionalCourier():
   def __init__(self, bill):
     self.bill = bill
-    self.FORM_DATA = ""
     self.reqUrl = "http://www.tpcindia.com/Tracking2014.aspx?id={docket}&type=0&service=0".format(docket=self.bill.docketNumber.strip())
 
   def GetStatus(self):
+    self.FORM_DATA = ""
     if not hasattr(self, "reqUrl"):
       self.reqUrl = "http://www.tpcindia.com/Tracking2014.aspx?id={docket}&type=0&service=0".format(docket=self.bill.docketNumber.strip())
     req = urllib2.Request(self.reqUrl)
@@ -171,10 +172,10 @@ class ProfessionalCourier():
 class NitcoTransport():
   def __init__(self, bill):
     self.bill = bill
-    self.FORM_DATA = """__VIEWSTATE:/wEPDwULLTEyMzg3Mjg0MjIPZBYCZg9kFgICAQ9kFgICAQ9kFhgCAw8PFgIeBFRleHQFB0k3MjU3MzVkZAIJDw8WAh8ABQdJNzI1NzM1ZGQCCw8PFgIfAAUHSTcyNTczNWRkAg8PDxYCHwAFDEpBTU1VIE5BUldBTGRkAhEPZBYCAgEPDxYEHwAFHSoqKioqQk9PS0lORyBJTkZPUk1BVElPTioqKioqHgdWaXNpYmxlZ2RkAhMPPCsADQEADxYEHgtfIURhdGFCb3VuZGceC18hSXRlbUNvdW50AgFkFgJmD2QWBAIBD2QWCGYPDxYCHwAFB0k3MjU3MzVkZAIBDw8WAh8ABQoxOS8wNy8yMDE0ZGQCAg8PFgIfAAUCMTFkZAIDDw8WAh8ABQxKQU1NVSBOQVJXQUxkZAICDw8WAh8BaGRkAhUPZBYCAgEPDxYEHwAFHyoqKioqREVTUEFUQ0ggIFBBUlRJQ1VMQVJTKioqKiofAWdkZAIXDzwrAA0BAA8WBB8CZx8DAgNkFgJmD2QWCAIBD2QWDmYPDxYCHwAFD0dIQVpJQUJBRCBDSVRZIGRkAgEPDxYCHwAFBiZuYnNwO2RkAgIPDxYCHwAFAjExZGQCAw8PFgIfAAUKMTkvMDcvMjAxNGRkAgQPDxYCHwAFCkdaQzJER0swMDNkZAIFDw8WAh8ABQlVUDE0SzkzMDVkZAIGDw8WAh8ABQ9HSEFaSUFCQUQgQk9SREVkZAICD2QWDmYPDxYCHwAFD0dIQVpJQUJBRCBCT1JERWRkAgEPDxYCHwAFCjIwLzA3LzIwMTRkZAICDw8WAh8ABQIxMWRkAgMPDxYCHwAFCjIwLzA3LzIwMTRkZAIEDw8WAh8ABQpHWkIyREdMMDIyZGQCBQ8PFgIfAAUKSkswMkFGNzM2NmRkAgYPDxYCHwAFDEpBTU1VIE5BUldBTGRkAgMPZBYOZg8PFgIfAAUMSkFNTVUgTkFSV0FMZGQCAQ8PFgIfAAUKMjQvMDcvMjAxNGRkAgIPDxYCHwAFBiZuYnNwO2RkAgMPDxYCHwAFBiZuYnNwO2RkAgQPDxYCHwAFBiZuYnNwO2RkAgUPDxYCHwAFBiZuYnNwO2RkAgYPDxYCHwAFBiZuYnNwO2RkAgQPDxYCHwFoZGQCGQ9kFgICAQ8PFgQfAAUmKioqKipERUxJVkVSWSBJTkZPUk1BVElPTiBERVRBSUxTKioqKiofAWdkZAIbDzwrAA0BAA8WBB8CZx8DAgFkFgJmD2QWBAIBD2QWBGYPDxYCHwAFC0pOTDZEODA1MDQ1ZGQCAQ8PFgIfAAUKMDUvMDgvMjAxNGRkAgIPDxYCHwFoZGQCHQ8PFgQfAAUKR1IgU1RBVFVTOh8BZ2RkAh8PDxYCHwAFCURFTElWRVJFRGRkGAMFI2N0bDAwJENvbnRlbnRQbGFjZUhvbGRlcjEkR3JpZFZpZXczDzwrAAoBCAIBZAUjY3RsMDAkQ29udGVudFBsYWNlSG9sZGVyMSRHcmlkVmlldzEPPCsACgEIAgFkBSNjdGwwMCRDb250ZW50UGxhY2VIb2xkZXIxJEdyaWRWaWV3Mg88KwAKAQgCAWSDqDAZ1AtzVfQLvrl7qdIVMyn+vw=="""
     self.reqUrl ="http://202.177.175.171/customer_track/grinformation.aspx?id={docket}" .format(docket=self.bill.docketNumber.strip())
 
   def GetStatus(self):
+    self.FORM_DATA = """__VIEWSTATE:/wEPDwULLTEyMzg3Mjg0MjIPZBYCZg9kFgICAQ9kFgICAQ9kFhgCAw8PFgIeBFRleHQFB0k3MjU3MzVkZAIJDw8WAh8ABQdJNzI1NzM1ZGQCCw8PFgIfAAUHSTcyNTczNWRkAg8PDxYCHwAFDEpBTU1VIE5BUldBTGRkAhEPZBYCAgEPDxYEHwAFHSoqKioqQk9PS0lORyBJTkZPUk1BVElPTioqKioqHgdWaXNpYmxlZ2RkAhMPPCsADQEADxYEHgtfIURhdGFCb3VuZGceC18hSXRlbUNvdW50AgFkFgJmD2QWBAIBD2QWCGYPDxYCHwAFB0k3MjU3MzVkZAIBDw8WAh8ABQoxOS8wNy8yMDE0ZGQCAg8PFgIfAAUCMTFkZAIDDw8WAh8ABQxKQU1NVSBOQVJXQUxkZAICDw8WAh8BaGRkAhUPZBYCAgEPDxYEHwAFHyoqKioqREVTUEFUQ0ggIFBBUlRJQ1VMQVJTKioqKiofAWdkZAIXDzwrAA0BAA8WBB8CZx8DAgNkFgJmD2QWCAIBD2QWDmYPDxYCHwAFD0dIQVpJQUJBRCBDSVRZIGRkAgEPDxYCHwAFBiZuYnNwO2RkAgIPDxYCHwAFAjExZGQCAw8PFgIfAAUKMTkvMDcvMjAxNGRkAgQPDxYCHwAFCkdaQzJER0swMDNkZAIFDw8WAh8ABQlVUDE0SzkzMDVkZAIGDw8WAh8ABQ9HSEFaSUFCQUQgQk9SREVkZAICD2QWDmYPDxYCHwAFD0dIQVpJQUJBRCBCT1JERWRkAgEPDxYCHwAFCjIwLzA3LzIwMTRkZAICDw8WAh8ABQIxMWRkAgMPDxYCHwAFCjIwLzA3LzIwMTRkZAIEDw8WAh8ABQpHWkIyREdMMDIyZGQCBQ8PFgIfAAUKSkswMkFGNzM2NmRkAgYPDxYCHwAFDEpBTU1VIE5BUldBTGRkAgMPZBYOZg8PFgIfAAUMSkFNTVUgTkFSV0FMZGQCAQ8PFgIfAAUKMjQvMDcvMjAxNGRkAgIPDxYCHwAFBiZuYnNwO2RkAgMPDxYCHwAFBiZuYnNwO2RkAgQPDxYCHwAFBiZuYnNwO2RkAgUPDxYCHwAFBiZuYnNwO2RkAgYPDxYCHwAFBiZuYnNwO2RkAgQPDxYCHwFoZGQCGQ9kFgICAQ8PFgQfAAUmKioqKipERUxJVkVSWSBJTkZPUk1BVElPTiBERVRBSUxTKioqKiofAWdkZAIbDzwrAA0BAA8WBB8CZx8DAgFkFgJmD2QWBAIBD2QWBGYPDxYCHwAFC0pOTDZEODA1MDQ1ZGQCAQ8PFgIfAAUKMDUvMDgvMjAxNGRkAgIPDxYCHwFoZGQCHQ8PFgQfAAUKR1IgU1RBVFVTOh8BZ2RkAh8PDxYCHwAFCURFTElWRVJFRGRkGAMFI2N0bDAwJENvbnRlbnRQbGFjZUhvbGRlcjEkR3JpZFZpZXczDzwrAAoBCAIBZAUjY3RsMDAkQ29udGVudFBsYWNlSG9sZGVyMSRHcmlkVmlldzEPPCsACgEIAgFkBSNjdGwwMCRDb250ZW50UGxhY2VIb2xkZXIxJEdyaWRWaWV3Mg88KwAKAQgCAWSDqDAZ1AtzVfQLvrl7qdIVMyn+vw=="""
     req = urllib2.Request(self.reqUrl)
     req.add_header('Host', '202.177.175.171')
     req.add_header('Origin', 'http://202.177.175.171')
@@ -274,10 +275,10 @@ class FirstFlightCourier():
 class BluedartCourier():
   def __init__(self, bill):
     self.bill = bill
-    self.FORM_DATA="""handler=tnt&action=awbquery&awb=awb&numbers={docket}""".format(docket=self.bill.docketNumber)
     self.reqUrl = "http://www.bluedart.com/servlet/RoutingServlet"
 
   def GetStatus(self):
+    self.FORM_DATA="""handler=tnt&action=awbquery&awb=awb&numbers={docket}""".format(docket=self.bill.docketNumber)
     req = urllib2.Request(self.reqUrl)
     req.add_header("Content-Type" , "application/x-www-form-urlencoded")
     req.add_header('Referer', 'http://www.bluedart.com/')
