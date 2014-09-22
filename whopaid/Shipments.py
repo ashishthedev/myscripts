@@ -100,6 +100,9 @@ class ShipmentTrack(object):
 
     return self.status
 
+  def IsSnapshotSaved(self):
+    return self.courier.IsSnapshotSaved()
+
 
 class ShipmentSms(object):
   def __init__(self, shipment, bill):
@@ -184,6 +187,9 @@ class PersistentShipment(object):
   def sendSmsForThisShipment(self):
     return self._sms.sendSmsForThisShipment()
 
+  def IsSnapshotSaved(self):
+    return self._track.IsSnapshotSaved()
+
   @property
   def isDelivered(self):
     return self._track.isDelivered
@@ -191,8 +197,11 @@ class PersistentShipment(object):
   def isUndelivered(self):
     return not self.isDelivered
 
-  def markShipmentMailAsSent(self):
+  def markShipmentSmsAsSent(self):
     self._mail.markShipmentMailAsSent()
+
+  def markShipmentMailAsSent(self):
+    self._sms.markShipmentSmsAsSent()
 
   def markPersistantShipmentAsDelivered(self):
     self._track.markTrackerAsDelivered()
@@ -697,7 +706,25 @@ def TrackAllShipments(args):
 
   return
 
+def DBDeletedDoWhatEverIsNecessary():
+  """This will help when the db is accidently deleted. In that case, just mark all the information as already sent"""
+  NO_OF_DAYS=90
+  bills = [b for b in GetAllBillsInLastNDays(NO_OF_DAYS) if b.docketDate]
+  bills = RemoveTrackingBills(bills)
+  [PersistentShipment.GetOrCreateShipmentForBill(b) for b in bills]
+  shipments = PersistentShipment.GetAllStoredShipments()
+  for s in shipments:
+    if s.isDelivered: continue
+    s.markShipmentSmsAsSent()
+    s.markShipmentSmsAsSent()
+    if s.IsSnapshotSaved():
+      s.markPersistantShipmentAsDelivered()
+    s.saveInDB()
+
+
+
 if __name__ == '__main__':
+  #DBDeletedDoWhatEverIsNecessary(); import sys; sys.exit(0)
   CheckConsistency()
   main()
   SendAutomaticHeartBeat()

@@ -12,7 +12,7 @@ from Util.Decorators import memoize
 def LoadNonIterableWorkbook(workbookPath):
     """Helper function to load a workbook in an iterable fashion"""
     tempCopy = MakeTempCopy(workbookPath)
-    loadedWB = load_workbook(tempCopy, use_iterators= False)
+    loadedWB = load_workbook(tempCopy, use_iterators=False, data_only=True, guess_types=True)
     return loadedWB
 
 
@@ -20,7 +20,7 @@ def LoadNonIterableWorkbook(workbookPath):
 def LoadIterableWorkbook(workbookPath):
     """Helper function to load a workbook in an iterable fashion"""
     tempCopy = MakeTempCopy(workbookPath)
-    loadedWB = load_workbook(tempCopy, use_iterators= True)
+    loadedWB = load_workbook(tempCopy, use_iterators=True, data_only=True, guess_types=False)
     return loadedWB
 
 

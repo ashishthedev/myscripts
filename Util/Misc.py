@@ -11,13 +11,18 @@ from Util.Config import GetOption
 import datetime
 import hashlib
 import os
-import pickle
 import random
 import shutil
 import subprocess
 import sys
 import tempfile
 import textwrap
+
+try:
+  import cPickle as pickle
+except:
+  import pickle as pickle
+
 
 class tempCopy(object):
   """ Create a temp copy of file/dir and destroy it after work is done"""

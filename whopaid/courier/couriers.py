@@ -45,9 +45,17 @@ class Courier():
   def StoreSnapshot(self):
     self.courier.StoreSnapshot()
 
+  def IsSnapshotSaved(self):
+    if hasattr(self.courier, 'bill'):
+      return True if os.path.exists(FullPathForSnapshotOfBill(self.courier.bill)) else False
+    else:
+      return True if os.path.exists(FullPathForSnapshotOfBill(self.courier.b)) else False
+
+
+
 class DummyCourier():
-  def __init__(self, b):
-    self.b = b
+  def __init__(self, bill):
+    self.bill = bill
 
   def GetStatus(self):
     return "Dummy Courier is delivered" #This status should have the word delivered
@@ -55,30 +63,34 @@ class DummyCourier():
   def StoreSnapshot(self):
     return None
 
-def StoreSnapshotWithPhantomScript(b, scriptPath, formData, reqUrl):
-  #TODO: Remove hardcoding of path
-  PHANTOM = "B:\\Tools\\PhantomJS\\phantomjs-1.9.1-windows\\phantomjs.exe"
+def FullPathForSnapshotOfBill(b):
+  """All the information considered in filename is immutable"""
   PREFERRED_FILEFORMAT = ".jpeg"
   fileName = "{date}_{compName}_BillNo#{billNumber}_{docketNumber}".format(date=YYYY_MM_DD(b.docketDate),
-          compName=b.compName, billNumber=b.billNumber, docketNumber = b.docketNumber)
-
+      compName=b.compName, billNumber=b.billNumber, docketNumber = b.docketNumber)
   fileName.replace(" ", "_")
   fileName = "".join([x for x in fileName if x.isalnum() or x in['_', '-']])
   fileName = fileName + PREFERRED_FILEFORMAT
-  DESTINATION_FILE = os.path.normpath(os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "DocketSnapshotsRelPath"),fileName))
+  fullPath = os.path.normpath(os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "DocketSnapshotsRelPath"),fileName))
+  return fullPath
 
-  if os.path.exists(DESTINATION_FILE):
-    i = DESTINATION_FILE.rfind(".")
-    DESTINATION_FILE ="{}_new{}".format(DESTINATION_FILE[:i], DESTINATION_FILE[i:])
+def StoreSnapshotWithPhantomScript(b, scriptPath, formData, reqUrl):
+  #TODO: Remove hardcoding of path
+  PHANTOM = "B:\\Tools\\PhantomJS\\phantomjs-1.9.1-windows\\phantomjs.exe"
+  fullPath = FullPathForSnapshotOfBill(b)
+
+  if os.path.exists(fullPath):
+    i = fullPath.rfind(".")
+    fullPath ="{}_new{}".format(fullPath[:i], fullPath[i:])
 
   for p in [PHANTOM, scriptPath]:
     if not os.path.exists(p): raise Exception("Path not present : {}".format(p))
 
-  args = [PHANTOM, scriptPath, DESTINATION_FILE, b.docketNumber, formData, reqUrl]
+  args = [PHANTOM, scriptPath, fullPath, b.docketNumber, formData, reqUrl]
   subprocess.check_call(args)
 
-  if not os.path.exists(DESTINATION_FILE):
-    raise Exception("Could not store the snapshot at location: {}".format(DESTINATION_FILE))
+  if not os.path.exists(fullPath):
+    raise Exception("Could not store the snapshot at location: {}".format(fullPath))
 
 class TrackonCourier():
   def __init__(self, bill):

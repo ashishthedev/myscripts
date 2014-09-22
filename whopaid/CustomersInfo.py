@@ -46,7 +46,7 @@ def CreateSingleCustomerInfo(row):
     c = SingleCompanyInfo()
     for cell in row:
         col = cell.column
-        val = cell.internal_value
+        val = cell.value
 
         if col == CustomerInfoCol.CompanyFriendlyNameCol:
             c.companyFriendlyName = val

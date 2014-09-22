@@ -31,7 +31,7 @@ def CreateSingleKMOrder(row):
   c = SingleKMOrderInfo()
   for cell in row:
     col = cell.column
-    val = cell.internal_value
+    val = cell.value
 
     if col == KMInfoCol.RowNoCol:
       c.rowNumberInTable = val

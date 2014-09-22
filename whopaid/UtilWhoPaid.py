@@ -123,7 +123,7 @@ def _GuessKindFromValue(val):
 def GuessKindFromRow(row):
   for cell in row:
     col = cell.column
-    val = cell.internal_value
+    val = cell.value
 
     if col == SheetCols.KindOfEntery:
       return _GuessKindFromValue(val)
@@ -400,7 +400,7 @@ def CreateSingleOrderRow(row):
     r = SingleOrderRow()
     for cell in row:
         col = cell.column
-        val = cell.internal_value
+        val = cell.value
 
         if col == SheetCols.CompanyFriendlyNameCol:
             if not val: raise Exception("Row: {} seems empty. Please fix the database".format(cell.row))
@@ -422,7 +422,7 @@ def CreateSingleAdjustmentRow(row):
     r = SingleAdjustmentRow()
     for cell in row:
         col = cell.column
-        val = cell.internal_value
+        val = cell.value
 
         if col == SheetCols.CompanyFriendlyNameCol:
             if not val: raise Exception("No company name in row: {} and col: {}".format(cell.row, col))
@@ -451,7 +451,7 @@ def CreateSinglePaymentRow(row):
     r = SinglePaymentRow()
     for cell in row:
         col = cell.column
-        val = cell.internal_value
+        val = cell.value
 
         if col == SheetCols.InvoiceAmount:
             if not val: raise Exception("No cheque amount in row: {} and col: {}".format(cell.row, col))
@@ -483,7 +483,7 @@ def _CreateSingleBillRow(row):
   b = SingleBillRow()
   for cell in row:
     col = cell.column
-    val = cell.internal_value
+    val = cell.value
 
     b.rowNumber = cell.row
     if col == SheetCols.InvoiceAmount:
