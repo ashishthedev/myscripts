@@ -5,10 +5,11 @@
 ## Author: Ashish Anand
 ## Date: 24-Nov-2011
 
-import os, tempfile, shutil
 from Util.Misc import printNow, PrintInBox, GetHash
-from datetime import datetime
 import Util.PythonMail
+
+from datetime import datetime
+import os, tempfile, shutil
 
 HASH_SECTION = "DEFAULT"
 

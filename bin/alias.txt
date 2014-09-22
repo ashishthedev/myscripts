@@ -104,21 +104,21 @@ cust2odat = copy "%APPDIR%\\SDATDocs\\Bills\\Cust.xlsx" "%APPDIR%\\ODATDocs\\Bil
 
 analyze = pushd %XDATDOCSDIR%\\code\\misc\\PhoneBillAnalysis && AnalyzeBill.py $*
 
-trs = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --track $* && pushd %XDATDOCSDIR%\..\DocketPODs && start. && popd
+trs         = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --track $* && pushd %XDATDOCSDIR%\..\DocketPODs && start. && popd
 undelivered = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --show-undelivered-small && popd
-parcom = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --show-undelivered-small && Shipments.py --complaint $* && popd
-watch = pushd %XDATDOCSDIR%\code\misc && watchydl.py -s $* && popd
-lfp = pushd %XDATDOCSDIR%\code\whopaid && Statement.py --last-few-payments && popd
+parcom      = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --show-undelivered-small && Shipments.py --complaint $* && popd
+watch       = pushd %XDATDOCSDIR%\code\misc && watchydl.py -s $* && popd
+lfp         = pushd %XDATDOCSDIR%\code\whopaid && Statement.py --last-few-payments && popd
 
-opybk = "B:\Read\Python\The Quick Python Book 2e - Vernon Ceder - Manning (2010).pdf"
-ogaebk2 = "b:\Read\Google App Engine\Programming GAE V2.pdf"
-ogaebk = "b:\Read\Google App Engine\Oreilly - Programming Google Apps Engine (12-2009) (ATTiCA).pdf"
-ojinjabk = "b:\Read\Jinja2\Jinja-docs.pdf
-oprogitbk = "b:\Read\Git\progit.en.pdf"
-ogitbk = "b:\Read\Git\progit.en.pdf"
+opybk          = "B:\Read\Python\The Quick Python Book 2e - Vernon Ceder - Manning (2010).pdf"
+ogaebk2        = "b:\Read\Google App Engine\Programming GAE V2.pdf"
+ogaebk         = "b:\Read\Google App Engine\Oreilly - Programming Google Apps Engine (12-2009) (ATTiCA).pdf"
+ojinjabk       = "b:\Read\Jinja2\Jinja-docs.pdf
+oprogitbk      = "b:\Read\Git\progit.en.pdf"
+ogitbk         = "b:\Read\Git\progit.en.pdf"
 orefactoringbk = "b:\Read\Refactoring\Refactoring Improving the Design of Existing Code - Fowler-Beck-Brant-Opdyke-Roberts.chm"
-kmp = start %XDATDOCSDIR%\"SDAT\KennametalAll\KennaMetalPayment"
-recent=dir /s /b /a:-d /t:w /o:-d|less
+kmp            = start %XDATDOCSDIR%\"SDAT\KennametalAll\KennaMetalPayment"
+recent         = dir /s /b /a:-d /t:w /o:-d|less
 
 fip=@echo "Finding inside .py files" && findstr /i /s /n $* *.py
 fit=@echo "Finding inside .txt files" && findstr /i /s /n $* *.txt
@@ -130,48 +130,48 @@ esice=pushd %XDATDOCSDIR%\ESIC && start.
 q=exit
 pyprof = %XDATDOCSDIR%\code\bin\pyprofile.py "$*"
 
-slip1 = pushd %XDATDOCSDIR%\code\whopaid && AddressSlip.py -n1 $* && popd
-slip2 = pushd %XDATDOCSDIR%\code\whopaid && AddressSlip.py -n2 $* && popd
-slip3 = pushd %XDATDOCSDIR%\code\whopaid && AddressSlip.py -n3 $* && popd
-slip4 = pushd %XDATDOCSDIR%\code\whopaid && AddressSlip.py -n4 $* && popd
-slip5 = pushd %XDATDOCSDIR%\code\whopaid && AddressSlip.py -n5 $* && popd
-slip6 = pushd %XDATDOCSDIR%\code\whopaid && AddressSlip.py -n6 $* && popd
-slip = pushd %XDATDOCSDIR%\code\whopaid && AddressSlip.py $* && popd
-er = pushd %XDATDOCSDIR%\code\whopaid && PaymentReminderForGroups.py --mail $* && popd
-erm = pushd %XDATDOCSDIR%\code\whopaid && PaymentReminderForGroups.py --mail $* && popd
-ers = pushd %XDATDOCSDIR%\code\whopaid && PaymentReminderForGroups.py --sms $* && popd
-erms = pushd %XDATDOCSDIR%\code\whopaid && PaymentReminderForGroups.py --mail --sms $* && popd
-erd = pushd %XDATDOCSDIR%\code\whopaid && PaymentReminderForGroups.py --mail --demo $* && popd
-erol = pushd %XDATDOCSDIR%\code\whopaid && PaymentReminderForGroups.py --allCompanies --only-list-no-send --demo $* && popd
+slip1 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n1 $* && popd
+slip2 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n2 $* && popd
+slip3 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n3 $* && popd
+slip4 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n4 $* && popd
+slip5 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n5 $* && popd
+slip6 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n6 $* && popd
+slip  = pushd %XDATDOCSDIR%\code\whopaid &&  address_slip.py $* && popd
+er    = pushd %XDATDOCSDIR%\code\whopaid && payment_reminder_for_groups.py --mail $* && popd
+erm   = pushd %XDATDOCSDIR%\code\whopaid && payment_reminder_for_groups.py --mail $* && popd
+ers   = pushd %XDATDOCSDIR%\code\whopaid && payment_reminder_for_groups.py --sms $* && popd
+erms  = pushd %XDATDOCSDIR%\code\whopaid && payment_reminder_for_groups.py --mail --sms $* && popd
+erd   = pushd %XDATDOCSDIR%\code\whopaid && payment_reminder_for_groups.py --mail --demo $* && popd
+erol  = pushd %XDATDOCSDIR%\code\whopaid && payment_reminder_for_groups.py --allCompanies --only-list-no-send --demo $* && popd
 gform38 = pushd %XDATDOCSDIR%\Form38Actual\Receipt && start.
-fcr  = pushd %XDATDOCSDIR%\code\whopaid && FormCRequest.py -o $* && popd
-fcrl = pushd %XDATDOCSDIR%\code\whopaid && FormCRequest.py -o --letterHead --desktopOnly $* && popd
-fcrd = pushd %XDATDOCSDIR%\code\whopaid && FormCRequest.py -o --demo $* && popd
-fcre = pushd %XDATDOCSDIR%\code\whopaid && FormCRequest.py --email --sms $* && popd
-rpr  = pushd %XDATDOCSDIR%\code\whopaid && RoadPermitRequest.py --mail --sms $* && popd
-rprm  = pushd %XDATDOCSDIR%\code\whopaid && RoadPermitRequest.py --mail $* && popd
-rprs  = pushd %XDATDOCSDIR%\code\whopaid && RoadPermitRequest.py --sms $* && popd
-rprd = pushd %XDATDOCSDIR%\code\whopaid && RoadPermitRequest.py --mail --sms --demo $* && popd
-dis   = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --mail --dispatch-sms-all $* && Shipments.py --track && pushd %XDATDOCSDIR%\..\DocketPODs && start. && popd && popd
-dis10 = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --mail --dispatch-sms-all --days=10 $* && popd
-disd  = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --mail --dispatch-sms-all --demo $* && popd
-rgb = %XDATDOCSDIR%\code\misc\rgb2hex.py $*
-info = gvim %XDATDOCSDIR%\FrequentFliers\Info.txt
-etrv = %XDATDOCSDIR%\code\misc\TaxReturnLocalValidation.py
-eret = gvim %XDATDOCSDIR%\SalesTaxReturnFiles\eReturnInfo.txt
-tre = start %XDATDOCSDIR%\SalesTaxReturnFiles\
+fcr   = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py -o $* && popd
+fcrl  = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py -o --letterHead --desktopOnly $* && popd
+fcrd  = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py -o --demo $* && popd
+fcre  = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py --email --sms $* && popd
+rpr   = pushd %XDATDOCSDIR%\code\whopaid && road_permit_request.py --mail --sms $* && popd
+rprm  = pushd %XDATDOCSDIR%\code\whopaid && road_permit_request.py --mail $* && popd
+rprs  = pushd %XDATDOCSDIR%\code\whopaid && road_permit_request.py --sms $* && popd
+rprd  = pushd %XDATDOCSDIR%\code\whopaid && road_permit_request.py --mail --sms --demo $* && popd
+dis   = pushd %XDATDOCSDIR%\code\whopaid && shipments.py --mail --dispatch-sms-all $* && Shipments.py --track && pushd %XDATDOCSDIR%\..\DocketPODs && start. && popd && popd
+dis10 = pushd %XDATDOCSDIR%\code\whopaid && shipments.py --mail --dispatch-sms-all --days=10 $* && popd
+disd  = pushd %XDATDOCSDIR%\code\whopaid && shipments.py --mail --dispatch-sms-all --demo $* && popd
+rgb   = %XDATDOCSDIR%\code\misc\rgb2hex.py $*
+info  = gvim %XDATDOCSDIR%\FrequentFliers\Info.txt
+etrv  = %XDATDOCSDIR%\code\misc\TaxReturnLocalValidation.py
+eret  = gvim %XDATDOCSDIR%\SalesTaxReturnFiles\eReturnInfo.txt
+tre   = start %XDATDOCSDIR%\SalesTaxReturnFiles\
 gtaxret = pushd %XDATDOCSDIR%\SalesTaxReturnFiles\
-fm = "D:\Program Files\FreeMind\Freemind.exe"
-lc = %XDATDOCSDIR%\code\LineCount.py
-dup = %XDATDOCSDIR%\code\misc\FindDuplicateFiles.py
-stmt = pushd %XDATDOCSDIR%\code\whopaid && Statement.py $* && popd
-h = doskey /history
-ggno = pushd %XDATDOCSDIR%\code\misc\gnokii
-sms = pushd %XDATDOCSDIR%\code\sms && sendsms.py && popd
+fm    = "D:\Program Files\FreeMind\Freemind.exe"
+lc    = %XDATDOCSDIR%\code\LineCount.py
+dup   = %XDATDOCSDIR%\code\misc\FindDuplicateFiles.py
+stmt  = pushd %XDATDOCSDIR%\code\whopaid && Statement.py $* && popd
+h     = doskey /history
+ggno  = pushd %XDATDOCSDIR%\code\misc\gnokii
+sms   = pushd %XDATDOCSDIR%\code\sms && sendsms.py && popd
 
 ;= Take Email backup with tkbkem (TaKe BacKup = tkbk)
-tkbk = %XDATDOCSDIR%\code\Backup\InitiateEmailBackup.py
-chk  = %XDATDOCSDIR%\code\whopaid\SanityChecks.py
+tkbk  = %XDATDOCSDIR%\code\Backup\InitiateEmailBackup.py
+chk   = %XDATDOCSDIR%\code\whopaid\SanityChecks.py
 
 ;= rem Test Observer
 to   = %XDATDOCSDIR%\code\web\UberObserver.pyk
@@ -184,27 +184,27 @@ wpi   = pushd %XDATDOCSDIR%\code\whopaid && whopaidInstantFindOut.py $* && popd
 wpf   = pushd %XDATDOCSDIR%\code\whopaid && whopaidInstantFindOut.py --fresh $* && popd
 
 ;= Fraud Detection
-efd   = %XDATDOCSDIR%\code\ymail\FraudDetection.py $*
-efdv  = %XDATDOCSDIR%\code\ymail\FraudDetection.py $*
-efdnv = %XDATDOCSDIR%\code\ymail\FraudDetection.py -nv $*
-efdt  = %XDATDOCSDIR%\code\ymail\FraudDetection.py -t $*
+efd    = %XDATDOCSDIR%\code\ymail\FraudDetection.py $*
+efdv   = %XDATDOCSDIR%\code\ymail\FraudDetection.py $*
+efdnv  = %XDATDOCSDIR%\code\ymail\FraudDetection.py -nv $*
+efdt   = %XDATDOCSDIR%\code\ymail\FraudDetection.py -t $*
 efdtnv = %XDATDOCSDIR%\code\ymail\FraudDetection.py -nv -t $*
 
 
-pypy = B:\Tools\pypy-2.0-beta2\pypy.exe $*
+pypy   = B:\Tools\pypy-2.0-beta2\pypy.exe $*
 
-eydl = start %XDATDOCSDIR%\code\misc\ydl.py
-oydl = gvim b:\YoutubeVideosDownloaded\YoutubeURLsQueue.txt
+eydl   = start %XDATDOCSDIR%\code\misc\ydl.py
+oydl   = gvim b:\YoutubeVideosDownloaded\YoutubeURLsQueue.txt
 edelta = %XDATDOCSDIR%\code\SonyPhoneBookMerge\Delta.py
 
 eCleanMp3 = %XDATDOCSDIR%\code\misc\SanitizeMp3Names.py
 
-fgmail = gvim %XDATDOCSDIR%\code\misc\gmailAttachmentSizeLabels.py
+fgmail  = gvim %XDATDOCSDIR%\code\misc\gmailAttachmentSizeLabels.py
 fgmutil = gvim %XDATDOCSDIR%\code\PythonModules\UtilGmail.py
 
-readab = pushd %XDATDOCSDIR%\code\misc\readability && Scripts\activate.bat
-tree = b:\Tools\TreeSize\TreeSizeFree.exe
-gch = pushd %XDATDOCSDIR%\..\chess
+readab  = pushd %XDATDOCSDIR%\code\misc\readability && Scripts\activate.bat
+tree    = b:\Tools\TreeSize\TreeSizeFree.exe
+gch     = pushd %XDATDOCSDIR%\..\chess
 
 privoxy = pushd b:\tools\PrivoxyInstalled\ && start privoxy.exe && popd
 torsdat = pushd b:\tools\PrivoxyInstalled\ && start privoxy.exe && popd && %XDATDOCSDIR%\code\misc\TorPython.py --url "http://www.standarddiesandtools.com/about" --interval 20
@@ -216,10 +216,10 @@ torsdat = pushd b:\tools\PrivoxyInstalled\ && start privoxy.exe && popd && %XDAT
 ;= rem ******************************************************************
 ;=
 
-gpmt = pushd "%PMTAPPDIR%"
-pmtLT = %PMTAPPDIR%\utils\push.py --localTesting $*
-godevpmt = %PMTAPPDIR%\utils\push.py --version="dev" --email="developer@standarddiesandtools.com" --oauth2 --force-upload $*
-golivepmt = %PMTAPPDIR%\utils\push.py --version="live" --email="developer@standarddiesandtools.com" --oauth2 --force-upload $*
+gpmt        = pushd "%PMTAPPDIR%"
+pmtLT       = %PMTAPPDIR%\utils\push.py --localTesting $*
+godevpmt    = %PMTAPPDIR%\utils\push.py --version="dev" --email="developer@standarddiesandtools.com" --oauth2 --force-upload $*
+golivepmt   = %PMTAPPDIR%\utils\push.py --version="live" --email="developer@standarddiesandtools.com" --oauth2 --force-upload $*
 rollbackpmt = pushd %PMTAPPDIR%\ && appcfg.py rollback .  --email="developer@standarddiesandtools.com" --oauth2 --version="live" $*
 rollbackpmt = pushd %PMTAPPDIR%\ && appcfg.py rollback .  --oauth2 --version="live" $*
 gcloudlogin = gcloud auth login --no-launch-browser
@@ -229,12 +229,12 @@ gcloudlogin = gcloud auth login --no-launch-browser
 gtrk = pushd %XDATDOCSDIR%\code\whopaid
 ;======================================================
 ;= Lean Tricks
-glt = pushd %LEANDIR%
-golivelt = %LEANDIR%\utils\push.py --version="live" --email="leantricks@gmail.com" $*
-godevlt = %LEANDIR%\utils\push.py --version="dev" --email="leantricks@gmail.com" $*
+glt        = pushd %LEANDIR%
+golivelt   = %LEANDIR%\utils\push.py --version="live" --email="leantricks@gmail.com" $*
+godevlt    = %LEANDIR%\utils\push.py --version="dev" --email="leantricks@gmail.com" $*
 rollbacklt = pushd %LEANDIR%\ && appcfg.py rollback .  --email="leantricks@gmail.com" --version="live" $*
-gzambia = pushd %XDATDOCSDIR%\Export\SteelWorxZambia\ &&  start.
-gexport = pushd %XDATDOCSDIR%\Export && start.
+gzambia    = pushd %XDATDOCSDIR%\Export\SteelWorxZambia\ &&  start.
+gexport    = pushd %XDATDOCSDIR%\Export && start.
 galkhaleej = pushd %XDATDOCSDIR%\Export\AlkhaleejSteelsDubai && start.
-ghandy = pushd %XDATDOCSDIR%\SDAT\LettersSent\HandyWire && start.
-governite = pushd %XDATDOCSDIR%\SDAT\Courier && start.
+ghandy     = pushd %XDATDOCSDIR%\SDAT\LettersSent\HandyWire && start.
+governite  = pushd %XDATDOCSDIR%\SDAT\Courier && start.

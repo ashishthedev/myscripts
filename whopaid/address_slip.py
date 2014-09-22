@@ -194,7 +194,7 @@ def GenerateAddressSlipForThisCompany(compName, args):
 class PersistentEnvelopes(Persistent):
   def __init__(self):
     self.allBills = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict() #For speed imporovement, made a class member
-    super(self.__class__.__name__, self).__init__(self.__class__.__name__)
+    super(self.__class__, self).__init__(self.__class__.__name__)
 
   def __str__(self):
     s = ""
@@ -272,14 +272,17 @@ def main():
     return
 
   t = args.num
-  args.num = 1
   GenerateAddressSlipForThisCompany(chosenComp, args)
+
 
   from time import sleep
   sleep(2) # This sleep is so that browser can render the generated file coz next html will be generated in same filename and will overwrite previous one.
 
   args.num = t
+
+  args.num = 1
   GenerateAddressSlipForThisCompany(chosenComp, args)
+
 
   pe.MarkPrinted(chosenComp, args.num, datetime.date.today())
   pe.PredictFuturePrints()
