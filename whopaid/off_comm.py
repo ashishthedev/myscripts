@@ -7,7 +7,7 @@ from Util.Config import GetOption
 from Util.PythonMail import SendMail
 from Util.Sms import SendSms
 
-from whopaid.CustomersInfo import GetAllCustomersInfo
+from whopaid.customers_info import GetAllCustomersInfo
 
 
 def SendOfficialEmail(emailSubject, zfilename, toMailList, ccMailList, bccMailList, bodyText, textType, fromDisplayName):
