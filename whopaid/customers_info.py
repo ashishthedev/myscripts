@@ -75,11 +75,7 @@ def CreateSingleCustomerInfo(row):
         elif col == CustomerInfoCol.EmailForFormC:
             c.emailForFormC = val.replace("\n", "") if val else val
         elif col == CustomerInfoCol.KindAttentionCol:
-          if val:
             c.kindAttentionPerson = val
-            print("{} = {}".format(val, c.companyFriendlyName))
-          else:
-            c.kindAttentionPerson = None
         elif col == CustomerInfoCol.TrustCol:
             c.trust = val
         elif col == CustomerInfoCol.IncludeDaysCol:
