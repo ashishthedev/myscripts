@@ -17,29 +17,29 @@ class CustomerInfoCol:
     This class is used as Enum.
     If and when the format of excel file changes just change the column bindings in this class
     """
-    CompanyFriendlyNameCol = "A"
-    CompanyGroupCol = "B"
-    BillingAddressCol = "C"
-    TinNumberCol = "D"
-    PhoneNumberCol = "E"
-    DeliveryPhoneNumberCol = "F"
-    SmsDispatchNumberCol = "G"
-    PaymentReminderSmsNoCol = "H"
-    CompanyOfficialNameCol = "I"
-    CourierAddressCol = "J"
-    DeliveryPinCodeCol = "K"
-    PreferredCourierCol = "L"
-    CityCol = "M"
-    EmailForPayment = "N"
-    KindAttentionCol = "O"
-    EmailForFormC = "P"
-    TrustCol = "Q"
-    IncludeDaysCol = "R"
-    CreditLimitCol = "S"
-    SendAutomaticMails = "T"
-    MinDaysGapCol = "U"
+    CompanyFriendlyNameCol    = "A"
+    CompanyGroupCol           = "B"
+    BillingAddressCol         = "C"
+    TinNumberCol              = "D"
+    PhoneNumberCol            = "E"
+    DeliveryPhoneNumberCol    = "F"
+    SmsDispatchNumberCol      = "G"
+    PaymentReminderSmsNoCol   = "H"
+    CompanyOfficialNameCol    = "I"
+    CourierAddressCol         = "J"
+    DeliveryPinCodeCol        = "K"
+    PreferredCourierCol       = "L"
+    CityCol                   = "M"
+    EmailForPayment           = "N"
+    KindAttentionCol          = "O"
+    EmailForFormC             = "P"
+    TrustCol                  = "Q"
+    IncludeDaysCol            = "R"
+    CreditLimitCol            = "S"
+    SendAutomaticMails        = "T"
+    MinDaysGapCol             = "U"
     IncludeBillAmountInEmails = "V"
-    CompanyCodeCol = "W"
+    CompanyCodeCol            = "W"
 
 
 def CreateSingleCustomerInfo(row):
@@ -60,6 +60,8 @@ def CreateSingleCustomerInfo(row):
             c.deliveryPinCode = val
         elif col == CustomerInfoCol.SmsDispatchNumberCol:
             c.smsDispatchNo = val
+        elif col == CustomerInfoCol.PaymentReminderSmsNoCol:
+            c.paymentSMSNo = val
         elif col == CustomerInfoCol.DeliveryPhoneNumberCol:
             c.deliveryPhNo = val
         elif col == CustomerInfoCol.CompanyOfficialNameCol:
@@ -136,6 +138,9 @@ class _AllCustomersInfo(dict):
 
     def GetSmsDispatchNumber(self, compName):
         return self[compName].smsDispatchNo
+
+    def GetPaymentSMSNumber(self, compName):
+        return self[compName].paymentSMSNo
 
     def GetDeliveryPhoneNumber(self, compName):
         return self[compName].deliveryPhNo

@@ -8,6 +8,8 @@
 
 from Util.Misc import PrintInBox
 
+from functools import wraps
+
 def _getIDTuple(fn, args, kwargs):
     """Some quick and dirty way to generate a unique key for a specific call"""
     l=[fn.func_name]  # For faster performance we are using function name instead of its id. Might break if polymorphism comes into picture
@@ -21,35 +23,40 @@ def _getIDTuple(fn, args, kwargs):
 
 _memoized = dict()
 
-def memoize(function_to_decorate):
+
+def memoize(f):
     """ A basic memoizer decorator """
+    @wraps(f)
     def memoize_wrapper_around_original_function(*args, **kwargs):
-        key = _getIDTuple(function_to_decorate, args, kwargs)
+        key = _getIDTuple(f, args, kwargs)
         if key not in _memoized:
-            _memoized[key]=function_to_decorate(*args, **kwargs)
+            _memoized[key]=f(*args, **kwargs)
         #TODO: Find out the size of _memoized with print function and see if we are abusing it
         return _memoized[key]
     return memoize_wrapper_around_original_function
 
-def timeThisFunction(function_to_decorate):
+def timeThisFunction(f):
     """ A basic timer decorator """
-    def timeThisFunction_wrapper_around_original_function(*args, **kwargs):
+    @wraps(f)
+    def timed_decorated_function(*args, **kwargs):
         import time
         t = time.clock()
-        retVal = function_to_decorate(*args, **kwargs)  # Call the function.
-        print("Time taken for {} is: {} seconds".format(function_to_decorate.func_name, time.clock() - t))  # And Print time taken by this function
+        retVal = f(*args, **kwargs)  # Call the function.
+        print("Time taken for {} is: {} seconds".format(f.func_name, time.clock() - t))  # And Print time taken by this function
         return retVal
-    return timeThisFunction_wrapper_around_original_function
+    return timed_decorated_function
 
-def RetryNTimesIfFailed(function_to_decorate, noOfTimes):
-    """A decorator that will call the function 5 times if it fails(i.e. throws exception) and will bail out in the end."""
-    def retry_wrapper_around_original_function(*args, **kwargs):
+
+def RetryNTimes(noOfTimes):
+  def RetryDecoratorGenerator(f):
+    @wraps(f)
+    def Retry_decorated_function(*args, **kwargs):
       missionAccomplished = False
       attempts = 0
       while not missionAccomplished and (attempts < noOfTimes):
         try:
           attempts += 1
-          retVal = function_to_decorate(*args, **kwargs)
+          retVal = f(*args, **kwargs)
           missionAccomplished = True  # If no exception thrown, it means it went through.
           return retVal
         except Exception as ex:
@@ -59,16 +66,5 @@ def RetryNTimesIfFailed(function_to_decorate, noOfTimes):
           else:
             PrintInBox("Bailing out. Enough for today...")
             raise ex
-    return retry_wrapper_around_original_function
-
-
-def RetryFor2TimesIfFailed(function_to_decorate):
-    """A decorator that will call the function 2 times if it fails(i.e. throws exception) and will bail out in the end."""
-    return RetryNTimesIfFailed(function_to_decorate, 2)
-
-#TODO: Learn how to create a generic decorator which can take 3 and 5 as arguments
-
-def RetryFor5TimesIfFailed(function_to_decorate):
-    """A decorator that will call the function 5 times if it fails(i.e. throws exception) and will bail out in the end."""
-    return RetryNTimesIfFailed(function_to_decorate, 5)
-
+    return Retry_decorated_function
+  return RetryDecoratorGenerator

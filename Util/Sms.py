@@ -6,12 +6,13 @@
 ##
 ##########################################################################
 
-import subprocess
-import os
 from Util.Config import GetAppDirPath, GetOption
+from Util.Decorators import RetryNTimes
 from Util.Misc import PrintInBox
+
+import os
+import subprocess
 import urllib2
-from Util.Decorators import RetryFor5TimesIfFailed
 
 GNOKII_PATH = os.path.join(GetAppDirPath(), "code", "misc", "gnokii", "gnokii.exe")
 if not os.path.exists(GNOKII_PATH):
@@ -19,7 +20,7 @@ if not os.path.exists(GNOKII_PATH):
 
 class AndriodSMSGateway(object):
     SERVER = GetOption("SMS_SECTION", "SELF_IP")
-    PORT = "9191"
+    PORT = GetOption("SMS_SECTION", "SELF_PORT")
     TIMEOUT = 10 #seconds
     PING_TIMEOUT = .1
     def __init__(self):
@@ -110,11 +111,11 @@ class SonyEricssonPhone():
 SMSOBJECT = AndriodSMSGateway()
 #SMSOBJECT = SonyEricssonPhone()
 
-@RetryFor5TimesIfFailed
+@RetryNTimes(5)
 def CanSendSmsAsOfNow():
   return SMSOBJECT.CanSendSmsAsOfNow()
 
-@RetryFor5TimesIfFailed
+@RetryNTimes(5)
 def SendSms(toThisNumber, smsContents):
   return SMSOBJECT.SendSms(toThisNumber, smsContents)
 

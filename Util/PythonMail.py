@@ -6,10 +6,10 @@
 ##
 ##########################################################################
 TESTING = False
-from Util.Decorators import RetryFor5TimesIfFailed
+from Util.Decorators import RetryNTimes
 from Util.Misc import flattenList
 
-@RetryFor5TimesIfFailed
+@RetryNTimes(5)
 def SendMail(emailSubject, zfilename, SMTP_SERVER, SMTP_PORT, FROM_EMAIL, TO_EMAIL_LIST, CC_EMAIL_LIST, BCC_EMAIL_LIST, MPASS, BODYTEXT, textType, fromDisplayName):
   from email import encoders
   from email.mime.base import MIMEBase

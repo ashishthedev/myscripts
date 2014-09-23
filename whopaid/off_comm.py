@@ -34,11 +34,13 @@ def SendOfficialSMS(compName, msg):
 def _SendOfficialSMS(compName, msg, sendToCCNumbers=False):
   from string import Template
   allCustInfo = GetAllCustomersInfo()
-  smsNo = allCustInfo.GetSmsDispatchNumber(compName)
-  if not smsNo: raise Exception("No sms no. feeded for customer: {}".format(compName))
+  smsNo = "{};{}".format(allCustInfo.GetPaymentSMSNumber(compName), allCustInfo.GetSmsDispatchNumber(compName))
+  if not smsNo:
+    raise Exception("No sms no. feeded for customer: {}".format(compName))
 
   companyOfficialName = allCustInfo.GetCompanyOfficialName(compName)
-  if not companyOfficialName: raise Exception("\nM/s {} doesnt have a displayable 'name'. Please feed it in the database".format(compName))
+  if not companyOfficialName:
+    raise Exception("\nM/s {} doesnt have a displayable 'name'. Please feed it in the database".format(compName))
 
   d = dict()
   d["tFromName"] = "From: {}".format(GetOption("SMS_SECTION", 'FromDisplayName'))
