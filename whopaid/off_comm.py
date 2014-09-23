@@ -34,7 +34,14 @@ def SendOfficialSMS(compName, msg):
 def _SendOfficialSMS(compName, msg, sendToCCNumbers=False):
   from string import Template
   allCustInfo = GetAllCustomersInfo()
-  smsNo = "{};{}".format(allCustInfo.GetPaymentSMSNumber(compName), allCustInfo.GetSmsDispatchNumber(compName))
+  smsNo = ""
+  paymentSMSNo = allCustInfo.GetPaymentSMSNumber(compName)
+  smsDispatchSMS = allCustInfo.GetSmsDispatchNumber(compName)
+  if paymentSMSNo:
+    smsNo += ";" + paymentSMSNo
+  if smsDispatchSMS:
+    smsNo += ";" + smsDispatchSMS
+
   if not smsNo:
     raise Exception("No sms no. feeded for customer: {}".format(compName))
 
@@ -62,6 +69,8 @@ $msg"""
     if additionalSmsNo:
       additionalSmsNo = additionalSmsNo.replace(';', COMMA).strip()
       listOfNos.extend([x.strip() for x in additionalSmsNo.split(COMMA) if x.strip()])
+
+  listOfNos = list(set(listOfNos))
 
   from Util.Misc import PrintInBox
   PrintInBox(smsContents)
