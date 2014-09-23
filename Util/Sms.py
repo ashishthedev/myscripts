@@ -18,7 +18,7 @@ if not os.path.exists(GNOKII_PATH):
     raise Exception("{} does not exist".format(GNOKII_PATH))
 
 class AndriodSMSGateway(object):
-    SERVER = GetOption("CONFIG_SECTION", "SELF_IP")
+    SERVER = GetOption("SMS_SECTION", "SELF_IP")
     PORT = "9191"
     TIMEOUT = 10 #seconds
     PING_TIMEOUT = .1

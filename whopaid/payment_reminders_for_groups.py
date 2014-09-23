@@ -144,6 +144,7 @@ def SendAutomaticReminderToAllCompanies(args):
 def OnlyListCompaniesOnScreen(args):
   allCustomersInfo = GetAllCustomersInfo()
   uniqueCompGrpNames = set([allCustomersInfo.GetCompanyGroupName(eachComp) for eachComp in ALL_BILLS_DICT])
+  uniqueCompGrpNames = list(sorted(uniqueCompGrpNames))
   for eachGrp in uniqueCompGrpNames:
     if ShouldWeSendAutomaticEmailForGroup(eachGrp, allCustomersInfo):
       print("We should send mail to {}".format(eachGrp))
@@ -167,21 +168,35 @@ def main():
     AskQuestionsFromUserAndSendMail(args)
 
 def ShouldWeSendAutomaticEmailForGroup(grpName, allCustomersInfo):
+  def ShowReason(reason):
+    show = True
+    show = False
+    if show:
+      print("{:<55}| {}".format(grpName, reason))
+
   compsInGrp = allCustomersInfo.GetListOfCompNamesForThisGrp(grpName)
   firstCompInGrp = compsInGrp[0]
   unpaidBillsList = []
+  paymentsList = []
   for compName in compsInGrp:
     if not compName in ALL_BILLS_DICT:
       #print("{compName} has no issued bills till date. Ignoring it.".format(compName=compName))
       continue
     unpaidBillsList += SelectUnpaidBillsFrom(ALL_BILLS_DICT[compName])
 
+  for compName in compsInGrp:
+    if not compName in ALL_PAYMENTS_DICT:
+      continue
+    paymentsList += [p for p in ALL_PAYMENTS_DICT[compName] if p.paymentAccountedFor]
+
   #Unpaid Bills check
   if not unpaidBillsList:
+    ShowReason("No unpaid bills")
     return False # All bills are duly paid; do not send email
 
   #Advance towards us check
   if int(sum([eachBill.amount for eachBill in unpaidBillsList])) < MINIMUM_AMOUNT_DUE:
+    ShowReason("Due amount is less than: {}".format(MINIMUM_AMOUNT_DUE))
     return False
 
   #Check if we dont want the customer to be included in automatic mails
@@ -190,18 +205,23 @@ def ShouldWeSendAutomaticEmailForGroup(grpName, allCustomersInfo):
 
   #Email present
   if not allCustomersInfo.GetPaymentReminderEmailAsListForCustomer(firstCompInGrp):
+    ShowReason("No email present")
     return False
 
   #Dont send email immediately after receiving payment.
-  recentPmtDate = max([p.pmtDate for comp, payments in ALL_PAYMENTS_DICT.iteritems() for p in payments])
-  daysSinceLastPmt = (recentPmtDate - datetime.date.today()).days
-  if daysSinceLastPmt < allCustomersInfo.GetMinDaysGapBetweenMails(firstCompInGrp):
-    return False
+  if paymentsList:
+    recentPmtDate = max([p.pmtDate for p in paymentsList])
+    daysSinceLastPmt = (datetime.date.today()-recentPmtDate).days
+    minDays = allCustomersInfo.GetMinDaysGapBetweenMails(firstCompInGrp)
+    if daysSinceLastPmt < minDays:
+      ShowReason("daysSinceLastPmt={} < {}".format(daysSinceLastPmt, minDays))
+      return False
 
   #Check any bill should have elapsed minimum days
   daysSinceOldestUnpaidBill = max([b.daysOfCredit for b in unpaidBillsList])
   allowedDaysOfCredit = int(allCustomersInfo.GetCreditLimitForCustomer(firstCompInGrp))
   if daysSinceOldestUnpaidBill <= allowedDaysOfCredit:
+    ShowReason("daysSinceOldestUnpaidBill={} <= {}".format(daysSinceOldestUnpaidBill, allowedDaysOfCredit))
     return False
 
   lastDate = EarlierSentOnDateForThisGrp(grpName)
@@ -209,7 +229,9 @@ def ShouldWeSendAutomaticEmailForGroup(grpName, allCustomersInfo):
     #Perform this check only when an email was ever sent to this company and this is not a demo.
     timeDelta = datetime.date.today() - lastDate
     minDaysGap = int(allCustomersInfo.GetMinDaysGapBetweenMails(firstCompInGrp))
-    if timeDelta.days < minDaysGap:
+    daysSinceLastEmail = timeDelta.days
+    if daysSinceLastEmail < minDaysGap:
+      ShowReason("daysSinceLastEmail {} < {}".format(daysSinceOldestUnpaidBill, minDaysGap))
       return False
 
   return True
