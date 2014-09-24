@@ -124,14 +124,14 @@ class ShipmentSms(object):
     SendMaterialDispatchSms(self.bill)
     if not IS_DEMO:
       self.markShipmentSmsAsSent()
-      self.shipment.saveInDB()
+    return
 
 class ShipmentMail(object):
   def __init__(self, shipment, bill):
     self.bill = bill
     self.shipment = shipment #Back reference to parent shipment object
     self.shipmentMailSent = False
-    pass
+    return
 
   def markShipmentMailAsSent(self):
     print("_"*70)
@@ -157,7 +157,7 @@ class ShipmentMail(object):
     SendMaterialDispatchMail(self.bill, ctxt)
     if not IS_DEMO:
       self.markShipmentMailAsSent()
-      self.shipment.saveInDB()
+    return
 
 
 class PersistentShipment(object):
@@ -199,9 +199,11 @@ class PersistentShipment(object):
 
   def markShipmentSmsAsSent(self):
     self._mail.markShipmentMailAsSent()
+    self.saveInDB()
 
   def markShipmentMailAsSent(self):
     self._sms.markShipmentSmsAsSent()
+    self.saveInDB()
 
   def markPersistentShipmentAsDelivered(self):
     self._track.markTrackerAsDelivered()
@@ -245,8 +247,10 @@ class PersistentShipment(object):
       obj = None
       key = bill.uid_string
       if sh.has_key(key):
+        #get
         obj = sh[key]
       else:
+        #create
         obj = cls(bill)
         obj.saveInDB()
     return obj
@@ -518,8 +522,6 @@ def _FormceMarkShipmentMailAsSent(docketNumber):
     print(s.bill.docketNumber)
     if s.bill.docketNumber == docketNumber:
       s.markShipmentMailAsSent()
-      s.saveInDB()
-      print("Marking the mail as sent for docket#: {}".format(docketNumber))
   return
 
 
@@ -728,7 +730,6 @@ def DBDeletedDoWhatEverIsNecessary():
     s.markShipmentSmsAsSent()
     if s.IsSnapshotSaved():
       s.markPersistentShipmentAsDelivered()
-    s.saveInDB()
 
 
 

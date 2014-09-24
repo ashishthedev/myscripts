@@ -20,7 +20,7 @@ if not os.path.exists(GNOKII_PATH):
 
 class AndriodSMSGateway(object):
     SERVER = GetOption("SMS_SECTION", "SELF_IP")
-    PORT = GetOption("SMS_SECTION", "SELF_PORT")
+    PORT = int(GetOption("SMS_SECTION", "SELF_PORT"))
     TIMEOUT = 10 #seconds
     PING_TIMEOUT = .1
     def __init__(self):
