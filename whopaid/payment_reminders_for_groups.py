@@ -269,7 +269,8 @@ def SendReminderToGrp(grpName, allCustomersInfo, args):
   firstCompInGrp = compsInGrp[0] #TODO: Remove usage of firstCompInGrp as this is a hack. We are working on groups now. To remove it all the functionality has to be ported from single company to a group of companies.
   unpaidBillsList = []
   for eachComp in compsInGrp:
-    unpaidBillsList += SelectUnpaidBillsFrom(ALL_BILLS_DICT[eachComp])
+    if eachComp in ALL_BILLS_DICT:
+      unpaidBillsList += SelectUnpaidBillsFrom(ALL_BILLS_DICT[eachComp])
 
   if not len(unpaidBillsList):
     raise Exception("Alls bills are duly paid by group: {}".format(grpName))
@@ -458,6 +459,7 @@ def PrepareMailContentForThisGrp(grpName, allCustomersInfo, args):
     compsInGrp = allCustomersInfo.GetListOfCompNamesForThisGrp(grpName)
     htmlTables = ""
     for eachCompName in compsInGrp:
+      if not eachCompName in ALL_BILLS_DICT: continue
       if not SelectUnpaidBillsFrom(ALL_BILLS_DICT[eachCompName]): continue
       htmlTables += "<br>" + GetHTMLTableBlockForThisComp(eachCompName, allCustomersInfo)
 
