@@ -240,3 +240,5 @@ ghandy     = pushd %XDATDOCSDIR%\SDAT\LettersSent\HandyWire && start.
 governite  = pushd %XDATDOCSDIR%\SDAT\Courier && start.
 
 gpom = git push origin master
+es = exercism submit $*
+ef = exercism fetch

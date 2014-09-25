@@ -20,11 +20,12 @@ if not os.path.exists(GNOKII_PATH):
 
 class AndriodSMSGateway(object):
     SERVER = GetOption("SMS_SECTION", "SELF_IP")
-    PORT = int(GetOption("SMS_SECTION", "SELF_PORT"))
+    PORT = GetOption("SMS_SECTION", "SELF_PORT")
     TIMEOUT = 10 #seconds
     PING_TIMEOUT = .1
     def __init__(self):
         self.name = "Andriod SMS Gateway"
+        print("{}:{}".format(self.SERVER, self.PORT))
 
     def PrefetchResources(self):
         """ A very short duration timeout. And will always return True.
@@ -140,6 +141,5 @@ def StripHTMLTags(html):
 
 if __name__ == "__main__":
   TEST_NUMBER = "4430890569"[::-1]
-  SMSOBJECT = AndriodSMSGateway()
   if SMSOBJECT.CanSendSmsAsOfNow():
     SMSOBJECT.SendSms(TEST_NUMBER, "Hi this is from program")

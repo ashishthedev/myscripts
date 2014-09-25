@@ -285,8 +285,8 @@ class PersistentShipment(object):
 
 def SendMaterialDispatchSms(bill):
   optionalAmount = ""
-  if IncludeAmountForBillInDispatchInfo(bill):
-      optionalAmount = "Amount: Rs." + str(int(bill.amount)) + "/-"
+  if IncludeAmountForBillInDispatchInfo(bill) and bill.amount != 0:
+    optionalAmount = "Amount: Rs." + str(int(bill.amount)) + "/-"
 
   d = dict()
 
@@ -297,8 +297,7 @@ def SendMaterialDispatchSms(bill):
   d["tMaterialDescription"] = bill.materialDesc
   d["tAmount"] = optionalAmount
 
-  smsTemplate = Template("""
-Bill# $tBillNo
+  smsTemplate = Template("""Bill# $tBillNo
 Waybill#: $tDocketNumber
 Date: $tDocketDate
 Through: $tThrough
@@ -322,7 +321,7 @@ ALL_CUST_INFO = GetAllCustomersInfo()
 def SendMaterialDispatchMail(bill, ctxt):
 
   optionalAmount = ""
-  if IncludeAmountForBillInDispatchInfo(bill):
+  if IncludeAmountForBillInDispatchInfo(bill) and bill.amount != 0:
     optionalAmount = " Rs." + str(int(bill.amount)) + "/-"
 
   ctxt.emailSubject = ctxt.emailSubject or "Dispatch Details: {} Bill#{} {amt}".format(bill.docketDate.strftime("%d-%b-%Y"), str(int(bill.billNumber)), amt=optionalAmount)

@@ -21,3 +21,5 @@ set PYTHONDONTWRITEBYTECODE=1
 set PYTHONPATH=%XDATDOCSDIR%\code\
 
 pushd %XDATDOCSDIR%\code\whopaid
+
+set PATH=%PATH%;B:\Exercism\
