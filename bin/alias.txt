@@ -171,17 +171,17 @@ sms   = pushd %XDATDOCSDIR%\code\sms && sendsms.py && popd
 
 ;= Take Email backup with tkbkem (TaKe BacKup = tkbk)
 tkbk  = %XDATDOCSDIR%\code\Backup\InitiateEmailBackup.py
-chk   = %XDATDOCSDIR%\code\whopaid\SanityChecks.py
+chk   = %XDATDOCSDIR%\code\whopaid\sanity_checks.py
 
 ;= rem Test Observer
 to   = %XDATDOCSDIR%\code\web\UberObserver.pyk
 kdd  = taskkill /F /IM DisplayDriver.exe
 tc   = dev_appserver.py b:\gaetest\clock
 
-wpold = pushd %XDATDOCSDIR%\code\whopaid && DepricatedWhoPaid.py $* && popd
-wp    = pushd %XDATDOCSDIR%\code\whopaid && whopaidInstantFindOut.py $* && popd
-wpi   = pushd %XDATDOCSDIR%\code\whopaid && whopaidInstantFindOut.py $* && popd
-wpf   = pushd %XDATDOCSDIR%\code\whopaid && whopaidInstantFindOut.py --fresh $* && popd
+wpold = pushd %XDATDOCSDIR%\code\whopaid && depricated_whopaid.py $* && popd
+wp    = pushd %XDATDOCSDIR%\code\whopaid && whopaid_instant_findOut.py $* && popd
+wpi   = pushd %XDATDOCSDIR%\code\whopaid && whopaid_instant_findOut.py $* && popd
+wpf   = pushd %XDATDOCSDIR%\code\whopaid && whopaid_instant_findOut.py --fresh $* && popd
 
 ;= Fraud Detection
 efd    = %XDATDOCSDIR%\code\ymail\FraudDetection.py $*

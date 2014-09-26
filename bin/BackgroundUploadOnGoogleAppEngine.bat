@@ -1,2 +1,2 @@
 call devenv.bat
-..\whopaid\BackgroundNonInteractiveProcessing.py
+..\whopaid\background.py
