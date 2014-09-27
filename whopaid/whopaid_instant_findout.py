@@ -12,7 +12,7 @@ from Util.Persistent import Persistent
 
 from whopaid.sanity_checks import CheckConsistency
 from whopaid.util_whopaid import GetWorkBookPath
-from whopaid.whopaidInstantDBGenerate import StartDBGeneration
+from whopaid.whopaid_instant_db_generate import StartDBGeneration
 
 from argparse import ArgumentParser
 from contextlib import closing

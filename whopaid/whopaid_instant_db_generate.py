@@ -5,9 +5,10 @@
 ##         possible amounts and values as the list of companies who can pay
 ## Requirement: Python Interpretor must be installed
 ######################################################################
-from whopaid.UtilWhoPaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, Company, SelectBillsBeforeDate, SelectBillsAfterDate, datex
 from Util.Misc import  OpenFileForViewing, PrintInBox
 from Util.Config import GetOption
+
+from whopaid.util_whopaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, Company, SelectBillsBeforeDate, SelectBillsAfterDate, datex
 
 from contextlib import closing
 from collections import defaultdict
