@@ -50,7 +50,7 @@ def main():
 
   if startAfresh:
     PrintInBox("But wait... Things have changed since last time. Searching thoroughly now.")
-    StartDBGeneration(shelfFilePath, DumpDBAsTextAtThisLocation=dumpFilePath)
+    StartDBGeneration(shelfFilePath, dumpDBAsTextAtThisLocation=dumpFilePath)
     PrintInBox("Size of newly created DB is : {}Mb".format(GetSizeOfFileInMB(shelfFilePath)))
     slCompList2 = FindOutWhoPaidFromDB(shelfFilePath, paymentMade)
     if slCompList2 != slCompList:

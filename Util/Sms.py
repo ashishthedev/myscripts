@@ -25,7 +25,6 @@ class AndriodSMSGateway(object):
     PING_TIMEOUT = .1
     def __init__(self):
         self.name = "Andriod SMS Gateway"
-        print("{}:{}".format(self.SERVER, self.PORT))
 
     def PrefetchResources(self):
         """ A very short duration timeout. And will always return True.

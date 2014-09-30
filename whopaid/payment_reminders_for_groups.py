@@ -35,6 +35,7 @@ import os
 MINIMUM_AMOUNT_DUE = 2000
 ALL_BILLS_DICT = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
 ALL_PAYMENTS_DICT = GetAllCompaniesDict().GetAllPaymentsByAllCompaniesAsDict()
+ALL_CUST_INFO = GetAllCustomersInfo()
 
 
 def constant_factory(value):
@@ -101,28 +102,28 @@ def ParseOptions():
 
 def AskQuestionsFromUserAndSendMail(args):
   PrintInBox(AnyFundooProcessingMsg())
-  allCustomersInfo = GetAllCustomersInfo()
 
   grpName = GuessCompanyGroupName(args.comp)
 
   if not args.kaPerson:
     #If no person was specified at command line then pick one from the database.
-    for eachComp in allCustomersInfo.GetListOfCompNamesForThisGrp(grpName):
-      personFromDB = allCustomersInfo.GetCustomerKindAttentionPerson(eachComp)
+    for eachComp in ALL_CUST_INFO.GetListOfCompNamesForThisGrp(grpName):
+      personFromDB = ALL_CUST_INFO.GetCustomerKindAttentionPerson(eachComp)
       if personFromDB and 'y' == raw_input("Mention kind attn: {} (y/n)?".format(personFromDB)).lower():
         args.kaPerson = personFromDB
         break
 
   if args.sendmail:
-    SendReminderToGrp(grpName, allCustomersInfo, args)
+    SendReminderToGrp(grpName, args)
 
   if args.sendsms:
     #TODO: Take sms out of mail block and use same chosen company may be throgh singleton
-    compsInGrp = allCustomersInfo.GetListOfCompNamesForThisGrp(grpName)
+    compsInGrp = ALL_CUST_INFO.GetListOfCompNamesForThisGrp(grpName)
     firstCompInGrp = compsInGrp[0]
+    totalDue = TotalDueForGroupAsInt(grpName)
     SendOfficialSMS(firstCompInGrp, """Dear Sir,
-Kindly release the payment. The details have been sent your mail address.
-Thanks""")
+You are requested to kindly release the payment. The total due amount is: {totalDue}. The details have been sent your mail address.
+Thanks""".format(totalDue=totalDue))
   return
 
 
@@ -130,23 +131,21 @@ Thanks""")
 
 def SendAutomaticReminderToAllCompanies(args):
   PrintInBox("About to send email to all the companies")
-  allCustomersInfo = GetAllCustomersInfo()
-  uniqueCompGrpNames = set([allCustomersInfo.GetCompanyGroupName(eachComp) for eachComp in ALL_BILLS_DICT])
+  uniqueCompGrpNames = set([ALL_CUST_INFO.GetCompanyGroupName(eachComp) for eachComp in ALL_BILLS_DICT])
   for eachGrp in uniqueCompGrpNames:
     print("Working on {}".format(eachGrp))
     try:
-      if ShouldWeSendAutomaticEmailForGroup(eachGrp, allCustomersInfo):
-        SendReminderToGrp(eachGrp, allCustomersInfo, args)
+      if ShouldWeSendAutomaticEmailForGroup(eachGrp):
+        SendReminderToGrp(eachGrp, args)
     except Exception as ex:
       PrintInBox("Exception while processing: {}\n{}".format(eachGrp, str(ex)))
   return
 
 def OnlyListCompaniesOnScreen(args):
-  allCustomersInfo = GetAllCustomersInfo()
-  uniqueCompGrpNames = set([allCustomersInfo.GetCompanyGroupName(eachComp) for eachComp in ALL_BILLS_DICT])
+  uniqueCompGrpNames = set([ALL_CUST_INFO.GetCompanyGroupName(eachComp) for eachComp in ALL_BILLS_DICT])
   uniqueCompGrpNames = list(sorted(uniqueCompGrpNames))
   for eachGrp in uniqueCompGrpNames:
-    if ShouldWeSendAutomaticEmailForGroup(eachGrp, allCustomersInfo):
+    if ShouldWeSendAutomaticEmailForGroup(eachGrp):
       print("We should send mail to {}".format(eachGrp))
   return
 
@@ -167,14 +166,14 @@ def main():
   if args.sendmail or args.sendsms:
     AskQuestionsFromUserAndSendMail(args)
 
-def ShouldWeSendAutomaticEmailForGroup(grpName, allCustomersInfo):
+def ShouldWeSendAutomaticEmailForGroup(grpName):
   def ShowReason(reason):
     show = True
     show = False
     if show:
       print("{:<55}| {}".format(grpName, reason))
 
-  compsInGrp = allCustomersInfo.GetListOfCompNamesForThisGrp(grpName)
+  compsInGrp = ALL_CUST_INFO.GetListOfCompNamesForThisGrp(grpName)
   firstCompInGrp = compsInGrp[0]
   unpaidBillsList = []
   paymentsList = []
@@ -200,11 +199,11 @@ def ShouldWeSendAutomaticEmailForGroup(grpName, allCustomersInfo):
     return False
 
   #Check if we dont want the customer to be included in automatic mails
-  #if not allCustomersInfo.IncludeCustInAutomaticMails(firstCompInGrp):
+  #if not ALL_CUST_INFO.IncludeCustInAutomaticMails(firstCompInGrp):
   #  return False
 
   #Email present
-  if not allCustomersInfo.GetPaymentReminderEmailAsListForCustomer(firstCompInGrp):
+  if not ALL_CUST_INFO.GetPaymentReminderEmailAsListForCustomer(firstCompInGrp):
     ShowReason("No email present")
     return False
 
@@ -212,14 +211,14 @@ def ShouldWeSendAutomaticEmailForGroup(grpName, allCustomersInfo):
   if paymentsList:
     recentPmtDate = max([p.pmtDate for p in paymentsList])
     daysSinceLastPmt = (datetime.date.today()-recentPmtDate).days
-    minDays = allCustomersInfo.GetMinDaysGapBetweenMails(firstCompInGrp)
+    minDays = ALL_CUST_INFO.GetMinDaysGapBetweenMails(firstCompInGrp)
     if daysSinceLastPmt < minDays:
       ShowReason("daysSinceLastPmt={} < {}".format(daysSinceLastPmt, minDays))
       return False
 
   #Check any bill should have elapsed minimum days
   daysSinceOldestUnpaidBill = max([b.daysOfCredit for b in unpaidBillsList])
-  allowedDaysOfCredit = int(allCustomersInfo.GetCreditLimitForCustomer(firstCompInGrp))
+  allowedDaysOfCredit = int(ALL_CUST_INFO.GetCreditLimitForCustomer(firstCompInGrp))
   if daysSinceOldestUnpaidBill <= allowedDaysOfCredit:
     ShowReason("daysSinceOldestUnpaidBill={} <= {}".format(daysSinceOldestUnpaidBill, allowedDaysOfCredit))
     return False
@@ -228,7 +227,7 @@ def ShouldWeSendAutomaticEmailForGroup(grpName, allCustomersInfo):
   if lastDate:
     #Perform this check only when an email was ever sent to this company and this is not a demo.
     timeDelta = datetime.date.today() - lastDate
-    minDaysGap = int(allCustomersInfo.GetMinDaysGapBetweenMails(firstCompInGrp))
+    minDaysGap = int(ALL_CUST_INFO.GetMinDaysGapBetweenMails(firstCompInGrp))
     daysSinceLastEmail = timeDelta.days
     if daysSinceLastEmail < minDaysGap:
       ShowReason("daysSinceLastEmail {} < {}".format(daysSinceOldestUnpaidBill, minDaysGap))
@@ -238,31 +237,35 @@ def ShouldWeSendAutomaticEmailForGroup(grpName, allCustomersInfo):
 
 
 def TotalDueForCompAsInt(compName):
+  billsList = GetAllCompaniesDict().GetBillsListForThisCompany(compName)
+  unaccountedAdjustmentsList = GetAllCompaniesDict().GetUnAccountedAdjustmentsListForCompany(compName)
+  dba = sum([b.amount for b in SelectUnpaidBillsFrom(billsList)])
+
+  daa = sum([a.amount for a in unaccountedAdjustmentsList])
+
+  totalDue = int(dba + daa)
+
   adjustmentAmount = 0
   billsAmount = 0
 
-  billsList = GetAllCompaniesDict().GetBillsListForThisCompany(compName)
   if billsList:
     billsList = SelectUnpaidBillsFrom(billsList)
     billsAmount = sum([b.amount for b in billsList])
 
-  adjustmentsList = GetAllCompaniesDict().GetUnAccountedAdjustmentsListForCompany(compName)
-  if adjustmentsList:
-    adjustmentAmount = sum([int(a.amount) for a in adjustmentsList])
+  if unaccountedAdjustmentsList:
+    adjustmentAmount = sum([int(a.amount) for a in unaccountedAdjustmentsList])
+  totalDue2 = int(billsAmount) + int(adjustmentAmount)
+
+  assert totalDue2 == totalDue
 
   return int(billsAmount) + int(adjustmentAmount)
 
 def TotalDueForGroupAsInt(grpName):
-  allCustomersInfo = GetAllCustomersInfo()
-  compsInGrp = allCustomersInfo.GetListOfCompNamesForThisGrp(grpName)
-  totalDue = 0
-  for eachComp in compsInGrp:
-    totalDue += TotalDueForCompAsInt(eachComp)
-  return totalDue
+  return sum(TotalDueForCompAsInt(eachComp) for eachComp in ALL_CUST_INFO.GetListOfCompNamesForThisGrp(grpName))
 
 
-def SendReminderToGrp(grpName, allCustomersInfo, args):
-  compsInGrp = allCustomersInfo.GetListOfCompNamesForThisGrp(grpName)
+def SendReminderToGrp(grpName, args):
+  compsInGrp = ALL_CUST_INFO.GetListOfCompNamesForThisGrp(grpName)
   import pprint
   PrintInBox("Preparing mails for following companies:")
   pprint.pprint(compsInGrp)
@@ -285,7 +288,7 @@ def SendReminderToGrp(grpName, allCustomersInfo, args):
   bccMailList = GetOption("EMAIL_REMINDER_SECTION", 'BCCEmailList').replace(';', ',').split(','),
 
   for eachComp in compsInGrp:
-    toMailList += allCustomersInfo.GetPaymentReminderEmailAsListForCustomer(eachComp)
+    toMailList += ALL_CUST_INFO.GetPaymentReminderEmailAsListForCustomer(eachComp)
 
   toMailList = list(set(toMailList)) # Remove duplicates
   if not toMailList:
@@ -297,13 +300,13 @@ def SendReminderToGrp(grpName, allCustomersInfo, args):
     #Perform this check only when an email was ever sent to this company and this is not a demo.
     timeDelta = datetime.date.today() - lastDate
     firstCompInGrp = compsInGrp[0]#TODO: Hack
-    minDaysGap = int(allCustomersInfo.GetMinDaysGapBetweenMails(firstCompInGrp))#TODO: Hack
+    minDaysGap = int(ALL_CUST_INFO.GetMinDaysGapBetweenMails(firstCompInGrp))#TODO: Hack
     if timeDelta.days < minDaysGap:
       if 'y' != raw_input("Earlier mail was sent {} days back. Do you still want to send the email?\n(y/n):".format(timeDelta.days)).lower():
         goAhead = False
 
   daysSinceOldestUnpaidBill = max([b.daysOfCredit for b in unpaidBillsList])
-  allowedDaysOfCredit = int(allCustomersInfo.GetCreditLimitForCustomer(firstCompInGrp))
+  allowedDaysOfCredit = int(ALL_CUST_INFO.GetCreditLimitForCustomer(firstCompInGrp))
 
   if daysSinceOldestUnpaidBill < allowedDaysOfCredit:
     if 'y' != raw_input("All bills are within allowed range. Do you still want to send email?\n(y/n): ").lower():
@@ -318,7 +321,7 @@ def SendReminderToGrp(grpName, allCustomersInfo, args):
       bccMailList = None
       emailSubject = "[Testing{}]: {}".format(str(random.randint(1, 10000)), emailSubject)
 
-    mailBody = PrepareMailContentForThisGrp(grpName, allCustomersInfo, args)
+    mailBody = PrepareMailContentForThisGrp(grpName, args)
     section = "EMAIL_REMINDER_SECTION"
     SendMail(emailSubject,
         None,
@@ -348,24 +351,24 @@ def MakeBillRow(*billRowArgs):
       MyColors["WHITE"],
       *billRowArgs)
 
-def GetHTMLTableBlockForThisComp(compName, allCustomersInfo):
+def GetHTMLTableBlockForThisComp(compName):
   unpaidBillsList = SelectUnpaidBillsFrom(ALL_BILLS_DICT[compName])
   unpaidBillsList = RemoveTrackingBills(unpaidBillsList)
 
   #unpaidBillsList.append(adjSingleBill)
   unpaidBillsList.sort(key=lambda b: datex(b.invoiceDate))
 
-  companyOfficialName = allCustomersInfo.GetCompanyOfficialName(compName)
+  companyOfficialName = ALL_CUST_INFO.GetCompanyOfficialName(compName)
   if not companyOfficialName:
     raise MyException("\nM/s {} doesnt have a displayable 'name'."
         " Please feed it in the database".format(compName))
 
-  companyCity = allCustomersInfo.GetCustomerCity(compName)
+  companyCity = ALL_CUST_INFO.GetCustomerCity(compName)
   if not companyCity:
     raise MyException("\nM/s {} doesnt have a displayable 'city'."
         " Please feed it in the database".format(compName))
 
-  allowedDaysOfCredit = int(allCustomersInfo.GetCreditLimitForCustomer(compName))
+  allowedDaysOfCredit = int(ALL_CUST_INFO.GetCreditLimitForCustomer(compName))
 
   if not unpaidBillsList:
     raise MyException("This function should not be called on empty lists"
@@ -378,7 +381,7 @@ def GetHTMLTableBlockForThisComp(compName, allCustomersInfo):
 
   totalDueLiterally = int(sum([eachBill.amount for eachBill in unpaidBillsList]))
 
-  includeCreditDays = True if ("yes" == str(allCustomersInfo.GetIncludeDaysOrNot(compName)).lower()) else False
+  includeCreditDays = True if ("yes" == str(ALL_CUST_INFO.GetIncludeDaysOrNot(compName)).lower()) else False
   tableHeadersArgs = ["Bill#", "Invoice Date", "Amount"]
   if includeCreditDays:
     tableHeadersArgs.append("Days of credit")
@@ -450,18 +453,18 @@ def GetHTMLTableBlockForThisComp(compName, allCustomersInfo):
   return htmlTable
 
 
-def PrepareMailContentForThisGrp(grpName, allCustomersInfo, args):
+def PrepareMailContentForThisGrp(grpName, args):
     """Given a bill list for a company group, this function will
     prepare mail for the payment reminder."""
 
     totalDue = TotalDueForGroupAsInt(grpName)
 
-    compsInGrp = allCustomersInfo.GetListOfCompNamesForThisGrp(grpName)
+    compsInGrp = ALL_CUST_INFO.GetListOfCompNamesForThisGrp(grpName)
     htmlTables = ""
     for eachCompName in compsInGrp:
       if not eachCompName in ALL_BILLS_DICT: continue
       if not SelectUnpaidBillsFrom(ALL_BILLS_DICT[eachCompName]): continue
-      htmlTables += "<br>" + GetHTMLTableBlockForThisComp(eachCompName, allCustomersInfo)
+      htmlTables += "<br>" + GetHTMLTableBlockForThisComp(eachCompName)
 
     letterDate = datetime.date.today().strftime("%A, %d-%b-%Y")
     d = defaultdict(constant_factory(""))

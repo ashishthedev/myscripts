@@ -45,54 +45,59 @@ def ListOfMissingBills(slicedCompany, unpaidBillList):
 
 
 def DifferentStrAmountsThatCanBePaidByThisCompany(company):
-    d = defaultdict(list)  # Keys are the amounts that can be paid and value is a company(ie. list of bills)
-    unpaidBillList = SelectUnpaidBillsFrom(company)
-    for i in range(1, len(unpaidBillList)+1):
-        cmbns = combinations(unpaidBillList, i)
-        for eachBillListTuple in cmbns:
-            amt = 0
-            slicedCompany = SlicedCompany(name=company.compName) #slicedCompany is a company with selective bills.
-            for eachBill in eachBillListTuple:
-                amt += eachBill.amount
-                slicedCompany.append(eachBill)
-            slicedCompany.missingBillPayments = ListOfMissingBills(slicedCompany, unpaidBillList)
-            d[str(int(amt))].append(slicedCompany)
+  d = defaultdict(list)  # Keys are the amounts that can be paid and value is a company(ie. list of bills)
+  unpaidBillList = SelectUnpaidBillsFrom(company)
+  for i in range(1, len(unpaidBillList)+1):
+    cmbns = combinations(unpaidBillList, i)
+    for eachBillListTuple in cmbns:
+      amt = 0
+      slicedCompany = SlicedCompany(name=company.compName) #slicedCompany is a company with selective bills.
+      for eachBill in eachBillListTuple:
+        amt += eachBill.amount
+        slicedCompany.append(eachBill)
+      slicedCompany.missingBillPayments = ListOfMissingBills(slicedCompany, unpaidBillList)
+      d[str(int(amt))].append(slicedCompany)
 
-    return d
+  return d
 
 def PrintShelveDB(shelfFilePath, fd):
-    with closing(shelve.open(shelfFilePath)) as sh:
-        for eachPossibleAmount in sh.keys():
-            fd.write("Rs.%s\n"%(str(eachPossibleAmount)))
-            companies = sh[eachPossibleAmount]
-            for eachCompany in companies:
-                fd.write("\n")
-                fd.write(str(eachCompany))
-                fd.write("\n")
-            fd.write("_________________________________________________")
-            fd.write("\n")
+  with closing(shelve.open(shelfFilePath)) as sh:
+    for eachPossibleAmount in sh.keys():
+      fd.write("Rs.%s\n"%(str(eachPossibleAmount)))
+      companies = sh[eachPossibleAmount]
+      for eachCompany in companies:
+        fd.write("\n")
+        fd.write(str(eachCompany))
+        fd.write("\n")
+      fd.write("_________________________________________________")
+      fd.write("\n")
+  return
 
 
-def StartDBGeneration(shelfFilePath, DumpDBAsTextAtThisLocation=None):
-    allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
-    with closing(shelve.open(shelfFilePath)) as sh:
-        sh.clear()
-        for eachCompName, eachComp in allBillsDict.iteritems():
-            if len(SelectUnpaidBillsFrom(eachComp)) > int(GetOption("CONFIG_SECTION", "MaxUnpaidBills")):
-                print("Skipping :" + str(eachCompName))
-                continue
-            d = DifferentStrAmountsThatCanBePaidByThisCompany(eachComp)
-            for eachAmt, listOfComps in d.iteritems():
-                if sh.has_key(eachAmt):
-                    l = sh[eachAmt]
-                    l.extend(listOfComps)
-                    sh[eachAmt] = l  # Somehow sh[eachAmt].extend(listOfComps) doesn't work. Seems like a Bug in Python
-                else:
-                    assert listOfComps is not None, "This should not happen. If there is an amount present, it should have been paid by some company"
-                    sh[eachAmt] = listOfComps
+def StartDBGeneration(shelfFilePath, dumpDBAsTextAtThisLocation=None):
+  allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
+  with closing(shelve.open(shelfFilePath)) as sh:
+    for x in sh:
+      del sh[x]
+    sh.clear()
+    MAX_UNPAID_BILLS = int(GetOption("CONFIG_SECTION", "MaxUnpaidBills"))
+    for eachCompName, eachComp in allBillsDict.iteritems():
+      if len(SelectUnpaidBillsFrom(eachComp)) > MAX_UNPAID_BILLS:
+        print("Skipping :" + str(eachCompName))
+        continue
+      d = DifferentStrAmountsThatCanBePaidByThisCompany(eachComp)
+      for eachAmt, listOfComps in d.iteritems():
+        if sh.has_key(eachAmt):
+          l = sh[eachAmt]
+          l.extend(listOfComps)
+          sh[eachAmt] = l  # Somehow sh[eachAmt].extend(listOfComps) doesn't work. Seems like a Bug in Python
+        else:
+          assert listOfComps is not None, "This should not happen. If there is an amount present, it should have been paid by some company"
+          sh[eachAmt] = listOfComps
 
-    if DumpDBAsTextAtThisLocation:
-        print("Dumping database at " + DumpDBAsTextAtThisLocation)
-        with open(DumpDBAsTextAtThisLocation, "w") as fd:
-            PrintShelveDB(shelfFilePath, fd)
-        OpenFileForViewing(DumpDBAsTextAtThisLocation)
+  if dumpDBAsTextAtThisLocation:
+    print("Dumping database at " + dumpDBAsTextAtThisLocation)
+    with open(dumpDBAsTextAtThisLocation, "w") as fd:
+      PrintShelveDB(shelfFilePath, fd)
+    OpenFileForViewing(dumpDBAsTextAtThisLocation)
+  return
