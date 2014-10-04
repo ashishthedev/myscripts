@@ -483,7 +483,10 @@ def ParseOptions():
     parser.add_argument("-sus", "--show-undelivered-small", dest='showUndeliveredSmall', action="store_true", default=False,
         help="If present, show undelivered parcels on screen")
 
-    parser.add_argument("-d", "--days", dest='days', type=int, default=MAX_IN_TRANSIT_DAYS,
+    parser.add_argument("-nd", "--notify-days", dest='notifyDays', type=int, default=MAX_DAYS_FOR_SENDING_NOTIFICATION,
+        help="Last N days in which courier status will be checked.")
+
+    parser.add_argument("-td", "--track-days", dest='trackDays', type=int, default=MAX_IN_TRANSIT_DAYS,
         help="Last N days in which courier status will be checked.")
 
     parser.add_argument("--clearDB", dest='clearDB', action='store_true',
@@ -660,13 +663,13 @@ def main():
 
 
 def FanOutDispatchInfoToAllComapnies(args):
-  bills = [b for b in GetAllBillsInLastNDays(args.days) if b.docketDate]
+  bills = [b for b in GetAllBillsInLastNDays(args.trackDays) if b.docketDate]
   bills = RemoveTrackingBills(bills)
   [PersistentShipment.GetOrCreateShipmentForBill(b) for b in bills]
   shipments = PersistentShipment.GetAllStoredShipments()
   shipments = [s for s in shipments if s.ShouldWeTrackThis()] #Filter our deliverd shipments
   shipments = [s for s in shipments if not s.wasShipmentMailEverSent()]
-  shipments = [s for s in shipments if s.daysPassed < MAX_DAYS_FOR_SENDING_NOTIFICATION]
+  shipments = [s for s in shipments if s.daysPassed < max(MAX_DAYS_FOR_SENDING_NOTIFICATION, args.notifyDays)]
   shipments.sort(key=lambda s: s.bill.docketDate, reverse=True)
 
   for shipment in shipments:
@@ -685,11 +688,11 @@ def FanOutDispatchInfoToAllComapnies(args):
           print("Not sending sms...")
     except ShipmentException as ex:
       print(ex)
-      #eat the exception after printing. We have printed our custom exception, its good enough.
+      #eat the exception after printing. We have printed our custom exception, its good enough. Move onto the next shipment.
   return
 
 def TrackAllShipments(args):
-  [PersistentShipment.GetOrCreateShipmentForBill(b) for b in GetAllBillsInLastNDays(args.days) if b.docketDate]
+  [PersistentShipment.GetOrCreateShipmentForBill(b) for b in GetAllBillsInLastNDays(args.trackDays) if b.docketDate]
   shipments = PersistentShipment.GetAllStoredShipments()
   trackableShipments = [s for s in shipments if s.ShouldWeTrackThis()]
   trackableShipments.sort(key=lambda s: s.bill.docketDate)
