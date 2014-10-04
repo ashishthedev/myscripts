@@ -60,9 +60,6 @@ class ShipmentTrack(object):
     self.isDelivered = False
     pass
 
-  def markTrackerAsDelivered(self):
-    self.isDelivered = True
-
   def TakeNewSnapshot(self):
     #For whatever reason, take a new snapshot.
     self.courier.StoreSnapshot()
@@ -96,7 +93,7 @@ class ShipmentTrack(object):
       LIST_OF_SHIPMENTS_IN_THIS_SCAN.append(self)
       self.courier.StoreSnapshot()
 
-    self.shipment.saveInDB()
+    self.shipment.save()
 
     return self.status
 
@@ -110,8 +107,6 @@ class ShipmentSms(object):
     self.shipment = shipment #Back reference to parent shipment object
     self.shipmentSmsSent = False
 
-  def markShipmentSmsAsSent(self):
-    self.shipmentSmsSent = True
 
   def wasShipmentSmsEverSent(self):
     return self.shipmentSmsSent
@@ -123,7 +118,7 @@ class ShipmentSms(object):
         return
     SendMaterialDispatchSms(self.bill)
     if not IS_DEMO:
-      self.markShipmentSmsAsSent()
+      self.shipment.psMarkSmsAsSent()
     return
 
 class ShipmentMail(object):
@@ -131,12 +126,6 @@ class ShipmentMail(object):
     self.bill = bill
     self.shipment = shipment #Back reference to parent shipment object
     self.shipmentMailSent = False
-    return
-
-  def markShipmentMailAsSent(self):
-    print("_"*70)
-    print("Marking shipment mail as sent for : {}".format(self.bill.compName))
-    self.shipmentMailSent = True
     return
 
   def wasShipmentMailEverSent(self):
@@ -156,7 +145,7 @@ class ShipmentMail(object):
     ctxt.isDemo = IS_DEMO
     SendMaterialDispatchMail(self.bill, ctxt)
     if not IS_DEMO:
-      self.markShipmentMailAsSent()
+      self.shipment.psMarkMailAsSent()
     return
 
 
@@ -170,13 +159,13 @@ class PersistentShipment(object):
     self._track = ShipmentTrack(self, bill)
     self._sms = ShipmentSms(self, bill)
 
-  def wasShipmentMailEverSent(self):
+  def psWasShipmentMailEverSent(self):
     return self._mail.wasShipmentMailEverSent()
 
-  def sendMailForThisShipment(self):
+  def psSendMailForThisShipment(self):
     return self._mail.sendMailForThisShipment()
 
-  def wasShipmentSmsEverSent(self):
+  def psWasShipmentSmsEverSent(self):
     return self._sms.wasShipmentSmsEverSent()
 
   def isSMSNoAvailable(self):
@@ -184,7 +173,7 @@ class PersistentShipment(object):
       return True
     return False
 
-  def sendSmsForThisShipment(self):
+  def psSendSmsForThisShipment(self):
     return self._sms.sendSmsForThisShipment()
 
   def IsSnapshotSaved(self):
@@ -197,17 +186,17 @@ class PersistentShipment(object):
   def isUndelivered(self):
     return not self.isDelivered
 
-  def markShipmentSmsAsSent(self):
-    self._mail.markShipmentMailAsSent()
-    self.saveInDB()
+  def psMarkSmsAsSent(self):
+    self._sms.shipmentSmsSent = True
+    self.save()
 
-  def markShipmentMailAsSent(self):
-    self._sms.markShipmentSmsAsSent()
-    self.saveInDB()
+  def psMarkMailAsSent(self):
+    self._mail.shipmentMailSent = True
+    self.save()
 
-  def markPersistentShipmentAsDelivered(self):
-    self._track.markTrackerAsDelivered()
-    self.saveInDB()
+  def psMarkShipmentDelivered(self):
+    self._track.isDelivered = True
+    self.save()
 
   def TakeNewSnapshot(self):
     self._track.TakeNewSnapshot()
@@ -218,7 +207,7 @@ class PersistentShipment(object):
   def Track(self):
     return self._track.Track()
 
-  def saveInDB(self):
+  def save(self):
     with closing(shelve.open(self.shelfFileName)) as sh:
       sh[self.uid_string] = self
 
@@ -252,7 +241,7 @@ class PersistentShipment(object):
       else:
         #create
         obj = cls(bill)
-        obj.saveInDB()
+        obj.save()
     return obj
 
   @property
@@ -519,11 +508,10 @@ def ParseOptions():
 
 
 def _FormceMarkShipmentMailAsSent(docketNumber):
-  us = PersistentShipment.GetAllStoredShipments()
-  for s in us:
+  for s in PersistentShipment.GetAllStoredShipments():
     print(s.bill.docketNumber)
     if s.bill.docketNumber == docketNumber:
-      s.markShipmentMailAsSent()
+      s.psMarkMailAsSent()
   return
 
 
@@ -532,7 +520,7 @@ def _ForceMarkDocketAsDelivered(docketNumber):
     if s.bill.docketNumber == docketNumber:
       s.status = "This shipment was force marked as delivered on {}".format(DD_MM_YYYY(datetime.date.today()))
       print(s.status)
-      s.markPersistentShipmentAsDelivered()
+      s.psMarkShipmentDelivered()
   return
 
 def _RemoveDocketFromIndex(docketNumber):
@@ -663,27 +651,30 @@ def main():
 
 
 def FanOutDispatchInfoToAllComapnies(args):
-  bills = [b for b in GetAllBillsInLastNDays(args.trackDays) if b.docketDate]
-  bills = RemoveTrackingBills(bills)
-  [PersistentShipment.GetOrCreateShipmentForBill(b) for b in bills]
+  bills = GetAllBillsInLastNDays(args.trackDays)
+  bills = [b for b in bills if b.docketDate]
+  for b in bills:
+    PersistentShipment.GetOrCreateShipmentForBill(b)
+
   shipments = PersistentShipment.GetAllStoredShipments()
   shipments = [s for s in shipments if s.ShouldWeTrackThis()] #Filter our deliverd shipments
-  shipments = [s for s in shipments if not s.wasShipmentMailEverSent()]
+  shipments = [s for s in shipments if not all(s.psWasShipmentMailEverSent(), s.psWasShipmentSmsEverSent())]
   shipments = [s for s in shipments if s.daysPassed < max(MAX_DAYS_FOR_SENDING_NOTIFICATION, args.notifyDays)]
   shipments.sort(key=lambda s: s.bill.docketDate, reverse=True)
 
   for shipment in shipments:
     try:
       if args.sendMailToAllCompanies and \
-          not shipment.wasShipmentMailEverSent() and \
+          not shipment.psWasShipmentMailEverSent() and \
           shipment.bill.billingCategory.lower() not in ["tracking"]:
         if 'y' == raw_input("{}\nSend mail for {} (y/n)?".format("_"*70, shipment)).lower():
-          shipment.sendMailForThisShipment()
+          shipment.psSendMailForThisShipment()
         else:
           print("Not sending mail...")
-      if args.sendDispatchSms and not shipment.wasShipmentSmsEverSent():
+      if args.sendDispatchSms and \
+          not shipment.psWasShipmentSmsEverSent():
         if 'y' == raw_input("{}\nSend sms for {} (y/n)?".format("_"*70, shipment)).lower():
-          shipment.sendSmsForThisShipment()
+          shipment.psSendSmsForThisShipment()
         else:
           print("Not sending sms...")
     except ShipmentException as ex:
@@ -728,10 +719,11 @@ def DBDeletedDoWhatEverIsNecessary():
   shipments = PersistentShipment.GetAllStoredShipments()
   for s in shipments:
     if s.isDelivered: continue
-    s.markShipmentSmsAsSent()
-    s.markShipmentSmsAsSent()
+    s.psMarkSmsAsSent()
+    s.psMarkMailAsSent()
     if s.IsSnapshotSaved():
-      s.markPersistentShipmentAsDelivered()
+      s.psMarkShipmentDelivered()
+  return
 
 
 
