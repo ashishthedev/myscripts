@@ -8,8 +8,10 @@ from __future__ import print_function, division
 
 from Util.Colors import MyColors
 from Util.Config import GetOption
-from Util.HTML import UnderLine, Bold, PastelOrangeText, TableHeaderRow, TableDataRow
-from Util.Misc import PrintInBox, GetMsgInBox, DD_MM_YYYY, DD_MMM_YYYY, IsDeliveredAssessFromStatus
+from Util.HTML import UnderLine, Bold, PastelOrangeText, TableHeaderRow,\
+    TableDataRow
+from Util.Misc import PrintInBox, GetMsgInBox, DD_MM_YYYY, DD_MMM_YYYY,\
+    IsDeliveredAssessFromStatus
 
 from whopaid.customers_info import GetAllCustomersInfo
 from whopaid.courier.couriers import Courier
@@ -40,8 +42,10 @@ LIST_OF_SHIPMENTS_IN_THIS_SCAN = list()
 # |-ShipmentCourier
 # |-ShipmentSms
 
+
 class ShipmentException(Exception):
     pass
+
 
 class DispatchMailContext(object):
     emailSubject = None
@@ -51,10 +55,11 @@ class DispatchMailContext(object):
     second_line = None
     last_line = None
 
+
 class ShipmentTrack(object):
   def __init__(self, shipment, bill):
     self.bill = bill
-    self.shipment = shipment #Back reference to parent shipment object
+    self.shipment = shipment  # Back reference to parent shipment object
     self.courier = Courier(bill)
     self.status = "Not Tracked Yet"
     self.isDelivered = False
@@ -81,7 +86,7 @@ class ShipmentTrack(object):
 
   def Track(self):
     if self.isDelivered:
-        return # No need to do anything else
+        return  # No need to do anything else
 
     try:
       self.status = self.courier.GetStatus()
@@ -104,16 +109,17 @@ class ShipmentTrack(object):
 class ShipmentSms(object):
   def __init__(self, shipment, bill):
     self.bill = bill
-    self.shipment = shipment #Back reference to parent shipment object
+    self.shipment = shipment  # Back reference to parent shipment object
     self.shipmentSmsSent = False
-
 
   def wasShipmentSmsEverSent(self):
     return self.shipmentSmsSent
 
   def sendSmsForThisShipment(self):
     if self.wasShipmentSmsEverSent():
-      if str(raw_input("A shipment sms has already been sent to {}. Do you want to send again(y/n)?".format(self.bill.compName))).lower() != 'y':
+      if str(raw_input("A shipment sms has already been sent to {}.\
+          Do you want to send again(y/n)?".format(
+          self.bill.compName))).lower() != 'y':
         print("Not sending sms")
         return
     SendMaterialDispatchSms(self.bill)
@@ -124,7 +130,7 @@ class ShipmentSms(object):
 class ShipmentMail(object):
   def __init__(self, shipment, bill):
     self.bill = bill
-    self.shipment = shipment #Back reference to parent shipment object
+    self.shipment = shipment  # Back reference to parent shipment object
     self.shipmentMailSent = False
     return
 
@@ -133,7 +139,8 @@ class ShipmentMail(object):
 
   def sendMailForThisShipment(self):
     if self.wasShipmentMailEverSent():
-      if str(raw_input("A shipment mail has already been sent to {}. Do you want to send again(y/n)?".format(self.bill.compName))).lower() != 'y':
+      if str(raw_input("A shipment mail has already been sent to {}.\
+        Do you want to send again(y/n)?".format(self.bill.compName))).lower() != 'y':
         print("Not sending mail")
         return
     if self.bill.billingCategory.lower().startswith("tracking"):
@@ -463,7 +470,8 @@ def PrepareShipmentEmailForThisBill(bill, ctxt):
 def ParseOptions():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-dbm", "--deleted_by_mistake", dest='dbDeletedByMistake', action="store_true", default=False,
+    parser.add_argument("-dbm", "--deleted_by_mistake",
+        dest='dbDeletedByMistake', action="store_true", default=False,
         help="Will try to bring the shipments status back to normal as much as possible.")
 
     parser.add_argument("-mmas", "--mark-mail-as-sent", dest='markMailAsSentForDocket', type=str, default=None,
@@ -658,7 +666,7 @@ def FanOutDispatchInfoToAllComapnies(args):
 
   shipments = PersistentShipment.GetAllStoredShipments()
   shipments = [s for s in shipments if s.ShouldWeTrackThis()] #Filter our deliverd shipments
-  shipments = [s for s in shipments if not all(s.psWasShipmentMailEverSent(), s.psWasShipmentSmsEverSent())]
+  shipments = [s for s in shipments if not all([s.psWasShipmentMailEverSent(), s.psWasShipmentSmsEverSent()])]
   shipments = [s for s in shipments if s.daysPassed < max(MAX_DAYS_FOR_SENDING_NOTIFICATION, args.notifyDays)]
   shipments.sort(key=lambda s: s.bill.docketDate, reverse=True)
 
