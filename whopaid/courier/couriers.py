@@ -27,6 +27,8 @@ class Courier():
       self.courier = NitcoTransport(b)
     elif b.courierName.lower().strip().startswith("lalji"):
       self.courier = LaljiMuljiTransport(b)
+    elif b.courierName.lower().strip().startswith("vrl"):
+      self.courier = VRLLogistics(b)
     else:
       print("We do not know how to track: {}. Will mark it as delivered".format(b.courierName))
       self.courier = DummyCourier(b)
@@ -199,6 +201,35 @@ class NitcoTransport():
   def StoreSnapshot(self):
     StoreSnapshotWithPhantomScript(self.bill, "courier\\nitco.js", self.FORM_DATA, self.reqUrl)
 
+class VRLLogistics():
+  def __init__(self, bill):
+    self.bill = bill
+
+  def GetStatus(self):
+    self.FORM_DATA = ""
+    self.reqUrl = "http://vrlgroup.in/vrlwebs/lrtrack.aspx?lno={docket}".format(docket=self.bill.docketNumber.strip())
+    req = urllib2.Request(self.reqUrl)
+    req.add_header('Host', 'vrlgroup.in')
+    resp = urllib2.urlopen(req)
+    html = resp.read()
+    if resp.code != 200 :
+      raise Exception("Got {} reponse from VRL for bill: {}".format(resp.code, self.bill))
+    res =  self._get_status_from_vrl_html_resp(html)
+    return res
+
+  def _get_status_from_vrl_html_resp(self, html):
+    html = html.replace("><", ">\n<")
+    resultsId="<span class='style4b'>Delivery Details".lower()
+    for eachLine in html.split("\n"):
+      if eachLine.lower().find(resultsId) != -1:
+        return StripHTMLTags(eachLine.strip())
+    else:
+      raise Exception("Exception: Cannot parse vrl response for : {}".format(self.bill))
+
+  def StoreSnapshot(self):
+    StoreSnapshotWithPhantomScript(self.bill, "courier\\vrl_snapshot.js", self.FORM_DATA, self.reqUrl)
+
+
 class LaljiMuljiTransport():
   def __init__(self, bill):
     self.bill = bill
@@ -237,11 +268,9 @@ class FirstFlightCourier():
   def __init__(self, bill):
     self.bill = bill
     self.FORM_DATA = ""
-    self.reqUrl = "http://www.firstflight.net/n_contrac_new_12Digit_New.asp?tracking1={docket}".format(docket=self.bill.docketNumber.strip())
 
   def GetStatus(self):
-    if not hasattr(self, "reqUrl"):
-      self.reqUrl = "http://www.firstflight.net/n_contrac_new_12Digit_New.asp?tracking1={docket}".format(docket=self.bill.docketNumber.strip())
+    self.reqUrl = "http://www.firstflight.net/n_contrac_new_12Digit_New.asp?tracking1={docket}".format(docket=self.bill.docketNumber.strip())
     req = urllib2.Request(self.reqUrl)
     req.add_header('Host', 'www.firstflight.net')
     resp = urllib2.urlopen(req)

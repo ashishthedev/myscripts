@@ -346,7 +346,6 @@ noremap <silent> <leader>pal :python AppendTaskInFrequentFliers("Expenses.txt")<
 noremap <silent> <leader>exp :python AppendTaskInFrequentFliers("Expenses.txt")<CR>
 noremap <silent> <leader>hom :python AppendTaskInFrequentFliers("Homework.txt")<CR>
 noremap <silent> <leader>khunc :python AppendTaskInFrequentFliers("Tally.txt")<CR>
-noremap <silent> <leader>i :python AppendTaskInFrequentFliers("Info.txt")<CR>
 noremap <silent> <leader>pass :python AppendTaskInFrequentFliers("NewPublicPasswords.txt")<CR>
 noremap <silent> <leader>sms :python InvokeSendSmsFromVim()<CR>
 
@@ -365,7 +364,6 @@ noremap - gt
 :execute "noremap ,torc   :e b:\\Tools\\tor\\Data\\Tor\\torrc<CR>"
 :execute "noremap ,priv   :e b:\\Tools\\PrivoxyInstalled\\config.txt<CR>"
 :execute "noremap ,logins   :e ".GetSDATDir()."\\FrequentFliers\\logins.txt<CR>"
-:execute "noremap ,info   :e ".GetSDATDir()."\\FrequentFliers\\Info.txt<CR>"
 :execute "noremap ,blog   :e ".GetSDATDir()."\\FrequentFliers\\blogs.txt<CR>"
 :execute "noremap ,comp   :e ".GetSDATDir()."\\FrequentFliers\\compList.txt<CR>"
 :execute "noremap ,eret   :e ".GetSDATDir()."\\SalesTaxReturnFiles\\eReturnInfo.txt<CR>"

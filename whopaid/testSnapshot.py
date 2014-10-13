@@ -26,9 +26,9 @@ def CreateATestBill():
 
 class TestShipment():
     def __init__(self, testBill):
-        from whopaid.Shipments import PersistentShipment
+        from whopaid.shipments import PersistentShipment
         self.ps = PersistentShipment(testBill)
-        self.ps.saveInDB()
+        self.ps.save()
     def __enter__(self):
         return self.ps
     def __exit__(self, type, value, traceback):
@@ -36,12 +36,12 @@ class TestShipment():
 
 def main():
     bill = CreateATestBill()
-    bill.courierName = "Overnite"
-    bill.docketNumber = "9433758961"
+    bill.courierName = "vrl log"
+    bill.docketNumber = "462817420"
     with TestShipment(bill) as ts:
-        ts.Track()
-        print("Status: {}".format(ts.status))
-        ts.TakeNewSnapshot()
+      ts.Track()
+      print("Status: {}".format(ts.status))
+      ts.TakeNewSnapshot()
 
 
 if __name__ == '__main__':
