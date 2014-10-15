@@ -21,6 +21,7 @@ PMT_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "PMT_" + SMALL_NA
 ORDER_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "ORDER_" + SMALL_NAME + EXT))
 KMO_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "KMORDER_" + SMALL_NAME + EXT))
 FORMC_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "FORMC_" + SMALL_NAME + EXT))
+SHIPMENT_STATUS_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "SHIPSTATUS_" + SMALL_NAME + EXT))
 """
 OrderDB:
 data =
@@ -201,6 +202,35 @@ def _DumpKMPendingOrdersDB():
     json.dump(data, f, separators=(',',':'), indent=2)
   return
 
+def _DumpShipmentStatusData():
+  jsonFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), GetOption("CONFIG_SECTION", "ShipmentsJson"))
+  jsonData = {}
+  with open(jsonFileName) as j:
+    jsonData = json.load(j)
+
+  SHOW_STATUS_FOR_LAST_N_DAYS = 30
+  jsonData = {k:v for k,v in jsonData.iteritems() if int(v["daysPassed"]) <= SHOW_STATUS_FOR_LAST_N_DAYS}
+
+  if os.path.exists(SHIPMENT_STATUS_JSON_FILE_NAME):
+    os.remove(SHIPMENT_STATUS_JSON_FILE_NAME)
+
+  data = dict()
+  allShipments = defaultdict(list)
+  superSmallName = GetOption("CONFIG_SECTION", "SuperSmallName")
+
+  shipmentNodes = jsonData.values()
+  for sn in shipmentNodes:
+    key =  "{} | {}".format(sn["compName"], superSmallName)
+    allShipments[key].append(sn) #Just dump this single order there and we will club them pelletSize wise while generating final json
+
+  data['allShipments'] = allShipments
+  compSmallName = GetOption("CONFIG_SECTION", "SmallName")
+  firstInvoiceDate = datetime.date.today() - datetime.timedelta(days=SHOW_STATUS_FOR_LAST_N_DAYS)
+  data ["showVerbatimOnTop"] = "{} : {}".format(compSmallName, DD_MM_YYYY(firstInvoiceDate))
+  with open(SHIPMENT_STATUS_JSON_FILE_NAME, "w+") as f:
+    json.dump(data, f, separators=(',',':'), indent=2)
+  return
+
 def _DumpFormCData():
   allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
 
@@ -260,6 +290,7 @@ def _DumpFormCData():
   return
 
 def _DumpJSONDB():
+  _DumpShipmentStatusData()
   _DumpFormCData()
   _DumpKMPendingOrdersDB()
   _DumpPaymentsDB()

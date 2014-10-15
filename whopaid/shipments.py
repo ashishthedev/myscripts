@@ -12,24 +12,24 @@ from Util.HTML import UnderLine, Bold, PastelOrangeText, TableHeaderRow,\
     TableDataRow
 from Util.Misc import PrintInBox, GetMsgInBox, DD_MM_YYYY, DD_MMM_YYYY,\
     IsDeliveredAssessFromStatus
+from Util.Persistent import Persistent
 
 from whopaid.customers_info import GetAllCustomersInfo
 from whopaid.courier.couriers import Courier
 from whopaid.off_comm import SendOfficialSMS
 from whopaid.sanity_checks import SendAutomaticHeartBeat, CheckConsistency
-from whopaid.util_whopaid import GetAllBillsInLastNDays, RemoveTrackingBills
+from whopaid.util_whopaid import GetAllBillsInLastNDays
 
 from collections import defaultdict
-from contextlib import closing
 from itertools import repeat
 from string import Template
 from time import sleep
 
 import argparse
 import datetime
-import shelve
-import random
+import json
 import os
+import random
 import urllib2
 
 MAX_IN_TRANSIT_DAYS = 15
@@ -156,10 +156,7 @@ class ShipmentMail(object):
     return
 
 
-class PersistentShipment(object):
-  shelfFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"),
-      GetOption("CONFIG_SECTION", "ShipmentStatus"))
-
+class SingleShipment():
   def __init__(self, bill):
     self.bill = bill
     self._mail = ShipmentMail(self, bill)
@@ -214,43 +211,6 @@ class PersistentShipment(object):
   def Track(self):
     return self._track.Track()
 
-  def save(self):
-    with closing(shelve.open(self.shelfFileName)) as sh:
-      sh[self.uid_string] = self
-
-  def _removeFromDB(self):
-    with closing(shelve.open(self.shelfFileName)) as sh:
-      del sh[self.uid_string]
-
-  @classmethod
-  def GetAllStoredShipments(cls):
-    with closing(shelve.open(cls.shelfFileName)) as sh:
-      return sh.values()
-
-  @classmethod
-  def GetAllUndeliveredShipments(cls):
-    allShipments = cls.GetAllStoredShipments()
-    return [s for s in allShipments if s.isUndelivered()]
-
-  @property
-  def uid_string(self):
-    return self.bill.uid_string
-
-  @classmethod
-  def GetOrCreateShipmentForBill(cls, bill):
-    #Only place where it gets instantiated
-    with closing(shelve.open(cls.shelfFileName)) as sh:
-      obj = None
-      key = bill.uid_string
-      if sh.has_key(key):
-        #get
-        obj = sh[key]
-      else:
-        #create
-        obj = cls(bill)
-        obj.save()
-    return obj
-
   @property
   def status(self):
     return self._track.status
@@ -277,6 +237,56 @@ class PersistentShipment(object):
   def daysPassed(self):
     return (datetime.date.today() - self.bill.docketDate).days
 
+  def save(self):
+    k = self.bill.uid_string
+    PersistentShipments()[k]=self
+    return self
+
+  def _removeFromDB(self):
+    ps = PersistentShipments()
+    k = self.bill.uid_string
+    if k in ps:
+      del ps[k]
+    return
+
+  @property
+  def jsonNode(self):
+    b = self.bill
+    s = self
+    singleShipment = dict()
+    singleShipment["compName"] = b.compName
+    singleShipment["docketNumber"] = b.docketNumber
+    singleShipment["courier"] = b.courierName
+    singleShipment["docketDate"] = DD_MMM_YYYY(b.docketDate)
+    singleShipment["invoiceDateISOFormat"] = b.invoiceDate.isoformat()
+    singleShipment["invoiceDate"] = DD_MMM_YYYY(b.invoiceDate)
+    singleShipment["shipmentStatus"] = s.status
+    singleShipment["billNumber"] = b.billNumber
+    singleShipment["amount"] = b.amount
+    singleShipment["materialDesc"] = b.materialDesc
+    singleShipment["isDelivered"] = s.isDelivered
+    singleShipment["daysPassed"] = s.daysPassed
+    singleShipment["uid_string"] = b.uid_string#TODO: Check if really required in json
+    return singleShipment
+
+
+
+class PersistentShipments(Persistent):
+  def __init__(self):
+    super(self.__class__, self).__init__(self.__class__.__name__)
+
+  def GetOrCreateShipmentForBill(self, bill):
+    key = bill.uid_string
+    if key in self:
+      return self[key]
+    return SingleShipment(bill).save()
+
+  def GetAllStoredShipments(self):
+    return self.allValues
+
+  def GetAllUndeliveredShipments(self):
+    allShipments = self.GetAllStoredShipments()
+    return [s for s in allShipments if s.isUndelivered()]
 
 
 def SendMaterialDispatchSms(bill):
@@ -486,14 +496,11 @@ def ParseOptions():
     parser.add_argument("-td", "--track-days", dest='trackDays', type=int, default=MAX_IN_TRANSIT_DAYS,
         help="Last N days in which courier status will be checked.")
 
-    parser.add_argument("--clearDB", dest='clearDB', action='store_true',
-        default=False, help="Clears the database")
-
     parser.add_argument("-ns", "--new-snapshot", dest='newSnapshotForDocket', type=str, default=None,
         help="Take new snapshot for docket")
 
-    parser.add_argument("-rt", "--remove-tracking", dest='removeTrackingForDocket', type=str, default=None,
-        help="If you want to temprarily remove a docket from tracking - Use it")
+    parser.add_argument("-rt", "--remove-tracking", dest='removeTrackingForDockets', nargs="+", type=str, default=None,
+        help="If you want to remove a list of dockets from tracking - Use it")
 
     parser.add_argument("-fmd", "--force-mark-delivered", dest='forceMarkDeliveredDocket', type=str, default=None,
         help="If you want to remove a docket from tracking(for ex/- very old docket). If the docket comes falls under purview of default days, it will be added to tracking index again.")
@@ -516,7 +523,7 @@ def ParseOptions():
 
 
 def _FormceMarkShipmentMailAsSent(docketNumber):
-  for s in PersistentShipment.GetAllStoredShipments():
+  for s in PersistentShipments().GetAllStoredShipments():
     print(s.bill.docketNumber)
     if s.bill.docketNumber == docketNumber:
       s.psMarkMailAsSent()
@@ -524,29 +531,29 @@ def _FormceMarkShipmentMailAsSent(docketNumber):
 
 
 def _ForceMarkDocketAsDelivered(docketNumber):
-  for s in PersistentShipment.GetAllUndeliveredShipments():
+  for s in PersistentShipments().GetAllUndeliveredShipments():
     if s.bill.docketNumber == docketNumber:
       s.status = "This shipment was force marked as delivered on {}".format(DD_MM_YYYY(datetime.date.today()))
       print(s.status)
       s.psMarkShipmentDelivered()
   return
 
-def _RemoveDocketFromIndex(docketNumber):
-  us = PersistentShipment.GetAllStoredShipments()
-  print("About to remove docket from tracking index: {}".format(docketNumber))
-  for s in us:
-    print(s.bill.docketNumber)
-    if s.bill.docketNumber == docketNumber:
-      print("Docket {} removed from tracking index".format(docketNumber))
-      s._removeFromDB()
-      break
-  else:
-    print("Could not find the docket {}".format(docketNumber))
+def _RemoveDocketFromIndex(docketNumbers):
+  ss = PersistentShipments().GetAllStoredShipments()
+  for d in docketNumbers:
+    print("About to remove docket from tracking index: {}".format(d))
+    for s in ss:
+      if s.bill.docketNumber == d:
+        print("Docket {} removed from tracking index".format(d))
+        s._removeFromDB()
+        break
+    else:
+      print("Could not find the docket {}".format(d))
   return
 
 def _NewSnapshotForDocket(docketNumber):
   print("About to take a new snapshot for docket: {}".format(docketNumber))
-  for s in PersistentShipment.GetAllStoredShipments():
+  for s in PersistentShipments().GetAllStoredShipments():
     if s.bill.docketNumber == docketNumber:
       print("Taking snapshot for docket {}".format(docketNumber))
       s.TakeNewSnapshot()
@@ -556,7 +563,7 @@ def _NewSnapshotForDocket(docketNumber):
   return
 
 def ShowUndeliveredSmalOnScreen():
-  shipments = PersistentShipment.GetAllUndeliveredShipments()
+  shipments = PersistentShipments().GetAllUndeliveredShipments()
   PrintInBox("Following are undelivered shipments:")
   for i, s in enumerate(sorted(shipments, key=lambda s: s.bill.docketDate), start=1):
     print("{}.{:<50} | {:<15} | {}".format(i, s.bill.compName, DD_MMM_YYYY(s.bill.docketDate), s.bill.docketNumber))
@@ -602,7 +609,7 @@ Thanks.
   return
 
 def SendComplaintMessageForDocket(docketNumber):
-  shipments = PersistentShipment.GetAllUndeliveredShipments()
+  shipments = PersistentShipments().GetAllUndeliveredShipments()
   for s in shipments:
     if s.bill.docketNumber == docketNumber:
       return SendComplaintMessageForShipment(s)
@@ -626,10 +633,6 @@ def main():
     SendComplaintMessageForDocket(complaintDocket)
     import sys; sys.exit(0)
 
-  if args.clearDB:
-    PrintInBox("Starting afresh")
-    os.remove(PersistentShipment.shelfFileName)
-
   if args.markMailAsSentForDocket:
     _FormceMarkShipmentMailAsSent(args.markMailAsSentForDocket)
 
@@ -640,8 +643,8 @@ def main():
   if args.forceMarkDeliveredDocket:
     _ForceMarkDocketAsDelivered(args.forceMarkDeliveredDocket)
 
-  if args.removeTrackingForDocket:
-    _RemoveDocketFromIndex(args.removeTrackingForDocket)
+  if args.removeTrackingForDockets:
+    _RemoveDocketFromIndex(args.removeTrackingForDockets)
     import sys; sys.exit(0)
 
   if args.newSnapshotForDocket:
@@ -659,12 +662,13 @@ def main():
 
 
 def FanOutDispatchInfoToAllComapnies(args):
+  ps = PersistentShipments()
   bills = GetAllBillsInLastNDays(args.trackDays)
   bills = [b for b in bills if b.docketDate]
   for b in bills:
-    PersistentShipment.GetOrCreateShipmentForBill(b)
+    ps.GetOrCreateShipmentForBill(b)
 
-  shipments = PersistentShipment.GetAllStoredShipments()
+  shipments = ps.GetAllStoredShipments()
   shipments = [s for s in shipments if s.ShouldWeTrackThis()] #Filter our deliverd shipments
   shipments = [s for s in shipments if not all([s.psWasShipmentMailEverSent(), s.psWasShipmentSmsEverSent()])]
   shipments = [s for s in shipments if s.daysPassed < max(MAX_DAYS_FOR_SENDING_NOTIFICATION, args.notifyDays)]
@@ -691,8 +695,11 @@ def FanOutDispatchInfoToAllComapnies(args):
   return
 
 def TrackAllShipments(args):
-  [PersistentShipment.GetOrCreateShipmentForBill(b) for b in GetAllBillsInLastNDays(args.trackDays) if b.docketDate]
-  shipments = PersistentShipment.GetAllStoredShipments()
+  ps = PersistentShipments()
+  for b in GetAllBillsInLastNDays(args.trackDays):
+    if b.docketDate:
+      ps.GetOrCreateShipmentForBill(b)
+  shipments = ps.GetAllStoredShipments()
   trackableShipments = [s for s in shipments if s.ShouldWeTrackThis()]
   trackableShipments.sort(key=lambda s: s.bill.docketDate)
 
@@ -722,9 +729,10 @@ def DBDeletedDoWhatEverIsNecessary():
     return
   NO_OF_DAYS=90
   bills = [b for b in GetAllBillsInLastNDays(NO_OF_DAYS) if b.docketDate]
-  bills = RemoveTrackingBills(bills)
-  [PersistentShipment.GetOrCreateShipmentForBill(b) for b in bills]
-  shipments = PersistentShipment.GetAllStoredShipments()
+  ps = PersistentShipments()
+  for b in bills:
+    ps.GetOrCreateShipmentForBill(b)
+  shipments = ps.GetAllStoredShipments()
   for s in shipments:
     if s.isDelivered: continue
     s.psMarkSmsAsSent()
@@ -733,10 +741,21 @@ def DBDeletedDoWhatEverIsNecessary():
       s.psMarkShipmentDelivered()
   return
 
+def GenerateShipmentJsonNodes(days):
+  ps = PersistentShipments()
+  shipments = [s for s in ps.GetAllStoredShipments() if s.daysPassed <= days]
+  shipments.sort(key=lambda s: s.bill.docketDate, reverse=True)
+  data = {s.bill.uid_string: s.jsonNode for s in shipments}
+  jsonFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), GetOption("CONFIG_SECTION", "ShipmentsJson"))
+  with open(jsonFileName, "w") as j:
+    json.dump(data, j, indent=2)
+  return
+
 
 
 if __name__ == '__main__':
   CheckConsistency()
   main()
+  GenerateShipmentJsonNodes(60)
   SendAutomaticHeartBeat()
   ShowUndeliveredSmalOnScreen()

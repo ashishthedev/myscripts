@@ -26,8 +26,9 @@ def CreateATestBill():
 
 class TestShipment():
     def __init__(self, testBill):
-        from whopaid.shipments import PersistentShipment
-        self.ps = PersistentShipment(testBill)
+        from whopaid.shipments import PersistentShipments
+        ps = PersistentShipments()
+        self.ps = ps.GetOrCreateShipmentForBill(testBill)
         self.ps.save()
     def __enter__(self):
         return self.ps
