@@ -426,7 +426,7 @@ def CreateSingleAdjustmentRow(row):
             r.kindOfEntery = val
         elif col == SheetCols.InvoiceAmount:
             if not val: raise Exception("No adjustment amount in row: {} and col: {}".format(cell.row, col))
-            r.amount = val
+            r.amount = int(val)
         elif col == SheetCols.InvoiceDateCol:
             if val is not None:
                 r.invoiceDate = ParseDateFromString(val)
@@ -437,6 +437,9 @@ def CreateSingleAdjustmentRow(row):
             if val is not None:
                 r.adjustmentAccountedFor = val.lower()=="yes"
         elif col == SheetCols.InvoiceNumberCol:
+          if val is not None:
+            r.adjustmentNo = int(val)
+          else:
             r.adjustmentNo = val
 
     return r
@@ -449,7 +452,7 @@ def CreateSinglePaymentRow(row):
 
         if col == SheetCols.InvoiceAmount:
             if not val: raise Exception("No cheque amount in row: {} and col: {}".format(cell.row, col))
-            r.amount = val
+            r.amount = int(val)
         elif col == SheetCols.KindOfEntery:
             if not val: raise Exception("No type of entery in row: {} and col: {}".format(cell.row, col))
             r.kindOfEntery = _GuessKindFromValue(val)
@@ -481,7 +484,7 @@ def _CreateSingleBillRow(row):
 
     b.rowNumber = cell.row
     if col == SheetCols.InvoiceAmount:
-      b.amount = val
+      b.amount = int(val)
     elif col == SheetCols.KindOfEntery:
       if not val: raise Exception("No type of entery in row: {} and col: {}".format(cell.row, col))
       b.kindOfEntery = val
@@ -489,7 +492,7 @@ def _CreateSingleBillRow(row):
       b.billingCategory = val
     elif col == SheetCols.InvoiceNumberCol:
       if not val: raise Exception("Row: {} seems not to have any bill number.".format(cell.row))
-      b.billNumber = val
+      b.billNumber = int(val)
     elif col == SheetCols.CompanyFriendlyNameCol:
       if not val: raise Exception("Row: {} seems empty. Please fix the database".format(cell.row))
       b.compName = val
