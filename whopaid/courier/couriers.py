@@ -17,6 +17,7 @@ class Courier():
     for courierInitials, class_ in MAPPING.iteritems():
       if b.courierName.lower().strip().startswith(courierInitials):
         self.courier = class_(b)
+        break
     else:
       print("We do not know how to track: {}. Will mark it as delivered".format(b.courierName))
       self.courier = DummyCourier(b)

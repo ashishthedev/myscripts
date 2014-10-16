@@ -737,9 +737,7 @@ def DBDeletedDoWhatEverIsNecessary():
     if s.isDelivered: continue
     s.psMarkSmsAsSent()
     s.psMarkMailAsSent()
-    if s.IsSnapshotSaved():
-      s.psMarkShipmentDelivered()
-    if not Courier.KnowHowToTrack(b):
+    if s.IsSnapshotSaved() or not Courier.KnowHowToTrack(s.bill):
       s.psMarkShipmentDelivered()
   return
 
