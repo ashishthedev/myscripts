@@ -7,31 +7,27 @@ import os
 import subprocess
 import urllib2
 
+MAPPING = dict()
 class Courier():
   """
   If a new courier gets added, implement that class and instantiate in __init__
   All the sublclasses will implement methods. Ideally it should be an ABC
   """
   def __init__(self, b):
-    if b.courierName.lower().strip().startswith("overn"):
-      self.courier = OverniteCourier(b)
-    elif b.courierName.lower().strip().startswith("trac"):
-      self.courier = TrackonCourier(b)
-    elif b.courierName.lower().strip().startswith("bluedart"):
-      self.courier = BluedartCourier(b)
-    elif b.courierName.lower().strip().startswith("first"):
-      self.courier = FirstFlightCourier(b)
-    elif b.courierName.lower().strip().startswith("profess"):
-      self.courier = ProfessionalCourier(b)
-    elif b.courierName.lower().strip().startswith("nitco"):
-      self.courier = NitcoTransport(b)
-    elif b.courierName.lower().strip().startswith("lalji"):
-      self.courier = LaljiMuljiTransport(b)
-    elif b.courierName.lower().strip().startswith("vrl"):
-      self.courier = VRLLogistics(b)
+    for courierInitials, class_ in MAPPING.iteritems():
+      if b.courierName.lower().strip().startswith(courierInitials):
+        self.courier = class_(b)
     else:
       print("We do not know how to track: {}. Will mark it as delivered".format(b.courierName))
       self.courier = DummyCourier(b)
+
+  @classmethod
+  def KnowHowToTrack(cls, b):
+    for courierInitials, class_ in MAPPING.iteritems():
+      if b.courierName.lower().strip().startswith(courierInitials.lower()):
+        return True
+    return False
+
 
   def GetStatus(self):
     try:
@@ -370,6 +366,17 @@ class OverniteCourier():
 
   def StoreSnapshot(self):
     StoreSnapshotWithPhantomScript(self.bill, "courier\\overnite_snapshot.js", self.FORM_DATA, self.reqUrl)
+
+MAPPING = {
+    "overn": OverniteCourier,
+    "trac" : TrackonCourier,
+    "bluedart": BluedartCourier,
+    "first": FirstFlightCourier,
+    "profess" :ProfessionalCourier,
+    "nitco": NitcoTransport,
+    "lalji": LaljiMuljiTransport,
+    "vrl": VRLLogistics,
+    }
 
 if __name__ == '__main__':
   DOCKET = "8037705270"

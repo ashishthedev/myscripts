@@ -739,6 +739,8 @@ def DBDeletedDoWhatEverIsNecessary():
     s.psMarkMailAsSent()
     if s.IsSnapshotSaved():
       s.psMarkShipmentDelivered()
+    if not Courier.KnowHowToTrack(b):
+      s.psMarkShipmentDelivered()
   return
 
 def GenerateShipmentJsonNodes(days):
