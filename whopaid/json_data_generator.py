@@ -220,7 +220,7 @@ def _DumpShipmentStatusData():
 
   shipmentNodes = jsonData.values()
   for sn in shipmentNodes:
-    key =  "{} | {}".format(sn["compName"], superSmallName)
+    key =  "{cn} | {idt} | {sn}".format(idt=DD_MMM_YYYY(sn["invoiceDate"]), cn=sn["compOffName"], sn=superSmallName)
     allShipments[key].append(sn) #Just dump this single order there and we will club them pelletSize wise while generating final json
 
   data['allShipments'] = allShipments

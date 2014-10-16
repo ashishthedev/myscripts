@@ -255,6 +255,7 @@ class SingleShipment():
     s = self
     singleShipment = dict()
     singleShipment["compName"] = b.compName
+    singleShipment["compOffName"] = ALL_CUST_INFO.GetCompanyOfficialName(b.compName)
     singleShipment["docketNumber"] = b.docketNumber
     singleShipment["courier"] = b.courierName
     singleShipment["docketDate"] = DD_MMM_YYYY(b.docketDate)
@@ -750,7 +751,6 @@ def GenerateShipmentJsonNodes(days):
   with open(jsonFileName, "w") as j:
     json.dump(data, j, indent=2)
   return
-
 
 
 if __name__ == '__main__':
