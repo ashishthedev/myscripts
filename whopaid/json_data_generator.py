@@ -161,6 +161,7 @@ def _DumpPaymentsDB():
   recentPmtDate = max([p.pmtDate for comp, payments in allPayments.iteritems() for p in payments])
   compSmallName = GetOption("CONFIG_SECTION", "SmallName")
   data ["showVerbatimOnTop"] = "{} last pmt: {}".format(compSmallName, DD_MM_YYYY(recentPmtDate))
+  data ["showVerbatimOnTopDateISO"] = { compSmallName : (DD_MM_YYYY(recentPmtDate), recentPmtDate.isoformat())}
 
   with open(PMT_JSON_FILE_NAME, "w+") as f:
     json.dump(data, f, separators=(',',':'), indent=2)

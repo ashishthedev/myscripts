@@ -256,6 +256,7 @@ class SingleShipment():
     singleShipment = dict()
     singleShipment["compName"] = b.compName
     singleShipment["compOffName"] = ALL_CUST_INFO.GetCompanyOfficialName(b.compName)
+    singleShipment["ourSuperSmallName"] = GetOption("CONFIG_SECTION", "SuperSmallName")
     singleShipment["docketNumber"] = b.docketNumber
     singleShipment["courier"] = b.courierName
     singleShipment["docketDate"] = DD_MMM_YYYY(b.docketDate)
