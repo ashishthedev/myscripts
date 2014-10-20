@@ -13,6 +13,8 @@ import datetime
 import json
 import os
 
+ALL_COMPANIES_DICT = GetAllCompaniesDict()
+
 PMTAPPDIR = os.getenv("PMTAPPDIR")
 DUMPING_DIR = os.path.join(PMTAPPDIR, "static", "dbs")
 SMALL_NAME = GetOption("CONFIG_SECTION", "SmallName")
@@ -62,8 +64,9 @@ data =
 ]
 """
 
+ALL_CUST_INFO = GetAllCustomersInfo()
 def _DumpOrdersDB():
-  allOrdersDict = GetAllCompaniesDict().GetAllOrdersOfAllCompaniesAsDict()
+  allOrdersDict = ALL_COMPANIES_DICT.GetAllOrdersOfAllCompaniesAsDict()
 
   if os.path.exists(ORDER_JSON_FILE_NAME):
     os.remove(ORDER_JSON_FILE_NAME)
@@ -73,10 +76,11 @@ def _DumpOrdersDB():
   for eachCompName, orders in allOrdersDict.iteritems():
     for eachOrder in orders:
       singleOrder = dict()
-      singleOrder["custName"] = eachOrder.compName
-      singleOrder["md"] = eachOrder.materialDesc
-      singleOrder["oNum"] = eachOrder.orderNumber
-      singleOrder["oDate"] = DD_MM_YYYY(eachOrder.orderDate)
+      singleOrder["compOffName"] = ALL_CUST_INFO.GetCompanyOfficialName(eachOrder.compName)
+      singleOrder["materialDesc"] = eachOrder.materialDesc
+      singleOrder["orderNumber"] = eachOrder.orderNumber
+      singleOrder["orderDate"] = DD_MM_YYYY(eachOrder.orderDate)
+      singleOrder["orderDateISOFormat"] = eachOrder.orderDate.isoformat()
       data.append(singleOrder) #Just dump this single order there and we will club them date wise while generating final json
 
   with open(ORDER_JSON_FILE_NAME, "w+") as f:
@@ -112,9 +116,8 @@ data=
 
 """
 def _DumpPaymentsDB():
-  allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
-  allAdjustmentsDict = GetAllCompaniesDict().GetAllAdjustmentsOfAllCompaniesAsDict()
-  allCustInfo = GetAllCustomersInfo()
+  allBillsDict = ALL_COMPANIES_DICT.GetAllBillsOfAllCompaniesAsDict()
+  allAdjustmentsDict = ALL_COMPANIES_DICT.GetAllAdjustmentsOfAllCompaniesAsDict()
 
   if os.path.exists(PMT_JSON_FILE_NAME):
     os.remove(PMT_JSON_FILE_NAME)
@@ -151,13 +154,13 @@ def _DumpPaymentsDB():
       oneCustomerBills.append(oneAdjustment) #For all practical purposes, an adjustment is treated as a bill with bill#-1
 
     oneCustomer["bills"] = oneCustomerBills
-    oneCustomer["trust"] = allCustInfo.GetTrustForCustomer(eachCompName)
+    oneCustomer["trust"] = ALL_CUST_INFO.GetTrustForCustomer(eachCompName)
 
     if len(oneCustomerBills) > 0:
       allCustomers.append(oneCustomer)
 
   data["customers"] = allCustomers
-  allPayments = GetAllCompaniesDict().GetAllPaymentsByAllCompaniesAsDict()
+  allPayments = ALL_COMPANIES_DICT.GetAllPaymentsByAllCompaniesAsDict()
   recentPmtDate = max([p.pmtDate for comp, payments in allPayments.iteritems() for p in payments])
   compSmallName = GetOption("CONFIG_SECTION", "SmallName")
   data ["showVerbatimOnTop"] = "{} last pmt: {}".format(compSmallName, DD_MM_YYYY(recentPmtDate))
@@ -209,7 +212,8 @@ def _DumpShipmentStatusData():
   with open(jsonFileName) as j:
     jsonData = json.load(j)
 
-  SHOW_STATUS_FOR_LAST_N_DAYS = 30
+  SHOW_STATUS_FOR_LAST_N_DAYS = int(GetOption("CONFIG_SECTION", "ShowShipmentStatusForNDays"))
+
   jsonData = {k:v for k,v in jsonData.iteritems() if int(v["daysPassed"]) <= SHOW_STATUS_FOR_LAST_N_DAYS}
 
   if os.path.exists(SHIPMENT_STATUS_JSON_FILE_NAME):
@@ -233,7 +237,7 @@ def _DumpShipmentStatusData():
   return
 
 def _DumpFormCData():
-  allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
+  allBillsDict = ALL_COMPANIES_DICT.GetAllBillsOfAllCompaniesAsDict()
 
   lastFormCEnteredOnDate = datetime.date(datetime.date.today().year-100, 1, 1) # Choose a really low date
   for eachComp, billList in allBillsDict.iteritems():

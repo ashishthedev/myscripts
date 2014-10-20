@@ -317,6 +317,7 @@ Thanks.
   SendOfficialSMS(bill.compName, smsContents)
   return
 
+ALL_CUST_INFO = GetAllCustomersInfo()
 
 def IncludeAmountForBillInDispatchInfo(bill):
   if bill.billingCategory.lower() not in ["builty", "tracking"]:
@@ -324,7 +325,6 @@ def IncludeAmountForBillInDispatchInfo(bill):
       return True
   return False
 
-ALL_CUST_INFO = GetAllCustomersInfo()
 
 def SendMaterialDispatchMail(bill, ctxt):
 
