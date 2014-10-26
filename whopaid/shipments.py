@@ -580,9 +580,9 @@ def SendComplaintMessageForShipment(shipment):
   d["tDocketDate"] = DD_MMM_YYYY(bill.docketDate)
   d["tOfficialCompanyName"] = ALL_CUST_INFO.GetCompanyOfficialName(bill.compName)
   d["tDeliveryAddress"] = ALL_CUST_INFO.GetCustomerDeliveryAddress(bill.compName)
-  d["tPhone"] = ALL_CUST_INFO.GetCustomerPhoneNumber(bill.compName)
+  d["tPhone"] = ALL_CUST_INFO.GetDeliveryPhoneNumber(bill.compName)
   if isinstance(d["tPhone"], float):
-    d["tPhone"] = str(int(ALL_CUST_INFO.GetCustomerPhoneNumber(bill.compName))) #Removing .0 in the end if its an integer
+    d["tPhone"] = str(int(d["tPhone"])) #Removing .0 in the end if its an integer
 
 
   smsTemplate = Template("""The following parcel is not delivered. Kindly get it delivered.
@@ -757,6 +757,6 @@ def GenerateShipmentJsonNodes(days):
 if __name__ == '__main__':
   CheckConsistency()
   main()
-  GenerateShipmentJsonNodes(60)
+  GenerateShipmentJsonNodes(int(GetOption("CONFIG_SECTION", "ShowShipmentStatusForNDays")))
   SendAutomaticHeartBeat()
   ShowUndeliveredSmalOnScreen()

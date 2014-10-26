@@ -408,8 +408,7 @@ def CreateSingleOrderRow(row):
             if not val: raise Exception("Date in row: {} seems empty. Please fix the database".format(cell.row))
             r.orderDate = ParseDateFromString(val)
         elif col == SheetCols.InstrumentNumberCol:
-            if not val: raise Exception("Row: {} seems empty. Please fix the database".format(cell.row))
-            r.orderNumber = val
+            r.orderNumber = val or "--"
     return r
 
 def CreateSingleAdjustmentRow(row):

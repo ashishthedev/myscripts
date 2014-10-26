@@ -90,9 +90,11 @@ def YoutubeDownload(args, onlyAudio=False):
       #http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
       QUALITY = "-f 18/22/82/83/85/84/133/134/135/136/137"
       playlistInfo = ""
-      if line.find("playlist") != -1:
-        playlistInfo = "%(playlist)s" + "-" + "_%(playlist_index)s_"
-      FINAL_NAME_FORMAT = "-o " + os.path.join("B:\\", "YoutubeVideosDownloaded") + os.path.sep + playlistInfo + "%(title)s-%(id)s.%(ext)s"
+      folder = ""
+      if line.find("list") != -1:
+        folder = "%(playlist)s"
+        playlistInfo = "%(playlist_index)s_"
+      FINAL_NAME_FORMAT = "-o " + os.path.join("B:\\", "YoutubeVideosDownloaded", folder) + os.path.sep + playlistInfo + "%(title)s-%(id)s.%(ext)s"
       ydlParametersList = ["--no-mtime", "--restrict-filenames", "--continue", "--console-title", FINAL_NAME_FORMAT]
 
       flagsAndUrl = line.split()

@@ -67,7 +67,7 @@ class PersistentMonthlySmsDetails(Persistent):
     if raw_input("Send (y/n) ?").lower() != "y":
       return
     d = dict()
-    bills = [b for b in GetAllBillsInLastNDays(60)]
+    bills = [b for b in GetAllBillsInLastNDays(90)]
     firstDay = datetime.date(date.year, date.month, 1)
     nextMonthDate = firstDay + datetime.timedelta(days=32) #Force jump one month, this will solve dec-jan problem
     lastDay = datetime.date(nextMonthDate.year, nextMonthDate.month, 1) - datetime.timedelta(days=1)
