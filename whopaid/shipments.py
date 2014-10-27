@@ -354,7 +354,7 @@ def SendMaterialDispatchMail(bill, ctxt):
   toMailList = toMailStr.split(',')
 
   #Remove spaces from eachMail in the list and create a new list
-  toMailList = [eachMail.replace(' ', '') for eachMail in toMailList]
+  toMailList = [eachMail.replace(' ', '') for eachMail in toMailList if eachMail]
   ccMailList = GetOption("EMAIL_REMINDER_SECTION", 'CCEmailList').replace(';', ',').split(','),
   bccMailList = GetOption("EMAIL_REMINDER_SECTION", 'BCCEmailList').replace(';', ',').split(','),
 

@@ -25,21 +25,22 @@ class CustomerInfoCol:
     DeliveryPhoneNumberCol    = "F"
     SmsDispatchNumberCol      = "G"
     PaymentReminderSmsNoCol   = "H"
-    CompanyOfficialNameCol    = "I"
-    CourierAddressCol         = "J"
-    DeliveryPinCodeCol        = "K"
-    PreferredCourierCol       = "L"
-    CityCol                   = "M"
-    EmailForPayment           = "N"
-    KindAttentionCol          = "O"
-    EmailForFormC             = "P"
-    TrustCol                  = "Q"
-    IncludeDaysCol            = "R"
-    CreditLimitCol            = "S"
-    SendAutomaticMails        = "T"
-    MinDaysGapCol             = "U"
-    IncludeBillAmountInEmails = "V"
-    CompanyCodeCol            = "W"
+    MsorNoMSCol               = "I"
+    CompanyOfficialNameCol    = "J"
+    CourierAddressCol         = "K"
+    DeliveryPinCodeCol        = "L"
+    PreferredCourierCol       = "M"
+    CityCol                   = "N"
+    EmailForPayment           = "O"
+    KindAttentionCol          = "P"
+    EmailForFormC             = "Q"
+    TrustCol                  = "R"
+    IncludeDaysCol            = "S"
+    CreditLimitCol            = "T"
+    SendAutomaticMails        = "U"
+    MinDaysGapCol             = "V"
+    IncludeBillAmountInEmails = "W"
+    CompanyCodeCol            = "X"
 
 
 def CreateSingleCustomerInfo(row):
@@ -64,6 +65,8 @@ def CreateSingleCustomerInfo(row):
             c.paymentSMSNo = val
         elif col == CustomerInfoCol.DeliveryPhoneNumberCol:
             c.deliveryPhNo = val
+        elif col == CustomerInfoCol.MsorNoMSCol:
+            c.msOrNoms = val
         elif col == CustomerInfoCol.CompanyOfficialNameCol:
             c.companyOfficialName = val
         elif col == CustomerInfoCol.CourierAddressCol:
@@ -144,6 +147,9 @@ class _AllCustomersInfo(dict):
 
     def GetDeliveryPhoneNumber(self, compName):
         return self[compName].deliveryPhNo
+
+    def GetMsOrNomsForCustomer(self, compName):
+        return self[compName].msOrNoms
 
     def GetCustomerPhoneNumber(self, compName):
         return self[compName].phoneNumber

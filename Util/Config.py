@@ -6,7 +6,7 @@
 ## Date: 2013-01-28 Mon 02:31 PM
 #####################################################################
 
-from ConfigParser import SafeConfigParser
+from ConfigParser import SafeConfigParser, RawConfigParser
 from Util.Exception import MyException
 import os
 
@@ -41,9 +41,8 @@ def GetAppDirPath():
 def GetConfigFilePath():
   return _GetConfigFilePath(os.getcwd())
 
-def GetOption(sectionName, optionName):
+def _GetOption(sectionName, optionName, parser):
   configFilePath = _GetConfigFilePath(os.getcwd())
-  parser = SafeConfigParser()
   parser.read(configFilePath)
 
   if not parser.has_section(sectionName):
@@ -53,3 +52,14 @@ def GetOption(sectionName, optionName):
     raise MyException("'%s' does not have any option named '%s' under section '%s'" % (configFilePath, optionName, sectionName))
 
   return parser.get(sectionName, optionName)
+
+def GetOption(sectionName, optionName):
+  return GetSafeOption(sectionName, optionName)
+
+def GetSafeOption(sectionName, optionName):
+  return _GetOption(sectionName, optionName, SafeConfigParser())
+
+
+def GetRawOption(sectionName, optionName):
+  return _GetOption(sectionName, optionName, RawConfigParser())
+

@@ -33,12 +33,8 @@ def ParseOptions():
             help="Company name or part of it.")
     parser.add_argument("-n", dest='num', type=int, default=2,
             help="Number of times an address has to be printed.")
-    parser.add_argument("-noms", dest="noms", action="store_true",
-            default=False, help="Do not print M/s")
     parser.add_argument("-fa", "--from-address", dest="fromAddress", action="store_true",
             default=False, help="Print from address too")
-    parser.add_argument("-noComp", dest="noComp", action="store_true",
-            default=False, help="Do not print company name")
     parser.add_argument("-l", "--longEnv", dest="longEnvelope", action="store_true",
             default=False, help="Do not print company name")
     parser.add_argument("-r", "--remove", dest="removeCompName", type=str, default=None,
@@ -65,6 +61,8 @@ def GenerateAddressSlipForThisCompany(compName, args):
     if not companyPinCode:
       raise MyException("\nM/s {} doesnt have a pin code. Please feed it in the database".format(compName))
 
+    noms = True if allCustInfo.GetMsOrNomsForCustomer(compName).lower().strip() == "noms" else False
+
     preferredCourierForThisComp = allCustInfo.GetCustomerPreferredCourier(compName)
 
     tempPath = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), "AddressSlips", companyOfficialName + ".html")
@@ -76,10 +74,11 @@ def GenerateAddressSlipForThisCompany(compName, args):
 
     from collections import defaultdict
     d = defaultdict(constant_factory(""))
-    if not args.noComp:
-      if not args.noms:
-        companyOfficialName = "M/s " + companyOfficialName
-      d['tCompanyOfficialName'] = companyOfficialName
+    if noms:
+      companyOfficialName = companyOfficialName
+    else:
+      companyOfficialName = "M/s " + companyOfficialName
+    d['tCompanyOfficialName'] = companyOfficialName
     d['tCompanyDeliveryAddress'] = companyDeliveryAddress
     d['tcompanyDeliveryPhNo'] = companyDeliveryPhNo
     d['tcompanyPinCode'] = companyPinCode
