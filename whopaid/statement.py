@@ -8,24 +8,23 @@
 
 
 from Util.Exception import MyException
-from Util.Misc import ParseDateFromString, PrintInBox, DD_MMM_YYYY
+from Util.Misc import PrintInBox, DD_MMM_YYYY, ConsoleTable
 
+
+from whopaid.customers_info import GetAllCustomersInfo
 from whopaid.sanity_checks import CheckConsistency
-from whopaid.util_whopaid import GetAllCompaniesDict, SelectBillsAfterDate,\
-        SelectBillsBeforeDate, GuessCompanyName, SelectUnpaidBillsFrom
+from whopaid.util_whopaid import GetAllCompaniesDict, GuessCompanyGroupName
+from whopaid.payment_reminders_for_groups import GetUnpaidBillsAndUnAccSingleAdjForThisComp
 
 from datetime import date
 import argparse
+
+ALL_CUST_INFO = GetAllCustomersInfo()
 
 def ParseOptions():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--comp", dest='comp', type=str, default=None, help="Company name or part of it.")
-    parser.add_argument("-d", "--demo", "--desktopOnly", "--noEmail", dest='isDemo', action="store_true", default=False, help="If present, no email will be sent. This option will override email option.")
-    parser.add_argument("-u", "--only-unpaid", dest='onlyUnpaid', action="store_true", default=True, help="If present, no email will be sent. This option will override email option.")
-    parser.add_argument("-a", "--all", dest='allBills', action="store_true", default=False, help="If present, all the bills will be shown whether no email will be sent. This option will override email option.")
-    parser.add_argument("-sd", "--start-date", dest='sdate', metavar="Start-date", default="01-Apr-2010", required=False, type=str, help="Starting Date for FORM-C requests.")
-    parser.add_argument("-ed", "--end-date", dest='edate', metavar="End-date", required=False, type=str, default=str(date.today()), help="End Date for Form-C Requests. If ommitted Form-C till date will be asked for")
     parser.add_argument("-lfp", "--last-few-payments", dest="lastFewPayments", action="store_true", default=False, help="If present, last five payments entered in system will be shown")
     args = parser.parse_args()
     return args
@@ -41,14 +40,13 @@ def main():
     ShowLastFewPaymentsOnTerminal()
     return
 
-  chosenComp = GuessCompanyName(args.comp)
+  chosenGrp = GuessCompanyGroupName(args.comp)
 
-  ShowStatementOnTerminal(chosenComp, allBillsDict, args)
+  ShowStatementOnTerminal(chosenGrp, allBillsDict, args)
 
   return
 
 def ShowLastFewPaymentsOnTerminal():
-
   noOfPaymentsToShow = 10
   allPaymentsDict = GetAllCompaniesDict().GetAllPaymentsByAllCompaniesAsDict()
   allPayments = list()
@@ -57,47 +55,48 @@ def ShowLastFewPaymentsOnTerminal():
       allPayments.append(p)
   for i, p in enumerate(sorted(allPayments, key=lambda p:p.pmtDate, reverse=True)[:noOfPaymentsToShow], start=1):
     print("{}. {:<10} {:<15} {}".format(i, int(p.amount), DD_MMM_YYYY(p.pmtDate), p.compName))
+  return
 
 
 def GetMinusOneBills(billList):
-  newBillList = list()
-  for b in billList:
-    if b.billNumber == -1:
-      newBillList.append(b)
-  return newBillList
+  return [b.billNumber for b in billList if b.billNumber!=-1]
 
-def ShowStatementOnTerminal(compName, allBillsDict, args):
-  header = [compName]
-  if not compName in allBillsDict.keys():
-    raise Exception("No bill is issued to M/s {}".format(compName))
 
-  billList = allBillsDict[compName]
+def ShowStatementOnTerminal(grpName, allBillsDict, args):
+  compsInGrp = ALL_CUST_INFO.GetListOfCompNamesForThisGrp(grpName)
+  for compName in compsInGrp:
+    unpaidBillsList, singleAdj = GetUnpaidBillsAndUnAccSingleAdjForThisComp(compName)
+    Column = ConsoleTable.Column
 
-  if args.onlyUnpaid:
-    header.append("Only unpaid bills")
-    billList = SelectUnpaidBillsFrom(billList)
+    billNumbers = [str(b.billNumber) for b in unpaidBillsList]
+    invoiceDates = [str(DD_MMM_YYYY(b.invoiceDate)) for b in unpaidBillsList]
+    amounts = [str(b.amount) for b in unpaidBillsList]
 
-  for b in GetMinusOneBills(billList):
-    header.append(str(b))
+    if singleAdj:
+      billNumbers += [str(singleAdj.billNumber)]
+      invoiceDates += [str(singleAdj.invoiceDate)]
+      amounts += [str(singleAdj.amount)]
 
-  sdateObject = ParseDateFromString(args.sdate)  # Start Date Object
-  billList = SelectBillsAfterDate(billList, sdateObject)
+    billNumbers.append("TOTAL")
+    invoiceDates.append("")
+    amounts.append(str(sum(int(x) for x in amounts)))
 
-  if args.edate:
-    edateObject = ParseDateFromString(args.edate)  # End Date Object
-    billList = SelectBillsBeforeDate(billList, edateObject)
 
-  if not billList:
-    raise MyException("\nM/s {} has no bill in between '{}' and '{}'".format(compName, sdateObject, edateObject))
 
-  for b in billList:
-    header.append(str(b))
-  PrintInBox("\n".join(header))
+    print("")
+    print("")
+    print(compName)
+    print ConsoleTable(
+        Column("Bill#", billNumbers),
+        Column("Invoice Date", invoiceDates),
+        Column("Amount", amounts),
+        )
   return
 
+
 if __name__ == '__main__':
-    try:
-      main()
-      CheckConsistency()
-    except MyException as ex:
-      PrintInBox(str(ex))
+  try:
+    main()
+    CheckConsistency()
+  except MyException as ex:
+    PrintInBox(str(ex))

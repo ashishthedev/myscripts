@@ -351,12 +351,33 @@ def MakeBillRow(*billRowArgs):
       MyColors["WHITE"],
       *billRowArgs)
 
-def GetHTMLTableBlockForThisComp(compName):
+def GetHTMLTableBlockForThisGrp(grpName):
+  htmlTables = ""
+  compsInGrp = ALL_CUST_INFO.GetListOfCompNamesForThisGrp(grpName)
+  for eachCompName in compsInGrp:
+    if not eachCompName in ALL_BILLS_DICT: continue
+    if not SelectUnpaidBillsFrom(ALL_BILLS_DICT[eachCompName]): continue
+    htmlTables += "<br>" + _GetHTMLTableBlockForThisComp(eachCompName)
+  return htmlTables
+
+def GetUnpaidBillsAndUnAccSingleAdjForThisComp(compName):
   unpaidBillsList = SelectUnpaidBillsFrom(ALL_BILLS_DICT[compName])
   unpaidBillsList = RemoveTrackingBills(unpaidBillsList)
-
-  #unpaidBillsList.append(adjSingleBill)
   unpaidBillsList.sort(key=lambda b: datex(b.invoiceDate))
+  adjustmentBills = GetAllCompaniesDict().GetUnAccountedAdjustmentsListForCompany(compName)
+  adjSingleBill = None
+  if adjustmentBills:
+    if len(adjustmentBills) > 1:
+      #TODO: Currently we are accomodating only one adjustment bill
+      raise Exception("There can be only one adjustment bill for a company")
+    adjSingleBill = adjustmentBills[0]
+    adjSingleBill.billNumber = -1
+    adjSingleBill.invoiceDate = datetime.date.today()
+
+  return unpaidBillsList, adjSingleBill
+
+def _GetHTMLTableBlockForThisComp(compName):
+  unpaidBillsList, adjSingleBill = GetUnpaidBillsAndUnAccSingleAdjForThisComp(compName)
 
   companyOfficialName = ALL_CUST_INFO.GetCompanyOfficialName(compName)
   if not companyOfficialName:
@@ -405,19 +426,11 @@ def GetHTMLTableBlockForThisComp(compName):
 
     tableRows += MakeBillRow(*billRowArgs)
 
-  adjustmentBills = GetAllCompaniesDict().GetUnAccountedAdjustmentsListForCompany(compName)
-  if adjustmentBills:
-    if len(adjustmentBills) > 1:
-      #TODO: Currently we are accomodating only one adjustment bill
-      raise Exception("There can be only one adjustment bill for a company")
-
-    adjSingleBill = adjustmentBills[0]
-    adjSingleBill.billNumber = -1
-    adjSingleBill.invoiceDate = datetime.date.today()
-
+  if adjSingleBill:
     adjRowArgs=[int(adjSingleBill.billNumber),
         DD_MM_YYYY(adjSingleBill.invoiceDate),
         Bold("Rs." + str(int(adjSingleBill.amount)))]
+
     totalDueLiterally += int(adjSingleBill.amount)
 
     if includeCreditDays:
@@ -454,82 +467,77 @@ def GetHTMLTableBlockForThisComp(compName):
 
 
 def PrepareMailContentForThisGrp(grpName, args):
-    """Given a bill list for a company group, this function will
-    prepare mail for the payment reminder."""
+  """Given a bill list for a company group, this function will
+  prepare mail for the payment reminder."""
 
-    totalDue = TotalDueForGroupAsInt(grpName)
+  totalDue = TotalDueForGroupAsInt(grpName)
 
-    compsInGrp = ALL_CUST_INFO.GetListOfCompNamesForThisGrp(grpName)
-    htmlTables = ""
-    for eachCompName in compsInGrp:
-      if not eachCompName in ALL_BILLS_DICT: continue
-      if not SelectUnpaidBillsFrom(ALL_BILLS_DICT[eachCompName]): continue
-      htmlTables += "<br>" + GetHTMLTableBlockForThisComp(eachCompName)
+  htmlTables = GetHTMLTableBlockForThisGrp(grpName)
 
-    letterDate = datetime.date.today().strftime("%A, %d-%b-%Y")
-    d = defaultdict(constant_factory(""))
+  letterDate = datetime.date.today().strftime("%A, %d-%b-%Y")
+  d = defaultdict(constant_factory(""))
 
-    if args.first_line:
-      d['tFirstLine'] = args.first_line + '<br><br>'
+  if args.first_line:
+    d['tFirstLine'] = args.first_line + '<br><br>'
 
-    if args.first_line_bold:
-      d['tFirstLine'] = Bold(args.first_line_bold) + '<br><br>'
+  if args.first_line_bold:
+    d['tFirstLine'] = Bold(args.first_line_bold) + '<br><br>'
 
-    if args.second_line:
-      d['tSecondLine'] = args.second_line + '<br><br>'
+  if args.second_line:
+    d['tSecondLine'] = args.second_line + '<br><br>'
 
-    if args.last_line:
-      d['tLastLine'] = args.last_line + '<br><br>'
+  if args.last_line:
+    d['tLastLine'] = args.last_line + '<br><br>'
 
-    if args.last_line_bold:
-      d['tLastLine'] = Bold(args.last_line_bold) + '<br><br>'
+  if args.last_line_bold:
+    d['tLastLine'] = Bold(args.last_line_bold) + '<br><br>'
 
-    if args.kaPerson:
-      d['tPerson'] = Bold("Kind Attention: " + args.kaPerson + '<br><br>')
+  if args.kaPerson:
+    d['tPerson'] = Bold("Kind Attention: " + args.kaPerson + '<br><br>')
 
-    d['tLetterDate'] = letterDate
-    d['tTotalDue'] = totalDue
-    d['tTables'] = htmlTables
-    d['tBodySubject'] = PastelOrangeText(Bold(UnderLine("Subject: Payment Request (Rs.{})".format(totalDue))))
-    d['tSignature'] = GetOption("EMAIL_REMINDER_SECTION", "Signature")
-    d['tBankerDetails'] = GetOption("EMAIL_REMINDER_SECTION", "BankerDetails")
+  d['tLetterDate'] = letterDate
+  d['tTotalDue'] = totalDue
+  d['tTables'] = htmlTables
+  d['tBodySubject'] = PastelOrangeText(Bold(UnderLine("Subject: Payment Request (Rs.{})".format(totalDue))))
+  d['tSignature'] = GetOption("EMAIL_REMINDER_SECTION", "Signature")
+  d['tBankerDetails'] = GetOption("EMAIL_REMINDER_SECTION", "BankerDetails")
 
-    templateMailBody = Template("""
-    <html>
-        <head>
-        </head>
-        <body style=" font-family: Helvetica, Georgia, Verdana, Arial, 'sans-serif'; font-size: 1.1em; line-height: 1.5em;" >
-        <p>
-        $tLetterDate<br>
-        <br>
-        $tBodySubject<br>
-        <br>
-        $tPerson
-        Dear Sir,<br>
-        <br>
-        $tFirstLine
-        $tSecondLine
-        Please find below the list of pending invoices for the supplies made till date. You are requested to kindly arrange the payment for due bills:
-        <br>
-        $tTables
-        </p>
-        <br>
-        $tLastLine
-        <U>Banker details are as under:</U><br>
+  templateMailBody = Template("""
+  <html>
+      <head>
+      </head>
+      <body style=" font-family: Helvetica, Georgia, Verdana, Arial, 'sans-serif'; font-size: 1.1em; line-height: 1.5em;" >
+      <p>
+      $tLetterDate<br>
+      <br>
+      $tBodySubject<br>
+      <br>
+      $tPerson
+      Dear Sir,<br>
+      <br>
+      $tFirstLine
+      $tSecondLine
+      Please find below the list of pending invoices for the supplies made till date. You are requested to kindly arrange the payment for due bills:
+      <br>
+      $tTables
+      </p>
+      <br>
+      $tLastLine
+      <U>Banker details are as under:</U><br>
 
-        <p style="background-color:#F0F0F0;">
-        $tBankerDetails
-        </p><br>
+      <p style="background-color:#F0F0F0;">
+      $tBankerDetails
+      </p><br>
 
-        <hr>
-        $tSignature
-        </body>
-    </html>
-    """)
+      <hr>
+      $tSignature
+      </body>
+  </html>
+  """)
 
-    finalMailBody = templateMailBody.substitute(d)
+  finalMailBody = templateMailBody.substitute(d)
 
-    return finalMailBody
+  return finalMailBody
 
 if __name__ == '__main__':
   try:

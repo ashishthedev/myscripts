@@ -90,7 +90,7 @@ class CompaniesDict(dict):#TODO: Name it as DB
 
     def GetUnAccountedAdjustmentsListForCompany(self, compName):
       adjustmentList = self.GetAllAdjustmentsOfAllCompaniesAsDict().get(compName, [])
-      return [a for a in adjustmentList if not a.adjustmentAccountedFor]
+      return [a for a in adjustmentList if not (a.adjustmentAccountedFor or a.adjustmentPaidFor)]
 
     def GetOrdersListForCompany(self, compName):
         return self.GetAllOrdersOfAllCompaniesAsDict().get(compName, None)
@@ -427,20 +427,21 @@ def CreateSingleAdjustmentRow(row):
             if not val: raise Exception("No adjustment amount in row: {} and col: {}".format(cell.row, col))
             r.amount = int(val)
         elif col == SheetCols.InvoiceDateCol:
+            r.invoiceDate = val
             if val is not None:
                 r.invoiceDate = ParseDateFromString(val)
-            else:
-                r.invoiceDate = val
+        elif col == SheetCols.PaymentStatus:
+            r.adjustmentPaidFor = False
+            if val is not None:
+                r.adjustmentPaidFor = val.lower()=="no"
         elif col == SheetCols.PaymentAccountedFor:
             r.adjustmentAccountedFor = False
             if val is not None:
                 r.adjustmentAccountedFor = val.lower()=="yes"
         elif col == SheetCols.InvoiceNumberCol:
+          r.adjustmentNo = val
           if val is not None:
             r.adjustmentNo = int(val)
-          else:
-            r.adjustmentNo = val
-
     return r
 
 def CreateSinglePaymentRow(row):
@@ -468,10 +469,9 @@ def CreateSinglePaymentRow(row):
             if not val: raise Exception("No cheque date in row: {}".format(cell.row))
             r.pmtDate = ParseDateFromString(val)
         elif col == SheetCols.PaymentAccountedFor:
+            r.paymentAccountedFor = False
             if val is not None:
                 r.paymentAccountedFor = True if val.lower()=="yes" else False
-            else:
-                r.paymentAccountedFor = False
     return r
 
 
