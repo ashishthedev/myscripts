@@ -105,7 +105,7 @@ def ReportMissingOrDuplicateBillsSince(allBillsDict):
 
   #In each category try to find missing bills in the permissible date range
   for eachCategory in d:
-    if eachCategory.lower() in ["tracking"]:
+    if eachCategory.lower() in ["tracking", "gr"]:
       continue
     billList = d[eachCategory]
     billList = SelectBillsAfterDate(billList, startDateObject)

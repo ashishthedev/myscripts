@@ -61,7 +61,8 @@ def GenerateAddressSlipForThisCompany(compName, args):
     if not companyPinCode:
       raise MyException("\nM/s {} doesnt have a pin code. Please feed it in the database".format(compName))
 
-    noms = True if allCustInfo.GetMsOrNomsForCustomer(compName).lower().strip() == "noms" else False
+    x = allCustInfo.GetMsOrNomsForCustomer(compName)
+    noms = True if x and x.lower().strip() == "noms" else False
 
     preferredCourierForThisComp = allCustInfo.GetCustomerPreferredCourier(compName)
 

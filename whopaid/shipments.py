@@ -157,6 +157,7 @@ class ShipmentMail(object):
 
 
 class SingleShipment():
+  ssn = GetOption("CONFIG_SECTION", "SuperSmallName")
   def __init__(self, bill):
     self.bill = bill
     self._mail = ShipmentMail(self, bill)
@@ -256,7 +257,7 @@ class SingleShipment():
     singleShipment = dict()
     singleShipment["compName"] = b.compName
     singleShipment["compOffName"] = ALL_CUST_INFO.GetCompanyOfficialName(b.compName)
-    singleShipment["ourSuperSmallName"] = GetOption("CONFIG_SECTION", "SuperSmallName")
+    singleShipment["ourSuperSmallName"] = self.ssn
     singleShipment["docketNumber"] = b.docketNumber
     singleShipment["courier"] = b.courierName
     singleShipment["docketDate"] = DD_MMM_YYYY(b.docketDate)
@@ -320,7 +321,7 @@ Thanks.
 ALL_CUST_INFO = GetAllCustomersInfo()
 
 def IncludeAmountForBillInDispatchInfo(bill):
-  if bill.billingCategory.lower() not in ["builty", "tracking"]:
+  if bill.billingCategory.lower() not in ["gr", "tracking"]:
     if ALL_CUST_INFO.IncludeBillAmountInEmails(bill.compName):
       return True
   return False

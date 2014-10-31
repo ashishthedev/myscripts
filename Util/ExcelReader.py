@@ -66,7 +66,8 @@ def GetRows(workbookPath, sheetName, firstRow, includeLastRow):
 
   for row in ws.iter_rows():
     rowNumber += 1
-    if rowNumber < firstRow: continue  #We are not reading anything before MIN_ROW. This might save us from reading couple thousand lines.
+    if rowNumber < firstRow:
+      continue  #We are not reading anything before MIN_ROW. This might save us from reading couple thousand lines.
     if rowNumber >= max_row: break
     yield row
 

@@ -200,6 +200,7 @@ class _AllCompaniesDict(CompaniesDict):
   """
   def __init__(self, workbookPath):
     super(_AllCompaniesDict, self).__init__()
+
     rows = GetRows(workbookPath=workbookPath,
         sheetName = GetOption("CONFIG_SECTION", "NameOfSaleSheet"),
         firstRow = GetOption("CONFIG_SECTION", "DataStartsAtRow"),
@@ -253,7 +254,7 @@ class Company(list):
     uniqueCategory = set()
     #Create a unique set
     for b in self:
-      if b.billingCategory.lower() not in ["jobwork", "tracking", "builty"]:
+      if b.billingCategory.lower() not in ["jobwork", "tracking", "gr"]:
         uniqueCategory.add(b.billingCategory.lower())
 
     if len(uniqueCategory) > 1:
@@ -484,6 +485,12 @@ def _CreateSingleBillRow(row):
     b.rowNumber = cell.row
     if col == SheetCols.InvoiceAmount:
       b.amount = int(val)
+    elif col == SheetCols.InstrumentNumberCol:
+      if not val: raise Exception("No PO mentioned in row: {} and col: {}".format(cell.row, col))
+      b.poNumber = val
+    elif col == SheetCols.InstrumentDateCol:
+      if not val: raise Exception("No PO date mentioned in row: {} and col: {}".format(cell.row, col))
+      b.poDate = ParseDateFromString(val)
     elif col == SheetCols.KindOfEntery:
       if not val: raise Exception("No type of entery in row: {} and col: {}".format(cell.row, col))
       b.kindOfEntery = val
@@ -514,10 +521,8 @@ def _CreateSingleBillRow(row):
     elif col == SheetCols.PaymentStatus:
       b.paymentStatus = val
     elif col == SheetCols.DocketNumber:
-      if type(val) == float:
+      if type(val) in [float, int]:
         b.docketNumber = str(int(val))
-      elif type(val) == int:
-        b.docketNumber = str(val)
       else:
         b.docketNumber = val
     elif col == SheetCols.DocketDate:
