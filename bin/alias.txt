@@ -244,3 +244,5 @@ gpom = git push origin master
 es = exercism submit $*
 ef = exercism fetch
 gft = go fmt && go test
+
+mpv = b:\tools\mpv\mpv.exe $*

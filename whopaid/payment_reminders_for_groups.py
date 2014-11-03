@@ -122,7 +122,7 @@ def AskQuestionsFromUserAndSendMail(args):
     firstCompInGrp = compsInGrp[0]
     totalDue = TotalDueForGroupAsInt(grpName)
     SendOfficialSMS(firstCompInGrp, """Dear Sir,
-You are requested to kindly release the payment. The total due amount is: {totalDue}. The details have been sent your mail address.
+You are requested to kindly release the payment. The total due amount is: {totalDue}. The details have been sent to your mail address.
 Thanks""".format(totalDue=totalDue))
   return
 
