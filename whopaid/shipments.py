@@ -748,10 +748,10 @@ def GenerateShipmentJsonNodes(days):
   ps = PersistentShipments()
   shipments = [s for s in ps.GetAllStoredShipments() if s.daysPassed <= days]
   shipments.sort(key=lambda s: s.bill.docketDate, reverse=True)
-  data = {s.bill.uid_string: s.jsonNode for s in shipments}
+  jsonData = [s.jsonNode for s in shipments]
   jsonFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), GetOption("CONFIG_SECTION", "ShipmentsJson"))
   with open(jsonFileName, "w") as j:
-    json.dump(data, j, indent=2)
+    json.dump(jsonData, j, indent=2)
   return
 
 
