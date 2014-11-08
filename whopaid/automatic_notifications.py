@@ -160,7 +160,7 @@ class DAYS(object):
   SATURDAY =5
   SUNDAY = 6
 
-def SendWeeklySalesAsSmsIfNotSentAlready():
+def _SendWeeklySalesAsSmsIfNotSentAlready():
   minusOne = datetime.timedelta(days=-1)
   t = datetime.date.today()
 
@@ -185,7 +185,7 @@ def SendWeeklySalesAsSmsIfNotSentAlready():
 
   return
 
-def SendMonthlySaleAsSmsIfNotSentAlready():
+def _SendMonthlySaleAsSmsIfNotSentAlready():
   PrintInBox("Sending monthly sale sms if not already sent")
   t = datetime.date.today()
 
@@ -202,12 +202,63 @@ def SendMonthlySaleAsSmsIfNotSentAlready():
   return
 
 def SendAutomaticSmsReportsIfRequired():
-  #SendWeeklySalesAsSmsIfNotSentAlready()
-  SendMonthlySaleAsSmsIfNotSentAlready()
+  #_SendWeeklySalesAsSmsIfNotSentAlready()
+  _SendMonthlySaleAsSmsIfNotSentAlready()
+  _ArrangeNewBillBookMsg()
   return
 
+class _PersistentBillBookSms(Persistent):
+  def __init__(self):
+    super(self.__class__, self).__init__(self.__class__.__name__)
 
+  def _keyForBill(self, bill):
+    return "{}{}".format(bill.billNumber, DD_MMM_YYYY(bill.invoiceDate))
+
+  def _wasSMSSentForBill(self, bill):
+    return self._keyForBill(bill) in self
+
+  def sendSmsIfRequired(self):
+    functionality = GetOption("CONFIG_SECTION", "NewBillBookMsgFunctionalityEnabled").lower() == "true"
+    if not functionality:
+      PrintInBox("Functionality disabled")
+      return
+
+    bills = [b for b in GetAllBillsInLastNDays(30)]
+    bills = sorted(bills, key = lambda b: b.invoiceDate, reverse=True)
+    BILL_BOOK_SIZE = 50
+    BUFFER = 5
+    for b in bills:
+      if int(b.billNumber) % BILL_BOOK_SIZE == (BILL_BOOK_SIZE - BUFFER): #Send the sms when 5 bills are remaining
+        if not self._wasSMSSentForBill(b):
+          PrintInBox("Sending bill book arrangement sms")
+          self._sendSMSForNewBillBookStartingFromBill(int(b.billNumber) + BUFFER + 1)
+          k = self._keyForBill(b)
+          self[k] = DD_MMM_YYYY(datetime.date.today())
+          return
+
+  def _sendSMSForNewBillBookStartingFromBill(self, firstBillNumber):
+    d = dict()
+    d["compSmallName"] = SMALL_NAME
+    d["firstBillNumber"] = str(int(firstBillNumber))
+
+    smsContents = Template(
+"""M/s $compSmallName
+New bill book required starting from bill# $firstBillNumber
+""").substitute(d)
+
+    nos = GetOption("SMS_SECTION", "OwnersR").replace(";", ",").split(",")
+    nos = [n.strip()[::-1] for n in nos]
+
+    for n in nos:
+      print("Sending sms to {}".format(n))
+      print("{}".format(smsContents))
+      SendSms(n, smsContents)
+    return
+
+def _ArrangeNewBillBookMsg():
+  _PersistentBillBookSms().sendSmsIfRequired()
 
 
 if __name__ == "__main__":
-  SendMonthlySaleAsSmsIfNotSentAlready()
+  #_SendMonthlySaleAsSmsIfNotSentAlready()
+  _ArrangeNewBillBookMsg()
