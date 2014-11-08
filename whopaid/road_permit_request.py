@@ -30,7 +30,7 @@ import os
 
 def ParseOptions():
     p = argparse.ArgumentParser(description="Send mail to a company requesting"
-            " for  a road permit")
+            " for a road permit")
 
     p.add_argument("-c", "--comp", dest='comp', type=str, default=None,
             help="Company name or part of it.")
@@ -46,6 +46,10 @@ def ParseOptions():
 
     p.add_argument('-md', '--material-desc', dest='materialDesc', type=str,
             help="Company name or part of it.")
+
+    p.add_argument("-sb", "--scanned-bill", dest="scannedBillPath", type=str,
+             help = "If present file will be sent as attachment")
+
 
     p.add_argument("--mail", dest='mail', action="store_true",
             default=False, help="If present, an email will be sent if possible.")
@@ -73,19 +77,13 @@ def ParseOptions():
             default=None, help="If present, emails will be sent with this as "
             "last line.")
 
-    p.add_argument("-sb", "--scanned-bill", dest="scannedBillPath", type=str,
-             default=None, help = "If present file will be sent as attachment")
-
 
     args = p.parse_args()
-    if not args.invoiceDate:
-        args.invoiceDate = raw_input("Date:")
-    if not args.materialDesc:
-        args.materialDesc = raw_input("Material:")
-    if not args.billAmount:
-        args.billAmount = raw_input("Amount:")
-    if not args.billNumber:
-        args.billNumber = raw_input("Bill#:")
+    if not args.invoiceDate: args.invoiceDate = raw_input("Date:")
+    if not args.materialDesc: args.materialDesc = raw_input("Material:")
+    if not args.billAmount: args.billAmount = raw_input("Amount:")
+    if not args.billNumber: args.billNumber = raw_input("Bill#:")
+    if not args.scannedBillPath: args.scannedBillPath = raw_input("Scanned Bill Path:")
 
     return args
 

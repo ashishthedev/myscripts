@@ -79,7 +79,7 @@ class PersistentMonthlySmsDetails(Persistent):
     d["compSmallName"] = SMALL_NAME
     d["month"] = "{}-{}".format(firstDay.strftime("%b"), firstDay.year)
     d["totalSale"] = str(int(totalSale))
-    d["projectedSaleForThisYear"] = str(round(CalculateProjectedSaleForThisYear()/10000000, 2))
+    d["projectedSaleForThisYear"] = str(round(CalculateProjectedSaleForThisYear()/10000000.0, 2))
     d["topFiveStrList"] = GetTopFiveClientsAsString(bills)
     smsContents = Template(
 """M/s $compSmallName

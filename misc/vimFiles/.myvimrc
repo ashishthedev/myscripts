@@ -236,7 +236,6 @@ abbr <a> <a href=""></a><ESC>5hi
 abbr <span> <span></span><ESC>6hi
 abbr psvm public static void main(String[] args){<CR>}<esc>O
 abbr ifm if __name__ == "__main__":<CR>
-abbr fsms From: Standard Dies<CR>To:<CR>Dear Sir,<CR>Thanks,<CR>Ashok Anand.<CR>+919810181182<ESC>gg0i
 
 
 "let g:SimpylFold_docstring_preview = 1
