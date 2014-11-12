@@ -10,22 +10,22 @@ from collections import defaultdict
 
 
 def main(basePath, ignList):
-    d = defaultdict(list)
-    for root, dirs, files in os.walk(basePath):
-        for eachIgnEntry in ignList:
-            if eachIgnEntry in dirs:
-                dirs.remove(eachIgnEntry)
+  d = defaultdict(list)
+  for root, dirs, files in os.walk(basePath):
+    for eachIgnEntry in ignList:
+      if eachIgnEntry in dirs:
+        dirs.remove(eachIgnEntry)
 
-        for eachFileName in files:
-            filePath = os.path.join(root, eachFileName)
-            hashVal = os.path.getsize(os.path.normpath(filePath))
-            d[hashVal].append(filePath)
+    for eachFileName in files:
+      filePath = os.path.join(root, eachFileName)
+      hashVal = os.path.getsize(os.path.normpath(filePath))
+      d[hashVal].append(filePath)
 
-    for k, v in d.items():
-        if len(v) > 1:
-            print("---------------------------------------")
-            for eachPath in v:
-                print(eachPath)
+  dups = {k:v for (k,v) in d.items() if len(v)>1}
+  for i, (k, v) in enumerate(dups.items()):
+    print("---------------------------------------")
+    for eachPath in v:
+      print("{}. {}".format(i, eachPath))
 
 if __name__ == '__main__':
     main(os.getcwd(), [".git"])

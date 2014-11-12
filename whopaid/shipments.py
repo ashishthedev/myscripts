@@ -37,6 +37,8 @@ MAX_DAYS_FOR_SENDING_NOTIFICATION = 4
 IS_DEMO = True
 
 LIST_OF_SHIPMENTS_IN_THIS_SCAN = list()
+NO_OF_DAYS = int(GetOption("CONFIG_SECTION", "ShowShipmentStatusForNDays"))
+ALL_BILLS_IN_LAST_N_DAYS = GetAllBillsInLastNDays(NO_OF_DAYS)
 #Shipment
 # |-ShipmentMail
 # |-ShipmentCourier
@@ -88,6 +90,16 @@ class ShipmentTrack(object):
     if self.isDelivered:
         return  # No need to do anything else
 
+    freshlyCalculatedPaidBillUids = [bill.uid_string for bill in ALL_BILLS_IN_LAST_N_DAYS if bill.isPaid]
+    undeliveredButPaid = not self.isDelivered and (self.bill.uid_string in freshlyCalculatedPaidBillUids)
+    if undeliveredButPaid:
+      PrintInBox("Going out of the way")
+      self.status = "Shipment in transit as per courier internet status but payment made by customer. Marking as delivered."
+      self.isDelivered = True
+      LIST_OF_SHIPMENTS_IN_THIS_SCAN.append(self)
+      self.shipment.save()
+      return
+
     try:
       self.status = self.courier.GetStatus()
     except urllib2.URLError:
@@ -104,7 +116,6 @@ class ShipmentTrack(object):
 
   def IsSnapshotSaved(self):
     return self.courier.IsSnapshotSaved()
-
 
 class ShipmentSms(object):
   def __init__(self, shipment, bill):
@@ -730,7 +741,7 @@ def DBDeletedDoWhatEverIsNecessary():
   """This will help when the db is accidently deleted. In that case, just mark all the information as already sent"""
   if raw_input("All the dockets will be marked as information_sent. Do you want to proceed (y/n)").lower()!='y': 
     return
-  NO_OF_DAYS=90
+  NO_OF_DAYS = int(GetOption("CONFIG_SECTION", "ShowShipmentStatusForNDays"))
   bills = [b for b in GetAllBillsInLastNDays(NO_OF_DAYS) if b.docketDate]
   ps = PersistentShipments()
   for b in bills:
