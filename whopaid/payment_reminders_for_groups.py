@@ -21,8 +21,8 @@ from Util.PythonMail import SendMail
 from whopaid.customers_info import GetAllCustomersInfo
 from whopaid.off_comm import SendOfficialSMS
 from whopaid.sanity_checks import CheckConsistency
-from whopaid.util_whopaid import datex, GetAllCompaniesDict, SelectUnpaidBillsFrom, \
-        GuessCompanyGroupName, RemoveTrackingBills, RemoveGRBills
+from whopaid.util_whopaid import GetAllCompaniesDict, SelectUnpaidBillsFrom, \
+        GuessCompanyGroupName, GetUnpaidBillsAndUnAccSingleAdjForThisComp
 
 from collections import defaultdict
 from string import Template
@@ -359,23 +359,6 @@ def GetHTMLTableBlockForThisGrp(grpName):
     if not SelectUnpaidBillsFrom(ALL_BILLS_DICT[eachCompName]): continue
     htmlTables += "<br>" + _GetHTMLTableBlockForThisComp(eachCompName)
   return htmlTables
-
-def GetUnpaidBillsAndUnAccSingleAdjForThisComp(compName):
-  unpaidBillsList = SelectUnpaidBillsFrom(ALL_BILLS_DICT[compName])
-  unpaidBillsList = RemoveTrackingBills(unpaidBillsList)
-  unpaidBillsList = RemoveGRBills(unpaidBillsList)
-  unpaidBillsList.sort(key=lambda b: datex(b.invoiceDate))
-  adjustmentBills = GetAllCompaniesDict().GetUnAccountedAdjustmentsListForCompany(compName)
-  adjSingleBill = None
-  if adjustmentBills:
-    if len(adjustmentBills) > 1:
-      #TODO: Currently we are accomodating only one adjustment bill
-      raise Exception("There can be only one adjustment bill for a company")
-    adjSingleBill = adjustmentBills[0]
-    adjSingleBill.billNumber = -1
-    adjSingleBill.invoiceDate = datetime.date.today()
-
-  return unpaidBillsList, adjSingleBill
 
 def _GetHTMLTableBlockForThisComp(compName):
   unpaidBillsList, adjSingleBill = GetUnpaidBillsAndUnAccSingleAdjForThisComp(compName)

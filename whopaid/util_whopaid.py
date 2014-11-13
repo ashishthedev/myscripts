@@ -607,6 +607,24 @@ def ShowPendingOrdersOnScreen():
       PrintInBox(str(eachOrder))
   return
 
+def GetUnpaidBillsAndUnAccSingleAdjForThisComp(compName):
+  allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
+  unpaidBillsList = SelectUnpaidBillsFrom(allBillsDict[compName])
+  unpaidBillsList = RemoveTrackingBills(unpaidBillsList)
+  unpaidBillsList = RemoveGRBills(unpaidBillsList)
+  unpaidBillsList.sort(key=lambda b: datex(b.invoiceDate))
+  adjustmentBills = GetAllCompaniesDict().GetUnAccountedAdjustmentsListForCompany(compName)
+  adjSingleBill = None
+  if adjustmentBills:
+    if len(adjustmentBills) > 1:
+      #TODO: Currently we are accomodating only one adjustment bill
+      raise Exception("There can be only one adjustment bill for a company")
+    adjSingleBill = adjustmentBills[0]
+    adjSingleBill.billNumber = -1
+    adjSingleBill.invoiceDate = adjSingleBill.invoiceDate or datetime.date.today()
+
+  return unpaidBillsList, adjSingleBill
+
 
 if __name__ == "__main__":
     ShowPendingOrdersOnScreen()

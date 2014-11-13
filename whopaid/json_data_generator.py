@@ -4,7 +4,7 @@ from Util.Misc import DD_MM_YYYY, DD_MMM_YYYY
 
 from whopaid.customers_info import GetAllCustomersInfo
 from whopaid.km_pending_orders import GetAllKMOrders, GetAllPendingOrders, GetAllReceivedOrders
-from whopaid.util_whopaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, datex, RemoveTrackingBills, RemoveGRBills
+from whopaid.util_whopaid import GetAllCompaniesDict, datex
 from whopaid.util_formc import QuarterlyClubbedFORMC
 
 from collections import defaultdict
@@ -117,7 +117,6 @@ data=
 """
 def _DumpPaymentsDB():
   allBillsDict = ALL_COMPANIES_DICT.GetAllBillsOfAllCompaniesAsDict()
-  allAdjustmentsDict = ALL_COMPANIES_DICT.GetAllAdjustmentsOfAllCompaniesAsDict()
 
   if os.path.exists(PMT_JSON_FILE_NAME):
     os.remove(PMT_JSON_FILE_NAME)
@@ -126,10 +125,8 @@ def _DumpPaymentsDB():
   allCustomers = []
 
   for eachCompName, eachCompBills in allBillsDict.iteritems():
-    adjustmentList = allAdjustmentsDict.get(eachCompName, [])
-    unpaidBillList = SelectUnpaidBillsFrom(eachCompBills)
-    unpaidBillList = RemoveTrackingBills(unpaidBillList)
-    unpaidBillList = RemoveGRBills(unpaidBillList)
+    unpaidBillList, adjSingleBill = GetUnpaidBillsAndUnAccSingleAdjForThisComp(eachCompName)
+
     oneCustomer = dict()
     oneCustomer["name"] = " {} | {}".format(eachCompName, SMALL_NAME)
 
