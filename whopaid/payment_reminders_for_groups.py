@@ -22,7 +22,7 @@ from whopaid.customers_info import GetAllCustomersInfo
 from whopaid.off_comm import SendOfficialSMS
 from whopaid.sanity_checks import CheckConsistency
 from whopaid.util_whopaid import datex, GetAllCompaniesDict, SelectUnpaidBillsFrom, \
-        GuessCompanyGroupName, RemoveTrackingBills
+        GuessCompanyGroupName, RemoveTrackingBills, RemoveGRBills
 
 from collections import defaultdict
 from string import Template
@@ -363,6 +363,7 @@ def GetHTMLTableBlockForThisGrp(grpName):
 def GetUnpaidBillsAndUnAccSingleAdjForThisComp(compName):
   unpaidBillsList = SelectUnpaidBillsFrom(ALL_BILLS_DICT[compName])
   unpaidBillsList = RemoveTrackingBills(unpaidBillsList)
+  unpaidBillsList = RemoveGRBills(unpaidBillsList)
   unpaidBillsList.sort(key=lambda b: datex(b.invoiceDate))
   adjustmentBills = GetAllCompaniesDict().GetUnAccountedAdjustmentsListForCompany(compName)
   adjSingleBill = None

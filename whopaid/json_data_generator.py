@@ -4,7 +4,7 @@ from Util.Misc import DD_MM_YYYY, DD_MMM_YYYY
 
 from whopaid.customers_info import GetAllCustomersInfo
 from whopaid.km_pending_orders import GetAllKMOrders, GetAllPendingOrders, GetAllReceivedOrders
-from whopaid.util_whopaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, datex, RemoveTrackingBills
+from whopaid.util_whopaid import SelectUnpaidBillsFrom, GetAllCompaniesDict, datex, RemoveTrackingBills, RemoveGRBills
 from whopaid.util_formc import QuarterlyClubbedFORMC
 
 from collections import defaultdict
@@ -129,6 +129,7 @@ def _DumpPaymentsDB():
     adjustmentList = allAdjustmentsDict.get(eachCompName, [])
     unpaidBillList = SelectUnpaidBillsFrom(eachCompBills)
     unpaidBillList = RemoveTrackingBills(unpaidBillList)
+    unpaidBillList = RemoveGRBills(unpaidBillList)
     oneCustomer = dict()
     oneCustomer["name"] = " {} | {}".format(eachCompName, SMALL_NAME)
 

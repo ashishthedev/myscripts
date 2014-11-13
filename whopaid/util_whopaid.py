@@ -366,6 +366,9 @@ def SelectUnAccountedAdjustmentsFrom(adjustmentList):
 def RemoveTrackingBills(billList):
     return [b for b in billList if not b.billingCategory.lower().startswith("tracking")]
 
+def RemoveGRBills(billList):
+    return [b for b in billList if not b.billingCategory.lower().startswith("gr")]
+
 class SheetCols:
     """
     This class is used as Enum.
