@@ -82,7 +82,7 @@ def CreateSingleCustomerInfo(row):
         elif col == CustomerInfoCol.KindAttentionCol:
             c.kindAttentionPerson = val
         elif col == CustomerInfoCol.TrustCol:
-            c.trust = val
+            c.trust = val or 1
         elif col == CustomerInfoCol.IncludeDaysCol:
             c.includeDays = val
         elif col == CustomerInfoCol.CreditLimitCol:

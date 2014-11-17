@@ -632,9 +632,7 @@ def SendComplaintMessageForDocket(docketNumber):
   return
 
 
-def main():
-  args = ParseOptions()
-
+def main(args):
   global IS_DEMO
   IS_DEMO = args.isDemo
 
@@ -656,10 +654,6 @@ def main():
 
   if args.forceMarkDeliveredDocket:
     _ForceMarkDocketAsDelivered(args.forceMarkDeliveredDocket)
-
-  if args.removeTrackingForDockets:
-    _RemoveDocketFromIndex(args.removeTrackingForDockets)
-    import sys; sys.exit(0)
 
   if args.newSnapshotForDocket:
     _NewSnapshotForDocket(args.newSnapshotForDocket)
@@ -767,8 +761,16 @@ def GenerateShipmentJsonNodes(days):
 
 
 if __name__ == '__main__':
+  args = ParseOptions()
+
+
+  if args.removeTrackingForDockets:
+    _RemoveDocketFromIndex(args.removeTrackingForDockets)
+    import sys; sys.exit(0)
+
   CheckConsistency()
-  main()
+
+  main(args)
   GenerateShipmentJsonNodes(int(GetOption("CONFIG_SECTION", "ShowShipmentStatusForNDays")))
   SendAutomaticHeartBeat()
   ShowUndeliveredSmalOnScreen()

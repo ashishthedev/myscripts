@@ -60,6 +60,7 @@ def CheckConsistency():
       CheckBillsCalculation,
       CheckCancelledAmount,
       CheckIfAnyBillsShouldBeMarkedAsPaid,
+      CheckDocketLength,
       ]
 
   allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
@@ -80,6 +81,24 @@ def CheckCancelledAmount(allBillsDict):
         if eachBill.amount != 0:
           raise MyException("Bill#{} dated {} is cancelled but has amount {}. It should be 0".format(eachBill.billNumber, str(eachBill.invoiceDate), eachBill.amount))
 
+
+def CheckDocketLength(allBillsDict):
+  MAPPING = {
+      "first": 12,
+      "overni": 10,
+      "vrl": 9,
+      "nitco": 11,
+      "accura": 7,
+      "profes": 10,
+      }
+  for (eachCompName, eachComp) in allBillsDict.iteritems():
+    for eachBill in eachComp:
+      if not eachBill.docketNumber: continue
+      for courierName, length in MAPPING.items():
+        if eachBill.courierName.lower().startswith(courierName):
+          if len(eachBill.docketNumber) != length:
+            raise MyException("Docket#{} might be wrong as it should have been exactly {} characters and it is {}".format(eachBill.docketNumber, length, len(eachBill.docketNumber)))
+  return
 
 def CheckBillingCategory(allBillsDict):
   for (eachCompName, eachComp) in allBillsDict.iteritems():

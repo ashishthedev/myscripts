@@ -90,7 +90,7 @@ class CompaniesDict(dict):#TODO: Name it as DB
 
     def GetUnAccountedAdjustmentsListForCompany(self, compName):
       adjustmentList = self.GetAllAdjustmentsOfAllCompaniesAsDict().get(compName, [])
-      return [a for a in adjustmentList if not (a.adjustmentAccountedFor or a.adjustmentPaidFor)]
+      return SelectUnAccountedAdjustmentsFrom(adjustmentList)
 
     def GetOrdersListForCompany(self, compName):
         return self.GetAllOrdersOfAllCompaniesAsDict().get(compName, None)
@@ -361,7 +361,7 @@ def SelectUnpaidBillsFrom(billList):
     return [b for b in billList if b.isUnpaid]
 
 def SelectUnAccountedAdjustmentsFrom(adjustmentList):
-    return [a for a in adjustmentList if not a.adjustmentAccountedFor]
+    return [a for a in adjustmentList if not (a.adjustmentAccountedFor or a.adjustmentPaidFor)]
 
 def RemoveTrackingBills(billList):
     return [b for b in billList if not b.billingCategory.lower().startswith("tracking")]
@@ -437,7 +437,7 @@ def CreateSingleAdjustmentRow(row):
         elif col == SheetCols.PaymentStatus:
             r.adjustmentPaidFor = False
             if val is not None:
-                r.adjustmentPaidFor = val.lower()=="no"
+                r.adjustmentPaidFor = val.lower()=="paid"
         elif col == SheetCols.PaymentAccountedFor:
             r.adjustmentAccountedFor = False
             if val is not None:
@@ -607,23 +607,22 @@ def ShowPendingOrdersOnScreen():
       PrintInBox(str(eachOrder))
   return
 
-def GetUnpaidBillsAndUnAccSingleAdjForThisComp(compName):
+def GetPayableBillsAndAdjustmentsForThisComp(compName):
   allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
   unpaidBillsList = SelectUnpaidBillsFrom(allBillsDict[compName])
   unpaidBillsList = RemoveTrackingBills(unpaidBillsList)
   unpaidBillsList = RemoveGRBills(unpaidBillsList)
   unpaidBillsList.sort(key=lambda b: datex(b.invoiceDate))
   adjustmentBills = GetAllCompaniesDict().GetUnAccountedAdjustmentsListForCompany(compName)
-  adjSingleBill = None
   if adjustmentBills:
     if len(adjustmentBills) > 1:
       #TODO: Currently we are accomodating only one adjustment bill
-      raise Exception("There can be only one adjustment bill for a company")
-    adjSingleBill = adjustmentBills[0]
-    adjSingleBill.billNumber = -1
-    adjSingleBill.invoiceDate = adjSingleBill.invoiceDate or datetime.date.today()
+      raise Exception("There should be only one adjustment for M/s {}".format(compName))
+    for a in adjustmentBills:
+      a.billNumber = -1
+      a.invoiceDate = a.invoiceDate or datetime.date.today()
 
-  return unpaidBillsList, adjSingleBill
+  return unpaidBillsList, adjustmentBills
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ from Util.Misc import DD_MM_YYYY, DD_MMM_YYYY
 
 from whopaid.customers_info import GetAllCustomersInfo
 from whopaid.km_pending_orders import GetAllKMOrders, GetAllPendingOrders, GetAllReceivedOrders
-from whopaid.util_whopaid import GetAllCompaniesDict, datex
+from whopaid.util_whopaid import GetAllCompaniesDict, datex, GetPayableBillsAndAdjustmentsForThisComp
 from whopaid.util_formc import QuarterlyClubbedFORMC
 
 from collections import defaultdict
@@ -125,7 +125,7 @@ def _DumpPaymentsDB():
   allCustomers = []
 
   for eachCompName, eachCompBills in allBillsDict.iteritems():
-    unpaidBillList, adjSingleBill = GetUnpaidBillsAndUnAccSingleAdjForThisComp(eachCompName)
+    unpaidBillList, adjustmentList = GetPayableBillsAndAdjustmentsForThisComp(eachCompName)
 
     oneCustomer = dict()
     oneCustomer["name"] = " {} | {}".format(eachCompName, SMALL_NAME)
@@ -134,22 +134,22 @@ def _DumpPaymentsDB():
     unpaidBillList = sorted(unpaidBillList, key=lambda b: datex(b.invoiceDate))
     for b in unpaidBillList:
       oneBill = {
-          "bn" : b.billNumber,
+          "bn": b.billNumber,
           "bd": DD_MM_YYYY(datex(b.invoiceDate)),
           "cd": str(b.daysOfCredit),
-          "ba":str(int(b.amount))
+          "ba": str(int(b.amount))
           }
       oneCustomerBills.append(oneBill)
 
-    for a in adjustmentList:
-      if a.adjustmentAccountedFor: continue
-      oneAdjustment = {
-          "bn": a.adjustmentNo or "-1",
-          "bd": DD_MM_YYYY(datex(a.invoiceDate)),
-          "cd": "0",
-          "ba":str(int(a.amount))
-          }
-      oneCustomerBills.append(oneAdjustment) #For all practical purposes, an adjustment is treated as a bill with bill#-1
+    if adjustmentList:
+      for a in adjustmentList:
+        oneAdjustment = {
+            "bn": a.adjustmentNo or "-1",
+            "bd": DD_MM_YYYY(datex(a.invoiceDate)),
+            "cd": "0",
+            "ba": str(int(a.amount))
+            }
+        oneCustomerBills.append(oneAdjustment) #For all practical purposes, an adjustment is treated as a bill with bill#-1
 
     oneCustomer["bills"] = oneCustomerBills
     oneCustomer["trust"] = ALL_CUST_INFO.GetTrustForCustomer(eachCompName)

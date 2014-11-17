@@ -261,4 +261,5 @@ def _ArrangeNewBillBookMsg():
 
 if __name__ == "__main__":
   #_SendMonthlySaleAsSmsIfNotSentAlready()
-  _ArrangeNewBillBookMsg()
+  #_ArrangeNewBillBookMsg()
+  print(CalculateProjectedSaleForThisYear())

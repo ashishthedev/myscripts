@@ -22,7 +22,7 @@ from whopaid.customers_info import GetAllCustomersInfo
 from whopaid.off_comm import SendOfficialSMS
 from whopaid.sanity_checks import CheckConsistency
 from whopaid.util_whopaid import GetAllCompaniesDict, SelectUnpaidBillsFrom, \
-        GuessCompanyGroupName, GetUnpaidBillsAndUnAccSingleAdjForThisComp
+        GuessCompanyGroupName, GetPayableBillsAndAdjustmentsForThisComp
 
 from collections import defaultdict
 from string import Template
@@ -361,7 +361,7 @@ def GetHTMLTableBlockForThisGrp(grpName):
   return htmlTables
 
 def _GetHTMLTableBlockForThisComp(compName):
-  unpaidBillsList, adjSingleBill = GetUnpaidBillsAndUnAccSingleAdjForThisComp(compName)
+  unpaidBillsList, adjustmentList = GetPayableBillsAndAdjustmentsForThisComp(compName)
 
   companyOfficialName = ALL_CUST_INFO.GetCompanyOfficialName(compName)
   if not companyOfficialName:
@@ -410,12 +410,12 @@ def _GetHTMLTableBlockForThisComp(compName):
 
     tableRows += MakeBillRow(*billRowArgs)
 
-  if adjSingleBill:
-    adjRowArgs=[int(adjSingleBill.billNumber),
-        DD_MM_YYYY(adjSingleBill.invoiceDate),
-        Bold("Rs." + str(int(adjSingleBill.amount)))]
+  for a in adjustmentList:
+    adjRowArgs=[int(a.billNumber),
+        DD_MM_YYYY(a.invoiceDate),
+        Bold("Rs." + str(int(a.amount)))]
 
-    totalDueLiterally += int(adjSingleBill.amount)
+    totalDueLiterally += int(a.amount)
 
     if includeCreditDays:
       adjRowArgs.append(" ")
