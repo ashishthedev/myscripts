@@ -15,9 +15,12 @@ from whopaid.customers_info import GetAllCustomersInfo
 from whopaid.sanity_checks import CheckConsistency
 from whopaid.util_whopaid import GetAllCompaniesDict, GuessCompanyGroupName
 from whopaid.payment_reminders_for_groups import GetPayableBillsAndAdjustmentsForThisComp
+
 import argparse
+import datetime
 
 ALL_CUST_INFO = GetAllCustomersInfo()
+ALL_BILLS_DICT = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
 
 def ParseOptions():
 
@@ -32,7 +35,6 @@ def main():
   args = ParseOptions()
 
   print("Churning data...")
-  allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
 
   if args.lastFewPayments:
     ShowLastFewPaymentsOnTerminal()
@@ -40,7 +42,7 @@ def main():
 
   chosenGrp = GuessCompanyGroupName(args.comp)
 
-  ShowStatementOnTerminal(chosenGrp, allBillsDict, args)
+  ShowStatementOnTerminal(chosenGrp)
 
   return
 
@@ -60,32 +62,34 @@ def GetMinusOneBills(billList):
   return [b.billNumber for b in billList if b.billNumber!=-1]
 
 
-def ShowStatementOnTerminal(grpName, allBillsDict, args):
+def ShowStatementOnTerminal(grpName):
   compsInGrp = ALL_CUST_INFO.GetListOfCompNamesForThisGrp(grpName)
   for compName in compsInGrp:
     unpaidBillsList, adjustmentList = GetPayableBillsAndAdjustmentsForThisComp(compName)
-    Column = ConsoleTable.Column
 
     billNumbers = [str(b.billNumber) for b in unpaidBillsList]
     invoiceDates = [str(DD_MMM_YYYY(b.invoiceDate)) for b in unpaidBillsList]
+    daysOfCredit = [str(b.daysOfCredit) for b in unpaidBillsList]
     amounts = [str(b.amount) for b in unpaidBillsList]
 
     if adjustmentList:
       for singleAdj in adjustmentList:
         billNumbers += [str(singleAdj.billNumber)]
         invoiceDates += [str(singleAdj.invoiceDate)]
+        daysOfCredit += [str(singleAdj.daysOfCredit)]
         amounts += [str(singleAdj.amount)]
 
     billNumbers.append("TOTAL")
     invoiceDates.append("")
+    daysOfCredit.append("")
     amounts.append(str(sum(int(x) for x in amounts)))
 
     print("")
-    print("")
-    print(compName)
+    Column = ConsoleTable.Column
     print ConsoleTable(
         Column("Bill#", billNumbers),
         Column("Invoice Date", invoiceDates),
+        Column("Days", daysOfCredit),
         Column("Amount", amounts),
         )
   return

@@ -273,7 +273,10 @@ class SingleAdjustmentRow(SingleRow):
         assert self.isUnpaid, "This function should only be called on unpaid bills"
         timeDelta = datetime.date.today() - datex(self.invoiceDate)
         return timeDelta.days
-    pass
+
+    @property
+    def isUnpaid(self):
+      return  not (self.adjustmentAccountedFor or self.adjustmentPaidFor)
 
 class SingleOrderRow(SingleRow):
     def __str__(self):
@@ -361,7 +364,7 @@ def SelectUnpaidBillsFrom(billList):
     return [b for b in billList if b.isUnpaid]
 
 def SelectUnAccountedAdjustmentsFrom(adjustmentList):
-    return [a for a in adjustmentList if not (a.adjustmentAccountedFor or a.adjustmentPaidFor)]
+    return [a for a in adjustmentList if a.isUnpaid]
 
 def RemoveTrackingBills(billList):
     return [b for b in billList if not b.billingCategory.lower().startswith("tracking")]
