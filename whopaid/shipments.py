@@ -692,7 +692,8 @@ def FanOutDispatchInfoToAllComapnies(args):
         else:
           print("Not sending mail...")
       if args.sendDispatchSms and \
-          not shipment.psWasShipmentSmsEverSent():
+         not shipment.psWasShipmentSmsEverSent() and \
+         shipment.isSMSNoAvailable():
         if 'y' == raw_input("{}\nSend sms for {} (y/n)?".format("_"*70, shipment)).lower():
           shipment.psSendSmsForThisShipment()
         else:

@@ -14,9 +14,7 @@ from Util.Misc import PrintInBox, DD_MMM_YYYY, ConsoleTable
 from whopaid.customers_info import GetAllCustomersInfo
 from whopaid.sanity_checks import CheckConsistency
 from whopaid.util_whopaid import GetAllCompaniesDict, GuessCompanyGroupName
-from whopaid.payment_reminders_for_groups import GetUnpaidBillsAndUnAccSingleAdjForThisComp
-
-from datetime import date
+from whopaid.payment_reminders_for_groups import GetPayableBillsAndAdjustmentsForThisComp
 import argparse
 
 ALL_CUST_INFO = GetAllCustomersInfo()
@@ -65,23 +63,22 @@ def GetMinusOneBills(billList):
 def ShowStatementOnTerminal(grpName, allBillsDict, args):
   compsInGrp = ALL_CUST_INFO.GetListOfCompNamesForThisGrp(grpName)
   for compName in compsInGrp:
-    unpaidBillsList, singleAdj = GetUnpaidBillsAndUnAccSingleAdjForThisComp(compName)
+    unpaidBillsList, adjustmentList = GetPayableBillsAndAdjustmentsForThisComp(compName)
     Column = ConsoleTable.Column
 
     billNumbers = [str(b.billNumber) for b in unpaidBillsList]
     invoiceDates = [str(DD_MMM_YYYY(b.invoiceDate)) for b in unpaidBillsList]
     amounts = [str(b.amount) for b in unpaidBillsList]
 
-    if singleAdj:
-      billNumbers += [str(singleAdj.billNumber)]
-      invoiceDates += [str(singleAdj.invoiceDate)]
-      amounts += [str(singleAdj.amount)]
+    if adjustmentList:
+      for singleAdj in adjustmentList:
+        billNumbers += [str(singleAdj.billNumber)]
+        invoiceDates += [str(singleAdj.invoiceDate)]
+        amounts += [str(singleAdj.amount)]
 
     billNumbers.append("TOTAL")
     invoiceDates.append("")
     amounts.append(str(sum(int(x) for x in amounts)))
-
-
 
     print("")
     print("")

@@ -45,9 +45,9 @@ def CalculateProjectedSaleForThisYear():
   firstApril = GetFirstDateOfThisFinancialYear()
   bills = SelectBillsAfterDate(GetAllBillsInLastNDays(365), firstApril)
   t = datetime.date.today()
-  previousMonthLastDate  = t - datetime.timedelta(days=t.day+1)
+  previousMonthLastDate = t - datetime.timedelta(days=t.day+1)
   bills = SelectBillsBeforeDate(bills, previousMonthLastDate)
-  projectedSaleForThisYear = sum([b.amount for b in bills if b.billingCategory.lower() in ["up", "central", "export"]])
+  projectedSaleForThisYear = sum([b.goodsValue for b in bills if b.billingCategory.lower() in ["up", "central", "export"]])
   daysPassedInThisYear = (previousMonthLastDate - firstApril).days
   projectedSaleForThisYear = (projectedSaleForThisYear/daysPassedInThisYear)*365
   return projectedSaleForThisYear
