@@ -18,7 +18,7 @@ from whopaid.customers_info import GetAllCustomersInfo
 from whopaid.sanity_checks import CheckConsistency
 from whopaid.util_formc import QuarterlyClubbedFORMC
 from whopaid.util_whopaid import GetAllCompaniesDict, SelectBillsAfterDate,\
-        SelectBillsBeforeDate, GuessCompanyName, RemoveTrackingBills
+        SelectBillsBeforeDate, GuessCompanyName, RemoveTrackingBills, RemoveGRBills
 
 
 import argparse
@@ -123,6 +123,7 @@ def SendFORMCMailToCompany(compName, args):
     FORMCBillList = SelectBillsAfterDate(billList, sdateObject)
     FORMCBillList = SelectBillsBeforeDate(FORMCBillList, edateObject)
     FORMCBillList = RemoveTrackingBills(FORMCBillList)
+    FORMCBillList = RemoveGRBills(FORMCBillList)
 
 
     if not FORMCBillList:
