@@ -84,20 +84,20 @@ def CheckCancelledAmount(allBillsDict):
 
 def CheckDocketLength(allBillsDict):
   MAPPING = {
-      "first": 12,
-      "overni": 10,
-      "vrl": 9,
-      "nitco": 11,
-      "accura": 7,
-      "profes": 10,
+      "first": [12],
+      "overni": [10],
+      "vrl": [9],
+      "nitco": [11, 7],
+      "accura": [7],
+      "profes": [10],
       }
   for (eachCompName, eachComp) in allBillsDict.iteritems():
     for eachBill in eachComp:
       if not eachBill.docketNumber: continue
-      for courierName, length in MAPPING.items():
+      for courierName, lengths in MAPPING.items():
         if eachBill.courierName.lower().startswith(courierName):
-          if len(eachBill.docketNumber) != length:
-            raise MyException("Docket#{} might be wrong as it should have been exactly {} characters and it is {}".format(eachBill.docketNumber, length, len(eachBill.docketNumber)))
+          if len(eachBill.docketNumber) not in lengths:
+            raise MyException("Docket#{} might be wrong as it should have been exactly {} characters and it is {}".format(eachBill.docketNumber, lengths, len(eachBill.docketNumber)))
   return
 
 def CheckBillingCategory(allBillsDict):
