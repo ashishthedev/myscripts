@@ -55,3 +55,8 @@ p.allKeys
   def allValues(self):
     with closing(shelve.open(self.shelfFileName)) as sh:
       return sh.values()
+
+  def spitOnScreen(self):
+    for k in self.allKeys:
+      print("{:<30}:{:<30}".format(k, self[k]))
+

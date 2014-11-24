@@ -212,35 +212,44 @@ class _PersistentBillBookSms(Persistent):
     super(self.__class__, self).__init__(self.__class__.__name__)
 
   def _keyForBill(self, bill):
-    return "{}{}".format(bill.billNumber, DD_MMM_YYYY(bill.invoiceDate))
+    return "{}-{}".format(bill.billNumber, DD_MMM_YYYY(bill.invoiceDate))
 
   def _wasSMSSentForBill(self, bill):
     return self._keyForBill(bill) in self
 
-  def sendSmsIfRequired(self):
-    bills = [b for b in GetAllBillsInLastNDays(30)]
-    bills = sorted(bills, key = lambda b: b.invoiceDate, reverse=True)
-    BILL_BOOK_SIZE = 50
-    BUFFER = 5
-    for b in bills:
-      if int(b.billNumber) % BILL_BOOK_SIZE == (BILL_BOOK_SIZE - BUFFER): #Send the sms when 5 bills are remaining
-        if not self._wasSMSSentForBill(b):
-          firstBillInNextBillBook = int(b.billNumber) + BUFFER + 1
-          if firstBillInNextBillBook in [b.billNumber for b in bills]: print("a bill has been issued in new billbook"); continue #A bill in new bill book has been issued. Ignore and move on in life.
-          PrintInBox("Sending bill book arrangement sms")
-          self._sendSMSForNewBillBookStartingFromBill(int(b.billNumber) + BUFFER + 1)
-          k = self._keyForBill(b)
-          self[k] = DD_MMM_YYYY(datetime.date.today())
-          return
+  def _markSmsAsSentForBill(self, b):
+    k = self._keyForBill(b)
+    self[k] = DD_MMM_YYYY(datetime.date.today())
+    assert self._wasSMSSentForBill(b) == True
+    print("assert passed")
+    return
 
-  def _sendSMSForNewBillBookStartingFromBill(self, firstBillNumber):
+
+  def sendSmsIfRequired(self):
+    for category in ["central", "up"]:
+      bills = [b for b in GetAllBillsInLastNDays(30)]
+      bills = [b for b in bills if b.billingCategory.lower() == category.lower()]
+      bills = sorted(bills, key = lambda b: b.billNumber)
+      BILL_BOOK_SIZE = 50
+      BUFFER = 5
+      for b in bills:
+        if int(b.billNumber) % BILL_BOOK_SIZE != (BILL_BOOK_SIZE - BUFFER): continue#Send the sms when 5 bills are remaining
+        if self._wasSMSSentForBill(b): continue
+        firstBillInNextBillBook = int(b.billNumber) + BUFFER + 1
+        if firstBillInNextBillBook in [x.billNumber for x in bills]: continue #A bill in new bill book has been issued. Ignore and move on in life.
+        PrintInBox("Sending bill book arrangement sms")
+        self._sendSMSForNewBillBookStartingFromBill(firstBillInNextBillBook)
+        self._markSmsAsSentForBill(b)
+    return
+
+  def _sendSMSForNewBillBookStartingFromBill(self, firstBillInNextBillBook):
     d = dict()
     d["compSmallName"] = SMALL_NAME
-    d["firstBillNumber"] = str(int(firstBillNumber))
+    d["firstBillInNextBillBook"] = str(int(firstBillInNextBillBook))
 
     smsContents = Template(
 """M/s $compSmallName
-New bill book required starting from bill# $firstBillNumber
+New bill book required starting from bill# $firstBillInNextBillBook
 """).substitute(d)
 
     smsFunctionality = GetOption("CONFIG_SECTION", "NewBillBookMsgFunctionalityEnabled").lower() == "true"
