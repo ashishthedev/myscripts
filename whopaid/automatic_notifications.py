@@ -218,11 +218,6 @@ class _PersistentBillBookSms(Persistent):
     return self._keyForBill(bill) in self
 
   def sendSmsIfRequired(self):
-    functionality = GetOption("CONFIG_SECTION", "NewBillBookMsgFunctionalityEnabled").lower() == "true"
-    if not functionality:
-      PrintInBox("Functionality disabled")
-      return
-
     bills = [b for b in GetAllBillsInLastNDays(30)]
     bills = sorted(bills, key = lambda b: b.invoiceDate, reverse=True)
     BILL_BOOK_SIZE = 50
@@ -230,6 +225,8 @@ class _PersistentBillBookSms(Persistent):
     for b in bills:
       if int(b.billNumber) % BILL_BOOK_SIZE == (BILL_BOOK_SIZE - BUFFER): #Send the sms when 5 bills are remaining
         if not self._wasSMSSentForBill(b):
+          firstBillInNextBillBook = int(b.billNumber) + BUFFER + 1
+          if firstBillInNextBillBook in [b.billNumber for b in bills]: print("a bill has been issued in new billbook"); continue #A bill in new bill book has been issued. Ignore and move on in life.
           PrintInBox("Sending bill book arrangement sms")
           self._sendSMSForNewBillBookStartingFromBill(int(b.billNumber) + BUFFER + 1)
           k = self._keyForBill(b)
@@ -246,13 +243,17 @@ class _PersistentBillBookSms(Persistent):
 New bill book required starting from bill# $firstBillNumber
 """).substitute(d)
 
-    nos = GetOption("SMS_SECTION", "OwnersR").replace(";", ",").split(",")
-    nos = [n.strip()[::-1] for n in nos]
+    smsFunctionality = GetOption("CONFIG_SECTION", "NewBillBookMsgFunctionalityEnabled").lower() == "true"
+    if not smsFunctionality:
+      PrintInBox(smsContents, waitForEnterKey=True)
+    else:
+      nos = GetOption("SMS_SECTION", "OwnersR").replace(";", ",").split(",")
+      nos = [n.strip()[::-1] for n in nos]
 
-    for n in nos:
-      print("Sending sms to {}".format(n))
-      print("{}".format(smsContents))
-      SendSms(n, smsContents)
+      for n in nos:
+        print("Sending sms to {}".format(n))
+        print("{}".format(smsContents))
+        SendSms(n, smsContents)
     return
 
 def _ArrangeNewBillBookMsg():
