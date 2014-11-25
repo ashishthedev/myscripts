@@ -3,26 +3,27 @@
 //with .jpeg/pdf/png/gif extension
 //
 
-//var page = require('webpage').create(),
-//    system = require('system'),
-//    fs = require('fs');
-
 var page = require('webpage').create(),
     system = require('system');
 
-page.customHeaders = {
-  'Host': 'www.firstflight.net',
-}
 page.onConsoleMessage = function (msg) {
   console.log(msg);
 };
 
 var destinationFile = system.args[1];
 var docket = system.args[2];
+var FORM_DATA = system.args[3];
 var REQUEST_URL = system.args[4];
+page.customHeaders = {
+    "Host": "firstflight.net:8081",
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Referer": "http://firstflight.net:8081/single-web-tracking/singleTracking.do",
+    "Origin": "http://firstflight.net:8081",
+    };
+
 
 try {
-  page.open(REQUEST_URL, function (status) {
+  page.open(REQUEST_URL, 'POST', FORM_DATA, function (status) {
 
     if(status !== 'success') {
       console.log("Unable to access network - status: " + status);
@@ -39,6 +40,7 @@ try {
 }
 catch(err)
 {
+  console.log("Outer Error: " + err.messge);
   console.log("Error: " + err.messge);
   phantom.exit(1);
 }

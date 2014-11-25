@@ -76,7 +76,7 @@ def FullPathForSnapshotOfBill(b):
 
 def StoreSnapshotWithPhantomScript(b, scriptPath, formData, reqUrl):
   #TODO: Remove hardcoding of path
-  PHANTOM = "B:\\Tools\\PhantomJS\\phantomjs-1.9.1-windows\\phantomjs.exe"
+  PHANTOM = "B:\\Tools\\PhantomJS\\phantomjs-1.9.8-windows\\phantomjs.exe"
   fullPath = FullPathForSnapshotOfBill(b)
 
   if os.path.exists(fullPath):
@@ -144,8 +144,6 @@ class ProfessionalCourier():
 
   def GetStatus(self):
     self.FORM_DATA = ""
-    if not hasattr(self, "reqUrl"):
-      self.reqUrl = "http://www.tpcindia.com/Tracking2014.aspx?id={docket}&type=0&service=0".format(docket=self.bill.docketNumber.strip())
     req = urllib2.Request(self.reqUrl)
     req.add_header('Host', 'www.tpcindia.com')
     req.add_header('Referer', 'http://www.tpcindia.com/')
@@ -264,13 +262,20 @@ class LaljiMuljiTransport():
 class FirstFlightCourier():
   def __init__(self, bill):
     self.bill = bill
-    self.FORM_DATA = ""
 
   def GetStatus(self):
-    self.reqUrl = "http://www.firstflight.net/n_contrac_new_12Digit_New.asp?tracking1={docket}".format(docket=self.bill.docketNumber.strip())
+    self.FORM_DATA = GetRawOption("COURIER_FORM_DATA", "FirstFlight").format(docket=self.bill.docketNumber)
+    self.reqUrl = "http://firstflight.net:8081/single-web-tracking/singleTracking.do"
+    self.headers = {
+        "Host": "firstflight.net:8081",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Referer": self.reqUrl,
+        "Origin": "http://firstflight.net:8081",
+        }
     req = urllib2.Request(self.reqUrl)
-    req.add_header('Host', 'www.firstflight.net')
-    resp = urllib2.urlopen(req)
+    for k,v in self.headers.iteritems():
+      req.add_header(k, v)
+    resp = urllib2.urlopen(req, self.FORM_DATA)
     html = resp.read()
     if resp.code != 200 :
       raise Exception("Got {} reponse from First Flight server for bill: {}".format(resp.code, self.bill))
@@ -289,7 +294,7 @@ class FirstFlightCourier():
       if bareLine.lower().find(self.bill.docketNumber.lower()) != -1:
         recordingStatus = True
       if recordingStatus and eachLine.lower().strip().find("</tr>") != -1:
-        return status
+        return StripHTMLTags(status)
       if recordingStatus:
         status += " " + bareLine
 

@@ -525,6 +525,9 @@ def ParseOptions():
     parser.add_argument("-sms", "--dispatch-sms-all", dest='sendDispatchSms', action="store_true", default=False,
         help="Send the sms to parties about dispatches.")
 
+    parser.add_argument("-rds", "--resend-dispatch-sms", dest="resendDispatchSms", action="store_true", default=False,
+        help="Resend dispatch sms for selected docket")
+
     parser.add_argument("--track", dest="trackAllUndeliveredCouriers", action="store_true",
         default=False, help="Track all undelivered couriers")
 
@@ -550,6 +553,19 @@ def _ForceMarkDocketAsDelivered(docketNumber):
       s.status = "This shipment was force marked as delivered on {}".format(DD_MM_YYYY(datetime.date.today()))
       print(s.status)
       s.psMarkShipmentDelivered()
+  return
+
+def _ResendDispatchSMSForDocketNumbers(docketNumbers):
+  ss = PersistentShipments().GetAllStoredShipments()
+  for d in docketNumbers:
+    print("About to send dispatch sms for docket number: {}".format(d))
+    for s in ss:
+      if s.bill.docketNumber == d:
+        if 'y' == raw_input("{}\nSend sms for {} (y/n)?".format("_"*70, s)).lower():
+          s.psSendSmsForThisShipment()
+          break
+    else:
+      print("Could not find the docket {}".format(d))
   return
 
 def _RemoveDocketFromIndex(docketNumbers):
@@ -638,6 +654,11 @@ def main(args):
 
   if args.dbDeletedByMistake:
     DBDeletedDoWhatEverIsNecessary();
+    import sys; sys.exit(0)
+
+  if args.resendDispatchSms:
+    docketNumbers = raw_input("Enter the docket numbers for which dispatch sms has to be resent: ")
+    _ResendDispatchSMSForDocketNumbers(docketNumbers.split())
     import sys; sys.exit(0)
 
   if args.complaintDocket:
@@ -763,7 +784,6 @@ def GenerateShipmentJsonNodes(days):
 
 if __name__ == '__main__':
   args = ParseOptions()
-
 
   if args.removeTrackingForDockets:
     _RemoveDocketFromIndex(args.removeTrackingForDockets)
