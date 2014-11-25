@@ -4,7 +4,7 @@
 ## Date: 2013-Jul-30 Tue 12:39 PM
 ##############################################################################
 
-from __future__ import print_function, division
+from __future__ import print_function, division, unicode_literals
 
 from Util.Colors import MyColors
 from Util.Config import GetOption

@@ -1,4 +1,4 @@
-
+from __future__ import unicode_literals
 from Util.Config import GetAppDir, GetOption, GetRawOption
 from Util.Misc import YYYY_MM_DD, StripHTMLTags
 
@@ -279,7 +279,7 @@ class FirstFlightCourier():
     html = resp.read()
     if resp.code != 200 :
       raise Exception("Got {} reponse from First Flight server for bill: {}".format(resp.code, self.bill))
-    res =  self._get_status_from_first_flight_html_resp(html)
+    res = self._get_status_from_first_flight_html_resp(html)
     return res
 
   def _get_status_from_first_flight_html_resp(self, html):
@@ -287,16 +287,17 @@ class FirstFlightCourier():
     #1. Find docket number
     #2. All following lines are status till line having </tr>
     recordingStatus = False
-    status = ""
+    status = []
+    html = html.decode('utf-8')
     for eachLine in html.split("\n"):
       if not eachLine: continue
       bareLine = StripHTMLTags(eachLine.strip())
       if bareLine.lower().find(self.bill.docketNumber.lower()) != -1:
         recordingStatus = True
       if recordingStatus and eachLine.lower().strip().find("</tr>") != -1:
-        return StripHTMLTags(status)
+        return StripHTMLTags(" ".join([x.strip() for x in status if x]))
       if recordingStatus:
-        status += " " + bareLine
+        status.append(bareLine.strip())
 
     raise Exception("Cannot parse firstflight response for bill: {}".format(self.bill))
 

@@ -1,6 +1,6 @@
 #from whopaid.SanityChecks import CreateATestBill
 
-from Util.Misc import ParseDateFromString
+from Util.Misc import ParseDateFromString, IsDeliveredAssessFromStatus, PrintInBox
 
 from whopaid.util_whopaid import SingleBillRow
 
@@ -38,11 +38,15 @@ class TestShipment():
 def main():
     bill = CreateATestBill()
     bill.courierName = "FirstFlight"
-    bill.docketNumber = "W991B0914005"
+    bill.docketNumber = "W991B0914016"
     with TestShipment(bill) as ts:
       ts.Track()
-      print("Status: {}".format(ts.status))
-      ts.TakeNewSnapshot()
+      print("Status of test shipment: {}".format(ts.status))
+      if IsDeliveredAssessFromStatus(ts.status):
+        PrintInBox("Taking Snapshot")
+        ts.TakeNewSnapshot()
+      else:
+        PrintInBox("Test shipment not delivered. Not taking snapshot")
 
 
 if __name__ == '__main__':

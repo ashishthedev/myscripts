@@ -14,6 +14,7 @@ var destinationFile = system.args[1];
 var docket = system.args[2];
 var FORM_DATA = system.args[3];
 var REQUEST_URL = system.args[4];
+page.viewportSize = { width: 640, height: 480 };
 page.customHeaders = {
     "Host": "firstflight.net:8081",
     "Content-Type": "application/x-www-form-urlencoded",
