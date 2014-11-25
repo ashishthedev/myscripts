@@ -104,7 +104,7 @@ class TrackonCourier():
     req.add_header('Referer', 'http://trackoncourier.com/Default.aspx')
     req.add_header('Origin', 'http://trackoncourier.com')
     resp = urllib2.urlopen(req, self.FORM_DATA)
-    html = resp.read()
+    html = resp.read().decode('utf-8')
     if resp.code != 200 :
       raise Exception("Got {} reponse from Trackon server for bill: {}".format(resp.code, self.bill))
     res =  self._get_status_from_trackon_html_resp(html)
@@ -148,7 +148,7 @@ class ProfessionalCourier():
     req.add_header('Host', 'www.tpcindia.com')
     req.add_header('Referer', 'http://www.tpcindia.com/')
     resp = urllib2.urlopen(req)
-    html = resp.read()
+    html = resp.read().decode('utf-8')
     if resp.code != 200 :
       raise Exception("Got {} reponse from Professinal server for bill: {}".format(resp.code, self.bill))
     res =  self._get_status_from_professional_html_resp(html)
@@ -179,7 +179,7 @@ class NitcoTransport():
     req.add_header("Content-Type" , "application/x-www-form-urlencoded")
     req.add_header('Referer', self.reqUrl)
     resp = urllib2.urlopen(req, self.FORM_DATA)
-    html = resp.read()
+    html = resp.read().decode('utf-8')
     if resp.code != 200 :
       raise Exception("Got {} reponse from Nitco server for bill: {}".format(resp.code, self.bill))
     res =  self._get_status_from_nitco_html_resp(html)
@@ -206,7 +206,7 @@ class VRLLogistics():
     req = urllib2.Request(self.reqUrl)
     req.add_header('Host', 'vrlgroup.in')
     resp = urllib2.urlopen(req)
-    html = resp.read()
+    html = resp.read().decode('utf-8')
     if resp.code != 200 :
       raise Exception("Got {} reponse from VRL for bill: {}".format(resp.code, self.bill))
     res =  self._get_status_from_vrl_html_resp(html)
@@ -236,7 +236,7 @@ class LaljiMuljiTransport():
     req.add_header('Host', 'lmterp.com')
     req.add_header('Referer', 'http://lmtco.com/')
     resp = urllib2.urlopen(req)
-    html = resp.read()
+    html = resp.read().decode('utf-8')
     if resp.code != 200 :
       raise Exception("Got {} reponse from LaljiMuljiTransport server for bill: {}".format(resp.code, self.bill))
     res =  self._get_status_from_lalajiMuljiTr_html_resp(html)
@@ -276,7 +276,7 @@ class FirstFlightCourier():
     for k,v in self.headers.iteritems():
       req.add_header(k, v)
     resp = urllib2.urlopen(req, self.FORM_DATA)
-    html = resp.read()
+    html = resp.read().decode('utf-8')
     if resp.code != 200 :
       raise Exception("Got {} reponse from First Flight server for bill: {}".format(resp.code, self.bill))
     res = self._get_status_from_first_flight_html_resp(html)
@@ -288,7 +288,6 @@ class FirstFlightCourier():
     #2. All following lines are status till line having </tr>
     recordingStatus = False
     status = []
-    html = html.decode('utf-8')
     for eachLine in html.split("\n"):
       if not eachLine: continue
       bareLine = StripHTMLTags(eachLine.strip())
@@ -316,7 +315,7 @@ class BluedartCourier():
     req.add_header('Referer', 'http://www.bluedart.com/')
     req.add_header('Origin', 'http://www.bluedart.com')
     resp = urllib2.urlopen(req, self.FORM_DATA)
-    html = resp.read()
+    html = resp.read().decode('utf-8')
     if resp.code != 200 :
       raise Exception("Got {} reponse from Bluedart server for bill: {}".format(resp.code, self.bill))
     res =  self._get_status_from_bluedart_html_resp(html)
@@ -357,7 +356,7 @@ class OverniteCourier():
     req.add_header('Referer', self.reqUrl)
     req.add_header('Origin', 'http://www.overnitenet.com')
     resp = urllib2.urlopen(req, self.FORM_DATA)
-    html = resp.read()
+    html = resp.read().decode('utf-8')
     if resp.code != 200 :
       raise Exception("Got {} reponse from Overnite server for bill: {}".format(resp.code, self.bill))
     res =  self._get_status_from_overnite_html_resp(html)
