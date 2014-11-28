@@ -186,7 +186,8 @@ class QuarterlyClubbedFORMC(object):
         d['tCompanyCity'] = companyCity
         d['tSignature'] = GetOption("EMAIL_REMINDER_SECTION", "Signature")
         requestingCompanyName = GetOption("CONFIG_SECTION", 'CompName')
-        d['tBodySubject'] = PastelOrangeText(Bold(UnderLine("Subject: FORM-C required by M/s {}".format(requestingCompanyName))))
+        requestingCompanyTinNo = GetOption("CONFIG_SECTION", "TinNo")
+        d['tBodySubject'] = PastelOrangeText(Bold(UnderLine("Subject: FORM-C required by M/s {}<br>TIN# {}".format(requestingCompanyName, requestingCompanyTinNo))))
 
         htmlTemplate = Template(
             """

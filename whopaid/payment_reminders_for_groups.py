@@ -97,6 +97,9 @@ def ParseOptions():
       default=False, action="store_true", help="Only list names, do not "
       "send. To be used with automatic reminders")
 
+  parser.add_argument("-ncd", "--no-credit-days", dest="doNotShowCreditDays", default=False,
+      action="store_true", help="If present, credit days will not be shown against bills")
+
   return parser.parse_args()
 
 
@@ -351,16 +354,16 @@ def MakeBillRow(*billRowArgs):
       MyColors["WHITE"],
       *billRowArgs)
 
-def GetHTMLTableBlockForThisGrp(grpName):
+def GetHTMLTableBlockForThisGrp(grpName, doNotShowCreditDays=False):
   htmlTables = ""
   compsInGrp = ALL_CUST_INFO.GetListOfCompNamesForThisGrp(grpName)
   for eachCompName in compsInGrp:
     if not eachCompName in ALL_BILLS_DICT: continue
     if not SelectUnpaidBillsFrom(ALL_BILLS_DICT[eachCompName]): continue
-    htmlTables += "<br>" + _GetHTMLTableBlockForThisComp(eachCompName)
+    htmlTables += "<br>" + _GetHTMLTableBlockForThisComp(eachCompName, doNotShowCreditDays=doNotShowCreditDays)
   return htmlTables
 
-def _GetHTMLTableBlockForThisComp(compName):
+def _GetHTMLTableBlockForThisComp(compName, doNotShowCreditDays=False):
   unpaidBillsList, adjustmentList = GetPayableBillsAndAdjustmentsForThisComp(compName)
 
   companyOfficialName = ALL_CUST_INFO.GetCompanyOfficialName(compName)
@@ -386,7 +389,10 @@ def _GetHTMLTableBlockForThisComp(compName):
 
   totalDueLiterally = int(sum([eachBill.amount for eachBill in unpaidBillsList]))
 
-  includeCreditDays = True if ("yes" == str(ALL_CUST_INFO.GetIncludeDaysOrNot(compName)).lower()) else False
+  includeCreditDays = not doNotShowCreditDays
+  if includeCreditDays:
+    #Having this inside if block gives prefrence to command line argument.
+    includeCreditDays = str(ALL_CUST_INFO.GetIncludeDaysOrNot(compName)).lower()=="yes"
   tableHeadersArgs = ["Bill#", "Invoice Date", "Amount"]
   if includeCreditDays:
     tableHeadersArgs.append("Days of credit")
@@ -456,7 +462,7 @@ def PrepareMailContentForThisGrp(grpName, args):
 
   totalDue = TotalDueForGroupAsInt(grpName)
 
-  htmlTables = GetHTMLTableBlockForThisGrp(grpName)
+  htmlTables = GetHTMLTableBlockForThisGrp(grpName, doNotShowCreditDays=args.doNotShowCreditDays)
 
   letterDate = datetime.date.today().strftime("%A, %d-%b-%Y")
   d = defaultdict(constant_factory(""))

@@ -213,9 +213,7 @@ class PersistentEnvelopes(Persistent):
 
 
   def HowManyLeftForThisCompany(self, compName):
-    obj = self[compName]
-    numOfEnv = obj[0]
-    date = obj[1]
+    (numOfEnv, date) = self[compName]
     if not self.allBills.has_key(compName):
       return 0
     billList = self.allBills[compName]

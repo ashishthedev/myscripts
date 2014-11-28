@@ -16,7 +16,7 @@ from Util.Persistent import Persistent
 
 from whopaid.customers_info import GetAllCustomersInfo
 from whopaid.courier.couriers import Courier
-from whopaid.off_comm import SendOfficialSMS
+from whopaid.off_comm import SendOfficialSMS, SendOfficialSMSAndMarkCC
 from whopaid.sanity_checks import SendAutomaticHeartBeat, CheckConsistency
 from whopaid.util_whopaid import GetAllBillsInLastNDays
 
@@ -326,7 +326,14 @@ $tAmount
 Thanks.
 """)
   smsContents = smsTemplate.substitute(d)
-  SendOfficialSMS(bill.compName, smsContents)
+
+  sendToCCNumbers = GetOption("SMS_SECTION", "IncludeCCNo").lower().strip() == "true"
+
+  if sendToCCNumbers:
+    SendOfficialSMS(bill.compName, smsContents)
+  else:
+    SendOfficialSMSAndMarkCC(bill.compName, smsContents)
+
   return
 
 ALL_CUST_INFO = GetAllCustomersInfo()
