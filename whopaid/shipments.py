@@ -330,9 +330,9 @@ Thanks.
   sendToCCNumbers = GetOption("SMS_SECTION", "IncludeCCNo").lower().strip() == "true"
 
   if sendToCCNumbers:
-    SendOfficialSMS(bill.compName, smsContents)
-  else:
     SendOfficialSMSAndMarkCC(bill.compName, smsContents)
+  else:
+    SendOfficialSMS(bill.compName, smsContents)
 
   return
 

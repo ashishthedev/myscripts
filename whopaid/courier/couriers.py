@@ -6,7 +6,9 @@ from HTMLParser import HTMLParser
 import os
 import subprocess
 import urllib2
+import socket
 
+TIMEOUT_IN_SECS=30
 MAPPING = dict()
 class Courier():
   """
@@ -35,9 +37,15 @@ class Courier():
       return self.courier.GetStatus()
     except urllib2.URLError as e:
       if hasattr(e, 'reason'):
-        print("We failed to reach the server.\nReason {}".format(self.courier.bill.courierName, e.reason))
+        if isinstance(e.reason, socket.timeout):
+          print("Timeout occurred after: {} seconds".format(TIMEOUT_IN_SECS))
+        else:
+          print("We failed to reach the server.\nReason {}".format(e.reason))
       elif hasattr(e, 'code'):
         print("The server couldn't fulfil the request\nError code: {}".format(e.code))
+    except socket.timeout as e:
+      print("Timeout occurred after: {} seconds".format(TIMEOUT_IN_SECS))
+
     except Exception as e:
       print(str(e))
       return ""
@@ -103,7 +111,7 @@ class TrackonCourier():
     req.add_header("Content-Type" , "application/x-www-form-urlencoded")
     req.add_header('Referer', 'http://trackoncourier.com/Default.aspx')
     req.add_header('Origin', 'http://trackoncourier.com')
-    resp = urllib2.urlopen(req, self.FORM_DATA)
+    resp = urllib2.urlopen(req, self.FORM_DATA, timeout=TIMEOUT_IN_SECS)
     html = resp.read().decode('utf-8')
     if resp.code != 200 :
       raise Exception("Got {} reponse from Trackon server for bill: {}".format(resp.code, self.bill))
@@ -147,7 +155,7 @@ class ProfessionalCourier():
     req = urllib2.Request(self.reqUrl)
     req.add_header('Host', 'www.tpcindia.com')
     req.add_header('Referer', 'http://www.tpcindia.com/')
-    resp = urllib2.urlopen(req)
+    resp = urllib2.urlopen(req, timeout=TIMEOUT_IN_SECS)
     html = resp.read().decode('utf-8')
     if resp.code != 200 :
       raise Exception("Got {} reponse from Professinal server for bill: {}".format(resp.code, self.bill))
@@ -178,7 +186,7 @@ class NitcoTransport():
     req.add_header('Origin', 'http://202.177.175.171')
     req.add_header("Content-Type" , "application/x-www-form-urlencoded")
     req.add_header('Referer', self.reqUrl)
-    resp = urllib2.urlopen(req, self.FORM_DATA)
+    resp = urllib2.urlopen(req, self.FORM_DATA, timeout=TIMEOUT_IN_SECS)
     html = resp.read().decode('utf-8')
     if resp.code != 200 :
       raise Exception("Got {} reponse from Nitco server for bill: {}".format(resp.code, self.bill))
@@ -205,7 +213,7 @@ class VRLLogistics():
     self.reqUrl = "http://vrlgroup.in/vrlwebs/lrtrack.aspx?lno={docket}".format(docket=self.bill.docketNumber.strip())
     req = urllib2.Request(self.reqUrl)
     req.add_header('Host', 'vrlgroup.in')
-    resp = urllib2.urlopen(req)
+    resp = urllib2.urlopen(req, timeout=TIMEOUT_IN_SECS)
     html = resp.read().decode('utf-8')
     if resp.code != 200 :
       raise Exception("Got {} reponse from VRL for bill: {}".format(resp.code, self.bill))
@@ -235,7 +243,7 @@ class LaljiMuljiTransport():
     req = urllib2.Request(self.reqUrl)
     req.add_header('Host', 'lmterp.com')
     req.add_header('Referer', 'http://lmtco.com/')
-    resp = urllib2.urlopen(req)
+    resp = urllib2.urlopen(req, timeout=TIMEOUT_IN_SECS)
     html = resp.read().decode('utf-8')
     if resp.code != 200 :
       raise Exception("Got {} reponse from LaljiMuljiTransport server for bill: {}".format(resp.code, self.bill))
@@ -275,7 +283,7 @@ class FirstFlightCourier():
     req = urllib2.Request(self.reqUrl)
     for k,v in self.headers.iteritems():
       req.add_header(k, v)
-    resp = urllib2.urlopen(req, self.FORM_DATA)
+    resp = urllib2.urlopen(req, self.FORM_DATA, timeout=TIMEOUT_IN_SECS)
     html = resp.read().decode('utf-8')
     if resp.code != 200 :
       raise Exception("Got {} reponse from First Flight server for bill: {}".format(resp.code, self.bill))
@@ -314,7 +322,7 @@ class BluedartCourier():
     req.add_header("Content-Type" , "application/x-www-form-urlencoded")
     req.add_header('Referer', 'http://www.bluedart.com/')
     req.add_header('Origin', 'http://www.bluedart.com')
-    resp = urllib2.urlopen(req, self.FORM_DATA)
+    resp = urllib2.urlopen(req, self.FORM_DATA, timeout=TIMEOUT_IN_SECS)
     html = resp.read().decode('utf-8')
     if resp.code != 200 :
       raise Exception("Got {} reponse from Bluedart server for bill: {}".format(resp.code, self.bill))
@@ -355,7 +363,7 @@ class OverniteCourier():
     req.add_header("Content-Type" , "application/x-www-form-urlencoded")
     req.add_header('Referer', self.reqUrl)
     req.add_header('Origin', 'http://www.overnitenet.com')
-    resp = urllib2.urlopen(req, self.FORM_DATA)
+    resp = urllib2.urlopen(req, self.FORM_DATA, timeout=TIMEOUT_IN_SECS)
     html = resp.read().decode('utf-8')
     if resp.code != 200 :
       raise Exception("Got {} reponse from Overnite server for bill: {}".format(resp.code, self.bill))

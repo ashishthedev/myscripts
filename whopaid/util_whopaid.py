@@ -98,17 +98,22 @@ class CompaniesDict(dict):#TODO: Name it as DB
 
 @memoize
 def GetAllCompaniesDict():
-    workbookPath = GetWorkBookPath()
-    def _CreateAllCompaniesDict(workbookPath):
-      return _AllCompaniesDict(workbookPath)
+  workbookPath = GetWorkBookPath()
+  def _CreateAllCompaniesDict(workbookPath):
+    return _AllCompaniesDict(workbookPath)
+  try:
     return GetPickledObject(workbookPath, _CreateAllCompaniesDict)
+  except MyException as ex:
+    PrintInBox("Exception occurred: " + str(ex))
+    raise ex
+  return
 
 class KIND(object):
-    BILL = 1
-    PAYMENT = 2
-    ADJUSTMENT = 3
-    ORDER = 4
-    PUNTED_ORDER = 5
+  BILL         = 1
+  PAYMENT      = 2
+  ADJUSTMENT   = 3
+  ORDER        = 4
+  PUNTED_ORDER = 5
 
 def _GuessKindFromValue(val):
   if val:
@@ -220,7 +225,7 @@ class _AllCompaniesDict(CompaniesDict):
         pass #DO NOT DO ANYTHING FOR PUNTED ORDERS
       else:
         firstCell = row[0]
-        raise Exception("Error in {} row number: {} Kind of entry is invalid".format(firstCell.row))
+        raise MyException("Error in {} row number: {} Kind of entry is invalid".format(firstCell.row))
 
 class Company(list):
   """
@@ -398,25 +403,25 @@ class SheetCols:
     FormCReceivingDate     = "S"
 
 def CreateSingleOrderRow(row):
-    r = SingleOrderRow()
-    for cell in row:
-        col = cell.column
-        val = GetCellValue(cell)
+  r = SingleOrderRow()
+  for cell in row:
+    col = cell.column
+    val = GetCellValue(cell)
 
-        if col == SheetCols.CompanyFriendlyNameCol:
-            if not val: raise Exception("Row: {} seems empty. Please fix the database".format(cell.row))
-            r.compName = val
-        elif col == SheetCols.KindOfEntery:
-            r.kindOfEntery = val
-        elif col == SheetCols.MaterialDesc:
-            if not val: raise Exception("Order in row: {} seems empty. Please fix the database".format(cell.row))
-            r.materialDesc = val
-        elif col == SheetCols.InstrumentDateCol:
-            if not val: raise Exception("Date in row: {} seems empty. Please fix the database".format(cell.row))
-            r.orderDate = ParseDateFromString(val)
-        elif col == SheetCols.InstrumentNumberCol:
-            r.orderNumber = val or "--"
-    return r
+    if col == SheetCols.CompanyFriendlyNameCol:
+      if not val: raise MyException("Row: {} seems empty. Please fix the database".format(cell.row))
+      r.compName = val
+    elif col == SheetCols.KindOfEntery:
+      r.kindOfEntery = val
+    elif col == SheetCols.MaterialDesc:
+      if not val: raise MyException("Order in row: {} seems empty. Please fix the database".format(cell.row))
+      r.materialDesc = val
+    elif col == SheetCols.InstrumentDateCol:
+      if not val: raise MyException("Date in row: {} seems empty. Please fix the database".format(cell.row))
+      r.orderDate = ParseDateFromString(val)
+    elif col == SheetCols.InstrumentNumberCol:
+      r.orderNumber = val or "--"
+  return r
 
 def CreateSingleAdjustmentRow(row):
     r = SingleAdjustmentRow()
@@ -425,13 +430,13 @@ def CreateSingleAdjustmentRow(row):
         val = GetCellValue(cell)
 
         if col == SheetCols.CompanyFriendlyNameCol:
-            if not val: raise Exception("No company name in row: {} and col: {}".format(cell.row, col))
+            if not val: raise MyException("No company name in row: {} and col: {}".format(cell.row, col))
             r.compName = val
         elif col == SheetCols.KindOfEntery:
-            if not val: raise Exception("No type of entery in row: {} and col: {}".format(cell.row, col))
+            if not val: raise MyException("No type of entery in row: {} and col: {}".format(cell.row, col))
             r.kindOfEntery = val
         elif col == SheetCols.InvoiceAmount:
-            if not val: raise Exception("No adjustment amount in row: {} and col: {}".format(cell.row, col))
+            if not val: raise MyException("No adjustment amount in row: {} and col: {}".format(cell.row, col))
             r.amount = int(val)
         elif col == SheetCols.InvoiceDateCol:
             r.invoiceDate = val
@@ -458,22 +463,22 @@ def CreateSinglePaymentRow(row):
         val = GetCellValue(cell)
 
         if col == SheetCols.InvoiceAmount:
-            if not val: raise Exception("No cheque amount in row: {} and col: {}".format(cell.row, col))
+            if not val: raise MyException("No cheque amount in row: {} and col: {}".format(cell.row, col))
             r.amount = int(val)
         elif col == SheetCols.KindOfEntery:
-            if not val: raise Exception("No type of entery in row: {} and col: {}".format(cell.row, col))
+            if not val: raise MyException("No type of entery in row: {} and col: {}".format(cell.row, col))
             r.kindOfEntery = _GuessKindFromValue(val)
         elif col == SheetCols.BillingCategory:
-            if not val: raise Exception("No bank name in row: {} and col: {}".format(cell.row, col))
+            if not val: raise MyException("No bank name in row: {} and col: {}".format(cell.row, col))
             r.bankName = val
         elif col == SheetCols.InstrumentNumberCol:
-            if not val: raise Exception("No cheque number in row: {} and col: {}".format(cell.row, col))
+            if not val: raise MyException("No cheque number in row: {} and col: {}".format(cell.row, col))
             r.chequeNumber = val
         elif col == SheetCols.CompanyFriendlyNameCol:
-            if not val: raise Exception("No company name in row: {}".format(cell.row))
+            if not val: raise MyException("No company name in row: {}".format(cell.row))
             r.compName = val
         elif col == SheetCols.InstrumentDateCol:
-            if not val: raise Exception("No cheque date in row: {}".format(cell.row))
+            if not val: raise MyException("No cheque date in row: {}".format(cell.row))
             r.pmtDate = ParseDateFromString(val)
         elif col == SheetCols.PaymentAccountedFor:
             r.paymentAccountedFor = False
@@ -490,31 +495,32 @@ def _CreateSingleBillRow(row):
 
     b.rowNumber = cell.row
     if col == SheetCols.InvoiceAmount:
+      if val==None: raise MyException("No amount mentioned in row: {} and col: {}".format(cell.row, col))
       b.amount = int(val)
     elif col == SheetCols.InstrumentNumberCol:
-      if not val: raise Exception("No PO mentioned in row: {} and col: {}".format(cell.row, col))
+      if not val: raise MyException("No PO mentioned in row: {} and col: {}".format(cell.row, col))
       b.poNumber = val
     elif col == SheetCols.InstrumentDateCol:
-      if not val: raise Exception("No PO date mentioned in row: {} and col: {}".format(cell.row, col))
+      if not val: raise MyException("No PO date mentioned in row: {} and col: {}".format(cell.row, col))
       b.poDate = ParseDateFromString(val)
     elif col == SheetCols.KindOfEntery:
-      if not val: raise Exception("No type of entery in row: {} and col: {}".format(cell.row, col))
+      if not val: raise MyException("No type of entery in row: {} and col: {}".format(cell.row, col))
       b.kindOfEntery = val
     elif col == SheetCols.BillingCategory:
       b.billingCategory = val
     elif col == SheetCols.InvoiceNumberCol:
-      if not val: raise Exception("Row: {} seems not to have any bill number.".format(cell.row))
+      if not val: raise MyException("Row: {} seems not to have any bill number.".format(cell.row))
       b.billNumber = int(val)
     elif col == SheetCols.CompanyFriendlyNameCol:
-      if not val: raise Exception("Row: {} seems empty. Please fix the database".format(cell.row))
+      if not val: raise MyException("Row: {} seems empty. Please fix the database".format(cell.row))
       b.compName = val
     elif col == SheetCols.Courier:
       b.courier = val
     elif col == SheetCols.InvoiceDateCol:
-      if not val: raise Exception("No invoice date in row: {} and col: {}".format(cell.row, col))
+      if not val: raise MyException("No invoice date in row: {} and col: {}".format(cell.row, col))
       b.invoiceDate = ParseDateFromString(val)
     elif col == SheetCols.GoodsValue:
-      #if not val: raise Exception("No goods value in row: {} and col: {}".format(cell.row, col))
+      #if not val: raise MyException("No goods value in row: {} and col: {}".format(cell.row, col))
       b.goodsValue = val
     elif col == SheetCols.PaymentReceivingDate:
       if val is not None:
@@ -522,7 +528,7 @@ def _CreateSingleBillRow(row):
       else:
         b.paymentReceivingDate = val
     elif col == SheetCols.Tax:
-      #if not val: raise Exception("No tax in row: {} and col: {}".format(cell.row, col))
+      #if not val: raise MyException("No tax in row: {} and col: {}".format(cell.row, col))
       b.tax = val
     elif col == SheetCols.PaymentStatus:
       b.paymentStatus = val
@@ -544,7 +550,7 @@ def _CreateSingleBillRow(row):
       elif val is None:
         b.materialDesc = "--"
       else:
-        raise Exception("The material description should be string and not {} in row: {} and col: {}".format(type(val), cell.row, col))
+        raise MyException("The material description should be string and not {} in row: {} and col: {}".format(type(val), cell.row, col))
     elif col == SheetCols.FormCReceivingDate:
       if val is not None:
         try:
@@ -620,7 +626,7 @@ def GetPayableBillsAndAdjustmentsForThisComp(compName):
   if adjustmentBills:
     if len(adjustmentBills) > 1:
       #TODO: Currently we are accomodating only one adjustment bill
-      raise Exception("There should be only one adjustment for M/s {}".format(compName))
+      raise MyException("There should be only one adjustment for M/s {}".format(compName))
     for a in adjustmentBills:
       a.billNumber = -1
       a.invoiceDate = a.invoiceDate or datetime.date.today()
