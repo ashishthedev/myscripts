@@ -42,8 +42,7 @@ class AndriodSMSGateway(object):
             url = "http://{server}:{port}".format(server=self.SERVER, port=self.PORT)
             resp = urllib2.urlopen(url, timeout=self.TIMEOUT)
             responseCode = resp.getcode()
-            if responseCode == 200:
-                return True
+            return responseCode == 200
         except urllib2.URLError as ex:
             print(ex.reason)
 

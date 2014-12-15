@@ -149,7 +149,9 @@ gform38 = pushd %XDATDOCSDIR%\Form38Actual\Receipt && start.
 fcr   = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py -o $* && popd
 fcrl  = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py -o --letterHead --desktopOnly $* && popd
 fcrd  = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py -o --demo $* && popd
-fcre  = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py --email --sms $* && popd
+fcres  = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py --email --sms $* && popd
+fcre  = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py --email $* && popd
+fcrs  = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py --sms $* && popd
 rpr   = pushd %XDATDOCSDIR%\code\whopaid && road_permit_request.py --mail --sms $* && popd
 rprm  = pushd %XDATDOCSDIR%\code\whopaid && road_permit_request.py --mail $* && popd
 rprs  = pushd %XDATDOCSDIR%\code\whopaid && road_permit_request.py --sms $* && popd
@@ -247,3 +249,10 @@ ef = exercism fetch
 gft = go fmt && go test
 
 mpv = b:\tools\mpv\mpv.exe $*
+ve = virtualenv --distribute $*
+callff = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919999515573" -sc "Please come." && popd
+callon = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919873677971" -sc "Please come." && popd
+mp = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919810181182" -sc $* && popd
+mg = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919971602777" -sc $* && popd
+mpg = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919971602777" -sc $* && SmsFromCommandLine.py -n "+919810181182" -sc $* && popd
+

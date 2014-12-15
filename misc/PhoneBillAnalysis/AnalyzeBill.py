@@ -81,6 +81,7 @@ def CreateRecordFromThisString(recordString):
         date = recordString[ROAMING_SEMANTICS.DATE_FROM:ROAMING_SEMANTICS.DATE_TO]
         time = recordString[ROAMING_SEMANTICS.TIME_FROM : ROAMING_SEMANTICS.TIME_TO]
         number = recordString[ROAMING_SEMANTICS.NUMBER_FROM : ROAMING_SEMANTICS.NUMBER_TO]
+        duration = recordString[ROAMING_SEMANTICS.DURATION_FROM: ROAMING_SEMANTICS.DURATION_TO]
         amount = recordString[ROAMING_SEMANTICS.AMOUNT_FROM: ROAMING_SEMANTICS.AMOUNT_TO]
         personName = FindName(number)
         return CallRecord(number, date, time, duration, amount, personName)

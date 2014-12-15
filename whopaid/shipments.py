@@ -4,7 +4,7 @@
 ## Date: 2013-Jul-30 Tue 12:39 PM
 ##############################################################################
 
-from __future__ import print_function, division, unicode_literals
+from __future__ import print_function, division
 
 from Util.Colors import MyColors
 from Util.Config import GetOption
@@ -633,6 +633,7 @@ Thanks.
   from Util.Sms import SendSms
   smsNo = GetOption("COURIER_COMPLAINT_R", bill.courierName)[::-1]
   smsNoList = smsNo.replace(",", ";").split(";")
+  PrintInBox(str(smsNoList), waitForEnterKey=True)
   smsNoList = [x.strip() for x in smsNoList if str.isdigit(x.strip())]
 
 
@@ -751,7 +752,7 @@ def TrackAllShipments(args):
 
       if not shipment.isDelivered and shipment.daysPassed > MAX_IN_TRANSIT_DAYS :
         raise ShipmentException("{} days back the following material was shipped but still not delivered\n{}".format(
-          shipment.daysPassed, shipment.description))
+          shipment.daysPassed, old_status))
       sleep(2)
 
     except ShipmentException as ex:
