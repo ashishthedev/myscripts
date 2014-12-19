@@ -254,5 +254,6 @@ callff = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+91999951557
 callon = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919873677971" -sc "Please come." && popd
 mp = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919810181182" -sc $* && popd
 mg = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919971602777" -sc $* && popd
+ma = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919971008001" -sc $* && popd
 mpg = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919971602777" -sc $* && SmsFromCommandLine.py -n "+919810181182" -sc $* && popd
 

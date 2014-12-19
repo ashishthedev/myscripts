@@ -6,20 +6,12 @@ REM D:\Windows\system32\cmd.exe /k E:\Dev\WorkSpace\setenv.bat
 
 
 
-set XDATDOCSDIR=%APPDIR%\ODATDocs
-set PMTAPPDIR=%APPDIR%\pmtsdat
+set XDATDOCSDIR=%APPDIR%\SEWDocs\sewpulse
 set RELATIVEPATH=code\bin\alias.txt
-set TCL_LIBRARY=b:\Python27\tcl\tcl8.5\
-set GOPATH=%APPDIR%\goscripts
 
 doskey /MACROFILE="%XDATDOCSDIR%\%RELATIVEPATH%"
 set PYTHONDONTWRITEBYTECODE=1
 set PYTHONPATH=%XDATDOCSDIR%\code\
 
-pushd %XDATDOCSDIR%\code\whopaid
-@echo ___________________________________________
-@echo                   ODAT                     
-@echo ___________________________________________
-@echo.
-@echo.
+pushd %XDATDOCSDIR%
 

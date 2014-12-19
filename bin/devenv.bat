@@ -23,3 +23,10 @@ set PYTHONPATH=%XDATDOCSDIR%\code\
 pushd %XDATDOCSDIR%\code\whopaid
 
 set PATH=%PATH%;B:\Exercism\
+
+
+@echo ___________________________________________
+@echo                   SDAT                     
+@echo ___________________________________________
+@echo.
+@echo.
