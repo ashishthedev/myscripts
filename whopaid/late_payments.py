@@ -27,20 +27,20 @@ FILE_PATH_TXT = os.path.join(os.path.expandvars("%temp%"), "PaymentChaseUpList.t
 FILE_PATH_HTML = os.path.join(os.path.expandvars("%temp%"), "PaymentChaseUpList.html")
 
 class CandidateCompaniesDict(CompaniesDict):
-    """This class represents the resultant companies of WhoPaid() operation, i.e companies who can pay the particular amount.
-    It is basically a dictonary just like the base class. Key is company and value is its bills that has been paid"""
-    def __init__(self):
-        super(CandidateCompaniesDict, self).__init__()
+  """This class represents the resultant companies of WhoPaid() operation, i.e companies who can pay the particular amount.
+  It is basically a dictonary just like the base class. Key is company and value is its bills that has been paid"""
+  def __init__(self):
+    super(CandidateCompaniesDict, self).__init__()
 
-    def __str__(self):
-        """This function contains all the formatting in which the results should be shown."""
-        result = ""
-        if(len(self) > 0):
-            for eachComp in self.GetAllBillsOfAllCompaniesAsDict().keys():
-                result += "\n" + str(eachComp)
-        else:
-            result += "Cannot detect who paid amount"
-        return result
+  def __str__(self):
+    """This function contains all the formatting in which the results should be shown."""
+    result = ""
+    if(len(self) > 0):
+      for eachCompName, eachComp in self.GetAllBillsOfAllCompaniesAsDict().iteritems():
+        result += "\n" + str(eachCompName)
+    else:
+      result += "Cannot detect who paid amount"
+    return result
 
 
 @timeThisFunction

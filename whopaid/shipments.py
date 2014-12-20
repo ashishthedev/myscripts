@@ -189,6 +189,11 @@ class SingleShipment():
       return True
     return False
 
+  def isPaymentReminderEmailAddressAvailable(self):
+    if ALL_CUST_INFO.GetPaymentReminderEmailsForCustomer(self.bill.compName):
+      return True
+    return False
+
   def psSendSmsForThisShipment(self):
     return self._sms.sendSmsForThisShipment()
 
@@ -715,7 +720,8 @@ def FanOutDispatchInfoToAllComapnies(args):
     try:
       if args.sendMailToAllCompanies and \
           not shipment.psWasShipmentMailEverSent() and \
-          shipment.bill.billingCategory.lower() not in ["tracking"]:
+          shipment.bill.billingCategory.lower() not in ["tracking"] and \
+          shipment.isPaymentReminderEmailAddressAvailable():
         if 'y' == raw_input("{}\nSend mail for {} (y/n)?".format("_"*70, shipment)).lower():
           shipment.psSendMailForThisShipment()
         else:

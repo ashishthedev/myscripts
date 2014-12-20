@@ -15,10 +15,10 @@ CST_TAX_PAID_FORM       = os.path.join(BASEPATH, FOLDER_NAME, "CST",   "XML", "F
 CST_TURNOVER_FORM       = os.path.join(BASEPATH, FOLDER_NAME, "CST",   "XML", "FormCSTTurnover.xml")
 CST_LOISS_FORM          = os.path.join(BASEPATH, FOLDER_NAME, "CST",   "XML", "FormCST_ListofInterstateSales.xml")
 
-PREVALING_VAT_RATE='14'  # in percent
-PREVALING_CST_RATE='2'   # in percent
-PREVALING_EXPORT_RATE='0'   # in percent
-TOLERANCE_IN_RUPEES=1
+PREVALING_VAT_RATE      ='14'  # in percent
+PREVALING_CST_RATE      ='2'   # in percent
+PREVALING_EXPORT_RATE   ='0'   # in percent
+TOLERANCE_IN_RUPEES     = 1
 
 def SumFloat(fileName, nodeName):
     if not os.path.exists(fileName):
