@@ -6,6 +6,7 @@
 from Util.Config import GetOption
 from Util.PythonMail import SendMail
 from Util.Sms import SendSms
+from Util.Misc import PrintInBox
 
 from whopaid.customers_info import GetAllCustomersInfo
 
@@ -31,8 +32,22 @@ def SendOfficialSMSAndMarkCC(compName, msg):
 def SendOfficialSMS(compName, msg):
   return _SendOfficialSMS(compName, msg, sendToCCNumbers=False)
 
+def SendOfficialSMSToMD(compName, msg):
+  return _SendOfficialSMSToMD(compName, msg, sendToCCNumbers=False)
+
+def _SendOfficialSMSToMD(compName, msg, sendToCCNumbers=False):
+  PrintInBox("Sending to MD", waitForEnterKey=True)
+  allCustInfo = GetAllCustomersInfo()
+  smsNo = allCustInfo.GetMDPhoneNumbers(compName)
+
+  if not smsNo:
+    raise Exception("No MD no. present for customer: {}".format(compName))
+
+  return _SendOfficialSMSToTheseNumbers(compName, msg, sendToCCNumbers, smsNo)
+
 def _SendOfficialSMS(compName, msg, sendToCCNumbers=False):
-  from string import Template
+
+  PrintInBox("Sending to general people")
   allCustInfo = GetAllCustomersInfo()
   smsNo = ""
   paymentSMSNo = allCustInfo.GetPaymentSMSNumber(compName)
@@ -44,6 +59,12 @@ def _SendOfficialSMS(compName, msg, sendToCCNumbers=False):
 
   if not smsNo:
     raise Exception("No sms no. feeded for customer: {}".format(compName))
+
+  return _SendOfficialSMSToTheseNumbers(compName, msg, sendToCCNumbers, smsNo)
+
+def _SendOfficialSMSToTheseNumbers(compName, msg, sendToCCNumbers, targetNumbersCommaSepString):
+  from string import Template
+  allCustInfo = GetAllCustomersInfo()
 
   companyOfficialName = allCustInfo.GetCompanyOfficialName(compName)
   if not companyOfficialName:
@@ -61,7 +82,7 @@ $msg"""
   smsContents = smsTemplate.substitute(d)
 
   COMMA = ","
-  smsNo = smsNo.replace(';', COMMA).strip()
+  smsNo = targetNumbersCommaSepString.replace(';', COMMA).strip()
   listOfNos = [x.strip() for x in smsNo.split(COMMA) if x.strip()]
 
   if sendToCCNumbers:
@@ -78,4 +99,3 @@ $msg"""
     print("Sending to this number: {}".format(x))
     SendSms(x, smsContents)
   return
-

@@ -64,6 +64,8 @@ def CreateSingleCustomerInfo(row):
             c.smsDispatchNo = val
         elif col == CustomerInfoCol.PaymentReminderSmsNoCol:
             c.paymentSMSNo = val
+        elif col == CustomerInfoCol.MDNumbers:
+            c.MDNumbers = val
         elif col == CustomerInfoCol.DeliveryPhoneNumberCol:
             c.deliveryPhNo = val
         elif col == CustomerInfoCol.MsorNoMSCol:
@@ -145,6 +147,9 @@ class _AllCustomersInfo(dict):
 
     def GetPaymentSMSNumber(self, compName):
         return self[compName].paymentSMSNo
+
+    def GetMDPhoneNumbers(self, compName):
+        return self[compName].MDNumbers
 
     def GetDeliveryPhoneNumber(self, compName):
         return self[compName].deliveryPhNo

@@ -19,7 +19,7 @@ from Util.Persistent import Persistent
 from Util.PythonMail import SendMail
 
 from whopaid.customers_info import GetAllCustomersInfo
-from whopaid.off_comm import SendOfficialSMS
+from whopaid.off_comm import SendOfficialSMS, SendOfficialSMSToMD
 from whopaid.sanity_checks import CheckConsistency
 from whopaid.util_whopaid import GetAllCompaniesDict, SelectUnpaidBillsFrom, \
         GuessCompanyGroupName, GetPayableBillsAndAdjustmentsForThisComp
@@ -90,6 +90,9 @@ def ParseOptions():
   parser.add_argument("--sms", dest="sendsms", default=False, action="store_true",
       help="If present, an sms will be sent for payment")
 
+  parser.add_argument("--md", dest="sendsmstoMD", default=False, action="store_true",
+      help="If present, an sms will be sent for payment to MDs")
+
   parser.add_argument("--mail", dest="sendmail", default=False, action="store_true",
       help="If present, a mail will be sent for payment")
 
@@ -124,8 +127,12 @@ def AskQuestionsFromUserAndSendMail(args):
     compsInGrp = ALL_CUST_INFO.GetListOfCompNamesForThisGrp(grpName)
     firstCompInGrp = compsInGrp[0]
     totalDue = TotalDueForGroupAsInt(grpName)
-    SendOfficialSMS(firstCompInGrp, """Dear Sir,
-You are requested to kindly release the payment. The total due amount is: {totalDue}. The details have been sent to your mail address.
+    if args.sendsmstoMD:
+      smsFunc = SendOfficialSMSToMD
+    else:
+      smsFunc = SendOfficialSMS
+    smsFunc(firstCompInGrp, """Dear Sir,
+You are requested to kindly release the payment. The total due amount is: Rs.{totalDue}. The details have been sent to your mail address.
 Thanks""".format(totalDue=totalDue))
   return
 
