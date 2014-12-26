@@ -165,6 +165,7 @@ class ProfessionalCourier():
   def _get_status_from_professional_html_resp(self, html):
     #Logic: The bareline with resultsId will have the status
     resultsId = "ctl00_ContentPlaceHolder1_lbl_track"
+    resultsId = "ContentPlaceHolder1_lbl_track"
     for eachLine in html.split("\n"):
       if eachLine.find(resultsId) != -1:
         return StripHTMLTags(eachLine.strip())

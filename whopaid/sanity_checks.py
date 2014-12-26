@@ -86,7 +86,7 @@ def CheckDocketLength(allBillsDict):
   MAPPING = {
       "first": [12],
       "overni": [10],
-      "vrl": [9],
+      "vrl": [9, 10],
       "nitco": [11, 7],
       "accura": [7],
       "profes": [10],
