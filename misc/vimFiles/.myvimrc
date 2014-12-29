@@ -1,0 +1,711 @@
+﻿""""""""""""""""""""""""""""""""""""""""
+" Windows based .myvimrc file
+"
+" Author: Ashish Anand
+"
+"""""""""""""""""""""""""""""""""""""""
+
+set nocompatible
+
+source $VIMRUNTIME/mswin.vim
+behave mswin
+
+:autocmd!
+"Remove all autocommands in case it is sourced twice
+
+
+function! GetAPPDIR()
+python << endpython
+import vim
+import os
+def GetAPPDIR():
+  return os.path.normpath(os.environ["appdir"])
+
+retcmd = "return '{}'".format(GetAPPDIR())
+vim.command(retcmd)# return from the Vim function!
+endpython
+endfunction
+
+function! GetSDATDir()
+python << endpython
+import vim
+import os
+def GetSDATDir():
+  return os.path.normpath(os.path.join(os.environ["appdir"], "SDATDocs"))
+
+retcmd = "return '{}'".format(GetSDATDir())
+vim.command(retcmd)# return from the Vim function!
+endpython
+endfunction
+
+
+let WEBSITE_DIR = GetAPPDIR()."\\website\\"
+let WHOPAID_DIR = GetSDATDir()."\\code\\whopaid\\"
+
+
+"1. VIM Customizations
+"_________________________________________________________________________________
+
+" Set to auto read when a file is changed from the outside
+set autoread
+
+"Search Options
+set hlsearch
+set incsearch
+set lazyredraw "Dont redraw when executing macros
+
+"set formatoptions=rocql
+set nu
+set undolevels=5000
+set expandtab
+set tabstop=2
+set shiftwidth=2
+set guicursor=a:blinkwait001-blinkoff50-blinkon350
+set visualbell
+
+" How many tenths of a second to blink when matching brackets
+set mat=2
+
+"Show the line and column number of the cursor position, separated by a comma.
+set ruler
+
+"Save the cursor position and folds before leaving the file
+autocmd BufWinLeave *.* mkview
+
+"Load the curson position before loading the file.
+autocmd BufWinEnter *.* silent loadview
+
+"To get rid of *.~ and *.swp litter
+set backupdir=%temp%
+set directory=%temp%
+
+" When vimrc is edited, reload it
+autocmd bufwritepost .myvimrc source <sfile> "When this file changes resource it
+execute "noremap <leader>v :e   ".GetSDATDir()."\\code\\misc\\vimFiles\\.myvimrc"."<CR>"
+execute "noremap <leader>nv :sp ".GetSDATDir()."\\code\\misc\\vimFiles\\.myvimrc"."<CR>"
+execute "noremap ,re :source ".GetSDATDir()."\\code\\misc\\vimFiles\\.myvimrc"."<CR>"
+
+
+
+set ignorecase
+set cmdheight=1
+set laststatus=2
+set autochdir
+set wildmenu " turn on command line completion wild style
+set wildignore=*.dll,*.o,*.obj,*.bak,*.pyc,*.jpg,*.gif,*.png     " ignore these list file extensions
+set wildmode=list:full " turn on wild mode huge list
+set cryptmethod=blowfish
+
+"VIMUI
+set linespace=0
+set list
+set listchars=tab:>-,trail:-
+set nostartofline
+set numberwidth=6
+"Maintain more context around the cursor.
+set scrolloff=3
+set showcmd
+set showmatch
+set statusline=%F%m%r%h%w[%L][%{&ff}]%y[%p%%][%04l,%04v]
+ "              | | | | |  |   |      |  |     |    |
+ "              | | | | |  |   |      |  |     |    + current
+ "              | | | | |  |   |      |  |     |       column
+ "              | | | | |  |   |      |  |     +-- current line
+ "              | | | | |  |   |      |  +-- current % into file
+ "              | | | | |  |   |      +-- current syntax in
+ "              | | | | |  |   |          square brackets
+ "              | | | | |  |   +-- current fileformat
+ "              | | | | |  +-- number of lines
+ "              | | | | +-- preview flag in square brackets
+ "              | | | +-- help flag in square brackets
+ "              | | +-- readonly flag in square brackets
+ "              | +-- rodified flag in square brackets
+ "              +-- full path to file in the buffer
+
+"Set the split widths
+set winminheight=0
+set winheight=999
+
+"Enable Unicode support in gvim
+if has("multi_byte")    " if not, we need to recompile
+  if &enc !~? '^u'      " if the locale 'encoding' starts with u or U
+                        " then Unicode is already set
+   if &tenc == ''
+      let &tenc = &enc  " save the keyboard charset
+    endif
+    set enc=utf-8       " to support Unicode fully, we need to be able
+                        " to represent all Unicode codepoints in memory
+  endif
+  set fencs=ucs-bom,utf-8,latin1
+  setg bomb             " default for new Unicode files
+  setg fenc=utf-8       " default for files created from scratch
+else
+  echomsg 'Warning: Multibyte support is not compiled-in.'
+endif
+
+
+" 2. PYTHON CUSTOMIZATIONS STARTS
+"______________________________________________________________________________
+" Source http://sontek.net/blog/detail/turning-vim-into-a-modern-python-ide
+execute "source "GetSDATDir()."\\code\\misc\\vimFiles\\vim\\autoload\\pathogen.vim"
+let bundlePath=GetSDATDir()."\\code\\misc\\vimFiles\\vim\\bundle\\{}"
+call pathogen#infect('bundle/{}', bundlePath)
+"call pathogen#incubate()
+"call pathogen#helptags()
+
+"Add go plugins to runtime path
+
+"DO NOT TOUCH - Necessary for pathogen to work
+syntax enable
+filetype off
+filetype plugin indent off
+set runtimepath+=%GOROOT%/misc/vim
+filetype on                 "Try to detect filetypes
+filetype plugin on
+filetype plugin indent on   "Enable loading indent file for filetype
+"DO NOT TOUCH
+
+set foldlevel=99
+set foldnestmax=2
+set foldmethod=indent
+
+"http://sontek.net/blog/detail/turning-vim-into-a-modern-python-ide
+let g:pyflakes_use_quickfix = 1
+let g:pep8_map='<leader>8'
+let g:pydoc_cmd = 'python -m pydoc'
+"noremap <leader>g :GundoToggle<CR>
+
+"Tab Completion and Documentation
+au FileType python set omnifunc=pythoncomplete#Complete
+let g:SuperTabDefaultCompleteType = "context"
+set completeopt=menu,longest,preview
+
+"http://github.com/tpope/vim-ragtag
+let g:ragtag_global_maps = 1
+
+" `gf` jumps to the filename under the cursor.  Point at an import statement
+" and jump to it!
+python << EOF
+import os
+import sys
+import vim
+
+#Appdir has a defined structure inside it. Add desirable directories to path
+relativePath = "code\Util"
+relativePath = "code"
+if "appdir" in os.environ:
+    path = os.path.join(GetSDATDir(), relativePath)
+    path = os.path.normpath(path)
+    vim.command(r"set path+=%s" % (path.replace(" ", r"\ ")))
+
+for p in sys.path:
+    if os.path.isdir(p):
+        if p.find("python27") == -1:
+            #Adding python27 makes autocompletion too slow. Avoid it.
+            continue
+        vim.command(r"set path+=%s" % (p.replace(" ", r"\ ")))
+
+if 'VIRTUAL_ENV' in os.environ:
+    project_base_dir = os.environ['VIRTUAL_ENV']
+    sys.path.insert(0, project_base_dir)
+    activate_this = os.path.join(project_base_dir, 'scripts\\activate_this.py')
+    execfile(activate_this, dict(__file__=activate_this))
+
+EOF
+
+
+"File Browser
+noremap <leader>n :NERDTreeToggle<CR>
+
+"Fuzzy Text Search
+noremap <leader>f <ESC>:Ack!
+
+noremap <leader>= <ESC>mzgg=G'zzz
+
+"Fugitive status line
+" %{fugitive#statusline()}
+
+"Some awesome abbreviations I defined for myself
+abbr {{ {{ }}<ESC>hhi
+abbr {[{ {[{ }]}<ESC>hhhxi
+abbr {% {% %}<ESC>hhi
+abbr {# {# #}<ESC>hhi
+"abbr <div> <div> </div><ESC>hhhhhhhi
+abbr <p> <p></p><ESC>hhhi
+abbr <a> <a href=""></a><ESC>5hi
+abbr <span> <span></span><ESC>6hi
+abbr psvm public static void main(String[] args){<CR>}<esc>O
+abbr ifm if __name__ == "__main__":<CR>
+
+
+"let g:SimpylFold_docstring_preview = 1
+"set autoindent
+
+" PYTHON CUSTOMIZATIONS ENDS
+
+"3. MAPPINGS
+"______________________________________________________________________________
+
+"With Ctrl-F1/F2/F3, one can hide menu bar, tool bar and scroll bar. Nice to
+"have more viewing space
+nnoremap <C-F1> :if &go=~#'m'<Bar>set go-=m<Bar>else<Bar>set go+=m<Bar>endif<CR>
+nnoremap <C-F2> :if &go=~#'T'<Bar>set go-=T<Bar>else<Bar>set go+=T<Bar>endif<CR>
+nnoremap <C-F3> :if &go=~#'r'<Bar>set go-=r<Bar>else<Bar>set go+=r<Bar>endif<CR>
+
+noremap <leader>w :w!<cr>
+noremap <leader>\ :q!<cr>
+noremap <C-F8> :%s/\(\n\s*\n\)\n\+/\r/gc<CR>
+noremap ,spell :setlocal spell<CR>
+set spell
+
+python << EOF
+def InvokeSendSmsFromVim():
+  appPath = GetSDATDir()
+  smsDir = os.path.join(appPath, "code", "sms")
+  pythonModulesDir = os.path.join(appPath, "code", "PythonModules")
+  sys.path.append(smsDir)
+  sys.path.append(pythonModulesDir)
+  from sendsms import SendSMSToThisBlobHavingNumbersAndContents
+
+  SendSMSToThisBlobHavingNumbersAndContents(vim.current.buffer)
+  return
+
+EOF
+python << EOF
+from datetime import datetime
+import subprocess
+import os
+import time
+
+def AppendTaskInFrequentFliers(fileName):
+    # The tasks are always appended in filename under dir "FrequentFliers"
+
+    relativePath = "FrequentFliers"
+    appPath = GetSDATDir()
+    fileName = os.path.join(appPath, relativePath, fileName)
+
+    with open(fileName, "a") as f:
+        f.write("\n")
+        f.write("_________________________________________________________________________________")
+        f.write("\n")
+        f.write(datetime.today().strftime("%A, %d-%b-%Y %I:%M%p"))
+        f.write("\n")
+        cb = vim.current.buffer
+        for i in range(0, len(cb)):
+            f.write(cb[i])
+            f.write("\n")
+    vim.command(r"e! " + fileName)  # Open the new file
+    vim.command(r"normal G")      # And go to the end of the line
+    return
+
+def AddInBeginning(url, filePath):
+    if type(url) != type(""): raise Exception("Expecting a string")
+    url += "\n"
+    tempList= [url]
+    with open(filePath) as f:
+        for l in f:
+           tempList.append(l)
+    with open(filePath, "w") as f: f.writelines(tempList)
+
+def PrependCurrentVimBufferInFile(absoluteFileName):
+    cb = vim.current.buffer
+    for i in range(0, len(cb)):
+        AddInBeginning(cb[i], absoluteFileName)
+    return
+
+def AppendCurrentVimBufferInFile(absoluteFileName):
+    with open(absoluteFileName, "a") as f:
+        cb = vim.current.buffer
+        for i in range(0, len(cb)):
+            f.write("\n" + cb[i])
+    return
+
+def AddToYoutubeDownloadQueue(mode="beginning"):
+    ytUrlsFileList = os.path.join("b:\\YoutubeVideosDownloaded", "YoutubeURLsQueue.txt")
+    if mode == "beginning":
+        PrependCurrentVimBufferInFile(ytUrlsFileList)
+    else:
+        AppendCurrentVimBufferInFile(ytUrlsFileList)
+    vim.command(r"echoerr 'Url Added'")
+    vim.command(r"e! " + ytUrlsFileList)  # Open the new file
+    #restartYoutubeDownloads()
+    return
+
+EOF
+
+noremap <silent> <leader>yte :python AddToYoutubeDownloadQueue(mode="last")<CR>
+noremap <silent> <leader>ytb :python AddToYoutubeDownloadQueue(mode="beginning")<CR>
+
+"Press these shortcuts and information will be appended in the respective files
+noremap <silent> <leader>blog :python AppendTaskInFrequentFliers("blogs.txt")<CR>
+noremap <silent> <leader>proj :python AppendTaskInFrequentFliers("sideprojects.txt")<CR>
+noremap <silent> <leader>a :python AppendTaskInFrequentFliers("actions.txt")<CR>
+noremap <silent> <leader>pintu :python AppendTaskInFrequentFliers("Pintu.txt")<CR>
+noremap <silent> <leader>pal :python AppendTaskInFrequentFliers("Expenses.txt")<CR>
+noremap <silent> <leader>exp :python AppendTaskInFrequentFliers("Expenses.txt")<CR>
+noremap <silent> <leader>hom :python AppendTaskInFrequentFliers("Homework.txt")<CR>
+noremap <silent> <leader>khunc :python AppendTaskInFrequentFliers("Tally.txt")<CR>
+noremap <silent> <leader>pass :python AppendTaskInFrequentFliers("NewPublicPasswords.txt")<CR>
+noremap <silent> <leader>sms :python InvokeSendSmsFromVim()<CR>
+
+"Use space in normal mode to search. Awesome!
+noremap <Space> /
+"Use control space to open another file in same dir. A explorer will be shown. Killer!
+noremap <c-Space> :Tex<CR>
+noremap <leader>t :Tex<CR>
+
+"Use '-' to switch between splited windows.
+noremap - <c-w>w <CR> <bar> :set winheight=998<CR>
+"Use '-' to switch between splited windows.
+noremap - gt
+
+
+:execute "noremap ,torc   :e b:\\Tools\\tor\\Data\\Tor\\torrc<CR>"
+:execute "noremap ,priv   :e b:\\Tools\\PrivoxyInstalled\\config.txt<CR>"
+:execute "noremap ,logins   :e ".GetSDATDir()."\\FrequentFliers\\logins.txt<CR>"
+:execute "noremap ,blog   :e ".GetSDATDir()."\\FrequentFliers\\blogs.txt<CR>"
+:execute "noremap ,comp   :e ".GetSDATDir()."\\FrequentFliers\\compList.txt<CR>"
+:execute "noremap ,eret   :e ".GetSDATDir()."\\SalesTaxReturnFiles\\eReturnInfo.txt<CR>"
+:execute "noremap ,ereto   :e ".GetSDATDir()."\\SalesTaxReturnFiles\\eReturnInfo.txt<CR>"
+:execute "noremap ,act    :e ".GetSDATDir()."\\FrequentFliers\\actions.txt<CR>"
+:execute "noremap ,note   :e ".GetSDATDir()."\\FrequentFliers\\Notes.xml<CR>"
+:execute "noremap ,book   :e ".GetSDATDir()."\\FrequentFliers\\Notes.xml<CR>"
+:execute "noremap ,diary  :e ".GetSDATDir()."\\FrequentFliers\\Diary.txt<CR>"
+:execute "noremap ,voc    :e ".GetSDATDir()."\\FrequentFliers\\Vocab.txt<CR>"
+:execute "noremap ,prt    :e ".GetSDATDir()."\\SDAT\\KennametalAll\\PriceIncreaseTemplate.txt<CR>"
+:execute "noremap ,tally  :e ".GetSDATDir()."\\FrequentFliers\\tally.txt<CR>"
+:execute "noremap ,ahk    :e ".GetSDATDir()."\\FrequentFliers\\MyAutoHotKeys.ahk<CR>"
+:execute "noremap ,hc     :e ".GetSDATDir()."\\Personal\\bh\\HC.txt \\|set lines=130 \\| set columns=82 \\| winpos 560 0<CR>"
+:execute "noremap ,cn     :e ".GetSDATDir()."\\Personal\\bh\\c.txt  \\|set lines=130 \\| set columns=82 \\| winpos 560 0<CR>"
+:execute "noremap ,gg     :e ".GetSDATDir()."\\Personal\\bh\\g.txt  \\|set lines=130 \\| set columns=82 \\| winpos 560 0<CR>"
+:execute "noremap ,bb     :e ".GetSDATDir()."\\Personal\\bh\\bb.txt \\|set lines=130 \\| set columns=82 \\| winpos 500 0<CR>"
+:execute "noremap ,ytf    :e B:\\YoutubeVideosDownloaded\\YoutubeURLsQueue.txt<CR>"
+:execute "noremap ,ydl    :e B:\\YoutubeVideosDownloaded\\YoutubeURLsQueue.txt<CR>"
+
+"Disable the arrow keys in normal mode to reach next level of awesomeness
+nnoremap <up> <nop>
+nnoremap <down> <nop>
+nnoremap <left> <nop>
+nnoremap <right> <nop>
+
+" Treat long lines as break lines (useful when moving around in them)
+noremap j gj
+noremap k gk
+
+noremap <F1>  <nop>
+
+"Remove all lines containig tab click or enter
+noremap <F2> :g/click\\|enter\\|tab/d<CR>
+noremap <F2> :%s/<C-R><C-W>/<C-R><C-W>/gc
+
+"Fuzz out the word under cursor when F3 is pressed.
+noremap <F3> g?iw
+
+inoremap <F4>  <C-R>=strftime("%Y-%b-%d %a %I:%M %p")<CR>
+
+noremap <silent> <F5> :silent :!%<CR>
+
+"Sanitize HTML to some extent
+noremap <F6> :retab\|%s/></>\r</g<CR>
+noremap <F7> :retab\|%s/{[^\r].*}/&\r}/g<CR>
+
+"Remove trailing spaces
+noremap <F8> :retab\|%s/\s\+$//e<CR>
+
+"Lets you use yy to copy a line into windows clipboard.
+set clipboard=unnamed
+
+"Copy the outstanding bills, open Vim and press F12. Super Awesomeness!!
+let @f = 'pggddWWd^:%s/\t\s/              /geggddGp:retabi                    gg^llllGkI    OBill#   Date         Amount¯¯¯¯¯   ¯¯¯¯¯¯¯¯¯    ¯¯¯¯¯¯¯¯¯¯j^llllllllllllllllllllGI Rs.GI^XXXXXXXXXXXXXXXXXXXXXITotal:               O¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯:%s/-1              /Previous Balance/gegg^ODear Sir,You are requested to make payment for following bills:^XXXXXoggi'.strftime("%d-%b-%Y").''
+noremap <F12> @f
+
+"Insert a smooth underline
+inoremap <C-L> <C-R>="_________________________________________________________________________________"<CR>
+
+
+"4. Look And Feel
+"_________________________________________________________________________________
+set cursorline
+if has("gui_running")
+    "set guifont=Source_Code_Pro:h11:cANSI "Install this font if not present from sourceforge
+    set guifont=Consolas:h14
+    set mousehide
+    set columns=180
+    set lines=100
+    set guioptions=ce "c=No menus and e=
+    set guioptions-=m "c=No menus and e=
+    set guioptions-=T "c=No menus and e=
+    set guioptions-=r "c=No menus and e=
+endif
+set background=dark
+"execute "source "GetSDATDir()."\\code\\misc\\vimFiles\\solarized.vim"
+colorscheme solarized
+
+
+"5. Third party scripts
+"_________________________________________________________________________________
+"Source matchit.vim
+runtime macros/matchit.vim
+
+"cd ~\vimfiles
+"git submodule add https://github.com/altercation/vim-colors-solarized bundle/solarized
+"    option name               default     optional
+"    ------------------------------------------------
+"    g:solarized_termcolors=   16      |   256
+"    g:solarized_termtrans =   0       |   1
+"    g:solarized_degrade   =   0       |   1
+"    g:solarized_bold      =   1       |   0
+"    g:solarized_underline =   1       |   0
+"    g:solarized_italic    =   1       |   0
+"    g:solarized_contrast  =   "normal"|   "high" or "low"
+"    g:solarized_visibility=   "normal"|   "high" or "low"
+"    ------------------------------------------------
+
+""The first autocommand sets 'indent' as the fold method before a file is loaded, so that indent-based folds will be defined. The second one allows you to manually create folds while editing. It's executed after the modeline is read, so it won't change the fold method if the modeline set the fold method to something else like 'marker' or 'syntax'.
+""
+""augroup vimrc
+""  au BufReadPre * setlocal foldmethod=indent
+""  au BufWinEnter * if &fdm == 'indent' | setlocal foldmethod=manual | endif
+""augroup END
+"
+
+""_________________________________________________________________________________
+""Super - Just open a gvim window, type in anything you want to get done, press '\a' and bang! it gets appended to existing actions list
+""let @y  = <C-R>strftime("\%d-\%b-\%Y").'\n_____________________________________________________________________________________'
+"let @y  = '_____________________________________________________________________________________'
+"
+"
+""Influenced by http://items.sjbach.com/319/configuring-vim-right
+""The current buffer can be put to the background without writing to disk;
+""When a background buffer becomes current again, marks and undo-history are remembered.
+"set hidden
+"noremap <silent> <leader>s :set nolist!<CR>
+"
+"
+"
+""Taken from http://vi-improved.org/vimrc.php
+""""""""""""""""""""""""""""
+"
+""To remove # directives from starting on from column 0
+"set cinkeys=0{,0},0),:,!^F,o,O,e
+"
+"
+"noremap <F1> :update<CR>:silent !start C:\Users\Ichigo\AppData\Local\Google\Chrome\Application\chrome.exe %:p<CR>
+""Open current document with IE
+"noremap <F2> :update<CR>:silent !start c:\progra~1\intern~1\iexplore.exe file://%:p<CR>
+"
+""Insert Date and Time with Ctrl;
+"inoremap <F4>  <C-R>=strftime("%Y-%m-%d %a %I:%M %p")<CR>
+":nnoremap <F4> "=strftime("%Y-%m-%d %a %I:%M %p")."__________________________________________________________"<CR>p
+"inoremap http://learnvimscriptthehardway.stevelosh.com/<F3>  <C-R>=strftime("%d-%b-%Y")<CR>
+"
+"
+"
+"set wrapscan
+"set fileformats=dos,unix
+"
+"
+""Save typing by using \zs and \ze to set the start and end of a pattern. For example, instead of:
+"":s/Copyright 2007 All Rights Reserved/Copyright 2008 All Rights Reserved/
+""Use:
+"":s/Copyright \zs2007\ze All Rights Reserved/2008/
+"
+"
+""APPENDING TO A REGISTER
+""For example, if you recorded into register a using qa...q, you could add to the macro (without replacing it) using qA...q.
+"
+"":SET to view which settings are active
+""
+""My Shortcuts to move around
+""Shift L to go bottom visible line
+""ciw to change inside word
+""ctX change everything from here to letter X
+""c/foo change everything from here till letter foo
+"    "learn some verbs: v (visual), c (change), d (delete), y (yank/copy). these are the most important. there are others
+"    "learn some objects: w (word), s (sentence) p (paragraph) b (block/parentheses), there are others
+"    "learn some modifiers: i (inside), a (around), t (till..finds a character), / (search..find a string/regex)
+""diw delete inside word
+""ci" Wiil change inside quote enclosure
+"
+"
+"
+"
+""use snipmate for html
+""
+""Tips:
+""_________________________________________________________________________________
+"For folding all classes and defs use zM and to individually toggle folds use
+"za
+""For viewing diff open a file in gvim and do
+"":vert diffsplit newFile.ext
+"" g_ to go to the first non blank character in line
+"" cw to replace current word
+"" :saveas is a command
+"" :bp and :bn to go to previous and next buffers
+"" w will go to the start of the following word
+"" e will go to the end of this word
+"" t, go to the character just before ,
+"" 3fa find the third occurence of a Ton this line
+"" dt" remove everythinh until "
+":g/profile/d will delete all lines that contains word profile
+":v/profile\|foo/d will leave all lines that contains word profile or foo
+" THink of g as Gulp and v as Valid
+"
+"
+"noremap <leader>g :GundoToggle<CR>
+"autocmd FileType python map <buffer> <F3> :call Pep8()<CR>
+
+"The ex command g is very useful for acting on lines that match a pattern. You can use it with the d command, to delete all lines that contain a particular pattern, or all lines that do not contain a pattern.
+"For example, to delete all lines containing "profile" (the first command is optional; it shows the lines that the second command will delete):
+"
+":g/profile
+":g/profile/d
+"More complex patterns can be used, such as deleting all lines that are empty or that contain only whitespace:
+":g/^\s*$/d
+"To delete all lines that do not contain a pattern, use g!, like this command to delete all lines that are not comment lines in a Vim script:
+":g!/^\s*"/d
+"Note that g! is equivalent to v, so you could also do the above with:
+":v/^\s*"/d
+"The next example shows use of \| ("or") to delete all lines except those that contain "error" or "warn" or "fail" (:help pattern):
+":v/error\|warn\|fail/d
+"
+
+
+
+map <leader>courier :call OpenFilesInTabs([
+            \WHOPAID_DIR."\\Shipments.py",
+            \WHOPAID_DIR."\\courier\\couriers.py",
+            \WHOPAID_DIR."\\testSnapshot.py",
+            \WHOPAID_DIR."\\SanityChecks.py",
+            \])<CR>
+
+map <leader>dieseq :call OpenFilesInTabs([
+            \WEBSITE_DIR."\\templates\\dieseqcalculations.html",
+            \WEBSITE_DIR."\\static\\js\\controllers.js",
+            \WEBSITE_DIR."\\static\\stylesheets\\main.css",
+            \])<CR>
+map <leader>con :call OpenFilesInTabs([
+            \WEBSITE_DIR."\\static\\js\\emailController.js",
+            \WEBSITE_DIR."\\templates\\contactus.html",
+            \WEBSITE_DIR."\\static\\stylesheets\\main.css",
+            \WEBSITE_DIR."\\api.py",
+            \])<CR>
+
+function! OpenFilesInTabs(...)
+    for firstArg in a:000
+        for nextFile in firstArg
+            :execute "tabedit ".l:nextFile
+        endfor
+    endfor
+endfunction
+
+
+autocmd BufEnter,BufRead,BufWritePost,BufWinEnter,BufReadPre,BufNewFile *.html  call HTMLSettings()
+function! HTMLSettings()
+    setlocal expandtab
+    setlocal tabstop=2
+    setlocal shiftwidth=2
+    setlocal list
+    setlocal listchars=tab:>-,trail:-
+    setlocal spell
+endfunction
+
+autocmd BufEnter,BufRead,BufWritePost,BufWinEnter,BufReadPre,BufNewFile *.py call PySettings()
+function! PySettings()
+    setlocal expandtab
+    setlocal tabstop=2
+    setlocal shiftwidth=2
+    setlocal list
+    setlocal listchars=tab:>-,trail:-
+    setlocal nospell
+endfunction
+
+autocmd BufEnter,BufRead,BufWritePost,BufWinEnter,BufReadPre,BufNewFile *.go call GoSettings()
+function! GoSettings()
+    setlocal noexpandtab
+    setlocal nolist
+    setlocal listchars=tab:\|\ 
+    "setlocal listchars=tab:--,trail:-,eol:<
+    "setlocal listchars=tab:\|\ ,
+endfunction
+
+autocmd BufRead,BufWritePost *.txt call DistractionFreeWriting()
+function! DistractionFreeWriting()
+    "colorscheme iawriter
+    "setlocal background=light
+    setlocal background=dark
+    "setlocal gfn=Cousine:h14             " Font to use
+    "setlocal lines=40 columns=100        " Size of editable area
+    "setlocal fuoptions=background:#00f5f6f6 " Macvim specific setting
+    setlocal guioptions-=r
+    setlocal laststatus=0
+    setlocal noruler
+    setlocal linebreak
+    setlocal formatoptions+=t
+    setlocal textwidth=79
+    setlocal spell
+endfunction
+
+autocmd Bufenter,BufNewFile,BufRead,BufWritePost *.py set formatoptions-=t
+
+"Tag specific mappings
+imap ,ti <title></title><esc>bba
+imap ,bo <body></body><ESC>bba
+imap ,ht <html></html><ESC>bba
+imap ,he <head></head><ESC>bba
+imap ,st <strong></strong><ESC>bba
+imap ,div <div class=""></div><ESC>bbla
+imap ,h1 <h1></h1><ESC>bba
+imap ,h2 <h2></h2><ESC>bba
+imap ,h3 <h3></h3><ESC>bba
+imap ,ul <ul></ul><ESC>bba
+imap ,li <li></li><ESC>bba
+imap ,an <a href=""></a><ESC>bbla
+imap ,jb {% block  %}<CR>{% endblock %}<ESC>khhhi
+map ,cb O<!--<ESC>jo--><ESC>
+map ,pdb Oimport pdb; from pprint import pprint; pdb.set_trace()<ESC>
+map ,pprint Ofrom pprint import pprint<ESC>
+
+
+:let sol_yellow="#b58900"
+:let sol_orange="#cb4b16"
+:let sol_red="#dc322f"
+:let sol_magenta="#d33682"
+:let sol_violet="#6c71c4"
+:let sol_blue ="#268bd2"
+:let sol_cyan  ="#2aa198"
+:let sol_green="#859900"
+set textwidth=80
+
+"Highlight overflown text/code
+"highlight OverLength ctermbg=red ctermfg=white guibg=#073642 guifg=#859900
+"match OverLength /\%81v.\+/
+set cursorline
+set cursorcolumn
+
+"Here are the commands you need to know:
+"
+"]s — move to the next mispelled word
+"[s — move to the previous mispelled word
+"zg — add a word to the dictionary
+"zug — undo the addition of a word to the dictionary
+"z= — view spelling suggestions for a mispelled word
+""
+
+"JSLint for errors
+"https://github.com/hallettj/jslint.vim
+
+"There is an easy option to prevent this, however. You can temporarily switch to “paste mode”, simply by setting the following option:
+"http://nvie.com/posts/how-i-boosted-my-vim/
+
+set pastetoggle=<F4>
+"Then, when in insert mode, ready to paste, if you press <F2>, Vim will switch to paste mode, disabling all kinds of smartness and just pasting a whole buffer of text. Then, you can disable paste mode again with another press of <F2>. Nice and simple. Compare paste mode disabled vs enabled:
+
+"Commands reference
+"To delete all empty lines with space
+":g/^\s*$/d
+" ______
+":%s/\s\+$//e
+":%s/\n\{3,}/\r\r/e
+"The e substitute flag means that no error is displayed if the pattern is not found. In the second command, \n in the search pattern finds newline, while \r in the replacement inserts a newline.
+

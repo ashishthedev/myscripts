@@ -1,0 +1,2 @@
+[include]
+	path = c:\\users\\ichigo\\Dropbox\\SDATDocs\\myscripts\\misc\\gitFiles\\.gitconfig

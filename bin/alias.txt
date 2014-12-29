@@ -1,0 +1,262 @@
+;= Shortcuts to ease out the repetitive tasks in windows
+;=
+;= @echo off
+; = Invoke it like this:
+;= 1. D:\Windows\System32\cmd.exe /k setenv.bat
+;= 2. doskey /MACROFILE="%APPDIR%\code\bin\alias.txt"
+;= rem Call DOSKEY and use this file as the macrofile
+;= %SystemRoot%\system32\doskey /listsize=1000 /macrofile=%0%
+;= rem In batch mode, jump to the end of the file
+;= goto end
+;= rem ******************************************************************
+;= rem *   Filename: aliases.bat
+;= rem *    Version: 1.0
+;= rem *     Author: Ben Burnett <me@cs.wisc.edu>
+;= rem *    Purpose: Simple, but useful aliases; this can be done by
+;= rem *             other means--of course--but this is dead simple and
+;= rem *             works on EVERY Windows machine on the planet.
+;= rem *    History:
+;= rem * 26/11/2012: File Created
+;= rem ******************************************************************
+
+
+
+
+
+
+
+gitclean = git gc --aggressive --prune
+gitamend = git commit --amend --no-edit
+re=pushd %XDATDOCSDIR%\code\bin && doskey /Macrofile=alias.txt && popd
+..=cd..
+...=cd..\..
+
+idle = %XDATDOCSDIR%\code\bin\idle.lnk
+mv=move $*
+al=gvim %XDATDOCSDIR%\code\bin\alias.txt
+al=pushd %XDATDOCSDIR%\code\bin && gvim alias.txt && popd
+cfg=gvim %XDATDOCSDIR%\pycrm.cfg
+g=gvim $*
+s=b:\Tools\SublimeText\ST3Portable\subl.exe $*
+z=start /w %VIM_EXE_DIR%\gvim.exe $*
+ff=@echo "Finding for file name" && where /T /R . *$**
+ffe=@echo "Finding for file name" && where /T /R . $*
+fs=findstr /i /s /n $*
+ls=dir /x $*
+lw=dir /w $*
+la=dir /x /a $*
+cp=copy $*
+mv=move $*
+cd=pushd $*
+
+egs = start /w "%USERPROFILE%\AppData\Local\Google\Chrome\Application\chrome.exe" "https://www.google.com/#q=$*"
+
+gds=pushd b:\desktop
+gtest = pushd b:\desktop && pushd test
+gms=pushd %XDATDOCSDIR%\code
+gbin=pushd %XDATDOCSDIR%\code\bin
+ghome = pushd %HOME%
+gwp  = pushd %XDATDOCSDIR%\code\whopaid
+gex = pushd %HOME%\exercism
+ggoogle = pushd "%PROGRAMFILES%\Google\google_appengine"
+gutils = pushd %XDATDOCSDIR%\code\Util
+gutil = pushd %XDATDOCSDIR%\code\Util
+gbundle = pushd "d:\users\Ichigo\vimfiles\bundle\"
+doc = pushd %XDATDOCSDIR%
+gdoc = pushd %XDATDOCSDIR%
+gsony= pushd %XDATDOCSDIR%\code\SonyPhoneBookMerge
+gmisc = pushd %XDATDOCSDIR%\code\misc
+gahk = pushd %XDATDOCSDIR%\code\AHK
+gtools = pushd "b:\tools\"
+gread = pushd b:\read
+gkeyl = pushd %XDATDOCSDIR%\code\keyl
+gff = pushd %XDATDOCSDIR%\FrequentFliers
+gydl = pushd "B:\\YoutubeVideosDownloaded\\"
+rollbacksdat = pushd %WEBDIR%\ && appcfg.py rollback . --no_cookies --email="developer@standarddiesandtools.com" $*
+rollbacksdatlive = pushd %WEBDIR%\ && appcfg.py rollback . --no_cookies --email="developer@standarddiesandtools.com" --version="live" $*
+rollbacksdatdev = pushd %WEBDIR%\ && appcfg.py rollback . --no_cookies --email="developer@standarddiesandtools.com" --version="dev" $*
+golivesdat = %WEBDIR%\scripts\push.py --version="live" --email="developer@standarddiesandtools.com" --oauth2 $*
+godevsdat = %WEBDIR%\scripts\push.py --version="dev" --email="developer@standarddiesandtools.com" --oauth2 $*
+golivephungsuk = %PHUNGSUKDIR%\scripts\push.py --version="live" --email="developer@phungsukjibabo.mygbiz.com"
+godevphungsuk = %PHUNGSUKDIR%\scripts\push.py --version="dev" --email="developer@phungsukjibabo.mygbiz.com"
+rollbackphungsuk = pushd %PHUNGSUKDIR% && appcfg.py rollback . --no_cookies --email="developer@phungsukjibabo.mygbiz.com" $*
+
+gcl = java -jar %WEBDIR%\scripts\bin\GoogleClosureCompiler\compiler.jar $*
+gcladv = java -jar %WEBDIR%\scripts\bin\GoogleClosureCompiler\compiler.jar --compilation_level ADVANCED_OPTIMIZATIONS --js $1 --js_output_file $2
+gclsim = java -jar %WEBDIR%\scripts\bin\GoogleClosureCompiler\compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS   --js $1 --js_output_file $2
+gclwhite = java -jar %WEBDIR%\scripts\bin\GoogleClosureCompiler\compiler.jar --compilation_level WHITESPACE_ONLY      --js $1 --js_output_file $2
+gprog = pushd %ProgramFiles%
+gphungsuk = pushd %PHUNGSUKDIR%
+gimg = pushd %WEBDIR%\static\images
+gweb = pushd "%WEBDIR%"
+gwb = pushd "%WEBDIR%"
+ghtml = pushd %WEBDIR%\templates
+gjs = pushd %WEBDIR%\static\js
+gcss = pushd %WEBDIR%\static\stylesheets
+elwsf = start %ComSpec% /k dev_appserver.py --skip_sdk_update_check True "%WEBDIR%"
+elws = start %ComSpec% /k dev_appserver.py "%WEBDIR%"
+phserver = "B:\Tools\PhantomJS\phantomjs-1.9.1-windows\phantomjs.exe" --proxy=127.0.0.1:8118 $*
+ph = "B:\Tools\PhantomJS\phantomjs-1.9.1-windows\phantomjs.exe" $*
+gplib = pushd "B:\\Python27\\Lib\\"
+gpod = pushd %APPDIR%\\DocketPODs
+gpods = pushd %APPDIR%\\DocketPODs
+fpod =  pushd %APPDIR%\\DocketPODs && where /T /R . *$**
+cust2odat = copy "%APPDIR%\\SDATDocs\\Bills\\Cust.xlsx" "%APPDIR%\\ODATDocs\\Bills\\Cust.xlsx"
+
+analyze = pushd %XDATDOCSDIR%\\code\\misc\\PhoneBillAnalysis && AnalyzeBill.py $*
+
+trs         = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --track $* && pushd %XDATDOCSDIR%\..\DocketPODs && start. && popd
+undelivered = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --show-undelivered-small && popd
+resendsms   = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --show-undelivered-small && Shipments.py --resend-dispatch-sms $* && popd
+parcom      = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --show-undelivered-small && Shipments.py --complaint $* && popd
+watch       = pushd %XDATDOCSDIR%\code\misc && watchydl.py -s $* && popd
+lfp         = pushd %XDATDOCSDIR%\code\whopaid && Statement.py --last-few-payments && popd
+
+opybk          = "B:\Read\Python\The Quick Python Book 2e - Vernon Ceder - Manning (2010).pdf"
+ogaebk2        = "b:\Read\Google App Engine\Programming GAE V2.pdf"
+ogaebk         = "b:\Read\Google App Engine\Oreilly - Programming Google Apps Engine (12-2009) (ATTiCA).pdf"
+ojinjabk       = "b:\Read\Jinja2\Jinja-docs.pdf
+oprogitbk      = "b:\Read\Git\progit.en.pdf"
+ogitbk         = "b:\Read\Git\progit.en.pdf"
+orefactoringbk = "b:\Read\Refactoring\Refactoring Improving the Design of Existing Code - Fowler-Beck-Brant-Opdyke-Roberts.chm"
+kmp            = start %XDATDOCSDIR%\"SDAT\KennametalAll\KennaMetalPayment"
+recent         = dir /s /b /a:-d /t:w /o:-d|less
+
+fip=@echo "Finding inside .py files" && findstr /i /s /n $* *.py
+fit=@echo "Finding inside .txt files" && findstr /i /s /n $* *.txt
+fih=@echo "Finding inside .html files" && findstr /i /s /n $* *.html
+fia=@echo "Finding inside all files" && findstr /i /s /n $* *.*
+fic=@echo "Finding inside code files" && findstr /i /s /n $* *.py *.html *.js *.css *.go
+fig=@echo "Finding inside go files" && findstr /i /s /n $* *.go
+esice=pushd %XDATDOCSDIR%\ESIC && start.
+
+q=exit
+pyprof = %XDATDOCSDIR%\code\bin\pyprofile.py "$*"
+
+slip1 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n1 $* && popd
+slip2 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n2 $* && popd
+slip3 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n3 $* && popd
+slip4 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n4 $* && popd
+slip5 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n5 $* && popd
+slip6 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n6 $* && popd
+slip  = pushd %XDATDOCSDIR%\code\whopaid &&  address_slip.py $* && popd
+er    = pushd %XDATDOCSDIR%\code\whopaid && payment_reminders_for_groups.py --mail $* && popd
+erm   = pushd %XDATDOCSDIR%\code\whopaid && payment_reminders_for_groups.py --mail $* && popd
+ers   = pushd %XDATDOCSDIR%\code\whopaid && payment_reminders_for_groups.py --sms $* && popd
+ersmd   = pushd %XDATDOCSDIR%\code\whopaid && payment_reminders_for_groups.py --sms --md $* && popd
+erms  = pushd %XDATDOCSDIR%\code\whopaid && payment_reminders_for_groups.py --mail --sms $* && popd
+ermsmd  = pushd %XDATDOCSDIR%\code\whopaid && payment_reminders_for_groups.py --mail --sms --md $* && popd
+erd   = pushd %XDATDOCSDIR%\code\whopaid && payment_reminders_for_groups.py --mail --demo $* && popd
+erol  = pushd %XDATDOCSDIR%\code\whopaid && payment_reminders_for_groups.py --allCompanies --only-list-no-send --demo $* && popd
+gform38 = pushd %XDATDOCSDIR%\Form38Actual\Receipt && start.
+fcr   = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py -o $* && popd
+fcrl  = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py -o --letterHead --desktopOnly $* && popd
+fcrd  = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py -o --demo $* && popd
+fcres  = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py --email --sms $* && popd
+fcre  = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py --email $* && popd
+fcrs  = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py --sms $* && popd
+rpr   = pushd %XDATDOCSDIR%\code\whopaid && road_permit_request.py --mail --sms $* && popd
+rprm  = pushd %XDATDOCSDIR%\code\whopaid && road_permit_request.py --mail $* && popd
+rprs  = pushd %XDATDOCSDIR%\code\whopaid && road_permit_request.py --sms $* && popd
+rprd  = pushd %XDATDOCSDIR%\code\whopaid && road_permit_request.py --mail --sms --demo $* && popd
+dis   = pushd %XDATDOCSDIR%\code\whopaid && shipments.py --mail --dispatch-sms-all $* && Shipments.py --track && pushd %XDATDOCSDIR%\..\DocketPODs && start. && popd && popd
+dis10 = pushd %XDATDOCSDIR%\code\whopaid && shipments.py --mail --dispatch-sms-all --notify-days=10 $* && popd
+disd  = pushd %XDATDOCSDIR%\code\whopaid && shipments.py --mail --dispatch-sms-all --demo $* && popd
+rgb   = %XDATDOCSDIR%\code\misc\rgb2hex.py $*
+info  = gvim %XDATDOCSDIR%\FrequentFliers\Info.txt
+etrv  = %XDATDOCSDIR%\code\misc\TaxReturnLocalValidation.py
+eret  = gvim %XDATDOCSDIR%\SalesTaxReturnFiles\eReturnInfo.txt
+tre   = start %XDATDOCSDIR%\SalesTaxReturnFiles\
+gtaxret = pushd %XDATDOCSDIR%\SalesTaxReturnFiles\
+fm    = "D:\Program Files\FreeMind\Freemind.exe"
+lc    = %XDATDOCSDIR%\code\LineCount.py
+dup   = %XDATDOCSDIR%\code\misc\FindDuplicateFiles.py
+stmt  = pushd %XDATDOCSDIR%\code\whopaid && Statement.py $* && popd
+h     = doskey /history
+ggno  = pushd %XDATDOCSDIR%\code\misc\gnokii
+sms   = pushd %XDATDOCSDIR%\code\sms && sendsms.py && popd
+
+;= Take Email backup with tkbkem (TaKe BacKup = tkbk)
+tkbk  = %XDATDOCSDIR%\code\Backup\InitiateEmailBackup.py
+chk   = %XDATDOCSDIR%\code\whopaid\sanity_checks.py
+
+;= rem Test Observer
+to   = %XDATDOCSDIR%\code\web\UberObserver.pyk
+kdd  = taskkill /F /IM DisplayDriver.exe
+tc   = dev_appserver.py b:\gaetest\clock
+
+wpold = pushd %XDATDOCSDIR%\code\whopaid && depricated_whopaid.py $* && popd
+wp    = pushd %XDATDOCSDIR%\code\whopaid && whopaid_instant_findOut.py $* && popd
+wpi   = pushd %XDATDOCSDIR%\code\whopaid && whopaid_instant_findOut.py $* && popd
+wpf   = pushd %XDATDOCSDIR%\code\whopaid && whopaid_instant_findOut.py --fresh $* && popd
+
+;= Fraud Detection
+efd    = %XDATDOCSDIR%\code\ymail\FraudDetection.py $*
+efdv   = %XDATDOCSDIR%\code\ymail\FraudDetection.py $*
+efdnv  = %XDATDOCSDIR%\code\ymail\FraudDetection.py -nv $*
+efdt   = %XDATDOCSDIR%\code\ymail\FraudDetection.py -t $*
+efdtnv = %XDATDOCSDIR%\code\ymail\FraudDetection.py -nv -t $*
+
+
+pypy   = B:\Tools\pypy-2.0-beta2\pypy.exe $*
+
+eydl   = start %XDATDOCSDIR%\code\misc\ydl.py
+oydl   = gvim b:\YoutubeVideosDownloaded\YoutubeURLsQueue.txt
+edelta = %XDATDOCSDIR%\code\SonyPhoneBookMerge\Delta.py
+
+eCleanMp3 = %XDATDOCSDIR%\code\misc\SanitizeMp3Names.py
+
+fgmail  = gvim %XDATDOCSDIR%\code\misc\gmailAttachmentSizeLabels.py
+fgmutil = gvim %XDATDOCSDIR%\code\PythonModules\UtilGmail.py
+
+readab  = pushd %XDATDOCSDIR%\code\misc\readability && Scripts\activate.bat
+tree    = b:\Tools\TreeSize\TreeSizeFree.exe
+gch     = pushd %XDATDOCSDIR%\..\chess
+
+privoxy = pushd b:\tools\PrivoxyInstalled\ && start privoxy.exe && popd
+torsdat = pushd b:\tools\PrivoxyInstalled\ && start privoxy.exe && popd && %XDATDOCSDIR%\code\misc\TorPython.py --url "http://www.standarddiesandtools.com/about" --interval 20
+;= :end
+;= rem ******************************************************************
+;= rem * EOF - Don't remove the following line.  It clears out the ';'
+;= rem * macro. Were using it because there is no support for comments
+;= rem * in a DOSKEY macro file.
+;= rem ******************************************************************
+;=
+
+gpmt        = pushd "%PMTAPPDIR%"
+pmtLT       = %PMTAPPDIR%\utils\push.py --localTesting $*
+godevpmt    = %PMTAPPDIR%\utils\push.py --version="dev" --email="developer@standarddiesandtools.com" --oauth2 --force-upload $*
+golivepmt   = %PMTAPPDIR%\utils\push.py --version="live" --email="developer@standarddiesandtools.com" --oauth2 --force-upload $*
+rollbackpmt = pushd %PMTAPPDIR%\ && appcfg.py rollback .  --email="developer@standarddiesandtools.com" --oauth2 --version="live" $*
+rollbackpmt = pushd %PMTAPPDIR%\ && appcfg.py rollback .  --oauth2 --version="live" $*
+gcloudlogin = gcloud auth login --no-launch-browser
+
+
+;======================================================
+gtrk = pushd %XDATDOCSDIR%\code\whopaid
+;======================================================
+;= Lean Tricks
+glt        = pushd %LEANDIR%
+golivelt   = %LEANDIR%\utils\push.py --version="live" --email="leantricks@gmail.com" $*
+godevlt    = %LEANDIR%\utils\push.py --version="dev" --email="leantricks@gmail.com" $*
+rollbacklt = pushd %LEANDIR%\ && appcfg.py rollback .  --email="leantricks@gmail.com" --version="live" $*
+gzambia    = pushd %XDATDOCSDIR%\Export\SteelWorxZambia\ &&  start.
+gexport    = pushd %XDATDOCSDIR%\Export && start.
+galkhaleej = pushd %XDATDOCSDIR%\Export\AlkhaleejSteelsDubai && start.
+ghandy     = pushd %XDATDOCSDIR%\SDAT\LettersSent\HandyWire && start.
+governite  = pushd %XDATDOCSDIR%\SDAT\Courier && start.
+
+gpom = git push origin master
+es = exercism submit $*
+ef = exercism fetch
+gft = go fmt && go test
+
+mpv = b:\tools\mpv\mpv.exe $*
+ve = virtualenv --distribute $*
+callff = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919999515573" -sc "Please come." && popd
+callon = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919873677971" -sc "Please come." && popd
+mp = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919810181182" -sc $* && popd
+mg = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919971602777" -sc $* && popd
+ma = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919971008001" -sc $* && popd
+mpg = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919971602777" -sc $* && SmsFromCommandLine.py -n "+919810181182" -sc $* && popd
+cat = type $* | more
