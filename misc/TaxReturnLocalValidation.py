@@ -105,6 +105,15 @@ class TestFunctions(unittest.TestCase):
       self.assertTrue(os.path.exists(ANNEXUREA2))
       return
 
+<<<<<<< HEAD
+=======
+  def test_NoTwoInvoiceShouldBeSameInAnnexureC(self):
+    allInvoiceNumbers = [getText(node.childNodes) for node in GetAllNodesByNameFromFile(ANNEXUREC, "InvNo")]
+    for invNo in allInvoiceNumbers:
+      occured = allInvoiceNumbers.count(invNo)
+      self.assertTrue(occured == 1, "In AnnexureC, invoice# {} is present {} times, wanted 1 time".format(invNo, occured))
+    return
+>>>>>>> 63628c40366cf0ee8de179875d4468dcf1cb7504
   def test_AnnexureA2CapitalGoodsValue(self):
       print(">>>>>>>>>>TODO")
       return
