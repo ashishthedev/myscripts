@@ -9,7 +9,7 @@
 ##
 ##########################################################################
 
-from Util.Config import GetOption, GetAppDirPath
+from Util.Config import GetOption, GetAppDirPath, HasOption
 from Util.Persistent import Persistent
 from Util.Misc import PrintInBox
 from Util.Sms import SendSms
@@ -64,6 +64,8 @@ class _PersistentSMS(Persistent):
 
 
 def SendScheduledSMS():
+  if not HasOption("SMS_SECTION", "RepeatingSMSJsonFilePath"):
+    return
   smsJsonPath = os.path.join(GetAppDirPath(), GetOption("SMS_SECTION", "RepeatingSMSJsonFilePath"))
 
   with open(smsJsonPath) as f:
