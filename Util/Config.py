@@ -41,6 +41,17 @@ def GetAppDirPath():
 def GetConfigFilePath():
   return _GetConfigFilePath(os.getcwd())
 
+def HasOption(sectionName, optionName):
+  return _HasOption(sectionName, optionName, SafeConfigParser())
+
+def _HasOption(sectionName, optionName, parser):
+  parser.read(_GetConfigFilePath(os.getcwd()))
+
+  if not parser.has_section(sectionName):
+    return False
+
+  return parser.has_option(sectionName, optionName)
+
 def _GetOption(sectionName, optionName, parser):
   configFilePath = _GetConfigFilePath(os.getcwd())
   parser.read(configFilePath)
