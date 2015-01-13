@@ -38,7 +38,7 @@ class TestShipment():
 def main():
     bill = CreateATestBill()
     bill.courierName = "FirstFlight"
-    bill.docketNumber = "W991B0914016"
+    bill.docketNumber = "W991B1033306"
     with TestShipment(bill) as ts:
       ts.Track()
       print("Status of test shipment: {}".format(ts.status))

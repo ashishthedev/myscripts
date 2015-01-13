@@ -29,38 +29,36 @@ class _PersistentSMS(Persistent):
     super(self.__class__, self).__init__(self.__class__.__name__)
 
   def SendMsgForThisNodeIfRequired(self, msgNode):
+    if msgNode.has_key("stop"):
+      return
     key = msgNode["startingDate"] + "-" + "-".join([str(n) for n in msgNode["toTheseNumbers"]])
-    earlierTime = None
-    if key in self:
-      earlierTime = self[key]
 
     shouldSendMsg = False
-    if earlierTime == None:
+
+    if key not in self:
+      #Newly entered node
       shouldSendMsg = True
     else:
-      td = (datetime.datetime.now() - earlierTime)
-      currentGapInMinutes = td.seconds/60
+      #Preexisting node
+      td = (datetime.datetime.now() - self[key])
+      currentGapInMinutes = td.total_seconds()/60
       minimumGapInMinutes = int(msgNode["frequencyInDays"])*24*60
       #We are dealing in minutes so that logic doesn't change if we switch to granularity of minutes later instead of days
       if currentGapInMinutes > minimumGapInMinutes:
         shouldSendMsg = True
 
 
-    if msgNode.has_key("stop"):
-      #This should be the last check in shouldSendMsg series, it has highest precedence
-      shouldSendMsg = False
-
     if shouldSendMsg:
       for eachNumber in msgNode["toTheseNumbers"]:
-        smsContent = msgNode["content"]
-        number = eachNumber
-        PrintInBox(smsContent + "\n" + number)
+        PrintInBox(msgNode["content"] + "\n" + eachNumber)
         if raw_input("Send this msg (y/n)").lower() != "y":
           print("Not sending...")
           continue
-        SendSms(eachNumber, msgNode["content"])
-        #Save time
-        self[key] = datetime.datetime.now()
+        else:
+          print("Sending...")
+          SendSms(eachNumber, msgNode["content"])
+          #Save time
+          self[key] = datetime.datetime.now()
 
 
 def SendScheduledSMS():
