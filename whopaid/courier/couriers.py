@@ -95,7 +95,6 @@ def StoreSnapshotWithPhantomScript(b, scriptPath, formData, reqUrl):
     if not os.path.exists(p): raise Exception("Path not present : {}".format(p))
 
   args = [PHANTOM, scriptPath, fullPath, b.docketNumber, formData, reqUrl]
-  args = [PHANTOM, "--debug=true", "--web-security=no", scriptPath, fullPath, b.docketNumber, formData, reqUrl]
   subprocess.check_call(args)
 
   if not os.path.exists(fullPath):
@@ -294,7 +293,7 @@ class FedExCourier():
     if resCode.lower() == "dl":
       res = data["TrackPackagesResponse"]["packageList"][0]["keyStatus"]
       receiver = data["TrackPackagesResponse"]["packageList"][0]["receivedByNm"]
-      return res + " Delivered and Received by: {}".format(receiver)
+      return res + " Received by: {}".format(receiver)
     else:
       return data["TrackPackagesResponse"]["packageList"][0]["keyStatus"]
     return None
