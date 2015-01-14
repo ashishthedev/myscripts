@@ -18,20 +18,23 @@ page.viewportSize = { width: 640, height: 480 };
 page.customHeaders = {
     "Host": "firstflight.net:8081",
     "Content-Type": "application/x-www-form-urlencoded",
-    "Referer": "http://firstflight.net:8081/single-web-tracking/singleTracking.do",
+    "Referer": REQUEST_URL,
     "Origin": "http://firstflight.net:8081",
+    "User-Agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36",
     };
 
 
 try {
+  console.log("Phantom| Opening First Flight page for docket: " + docket);
   page.open(REQUEST_URL, 'POST', FORM_DATA, function (status) {
+    console.log("Phantom| Page openend");
 
     if(status !== 'success') {
-      console.log("Unable to access network - status: " + status);
+      console.log("Phantom| Unable to access network - status: " + status);
       phantom.exit(1);
     }
 
-    console.log("Saving Snapshot for docket: " + docket);
+    console.log("Phantom| Saving Snapshot for docket: " + docket);
     window.setTimeout( function(){
       page.render(destinationFile);
       page.close();

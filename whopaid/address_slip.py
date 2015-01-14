@@ -82,7 +82,7 @@ def GenerateAddressSlipForThisCompany(compName, args):
     d['tCompanyOfficialName'] = companyOfficialName
     d['tCompanyDeliveryAddress'] = companyDeliveryAddress
     d['tcompanyDeliveryPhNo'] = companyDeliveryPhNo
-    d['tcompanyPinCode'] = companyPinCode
+    d['tcompanyPinCode'] = str(int(companyPinCode))
     d['tOptionalParams'] = ""
     if preferredCourierForThisComp:
       d['tOptionalParams'] += "<tr><td>Courier: {}</td></tr>".format(preferredCourierForThisComp)
