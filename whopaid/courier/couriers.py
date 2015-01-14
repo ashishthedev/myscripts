@@ -295,7 +295,7 @@ class FedExCourier():
       receiver = data["TrackPackagesResponse"]["packageList"][0]["receivedByNm"]
       return res + " Received by: {}".format(receiver)
     else:
-      return data["TrackPackagesResponse"]["packageList"][0]["keyStatus"]
+      return data["TrackPackagesResponse"]["packageList"][0]["keyStatus"] + " Estimated Delivery at: " + data["TrackPackagesResponse"]["packageList"][0]["displayEstDeliveryDateTime"]
     return None
 
   def StoreSnapshot(self):
