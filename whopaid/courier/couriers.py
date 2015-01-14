@@ -84,7 +84,7 @@ def FullPathForSnapshotOfBill(b):
 
 def StoreSnapshotWithPhantomScript(b, scriptPath, formData, reqUrl):
   #TODO: Remove hardcoding of path
-  PHANTOM = "B:\\Tools\\PhantomJS\\phantomjs-1.9.8-windows\\phantomjs.exe"
+  PHANTOM = "B:\\Tools\\PhantomJS\\phantomjs-1.9.1-windows\\phantomjs.exe"
   fullPath = FullPathForSnapshotOfBill(b)
 
   if os.path.exists(fullPath):
@@ -95,6 +95,7 @@ def StoreSnapshotWithPhantomScript(b, scriptPath, formData, reqUrl):
     if not os.path.exists(p): raise Exception("Path not present : {}".format(p))
 
   args = [PHANTOM, scriptPath, fullPath, b.docketNumber, formData, reqUrl]
+  args = [PHANTOM, "--debug=true", "--web-security=no", scriptPath, fullPath, b.docketNumber, formData, reqUrl]
   subprocess.check_call(args)
 
   if not os.path.exists(fullPath):
@@ -268,6 +269,41 @@ class LaljiMuljiTransport():
   def StoreSnapshot(self):
     StoreSnapshotWithPhantomScript(self.bill, "courier\\laljimulji_snapshot.js", self.FORM_DATA, "http://lmtco.com/")
 
+class FedExCourier():
+  def __init__(self, bill):
+    self.bill = bill
+
+  def GetStatus(self):
+    self.FORM_DATA = ""
+    self.reqUrl = "https://www.fedex.com/trackingCal/track?" + """action=trackpackages&locale=en_IN&version=1&format=json&data={%22TrackPackagesRequest%22:{%22appType%22:%22WTRK%22,%22uniqueKey%22:%22%22,%22processingParameters%22:{},%22trackingInfoList%22:[{%22trackNumberInfo%22:{%22trackingNumber%22:%22""" + str(self.bill.docketNumber) + """%22,%22trackingQualifier%22:%22%22,%22trackingCarrier%22:%22%22}}]}}&_=1421213504837"""
+    self.headers = {
+        "Host": "www.fedex.com",
+        "Referer": "https://www.fedex.com/fedextrack/WTRK/index.html?action=track&trackingnumber={docket}&cntry_code=in&fdx=1490".format(docket=self.bill.docketNumber),
+        "User-Agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36",
+        "X-Requested-With": "XMLHttpRequest",
+        }
+    req = urllib2.Request(self.reqUrl)
+    for k,v in self.headers.iteritems():
+      req.add_header(k, v)
+    resp = urllib2.urlopen(req, self.FORM_DATA, timeout=TIMEOUT_IN_SECS)
+    if resp.code != 200 :
+      raise Exception("Got {} reponse from FedEx server for bill: {}".format(resp.code, self.bill))
+    import json
+    data = json.load(resp)
+    resCode = data["TrackPackagesResponse"]["packageList"][0]["keyStatusCD"]
+    if resCode.lower() == "dl":
+      res = data["TrackPackagesResponse"]["packageList"][0]["keyStatus"]
+      receiver = data["TrackPackagesResponse"]["packageList"][0]["receivedByNm"]
+      return res + " Delivered and Received by: {}".format(receiver)
+    else:
+      return data["TrackPackagesResponse"]["packageList"][0]["keyStatus"]
+    return None
+
+  def StoreSnapshot(self):
+    snapshotUrl = """http://www.fedex.com/fedextrack/WTRK/index.html?action=track&trackingnumber={docket}&cntry_code=in&fdx=1490""".format(docket= self.bill.docketNumber)
+    StoreSnapshotWithPhantomScript(self.bill, "courier\\fedex_snapshot.js", self.FORM_DATA, snapshotUrl)
+
+
 class FirstFlightCourier():
   def __init__(self, bill):
     self.bill = bill
@@ -350,20 +386,20 @@ class BluedartCourier():
   def StoreSnapshot(self):
     StoreSnapshotWithPhantomScript(self.bill, "courier\\bluedart_snapshot.js", self.FORM_DATA, self.reqUrl)
 
+
 class OverniteCourier():
   def __init__(self, bill):
     self.bill = bill
-    self.reqUrl = "http://www.overnitenet.com/WebTrack.aspx"
 
   def GetStatus(self):
+    self.reqUrl = "http://www.overnitenet.com/WebTrack.aspx"
     self.FORM_DATA = GetRawOption("COURIER_FORM_DATA", "Overnite").format(docket=self.bill.docketNumber)
-    if not hasattr(self, "reqUrl"):
-      self.reqUrl = "http://www.overnitenet.com/WebTrack.aspx"
     req = urllib2.Request(self.reqUrl)
     req.add_header("Host" , "www.overnitenet.com")
     req.add_header("Content-Type" , "application/x-www-form-urlencoded")
     req.add_header('Referer', self.reqUrl)
     req.add_header('Origin', 'http://www.overnitenet.com')
+    req.add_header("User-Agent", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36")
     resp = urllib2.urlopen(req, self.FORM_DATA, timeout=TIMEOUT_IN_SECS)
     html = resp.read().decode('utf-8')
     if resp.code != 200 :
@@ -383,6 +419,7 @@ class OverniteCourier():
     StoreSnapshotWithPhantomScript(self.bill, "courier\\overnite_snapshot.js", self.FORM_DATA, self.reqUrl)
 
 MAPPING = {
+    "fedex" : FedExCourier,
     "overn": OverniteCourier,
     "trac" : TrackonCourier,
     "bluedart": BluedartCourier,

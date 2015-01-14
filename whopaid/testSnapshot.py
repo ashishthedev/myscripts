@@ -37,11 +37,14 @@ class TestShipment():
 
 def main():
     bill = CreateATestBill()
-    bill.courierName = "FirstFlight"
-    bill.docketNumber = "W991B1033306"
+    bill.courierName = "FedEx Express"
+
+    bill.docketNumber = "805854193624"
+    bill.docketNumber = "805854195513"
     with TestShipment(bill) as ts:
       ts.Track()
       print("Status of test shipment: {}".format(ts.status))
+      ts.status = "Delivered testing"
       if IsDeliveredAssessFromStatus(ts.status):
         PrintInBox("Taking Snapshot")
         ts.TakeNewSnapshot()
