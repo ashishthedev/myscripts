@@ -176,7 +176,7 @@ stmt  = pushd %XDATDOCSDIR%\code\whopaid && Statement.py $* && popd
 h     = doskey /history
 ggno  = pushd %XDATDOCSDIR%\code\misc\gnokii
 sms   = pushd %XDATDOCSDIR%\code\sms && sendsms.py && popd
-
+scontact = pushd %XDATDOCSDIR%\code\sms && searchContact.py $* && popd
 ;= Take Email backup with tkbkem (TaKe BacKup = tkbk)
 tkbk  = %XDATDOCSDIR%\code\Backup\InitiateEmailBackup.py
 chk   = %XDATDOCSDIR%\code\whopaid\sanity_checks.py

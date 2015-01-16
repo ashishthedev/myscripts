@@ -29,9 +29,11 @@ class _PersistentSMS(Persistent):
     super(self.__class__, self).__init__(self.__class__.__name__)
 
   def SendMsgForThisNodeIfRequired(self, msgNode):
-    if msgNode.has_key("stop"):
+    mobileNumbersList = [str(x) for x in str(msgNode.mobileNumbers).replace(",", ";").split(";")]
+    if msgNode.shouldStop:
+      print("stopping")
       return
-    key = msgNode["startingDate"] + "-" + "-".join([str(n) for n in msgNode["toTheseNumbers"]])
+    key = str(msgNode.startedOnDate) + "-" + "-".join([(n) for n in mobileNumbersList])
 
     shouldSendMsg = False
 
@@ -42,26 +44,38 @@ class _PersistentSMS(Persistent):
       #Preexisting node
       td = (datetime.datetime.now() - self[key])
       currentGapInMinutes = td.total_seconds()/60
-      minimumGapInMinutes = int(msgNode["frequencyInDays"])*24*60
+      minimumGapInMinutes = int(msgNode.frequencyInDays)*24*60
       #We are dealing in minutes so that logic doesn't change if we switch to granularity of minutes later instead of days
       if currentGapInMinutes > minimumGapInMinutes:
         shouldSendMsg = True
 
 
     if shouldSendMsg:
-      for eachNumber in msgNode["toTheseNumbers"]:
-        PrintInBox(msgNode["content"] + "\n" + eachNumber)
+      for eachNumber in mobileNumbersList:
+        PrintInBox(msgNode.title)
+        PrintInBox(msgNode.content + "\n" + eachNumber)
         if raw_input("Send this msg (y/n)").lower() != "y":
           print("Not sending...")
           continue
         else:
           print("Sending...")
-          SendSms(eachNumber, msgNode["content"])
+          SendSms(eachNumber, msgNode.content)
           #Save time
           self[key] = datetime.datetime.now()
 
 
 def SendScheduledSMS():
+  nodes = GetScheduledReminderNodesList()
+  for n in nodes:
+    print("_________________________________________________________________________________")
+    print("title:   {}".format(n.title))
+    print("content: {}".format(n.content))
+    print("numbers: {}".format(n.mobileNumbers))
+    print("stop:    {}".format(n.shouldStop))
+    p = _PersistentSMS()
+    p.SendMsgForThisNodeIfRequired(n)
+
+def SendScheduledSMSForJson():
   if not HasOption("SMS_SECTION", "RepeatingSMSJsonFilePath"):
     return
   smsJsonPath = os.path.join(GetAppDirPath(), GetOption("SMS_SECTION", "RepeatingSMSJsonFilePath"))
@@ -70,8 +84,61 @@ def SendScheduledSMS():
     jsonData = json.load(f)
 
   for msgNode in jsonData["msgs"]:
+    if msgNode.has_key("stop"):
+      msgNode.shouldStop = True
+    msgNode.startingDate = msgNode["startingDate"]
+    msgNode.mobileNumbers = msgNode["toTheseNumbers"]
+    msgNode.frequencyInDays = msgNode["frequencyInDays"]
+    msgNode.content = msgNode["content"]
     p = _PersistentSMS()
     p.SendMsgForThisNodeIfRequired(msgNode)
+
+class SingleMsgNode():
+    """This represents a single msg node"""
+    pass
+
+class MsgNodeCol:
+  TitleCol           = "A"
+  StartedOnDateCol   = "B"
+  FrequencyInDaysCol = "C"
+  MobileNumbersCol   = "D"
+  ContentsCol        = "E"
+  StopCol            = "F"
+
+
+def CreateSingleNode(row):
+  from Util.ExcelReader import GetCellValue
+  n = SingleMsgNode()
+  for cell in row:
+    col = cell.column
+    val = GetCellValue(cell)
+    if col == MsgNodeCol.TitleCol:
+      n.title = val
+    elif col == MsgNodeCol.StartedOnDateCol:
+      n.startedOnDate = val
+    elif col == MsgNodeCol.FrequencyInDaysCol:
+      n.frequencyInDays = val
+    elif col == MsgNodeCol.MobileNumbersCol:
+      n.mobileNumbers = val
+    elif col == MsgNodeCol.ContentsCol:
+      n.content = val
+    elif col == MsgNodeCol.StopCol:
+      n.shouldStop = val != None
+  return n
+
+def GetScheduledReminderNodesList():
+  from Util.ExcelReader import GetRows
+  from Util.Config import GetOption, GetAppDir
+  workbookPath =  os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "ScheduledRemindersRelativePath"))
+  nodes = list()
+  for row in GetRows(
+      workbookPath=workbookPath,
+      sheetName=GetOption("CONFIG_SECTION", "NameOfScheduledSMSSheet"),
+      firstRow=GetOption("CONFIG_SECTION", "ScheduledRemindersDataStartsAtRow"),
+      includeLastRow=True):
+        nodes.append(CreateSingleNode(row))
+  return nodes
+
 
 if __name__ == "__main__":
   args = ParseArguments()
