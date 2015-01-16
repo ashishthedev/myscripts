@@ -16,21 +16,21 @@ def ProcessAndShowRelatedContacts(listOfStrings):
   CONTACTS_CSV_PATH = os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "ContactsRelativePath"))
   allContacts = AllContacts(CONTACTS_CSV_PATH)
   for s in listOfStrings:
-      def GetNumberList(c):
-        return [n for n in [c.mobilePhone, c.homePhone, c.homePhone2, c.workPhone] if n]
+    def GetNumberList(c):
+      return [n for n in [c.mobilePhone, c.homePhone, c.homePhone2, c.workPhone] if n]
 
-      relatedContacts = allContacts.FindRelatedContacts(s)
+    relatedContacts = allContacts.FindRelatedContacts(s)
 
-      relatedContacts = [c for c in relatedContacts if GetNumberList(c)]
+    relatedContacts = [c for c in relatedContacts if GetNumberList(c)]
 
-      if relatedContacts:
-        for i, c in enumerate(relatedContacts, start=1):
-          numbers = GetNumberList(c)
-          for number in numbers:
-            displayStr = " ".join([str(i) + ". ", str(number), c.firstName, c.middleName, c.lastName, c.emailAdd])
-            print(displayStr)
-      else:
-        PrintInBox("No contact exists for {}".format(s))
+    if relatedContacts:
+      for i, c in enumerate(relatedContacts, start=1):
+        numbers = GetNumberList(c)
+        for number in numbers:
+          displayStr = " ".join([str(i) + ". ", str(number), c.firstName, c.middleName, c.lastName, c.emailAdd])
+          print(displayStr)
+    else:
+      PrintInBox("No contact exists for {}".format(s))
   return
 
 def main():
