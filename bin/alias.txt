@@ -126,6 +126,7 @@ fip=@echo "Finding inside .py files" && findstr /i /s /n $* *.py
 fit=@echo "Finding inside .txt files" && findstr /i /s /n $* *.txt
 fih=@echo "Finding inside .html files" && findstr /i /s /n $* *.html
 fia=@echo "Finding inside all files" && findstr /i /s /n $* *.*
+fij=@echo "Finding inside js files" && findstr /i /s /n $* *.js
 fic=@echo "Finding inside code files" && findstr /i /s /n $* *.py *.html *.js *.css *.go
 fig=@echo "Finding inside go files" && findstr /i /s /n $* *.go
 esice=pushd %XDATDOCSDIR%\ESIC && start.
@@ -247,7 +248,8 @@ galkhaleej = pushd %XDATDOCSDIR%\Export\AlkhaleejSteelsDubai && start.
 ghandy     = pushd %XDATDOCSDIR%\SDAT\LettersSent\HandyWire && start.
 governite  = pushd %XDATDOCSDIR%\SDAT\Courier && start.
 
-gpom = git push origin master
+gpom = git push origin master $*
+gcam = git commit -am $*
 es = exercism submit $*
 ef = exercism fetch
 gft = go fmt && go test

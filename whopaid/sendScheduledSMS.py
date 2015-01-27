@@ -33,6 +33,11 @@ class _PersistentSMS(Persistent):
     if msgNode.shouldStop:
       print("stopping")
       return
+
+    if datetime.datetime.now() < msgNode.startedOnDate:
+      print(str(msgNode.startedOnDate) + " is in future. Skipping {} ...".format(msgNode.title))
+      return
+
     key = str(msgNode.startedOnDate) + "-" + "-".join([(n) for n in mobileNumbersList])
 
     shouldSendMsg = False
@@ -51,10 +56,9 @@ class _PersistentSMS(Persistent):
 
 
     if shouldSendMsg:
+      PrintInBox(msgNode.title + "\n" + msgNode.content + "\n")
       for eachNumber in mobileNumbersList:
-        PrintInBox(msgNode.title)
-        PrintInBox(msgNode.content + "\n" + eachNumber)
-        if raw_input("Send this msg (y/n)").lower() != "y":
+        if raw_input("Send this msg to {}\n(y/n)".format(eachNumber)).lower() != "y":
           print("Not sending...")
           continue
         else:
@@ -62,16 +66,12 @@ class _PersistentSMS(Persistent):
           SendSms(eachNumber, msgNode.content)
           #Save time
           self[key] = datetime.datetime.now()
+    return
 
 
 def SendScheduledSMS():
   nodes = GetScheduledReminderNodesList()
   for n in nodes:
-    print("_________________________________________________________________________________")
-    print("title:   {}".format(n.title))
-    print("content: {}".format(n.content))
-    print("numbers: {}".format(n.mobileNumbers))
-    print("stop:    {}".format(n.shouldStop))
     p = _PersistentSMS()
     p.SendMsgForThisNodeIfRequired(n)
 
