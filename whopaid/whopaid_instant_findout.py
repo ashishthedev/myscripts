@@ -78,8 +78,8 @@ class PersitentTimeBillsFileChangeAt(Persistent):
 
   def HasBillsFileChangedSinceLastTime(self):
     if self.identifier in self:
-      return self[self.identifier] == os.path.getmtime(GetWorkBookPath())
-    return True
+      return self[self.identifier] != os.path.getmtime(GetWorkBookPath())
+    return False
 
   def StoreNewTimeForBillsFile(self):
     self[self.identifier] = os.path.getmtime(GetWorkBookPath())

@@ -627,6 +627,7 @@ function! GoSettings()
     setlocal noexpandtab
     setlocal nolist
     setlocal listchars=tab:\|\ 
+    set textwidth=0
     "setlocal listchars=tab:--,trail:-,eol:<
     "setlocal listchars=tab:\|\ ,
 endfunction
