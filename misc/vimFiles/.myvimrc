@@ -159,7 +159,9 @@ call pathogen#infect('bundle/{}', bundlePath)
 syntax enable
 filetype off
 filetype plugin indent off
+
 set runtimepath+=%GOROOT%/misc/vim
+
 filetype on                 "Try to detect filetypes
 filetype plugin on
 filetype plugin indent on   "Enable loading indent file for filetype
@@ -179,6 +181,8 @@ let g:pydoc_cmd = 'python -m pydoc'
 au FileType python set omnifunc=pythoncomplete#Complete
 let g:SuperTabDefaultCompleteType = "context"
 set completeopt=menu,longest,preview
+
+let g:go_disable_autoinstall = 0
 
 "http://github.com/tpope/vim-ragtag
 let g:ragtag_global_maps = 1
@@ -409,7 +413,8 @@ noremap <silent> <F5> :silent :!%<CR>
 
 "Sanitize HTML to some extent
 noremap <F6> :retab\|%s/></>\r</g<CR>
-noremap <F7> :retab\|%s/{[^\r].*}/&\r}/g<CR>
+noremap <F7> :TagbarToggle<CR>
+"noremap <F7> :retab\|%s/{[^\r].*}/&\r}/g<CR>
 
 "Remove trailing spaces
 noremap <F8> :retab\|%s/\s\+$//e<CR>

@@ -135,7 +135,7 @@ def GetScheduledReminderNodesList():
       workbookPath=workbookPath,
       sheetName=GetOption("CONFIG_SECTION", "NameOfScheduledSMSSheet"),
       firstRow=GetOption("CONFIG_SECTION", "ScheduledRemindersDataStartsAtRow"),
-      includeLastRow=True):
+      includeLastRow=False):
         nodes.append(CreateSingleNode(row))
   return nodes
 

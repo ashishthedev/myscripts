@@ -30,19 +30,20 @@ class CustomerInfoCol:
     MsorNoMSCol               = "K"
     CompanyOfficialNameCol    = "L"
     CourierAddressCol         = "M"
-    DeliveryPinCodeCol        = "N"
-    PreferredCourierCol       = "O"
-    CityCol                   = "P"
-    EmailForPayment           = "Q"
-    KindAttentionCol          = "R"
-    EmailForFormC             = "S"
-    TrustCol                  = "T"
-    IncludeDaysCol            = "U"
-    CreditLimitCol            = "V"
-    SendAutomaticMails        = "W"
-    MinDaysGapCol             = "X"
-    IncludeBillAmountInEmails = "Y"
-    CompanyCodeCol            = "Z"
+    DeliveryStateCol          = "N"
+    DeliveryPinCodeCol        = "O"
+    PreferredCourierCol       = "P"
+    CityCol                   = "Q"
+    EmailForPayment           = "R"
+    KindAttentionCol          = "S"
+    EmailForFormC             = "T"
+    TrustCol                  = "U"
+    IncludeDaysCol            = "V"
+    CreditLimitCol            = "W"
+    SendAutomaticMails        = "X"
+    MinDaysGapCol             = "Y"
+    IncludeBillAmountInEmails = "Z"
+    CompanyCodeCol            = "AA"
 
 
 def CreateSingleCustomerInfo(row):
@@ -61,6 +62,8 @@ def CreateSingleCustomerInfo(row):
             c.phoneNumber = val
         elif col == CustomerInfoCol.DeliveryPinCodeCol:
             c.deliveryPinCode = val
+        elif col == CustomerInfoCol.DeliveryStateCol:
+            c.deliveryState = val
         elif col == CustomerInfoCol.SmsDispatchNumberCol:
             c.smsDispatchNo = val
         elif col == CustomerInfoCol.PaymentReminderSmsNoCol:
@@ -139,6 +142,9 @@ class _AllCustomersInfo(dict):
 
     def GetCompanyGroupName(self, compName):
         return self[compName].companyGroupName
+
+    def GetDeliveryState(self, compName):
+        return self[compName].deliveryState
 
     def GetDeliveryPinCode(self, compName):
         return self[compName].deliveryPinCode

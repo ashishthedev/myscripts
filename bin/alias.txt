@@ -135,6 +135,7 @@ q=exit
 pyprof = %XDATDOCSDIR%\code\bin\pyprofile.py "$*"
 
 slip1 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n1 $* && popd
+slip14 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n14 $* && popd
 slip2 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n2 $* && popd
 slip3 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n3 $* && popd
 slip4 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n4 $* && popd
@@ -263,3 +264,5 @@ mg = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919971602777" -
 ma = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919971008001" -sc $* && popd
 mpg = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919971602777" -sc $* && SmsFromCommandLine.py -n "+919810181182" -sc $* && popd
 cat = type $* | more
+
+gadv=pushd "B:\GDrive\EPYM17\Operations Management\Adv Operations Management"

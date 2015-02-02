@@ -522,7 +522,7 @@ def ParseOptions():
     parser.add_argument("-td", "--track-days", dest='trackDays', type=int, default=MAX_IN_TRANSIT_DAYS,
         help="Last N days in which courier status will be checked.")
 
-    parser.add_argument("-ns", "--new-snapshot", dest='newSnapshotForDocket', type=str, default=None,
+    parser.add_argument("-ns", "--new-snapshot", dest='newSnapshotForDockets', nargs="+", type=str, default=None,
         help="Take new snapshot for docket")
 
     parser.add_argument("-rt", "--remove-tracking", dest='removeTrackingForDockets', nargs="+", type=str, default=None,
@@ -689,8 +689,8 @@ def main(args):
   if args.forceMarkDeliveredDocket:
     _ForceMarkDocketAsDelivered(args.forceMarkDeliveredDocket)
 
-  if args.newSnapshotForDocket:
-    _NewSnapshotForDocket(args.newSnapshotForDocket)
+  if args.newSnapshotForDockets:
+    _NewSnapshotForDocket(args.newSnapshotForDockets)
 
   FanOutDispatchInfoToAllComapnies(args)
 

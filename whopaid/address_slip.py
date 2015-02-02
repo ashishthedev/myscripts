@@ -53,6 +53,10 @@ def GenerateAddressSlipForThisCompany(compName, args):
     if not companyDeliveryAddress:
       raise MyException("\nM/s {} doesnt have a delivery address. Please feed it in the database".format(compName))
 
+    companyDeliveryState= allCustInfo.GetDeliveryState(compName)
+    if not companyDeliveryState:
+      raise MyException("\nM/s {} doesnt have a delivery state. Please feed it in the database".format(compName))
+
     companyDeliveryPhNo = allCustInfo.GetDeliveryPhoneNumber(compName)
     if not companyDeliveryPhNo:
       raise MyException("\nM/s {} doesnt have a phone number. Please feed it in the database".format(compName))
@@ -82,6 +86,7 @@ def GenerateAddressSlipForThisCompany(compName, args):
     d['tCompanyOfficialName'] = companyOfficialName
     d['tCompanyDeliveryAddress'] = companyDeliveryAddress
     d['tcompanyDeliveryPhNo'] = companyDeliveryPhNo
+    d['tDeliveryState'] = companyDeliveryState
     d['tcompanyPinCode'] = str(int(companyPinCode))
     d['tOptionalParams'] = ""
     if preferredCourierForThisComp:
@@ -99,7 +104,7 @@ def GenerateAddressSlipForThisCompany(compName, args):
     <div class=$tCSSClass>
     <table>
     <tr><td><strong>$tCompanyOfficialName</strong></td></tr>
-    <tr><td>$tCompanyDeliveryAddress - PIN - $tcompanyPinCode</td></tr>
+    <tr><td>$tCompanyDeliveryAddress $tDeliveryState - PIN - $tcompanyPinCode</td></tr>
     <tr><td>Ph# $tcompanyDeliveryPhNo</td></tr>
     $tOptionalParams
     </table>

@@ -1,1 +1,1 @@
-start %APPDIR%\ESIC\
+start %APPDIR%\SDATDocs\ESIC\
