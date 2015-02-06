@@ -52,6 +52,7 @@ def GenerateAddressSlipForThisCompany(compName, args):
     companyDeliveryAddress= allCustInfo.GetCustomerDeliveryAddress(compName)
     if not companyDeliveryAddress:
       raise MyException("\nM/s {} doesnt have a delivery address. Please feed it in the database".format(compName))
+    companyDeliveryAddress = companyDeliveryAddress.strip()
 
     companyDeliveryState= allCustInfo.GetDeliveryState(compName)
     if not companyDeliveryState:
@@ -73,6 +74,7 @@ def GenerateAddressSlipForThisCompany(compName, args):
     tempPath = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), "AddressSlips", companyOfficialName + ".html")
     MakeSureDirExists(os.path.dirname(tempPath))
 
+    commaBwCityAndState = "" if companyDeliveryAddress.endswith(",") else ","
     def constant_factory(value):
       from itertools import repeat
       return repeat(value).next
@@ -84,7 +86,7 @@ def GenerateAddressSlipForThisCompany(compName, args):
     else:
       companyOfficialName = "M/s " + companyOfficialName
     d['tCompanyOfficialName'] = companyOfficialName
-    d['tCompanyDeliveryAddress'] = companyDeliveryAddress
+    d['tCompanyDeliveryAddress'] = companyDeliveryAddress + commaBwCityAndState
     d['tcompanyDeliveryPhNo'] = companyDeliveryPhNo
     d['tDeliveryState'] = companyDeliveryState
     d['tcompanyPinCode'] = str(int(companyPinCode))
@@ -196,9 +198,9 @@ def GenerateAddressSlipForThisCompany(compName, args):
 
 
 
+ALL_BILLS_DICT = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict() #For speed imporovement, made a class member
 class PersistentEnvelopes(Persistent):
   def __init__(self):
-    self.allBills = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict() #For speed imporovement, made a class member
     super(self.__class__, self).__init__(self.__class__.__name__)
 
   def __str__(self):
@@ -219,9 +221,9 @@ class PersistentEnvelopes(Persistent):
 
   def HowManyLeftForThisCompany(self, compName):
     (numOfEnv, date) = self[compName]
-    if not self.allBills.has_key(compName):
+    if not ALL_BILLS_DICT.has_key(compName):
       return 0
-    billList = self.allBills[compName]
+    billList = ALL_BILLS_DICT[compName]
     billList = SelectBillsAfterDate(billList, date)
     return numOfEnv - len(billList)
 

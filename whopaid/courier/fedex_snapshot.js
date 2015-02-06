@@ -17,9 +17,9 @@ function renderPage(url, formData) {
   var page = require('webpage').create();
   var redirectURL = null;
 
-page.onConsoleMessage = function (msg) {
-  console.log(msg);
-};
+  page.onConsoleMessage = function (msg) {
+    console.log(msg);
+  };
 
 
   page.customHeaders = {
@@ -74,7 +74,7 @@ page.onConsoleMessage = function (msg) {
     }
   };
 
-  page.open(REQUEST_URL, function (status) {
+  page.open(url, function (status) {
     console.log("Phantom| Page opened");
     if (redirectURL) {
       console.log("Phantom| Redirection detected");
@@ -85,7 +85,7 @@ page.onConsoleMessage = function (msg) {
         page.render(destinationFile);
         page.close();
         phantom.exit();
-      }, 20000);
+      }, 40000);
 
     } else {
       if(status !== 'success') {

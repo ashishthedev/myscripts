@@ -31,10 +31,16 @@ def SendAutomaticHeartBeat():
   SendAutomaticSmsReportsIfRequired()
   AskUberObserverToUploadJsons()
   ShrinkWorkingArea()
+  PredictFuturePrints()
+
 
   return
 
 
+def PredictFuturePrints():
+  from address_slip import PersistentEnvelopes
+  pe = PersistentEnvelopes()
+  pe.PredictFuturePrints()
 
 class PersistentInfoForConsistencyCheck(Persistent):
   identifier = "LastModifiedTimeForBillsFile"
