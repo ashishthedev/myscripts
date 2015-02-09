@@ -361,6 +361,7 @@ noremap <leader>t :Tex<CR>
 "Use '-' to switch between splited windows.
 noremap - <c-w>w <CR> <bar> :set winheight=998<CR>
 "Use '-' to switch between splited windows.
+noremap <S--> gT
 noremap - gt
 
 
@@ -633,6 +634,7 @@ function! GoSettings()
     setlocal nolist
     setlocal listchars=tab:\|\ 
     set textwidth=0
+    set fileformat=unix
     "setlocal listchars=tab:--,trail:-,eol:<
     "setlocal listchars=tab:\|\ ,
 endfunction

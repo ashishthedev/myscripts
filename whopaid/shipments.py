@@ -251,6 +251,12 @@ class SingleShipment():
         str(self.status)])
 
   @property
+  def trackUrl(self):
+    if self.bill.courierName.lower().startswith("fedex"):
+      return "https://www.fedex.com/apps/fedextrack/?tracknumbers={docket}&cntry_code=in".format(docket=self.bill.docketNumber)
+    return None
+
+  @property
   def daysPassed(self):
     return (datetime.date.today() - self.bill.docketDate).days
 
@@ -285,6 +291,7 @@ class SingleShipment():
     singleShipment["materialDesc"] = b.materialDesc
     singleShipment["isDelivered"] = s.isDelivered
     singleShipment["daysPassed"] = s.daysPassed
+    singleShipment["trackUrl"] = s.trackUrl
     singleShipment["uid_string"] = b.uid_string#TODO: Check if really required in json
     return singleShipment
 
