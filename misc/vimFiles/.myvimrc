@@ -62,6 +62,7 @@ set tabstop=2
 set shiftwidth=2
 set guicursor=a:blinkwait001-blinkoff50-blinkon350
 set visualbell
+set fileformat=unix
 
 " How many tenths of a second to blink when matching brackets
 set mat=2

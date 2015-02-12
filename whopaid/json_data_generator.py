@@ -24,6 +24,7 @@ ORDER_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "ORDER_" + SMAL
 KMO_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "KMORDER_" + SMALL_NAME + EXT))
 FORMC_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "FORMC_" + SMALL_NAME + EXT))
 SHIPMENT_STATUS_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "SHIPSTATUS_" + SMALL_NAME + EXT))
+CUST_INFO_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "CUST_INFO" + SMALL_NAME + EXT))
 """
 OrderDB:
 data =
@@ -168,6 +169,18 @@ def _DumpPaymentsDB():
     json.dump(data, f, separators=(',',':'), indent=2)
   return
 
+def _DumpCustData():
+  from Util.Misc import PrintInBox
+  PrintInBox("Dumping customer data from within whopaid dir")
+  from customers_info import GenerateCustomerInfoJsonNodesFile
+  GenerateCustomerInfoJsonNodesFile()
+  jsonFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), GetOption("CONFIG_SECTION", "CustomerInfoJson"))
+
+  with open(jsonFileName) as j:
+    with open(CUST_INFO_JSON_FILE_NAME, "w") as f:
+      json.dump(json.load(j), f, indent=2)
+  return
+
 def _DumpKMPendingOrdersDB():
   po = GetAllKMOrders()
   po = GetAllPendingOrders(po)
@@ -285,6 +298,7 @@ def _DumpFormCData():
   return
 
 def _DumpJSONDB():
+  _DumpCustData()
   _DumpShipmentStatusData()
   _DumpFormCData()
   _DumpKMPendingOrdersDB()

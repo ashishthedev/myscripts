@@ -108,8 +108,36 @@ def CreateSingleCustomerInfo(row):
 
 
 class SingleCompanyInfo():
-    """This represents a single row in Cust sheet of Bills.xlsx"""
-    pass
+  """This represents a single row in Cust sheet of Bills.xlsx"""
+  @property
+  def jsonNode(self):
+    singleComp = dict()
+    singleComp["companyFriendlyName"] = self.companyFriendlyName
+    singleComp["billingAddress"] = self.billingAddress
+    singleComp["tinNumber"] = self.tinNumber
+    singleComp["phoneNumber"] = self.phoneNumber
+    singleComp["deliveryPinCode"] = self.deliveryPinCode
+    singleComp["deliveryState"] = self.deliveryState
+    singleComp["smsDispatchNo"] = self.smsDispatchNo
+    singleComp["paymentSMSNo"] = self.paymentSMSNo
+    singleComp["MDNumbers"] = self.MDNumbers
+    singleComp["deliveryPhNo"] = self.deliveryPhNo
+    singleComp["msOrNoms"] = self.msOrNoms
+    singleComp["companyOfficialName"] = self.companyOfficialName
+    singleComp["courierAddress"] = self.courierAddress
+    singleComp["preferredCourier"] = self.preferredCourier
+    singleComp["city"] = self.city
+    singleComp["emailForPayment"] = self.emailForPayment
+    singleComp["emailForFormC"] = self.emailForFormC
+    singleComp["kindAttentionPerson"] = self.kindAttentionPerson
+    singleComp["trust"] = self.trust
+    singleComp["includeDays"] = self.includeDays
+    singleComp["creditLimit"] = self.creditLimit
+    singleComp["includeInAutomaticMails"] = self.includeInAutomaticMails
+    singleComp["minDaysGapBetweenAutomaticMails"] = self.minDaysGapBetweenAutomaticMails
+    singleComp["includeBillAmountinEmails"] = self.includeBillAmountinEmails
+    singleComp["companyGroupName"] = self.companyGroupName
+    return singleComp
 
 
 class _AllCustomersInfo(dict):
@@ -123,6 +151,9 @@ class _AllCustomersInfo(dict):
             includeLastRow=False):
               c = CreateSingleCustomerInfo(row)
               self[c.companyFriendlyName] = c
+
+    def GetListOfAllCompNames(self):
+      return self.keys()
 
     def GetListOfCompNamesForThisGrp(self, grpName):
         res = []
@@ -213,9 +244,24 @@ class _AllCustomersInfo(dict):
         #Remove spaces from eachMail in the list and create a new list
         return [x for x in toMailList if x]
 
+def GenerateCustomerInfoJsonNodesFile():
+  ALL_CUST_INFO = GetAllCustomersInfo()
+  jsonData = [ALL_CUST_INFO[compName].jsonNode for compName in ALL_CUST_INFO.GetListOfAllCompNames()]
+  jsonFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), GetOption("CONFIG_SECTION", "CustomerInfoJson"))
+  with open(jsonFileName, "w") as j:
+    import json
+    json.dump(jsonData, j, indent=2)
+  return
+
 
 def GetAllCustomersInfo():
     custDBwbPath = os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "CustDBRelativePath"))
     def _CreateAllCustomersInfoObject(custDBwbPath):
         return _AllCustomersInfo(custDBwbPath)
     return GetPickledObject(custDBwbPath, createrFunction=_CreateAllCustomersInfoObject)
+
+def main():
+  GenerateCustomerInfoJsonNodesFile()
+
+if __name__ == "__main__":
+  main()
