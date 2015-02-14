@@ -30,6 +30,9 @@ def main():
     log("Initiating {}".format(__file__))
     from whopaid.sanity_checks import SendAutomaticHeartBeat #This should be within the try block so that we can see the exception if it happens.
     SendAutomaticHeartBeat()
+    from shipment import MAX_IN_TRANSIT_DAYS, TrackAllShipments
+    TrackAllShipments(MAX_IN_TRANSIT_DAYS)
+
     dt = datetime.datetime.now() - t
     log("Ran successfully. Took {} seconds".format(dt.seconds))
   except Exception as ex:

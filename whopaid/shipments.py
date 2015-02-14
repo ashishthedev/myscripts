@@ -702,7 +702,7 @@ def main(args):
   FanOutDispatchInfoToAllComapnies(args)
 
   if args.trackAllUndeliveredCouriers:
-    TrackAllShipments(args)
+    TrackAllShipments(args.trackDays)
     if LIST_OF_SHIPMENTS_IN_THIS_SCAN:
       PrintInBox("Following were delivered in this scan:")
       for i, s in enumerate(sorted(LIST_OF_SHIPMENTS_IN_THIS_SCAN, key=lambda s: s.bill.docketDate), start=1):
@@ -745,9 +745,9 @@ def FanOutDispatchInfoToAllComapnies(args):
       #eat the exception after printing. We have printed our custom exception, its good enough. Move onto the next shipment.
   return
 
-def TrackAllShipments(args):
+def TrackAllShipments(trackDays):
   ps = PersistentShipments()
-  for b in GetAllBillsInLastNDays(args.trackDays):
+  for b in GetAllBillsInLastNDays(trackDays):
     if b.docketDate:
       ps.GetOrCreateShipmentForBill(b)
   shipments = ps.GetAllStoredShipments()
