@@ -188,6 +188,9 @@ let g:go_disable_autoinstall = 0
 "http://github.com/tpope/vim-ragtag
 let g:ragtag_global_maps = 1
 
+"Ignore ng-attribute errors when using html linter
+let g:syntastic_html_tidy_ignore_errors=[" proprietary attribute \"ng-"]
+
 " `gf` jumps to the filename under the cursor.  Point at an import statement
 " and jump to it!
 python << EOF

@@ -26,15 +26,31 @@ def log(msg):
 def main():
   #DeleteLogIfExists()
   try:
-    t = datetime.datetime.now()
     log("Initiating {}".format(__file__))
-    from whopaid.sanity_checks import SendAutomaticHeartBeat #This should be within the try block so that we can see the exception if it happens.
-    SendAutomaticHeartBeat()
-    from shipment import MAX_IN_TRANSIT_DAYS, TrackAllShipments
-    TrackAllShipments(MAX_IN_TRANSIT_DAYS)
 
+    from whopaid.sanity_checks import SendAutomaticHeartBeat #This should be within the try block so that we can see the exception if it happens.
+    log("SendAutomaticHeartBeat() started")
+    t = datetime.datetime.now()
+    SendAutomaticHeartBeat()
+    log("SendAutomaticHeartBeat() over")
     dt = datetime.datetime.now() - t
-    log("Ran successfully. Took {} seconds".format(dt.seconds))
+    log("SendAutomaticHeartBeat() took {} seconds".format(dt.seconds))
+
+    from Util.Misc import cd, PrintInBox
+
+    import subprocess
+    pythonApp = os.path.abspath(os.path.join(".", "shipments.py"))
+    shipmentsTrackCmd = "python \"{app}\" --track".format(app=pythonApp)
+    with cd(os.path.dirname(pythonApp)):
+      PrintInBox("Running: {}".format(shipmentsTrackCmd))
+      trackTime = datetime.datetime.now()
+      log("TrackAllShipments() started")
+      subprocess.check_call(shipmentsTrackCmd)
+      log("TrackAllShipments() over")
+      dt = datetime.datetime.now() - trackTime
+      log("Tracking all shipments took {} seconds".format(dt.seconds))
+
+
   except Exception as ex:
     log("Following error occurred:\n{}".format(str(ex)))
     print(str(ex))

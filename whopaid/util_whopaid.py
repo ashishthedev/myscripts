@@ -16,6 +16,7 @@ from whopaid.customers_info import GetAllCustomersInfo
 
 import os
 import datetime
+ALLOWED_TAXATION_RATES = GetOption("CONFIG_SECTION", "ALLOWED_TAXATION_RATES").replace(";", ",").split(",")
 
 def GetWorkBookPath():
     return os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "WorkbookRelativePath"))
@@ -323,9 +324,24 @@ class SingleBillRow(SingleRow):
             return False
 
     def CheckCalculation(self):
-        if intx(self.goodsValue) != 0:
-            if(intx(self.amount) != (intx(self.goodsValue) + intx(self.tax) + intx(self.courier))):
-                raise MyException("Calculation error in " + str(self.billingCategory) + " bill# " + str(self.billNumber))
+      if intx(self.goodsValue) != 0:
+        if(intx(self.amount) != (intx(self.goodsValue) + intx(self.tax) + intx(self.courier))):
+          raise MyException("Calculation error in " + str(self.billingCategory) + " bill# " + str(self.billNumber))
+      #If the bill has been issued in last one year, check its taxation rate also
+      if self.billingCategory.lower() in set(["tracking", "export", "jobwork", "gr"]):
+        return
+      if self.compName.lower().startswith("yasmin"):
+        return
+      if (datetime.date.today() - self.invoiceDate).days < 365:
+        for taxRate in ALLOWED_TAXATION_RATES:
+          expectedTax = self.goodsValue*int(taxRate)/100
+          if abs(expectedTax - self.tax) < 1:
+            break
+        else:
+          raise MyException("Calculated sales tax in bill#{} dt {} issued to {} is probably wrong. The expected taxation rates are: {}".format(self.billNumber, DD_MM_YYYY(self.invoiceDate), self.compName, ALLOWED_TAXATION_RATES))
+
+        pass
+
 
     @property
     def isPaid(self):
