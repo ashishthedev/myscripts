@@ -189,7 +189,7 @@ def _SendMonthlySaleAsSmsIfNotSentAlready():
   PrintInBox("Sending monthly sale sms if not already sent")
   t = datetime.date.today()
 
-  ALLOWED_DAYS = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+  ALLOWED_DAYS = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
   if t.day not in ALLOWED_DAYS: return #Too early or too late to send sms. All bills might have not been entered
 
   previousMonthLastDate  = t - datetime.timedelta(days=t.day+1)

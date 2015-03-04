@@ -170,8 +170,6 @@ def _DumpPaymentsDB():
   return
 
 def _DumpCustData():
-  from Util.Misc import PrintInBox
-  PrintInBox("Dumping customer data from within whopaid dir")
   from customers_info import GenerateCustomerInfoJsonNodesFile
   GenerateCustomerInfoJsonNodesFile()
   jsonFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), GetOption("CONFIG_SECTION", "CustomerInfoJson"))

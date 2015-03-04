@@ -17,7 +17,6 @@ from whopaid.util_whopaid import GetAllCompaniesDict, GuessCompanyGroupName
 from whopaid.payment_reminders_for_groups import GetPayableBillsAndAdjustmentsForThisComp
 
 import argparse
-import datetime
 
 ALL_CUST_INFO = GetAllCustomersInfo()
 ALL_BILLS_DICT = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
@@ -65,6 +64,9 @@ def GetMinusOneBills(billList):
 def ShowStatementOnTerminal(grpName):
   compsInGrp = ALL_CUST_INFO.GetListOfCompNamesForThisGrp(grpName)
   for compName in compsInGrp:
+    if not compName in ALL_BILLS_DICT:
+      #print("{compName} has no issued bills till date. Ignoring it.".format(compName=compName))
+      continue
     unpaidBillsList, adjustmentList = GetPayableBillsAndAdjustmentsForThisComp(compName)
 
     billNumbers = [str(b.billNumber) for b in unpaidBillsList]
