@@ -54,8 +54,10 @@ class CallRecord(object):
 
 def CreateRecordFromThisString(recordString):
     if recordString[2] != "-" or recordString[6] != "-":
-        #Bare minimum criteria for even attempting to create a record
-        raise Exception("Trying to feed an invalid record")
+      #Bare minimum criteria for even attempting to create a record
+      #raise Exception("Trying to feed an invalid record")
+      print("Cannot understand : {}".format(recordString))
+      return None
 
     rcType = TryToDeduceTypeOfRecord(recordString)
 
@@ -81,7 +83,7 @@ def CreateRecordFromThisString(recordString):
         date = recordString[ROAMING_SEMANTICS.DATE_FROM:ROAMING_SEMANTICS.DATE_TO]
         time = recordString[ROAMING_SEMANTICS.TIME_FROM : ROAMING_SEMANTICS.TIME_TO]
         number = recordString[ROAMING_SEMANTICS.NUMBER_FROM : ROAMING_SEMANTICS.NUMBER_TO]
-        duration = recordString[ROAMING_SEMANTICS.DURATION_FROM: ROAMING_SEMANTICS.DURATION_TO]
+        duration = recordString[ROAMING_SEMANTICS.DURATION_FROM : ROAMING_SEMANTICS.DURATION_TO]
         amount = recordString[ROAMING_SEMANTICS.AMOUNT_FROM: ROAMING_SEMANTICS.AMOUNT_TO]
         personName = FindName(number)
         return CallRecord(number, date, time, duration, amount, personName)
@@ -136,11 +138,12 @@ class ROAMING_SEMANTICS:
     DATE_TO = 11
     TIME_FROM = 11
     TIME_TO = 19
-    NUMBER_FROM = 19
-    NUMBER_TO = 29
-    DURATION_FROM = 29
-    AMOUNT_FROM = 30
-    AMOUNT_TO = 34
+    NUMBER_FROM = 32
+    NUMBER_TO = 42
+    DURATION_FROM = 43
+    DURATION_TO = 48
+    AMOUNT_FROM = 49
+    AMOUNT_TO = 53
 
 class MOBILE_INTERNET_SEMANTICS:
     """
@@ -245,7 +248,9 @@ def main():
       text += page.extractText()
 
   if args.debug:
-    DebugPDFSemantics(text);
+    listOfRecords = DebugPDFSemantics(text);
+    for r in listOfRecords:
+      print(r)
     return
   listOfRecords = process_text_and_get_list_of_records(text)
   listOfRecords = [l for l in listOfRecords if l]

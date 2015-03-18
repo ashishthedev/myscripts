@@ -248,9 +248,9 @@ def ShouldWeSendAutomaticEmailForGroup(grpName):
 
 def TotalDueForCompAsInt(compName):
   billsList = GetAllCompaniesDict().GetBillsListForThisCompany(compName)
-  unaccountedAdjustmentsList = GetAllCompaniesDict().GetUnAccountedAdjustmentsListForCompany(compName)
   dba = sum([b.amount for b in SelectUnpaidBillsFrom(billsList)])
 
+  unaccountedAdjustmentsList = GetAllCompaniesDict().GetUnAccountedAdjustmentsListForCompany(compName)
   daa = sum([a.amount for a in unaccountedAdjustmentsList])
 
   totalDue = int(dba + daa)

@@ -41,7 +41,9 @@ def main():
     import subprocess
     pythonApp = os.path.abspath(os.path.join(".", "shipments.py"))
     shipmentsTrackCmd = "python \"{app}\" --track".format(app=pythonApp)
-    with cd(os.path.dirname(pythonApp)):
+    pythonAppDir = os.path.dirname(pythonApp)
+    print("Entering {} to start {}".format(pythonAppDir, shipmentsTrackCmd))
+    with cd(pythonAppDir):
       PrintInBox("Running: {}".format(shipmentsTrackCmd))
       trackTime = datetime.datetime.now()
       log("TrackAllShipments() started")

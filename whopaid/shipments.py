@@ -106,9 +106,10 @@ class ShipmentTrack(object):
       raise ShipmentException("URL Error")
 
     if IsDeliveredAssessFromStatus(self.status):
-      self.isDelivered = True
-      LIST_OF_SHIPMENTS_IN_THIS_SCAN.append(self)
       self.courier.StoreSnapshot()
+      if self.IsSnapshotSaved():
+        self.isDelivered = True
+        LIST_OF_SHIPMENTS_IN_THIS_SCAN.append(self)
 
     self.shipment.save()
 
@@ -547,8 +548,20 @@ def ParseOptions():
     parser.add_argument("-rds", "--resend-dispatch-sms", dest="resendDispatchSms", action="store_true", default=False,
         help="Resend dispatch sms for selected docket")
 
+    parser.add_argument("-ssmsg", "--send-scheduled-msgs", dest="sendScheduledMsgs", action="store_true",
+        default=False, help="Send scheduled msgs")
+
+    parser.add_argument("--generate-shipments-json", dest="generateShipmentsJson", action="store_true",
+        default=True, help="Generate Shipments Json")
+
+    parser.add_argument("-sah", "--send-automatic-heartbeat", dest="sendAutomaricHeartBeat", action="store_true",
+        default=False, help="Send Automatic Heartbeat")
+
     parser.add_argument("--track", dest="trackAllUndeliveredCouriers", action="store_true",
         default=False, help="Track all undelivered couriers")
+
+    parser.add_argument("-fdi", "--fanout-dispatch-info", dest="FanoutDispatchInfo", action="store_true",
+        default=True, help="Fanout Dispatch Info to all companies through email and sms")
 
     parser.add_argument("--demo", dest="isDemo", action="store_true", default=False,
         help="Set this for a demo run")
@@ -689,9 +702,6 @@ def main(args):
   if args.markMailAsSentForDocket:
     _FormceMarkShipmentMailAsSent(args.markMailAsSentForDocket)
 
-  if args.showUndeliveredSmall:
-    ShowUndeliveredSmalOnScreen()
-    import sys; sys.exit(0)
 
   if args.forceMarkDeliveredDocket:
     _ForceMarkDocketAsDelivered(args.forceMarkDeliveredDocket)
@@ -699,7 +709,16 @@ def main(args):
   if args.newSnapshotForDockets:
     _NewSnapshotForDocket(args.newSnapshotForDockets)
 
-  FanOutDispatchInfoToAllComapnies(args)
+  if args.sendScheduledMsgs:
+    from whopaid.sendScheduledSMS import SendScheduledSMS
+    SendScheduledSMS()
+
+  if args.generateShipmentsJson:
+    GenerateShipmentJsonNodes(int(GetOption("CONFIG_SECTION", "ShowShipmentStatusForNDays")))
+
+
+  if args.FanoutDispatchInfo:
+    FanOutDispatchInfoToAllComapnies(args)
 
   if args.trackAllUndeliveredCouriers:
     TrackAllShipments(args.trackDays)
@@ -707,7 +726,12 @@ def main(args):
       PrintInBox("Following were delivered in this scan:")
       for i, s in enumerate(sorted(LIST_OF_SHIPMENTS_IN_THIS_SCAN, key=lambda s: s.bill.docketDate), start=1):
         print("{}.{:<50} : {:<15} : {}".format(i, s.bill.compName, DD_MMM_YYYY(s.bill.docketDate), s.bill.docketNumber))
-      return
+
+  if args.showUndeliveredSmall:
+    ShowUndeliveredSmalOnScreen()
+
+  if args.sendAutomaricHeartBeat:
+    SendAutomaticHeartBeat()
 
 
 def FanOutDispatchInfoToAllComapnies(args):
@@ -776,7 +800,7 @@ def TrackAllShipments(trackDays):
 
 def DBDeletedDoWhatEverIsNecessary():
   """This will help when the db is accidently deleted. In that case, just mark all the information as already sent"""
-  if raw_input("All the dockets will be marked as information_sent. Do you want to proceed (y/n)").lower()!='y': 
+  if raw_input("All the dockets will be marked as information_sent. Do you want to proceed (y/n)").lower()!='y':
     return
   NO_OF_DAYS = int(GetOption("CONFIG_SECTION", "ShowShipmentStatusForNDays"))
   bills = [b for b in GetAllBillsInLastNDays(NO_OF_DAYS) if b.docketDate]
@@ -813,6 +837,3 @@ if __name__ == '__main__':
   CheckConsistency()
 
   main(args)
-  GenerateShipmentJsonNodes(int(GetOption("CONFIG_SECTION", "ShowShipmentStatusForNDays")))
-  SendAutomaticHeartBeat()
-  ShowUndeliveredSmalOnScreen()

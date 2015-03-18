@@ -54,10 +54,12 @@ class Courier():
     self.courier.StoreSnapshot()
 
   def IsSnapshotSaved(self):
-    if hasattr(self.courier, 'bill'):
-      return True if os.path.exists(FullPathForSnapshotOfBill(self.courier.bill)) else False
-    else:
-      return True if os.path.exists(FullPathForSnapshotOfBill(self.courier.b)) else False
+    #if hasattr(self.courier, 'bill'):
+    #  return True if os.path.exists(FullPathForSnapshotOfBill(self.courier.bill)) else False
+    #else:
+    #  return True if os.path.exists(FullPathForSnapshotOfBill(self.courier.b)) else False
+    #if hasattr(self.courier, 'bill'):
+    return True if os.path.exists(FullPathForSnapshotOfBill(self.courier.bill)) else False
 
 
 
@@ -105,8 +107,9 @@ def StoreSnapshotWithPhantomScript(b, scriptPath, formData, reqUrl):
   #from pprint import pprint; pprint(args)
   subprocess.check_call(args)
 
-  if not os.path.exists(fullPath):
-    raise Exception("Could not store the snapshot at location: {}".format(fullPath))
+  #We always detect from the path whether the snapshot is saved or not. Hence the following code is not required
+  #if not os.path.exists(fullPath):
+  #  raise Exception("Could not store the snapshot at location: {}".format(fullPath))
 
 class FedExCourier():
   def __init__(self, bill):

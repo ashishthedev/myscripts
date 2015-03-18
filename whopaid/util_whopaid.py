@@ -84,17 +84,17 @@ class CompaniesDict(dict):#TODO: Name it as DB
 
 
     def GetBillsListForThisCompany(self, compName):
-        return self.GetAllBillsOfAllCompaniesAsDict().get(compName, None)
+        return self.GetAllBillsOfAllCompaniesAsDict().get(compName, [])
 
     def GetPaymentsListForThisCompany(self, compName):
-        return self.GetAllPaymentsByAllCompaniesAsDict().get(compName, None)
+        return self.GetAllPaymentsByAllCompaniesAsDict().get(compName, [])
 
     def GetUnAccountedAdjustmentsListForCompany(self, compName):
       adjustmentList = self.GetAllAdjustmentsOfAllCompaniesAsDict().get(compName, [])
       return SelectUnAccountedAdjustmentsFrom(adjustmentList)
 
     def GetOrdersListForCompany(self, compName):
-        return self.GetAllOrdersOfAllCompaniesAsDict().get(compName, None)
+        return self.GetAllOrdersOfAllCompaniesAsDict().get(compName, [])
 
 
 @memoize
@@ -226,7 +226,7 @@ class _AllCompaniesDict(CompaniesDict):
         pass #DO NOT DO ANYTHING FOR PUNTED ORDERS
       else:
         firstCell = row[0]
-        raise MyException("Error in {} row number: {} Kind of entry is invalid".format(firstCell.row))
+        raise MyException("Error in row number: {} Kind of entry is invalid".format(firstCell.row))
 
 class Company(list):
   """

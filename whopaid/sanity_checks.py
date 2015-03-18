@@ -18,7 +18,6 @@ from whopaid.customers_info import GetAllCustomersInfo
 from whopaid.json_data_generator import AskUberObserverToUploadJsons
 from whopaid.mark_bills_as_paid import ReportBillWhichShouldBeMarkAsPaid
 from whopaid.util_whopaid import GetAllCompaniesDict, SelectBillsAfterDate, ShrinkWorkingArea, GetWorkBookPath
-from whopaid.sendScheduledSMS import SendScheduledSMS
 
 from collections import defaultdict
 import os
@@ -27,7 +26,6 @@ def SendAutomaticHeartBeat():
   #A heart beat will be sent every now and then whenever this function is called.
   #The receivers should not have any side effects and can expect back to back or no heartbeat at all. They should be resilient enough.
   CheckConsistency()
-  SendScheduledSMS()
   SendAutomaticSmsReportsIfRequired()
   AskUberObserverToUploadJsons()
   ShrinkWorkingArea()

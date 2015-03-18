@@ -63,6 +63,7 @@ set shiftwidth=2
 set guicursor=a:blinkwait001-blinkoff50-blinkon350
 set visualbell
 set fileformat=unix
+set formatoptions-=t "AutowrapText for all files. Set explicityly for individual file types
 
 " How many tenths of a second to blink when matching brackets
 set mat=2
@@ -661,7 +662,6 @@ function! DistractionFreeWriting()
     setlocal spell
 endfunction
 
-autocmd Bufenter,BufNewFile,BufRead,BufWritePost *.py set formatoptions-=t
 
 "Tag specific mappings
 imap ,ti <title></title><esc>bba

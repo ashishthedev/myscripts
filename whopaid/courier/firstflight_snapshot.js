@@ -26,12 +26,20 @@ page.customHeaders = {
 
 try {
   console.log("Phantom| Opening First Flight page for docket: " + docket);
+  page.settings.resourceTimeout = 60000; // 60 seconds
+  page.onResourceTimeout = function(e) {
+    console.log(e.errorCode);   // it'll probably be 408
+    console.log(e.errorString); // it'll probably be 'Network timeout on resource'
+    console.log(e.url);         // the url whose request timed out
+    phantom.exit();
+  };
+
   page.open(REQUEST_URL, 'POST', FORM_DATA, function (status) {
     console.log("Phantom| Page openend");
 
     if(status !== 'success') {
       console.log("Phantom| Unable to access network - status: " + status);
-      phantom.exit(1);
+      phantom.exit();
     }
 
     console.log("Phantom| Saving Snapshot for docket: " + docket);
