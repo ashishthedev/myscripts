@@ -3,6 +3,7 @@ from util_StoreSnapshot import StoreSnapshotWithPhantomScript
 from Util.Config import GetOption
 from Util.Misc import ParseDateFromString, DD_MMM_YYYY, PrintInBox
 from Util.Sms import SendSms
+from whopaid.off_comm import SendOfficialEmail
 TIMEOUT_IN_SECS=30
 
 import urllib2
@@ -50,7 +51,6 @@ class FedExCourier():
         dt = data["TrackPackagesResponse"]["packageList"][0]["displayEstDeliveryDt"]
         if dt:
           self.estimatedDelivery = dt
-          print("Setting estimatedDelivery to {}".format(dt))
       return data["TrackPackagesResponse"]["packageList"][0]["keyStatus"] + " Estimated Delivery at: " + data["TrackPackagesResponse"]["packageList"][0]["displayEstDeliveryDateTime"]
     return None
 
@@ -61,11 +61,26 @@ class FedExCourier():
       if actualDelDateObj > estimatedDateObj:
         delay = (actualDelDateObj - estimatedDateObj).days
         debugMsg = True
-        smsContents = "Delayed Delivery by {delayDays} days for {compName}\nEstimated: {estDate}\nAcutal:{actDate}\nDont forget to remove TODO".format(delayDays=delay, compName=self.bill.compName,estDate=DD_MMM_YYYY(estimatedDateObj),actDate=DD_MMM_YYYY(actualDelDateObj))
-        smsNoList = GetOption("SMS_SECTION", "DelayedDeliveryReportSMS")
+        smsContents = "FedEx Delayed Delivery by {delayDays} days for {compName}\nEstimated: {estDate}\nAcutal:{actDate}\nDont forget to remove TODO".format(delayDays=delay, compName=self.bill.compName,estDate=DD_MMM_YYYY(estimatedDateObj),actDate=DD_MMM_YYYY(actualDelDateObj))
+        smsNoList = [x[::-1] for x in GetOption("SMS_SECTION", "DelayedDeliveryReportSMSR").split(",") if x.strip()]
 
         for x in smsNoList:
-          SendSms(x[::-1], smsContents)
+          SendSms(x, smsContents)
+
+        for x in [k[::-1] for k in GetOption("SMS_SECTION", "DelayedDeliveryReportMailIdsR").split(",") if k.strip()]:
+          emailSubject = "FedEx Late Delivery: {}".format(self.bill.compName)
+          toMailList = x
+          ccMailList = None
+          bccMailList = None
+          mailBody = smsContents
+          SendOfficialEmail(emailSubject,
+              None,
+              toMailList,
+              ccMailList,
+              bccMailList,
+              mailBody,
+              textType="html",
+              fromDisplayName = "FedEx Late Delivery")
 
         if debugMsg:
           PrintInBox(smsContents)
