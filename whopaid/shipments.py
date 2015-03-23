@@ -65,7 +65,6 @@ class ShipmentTrack(object):
     self.courier = Courier(bill)
     self.status = "Not Tracked Yet"
     self.isDelivered = False
-    pass
 
   def TakeNewSnapshot(self):
     #For whatever reason, take a new snapshot.

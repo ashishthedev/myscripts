@@ -38,9 +38,8 @@ class TestShipment():
 def main():
     bill = CreateATestBill()
     bill.courierName = "FedEx Express"
-
-    bill.docketNumber = "805854193624"
-    bill.docketNumber = "805854195513"
+    bill.docketNumber = "805859930921"
+    bill.docketNumber = "805859931115" #Already Delivered
     with TestShipment(bill) as ts:
       ts.Track()
       print("Status of test shipment: {}".format(ts.status))
