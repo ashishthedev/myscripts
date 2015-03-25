@@ -9,10 +9,12 @@ TIMEOUT_IN_SECS=30
 import urllib2
 
 class FedExCourier():
-  def __init__(self, bill):
+  def __init__(self, shipment, bill):
     self.bill = bill
+    self.shipment = shipment
 
   def GetStatus(self):
+    self.shipment.SetDD("")
     self.FORM_DATA = ""
     self.reqUrl = "https://www.fedex.com/trackingCal/track?" + """action=trackpackages&locale=en_IN&version=1&format=json&data={%22TrackPackagesRequest%22:{%22appType%22:%22WTRK%22,%22uniqueKey%22:%22%22,%22processingParameters%22:{},%22trackingInfoList%22:[{%22trackNumberInfo%22:{%22trackingNumber%22:%22""" + str(self.bill.docketNumber) + """%22,%22trackingQualifier%22:%22%22,%22trackingCarrier%22:%22%22}}]}}&_=1421213504837"""
     self.headers = {
@@ -47,17 +49,20 @@ class FedExCourier():
       self.actualDeliveryDate = data["TrackPackagesResponse"]["packageList"][0]["displayActDeliveryDt"]
       return res + " Received by: {}".format(receiver)
     else:
-      if not (hasattr(self, 'estimatedDelivery') and self.estimatedDelivery != ""):
+      if not self.shipment.GetDD():
         dt = data["TrackPackagesResponse"]["packageList"][0]["displayEstDeliveryDt"]
         if dt:
-          self.estimatedDelivery = dt
+          self.shipment.SetDD(dt)
+      if self.shipment.GetDD():
+        print("estimatedDeliveryDate was already set to {}".format(self.shipment.GetDD()))
+
       return data["TrackPackagesResponse"]["packageList"][0]["keyStatus"] + " Estimated Delivery at: " + data["TrackPackagesResponse"]["packageList"][0]["displayEstDeliveryDateTime"]
     return None
 
   def StoreSnapshot(self):
-    if hasattr(self, 'estimatedDelivery'):
-      estimatedDateObj = ParseDateFromString(self.estimatedDelivery)
-      actualDelDateObj = ParseDateFromString(self.actualDeliveryDate)
+    if self.shipment.GetDD() and hasattr(self.shipment, 'actualDeliveryDate'):
+      estimatedDateObj = ParseDateFromString(self.shipment.GetDD())
+      actualDelDateObj = ParseDateFromString(self.shipment.actualDeliveryDate)
       if actualDelDateObj > estimatedDateObj:
         delay = (actualDelDateObj - estimatedDateObj).days
         debugMsg = True

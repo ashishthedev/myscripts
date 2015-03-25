@@ -62,7 +62,7 @@ class ShipmentTrack(object):
   def __init__(self, shipment, bill):
     self.bill = bill
     self.shipment = shipment  # Back reference to parent shipment object
-    self.courier = Courier(bill)
+    self.courier = Courier(shipment, bill)
     self.status = "Not Tracked Yet"
     self.isDelivered = False
 
@@ -174,6 +174,7 @@ class SingleShipment():
     self._mail = ShipmentMail(self, bill)
     self._track = ShipmentTrack(self, bill)
     self._sms = ShipmentSms(self, bill)
+    self.SetDD(None)
 
   def psWasShipmentMailEverSent(self):
     return self._mail.wasShipmentMailEverSent()
@@ -260,6 +261,22 @@ class SingleShipment():
   def daysPassed(self):
     return (datetime.date.today() - self.bill.docketDate).days
 
+  @property
+  def actualDDIfPresent(self):
+    return self.actualDeliveryDate if hasattr(self, 'actualDeliveryDate') else None
+
+  @property
+  def estimatedDDIfPresent(self):
+    return self.estimatedDeliveryDate if hasattr(self, 'estimatedDeliveryDate') else None
+
+  def SetDD(self, dd):
+    PrintInBox("setting DD for docket#{} to {}".format(self.bill.docketNumber, dd))
+    self.estimatedDeliveryDate = dd
+    self.save()
+
+  def GetDD(self):
+    return self.estimatedDeliveryDate
+
   def save(self):
     k = self.bill.uid_string
     PersistentShipments()[k]=self
@@ -292,10 +309,10 @@ class SingleShipment():
     singleShipment["isDelivered"] = s.isDelivered
     singleShipment["daysPassed"] = s.daysPassed
     singleShipment["trackUrl"] = s.trackUrl
+    singleShipment["estimatedDeliveryDate"] = s.estimatedDDIfPresent
+    singleShipment["actualDeliveryDate"] = s.actualDDIfPresent
     singleShipment["uid_string"] = b.uid_string#TODO: Check if really required in json
     return singleShipment
-
-
 
 class PersistentShipments(Persistent):
   def __init__(self):
@@ -313,7 +330,6 @@ class PersistentShipments(Persistent):
   def GetAllUndeliveredShipments(self):
     allShipments = self.GetAllStoredShipments()
     return [s for s in allShipments if s.isUndelivered()]
-
 
 def SendMaterialDispatchSms(bill):
   optionalAmount = ""
@@ -517,6 +533,9 @@ def ParseOptions():
         dest='dbDeletedByMistake', action="store_true", default=False,
         help="Will try to bring the shipments status back to normal as much as possible.")
 
+    parser.add_argument("-msas", "--mark-sms-as-sent", dest='markSMSAsSentForDocket', type=str, default=None,
+        help="Mark the sms as sent.")
+
     parser.add_argument("-mmas", "--mark-mail-as-sent", dest='markMailAsSentForDocket', type=str, default=None,
         help="Mark the mail as sent.")
 
@@ -569,6 +588,12 @@ def ParseOptions():
     return parser.parse_args()
 
 
+def _FormceMarkShipmentSMSAsSent(docketNumber):
+  for s in PersistentShipments().GetAllStoredShipments():
+    print(s.bill.docketNumber)
+    if s.bill.docketNumber == docketNumber:
+      s.psMarkSmsAsSent()
+  return
 
 def _FormceMarkShipmentMailAsSent(docketNumber):
   for s in PersistentShipments().GetAllStoredShipments():
@@ -697,6 +722,9 @@ def main(args):
     complaintDocket = raw_input("Enter the docket for which complaint has to be sent: ")
     SendComplaintMessageForDocket(complaintDocket)
     import sys; sys.exit(0)
+
+  if args.markSMSAsSentForDocket:
+    _FormceMarkShipmentSMSAsSent(args.markMailAsSentForDocket)
 
   if args.markMailAsSentForDocket:
     _FormceMarkShipmentMailAsSent(args.markMailAsSentForDocket)

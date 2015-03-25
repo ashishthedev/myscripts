@@ -11,7 +11,7 @@ def CreateATestBill():
   b.compName = "Test"
   b.billingCategory = "Central"
   b.billNumber = 100
-  b.invoiceDate = ParseDateFromString("1Jan11")
+  b.invoiceDate = datetime.date.today()
   b.materialDesc = "100 No TC Dies"
   b.goodsValue = 2
   b.tax = 2
@@ -39,7 +39,7 @@ def main():
     bill = CreateATestBill()
     bill.courierName = "FedEx Express"
     bill.docketNumber = "805859930921"
-    bill.docketNumber = "805859931115" #Already Delivered
+    bill.docketNumber = "805859930884"
     with TestShipment(bill) as ts:
       ts.Track()
       print("Status of test shipment: {}".format(ts.status))

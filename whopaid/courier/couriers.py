@@ -16,14 +16,15 @@ class Courier():
   If a new courier gets added, implement that class and instantiate in __init__
   All the sublclasses will implement methods. Ideally it should be an ABC
   """
-  def __init__(self, b):
+  def __init__(self, shipment, b):
+    self.shipment = shipment #Backtracking
     for courierInitials, class_ in MAPPING.iteritems():
       if b.courierName.lower().strip().startswith(courierInitials):
-        self.courier = class_(b)
+        self.courier = class_(shipment, b)
         break
     else:
       print("We do not know how to track: {}. Will mark it as delivered".format(b.courierName))
-      self.courier = DummyCourier(b)
+      self.courier = DummyCourier(b, shipment)
 
   @classmethod
   def KnowHowToTrack(cls, b):
@@ -55,11 +56,6 @@ class Courier():
     self.courier.StoreSnapshot()
 
   def IsSnapshotSaved(self):
-    #if hasattr(self.courier, 'bill'):
-    #  return True if os.path.exists(FullPathForSnapshotOfBill(self.courier.bill)) else False
-    #else:
-    #  return True if os.path.exists(FullPathForSnapshotOfBill(self.courier.b)) else False
-    #if hasattr(self.courier, 'bill'):
     return True if os.path.exists(FullPathForSnapshotOfBill(self.courier.bill)) else False
 
 
@@ -244,8 +240,9 @@ class LaljiMuljiTransport():
 
 
 class FirstFlightCourier():
-  def __init__(self, bill):
+  def __init__(self, shipment, bill):
     self.bill = bill
+    self.shipment = shipment
 
   def GetStatus(self):
     self.FORM_DATA = GetRawOption("COURIER_FORM_DATA", "FirstFlight").format(docket=self.bill.docketNumber)
@@ -327,8 +324,9 @@ class BluedartCourier():
 
 
 class OverniteCourier():
-  def __init__(self, bill):
+  def __init__(self, shipment, bill):
     self.bill = bill
+    self.shipment = shipment
 
   def GetStatus(self):
     self.reqUrl = "http://www.overnitenet.com/WebTrack.aspx"
