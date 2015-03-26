@@ -12,9 +12,9 @@ class FedExCourier():
   def __init__(self, shipment, bill):
     self.bill = bill
     self.shipment = shipment
+    self.shipment.SetDD("")
 
   def GetStatus(self):
-    self.shipment.SetDD("")
     self.FORM_DATA = ""
     self.reqUrl = "https://www.fedex.com/trackingCal/track?" + """action=trackpackages&locale=en_IN&version=1&format=json&data={%22TrackPackagesRequest%22:{%22appType%22:%22WTRK%22,%22uniqueKey%22:%22%22,%22processingParameters%22:{},%22trackingInfoList%22:[{%22trackNumberInfo%22:{%22trackingNumber%22:%22""" + str(self.bill.docketNumber) + """%22,%22trackingQualifier%22:%22%22,%22trackingCarrier%22:%22%22}}]}}&_=1421213504837"""
     self.headers = {
