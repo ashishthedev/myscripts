@@ -16,8 +16,10 @@ class Courier():
   If a new courier gets added, implement that class and instantiate in __init__
   All the sublclasses will implement methods. Ideally it should be an ABC
   """
-  def __init__(self, shipment, b):
+  def __init__(self, shipment, bill):
+    self.bill = bill
     self.shipment = shipment #Backtracking
+    b = self.bill
     for courierInitials, class_ in MAPPING.iteritems():
       if b.courierName.lower().strip().startswith(courierInitials):
         self.courier = class_(shipment, b)
@@ -61,8 +63,9 @@ class Courier():
 
 
 class DummyCourier():
-  def __init__(self, bill):
+  def __init__(self, shipment, bill):
     self.bill = bill
+    self.shipment = shipment #Backtracking
 
   def GetStatus(self):
     return "Dummy Courier is delivered" #This status should have the word delivered
@@ -71,11 +74,12 @@ class DummyCourier():
     return None
 
 class TrackonCourier():
-  def __init__(self, bill):
+  def __init__(self, shipment, bill):
     self.bill = bill
-    self.reqUrl = "http://trackoncourier.com/TrackonConsignment.aspx"
+    self.shipment = shipment #Backtracking
 
   def GetStatus(self):
+    self.reqUrl = "http://trackoncourier.com/TrackonConsignment.aspx"
     self.FORM_DATA = GetRawOption("COURIER_FORM_DATA", "Trackon").format(docket=self.bill.docketNumber)
     req = urllib2.Request(self.reqUrl)
     req.add_header("Content-Type" , "application/x-www-form-urlencoded")
@@ -116,11 +120,12 @@ class TrackonCourier():
     StoreSnapshotWithPhantomScript(self.bill, "courier\\trackon_snapshot.js", self.FORM_DATA, self.reqUrl)
 
 class ProfessionalCourier():
-  def __init__(self, bill):
+  def __init__(self, shipment, bill):
     self.bill = bill
-    self.reqUrl = "http://www.tpcindia.com/Tracking2014.aspx?id={docket}&type=0&service=0".format(docket=self.bill.docketNumber.strip())
+    self.shipment = shipment #Backtracking
 
   def GetStatus(self):
+    self.reqUrl = "http://www.tpcindia.com/Tracking2014.aspx?id={docket}&type=0&service=0".format(docket=self.bill.docketNumber.strip())
     self.FORM_DATA = ""
     req = urllib2.Request(self.reqUrl)
     req.add_header('Host', 'www.tpcindia.com')
@@ -146,11 +151,12 @@ class ProfessionalCourier():
     StoreSnapshotWithPhantomScript(self.bill, "courier\\professional_snapshot.js", self.FORM_DATA, self.reqUrl)
 
 class NitcoTransport():
-  def __init__(self, bill):
+  def __init__(self, shipment, bill):
     self.bill = bill
-    self.reqUrl ="http://202.177.175.171/customer_track/grinformation.aspx?id={docket}" .format(docket=self.bill.docketNumber.strip())
+    self.shipment = shipment #Backtracking
 
   def GetStatus(self):
+    self.reqUrl ="http://202.177.175.171/customer_track/grinformation.aspx?id={docket}" .format(docket=self.bill.docketNumber.strip())
     self.FORM_DATA = GetRawOption("COURIER_FORM_DATA", "Nitco").format(docket=self.bill.docketNumber)
     req = urllib2.Request(self.reqUrl)
     req.add_header('Host', '202.177.175.171')
@@ -176,8 +182,9 @@ class NitcoTransport():
     StoreSnapshotWithPhantomScript(self.bill, "courier\\nitco.js", self.FORM_DATA, self.reqUrl)
 
 class VRLLogistics():
-  def __init__(self, bill):
+  def __init__(self, shipment, bill):
     self.bill = bill
+    self.shipment = shipment #Backtracking
 
   def GetStatus(self):
     self.FORM_DATA = ""
@@ -205,12 +212,13 @@ class VRLLogistics():
 
 
 class LaljiMuljiTransport():
-  def __init__(self, bill):
+  def __init__(self, shipment, bill):
     self.bill = bill
-    self.FORM_DATA = ""
-    self.reqUrl = "http://lmterp.com/ivcargo/Ajax.do?pageId=9&eventId=3&wayBillNumber={docket}&accountGroupId=201" .format(docket=self.bill.docketNumber.strip())
+    self.shipment = shipment #Backtracking
 
   def GetStatus(self):
+    self.FORM_DATA = ""
+    self.reqUrl = "http://lmterp.com/ivcargo/Ajax.do?pageId=9&eventId=3&wayBillNumber={docket}&accountGroupId=201" .format(docket=self.bill.docketNumber.strip())
     req = urllib2.Request(self.reqUrl)
     req.add_header('Host', 'lmterp.com')
     req.add_header('Referer', 'http://lmtco.com/')
@@ -285,11 +293,12 @@ class FirstFlightCourier():
     StoreSnapshotWithPhantomScript(self.bill, "courier\\firstflight_snapshot.js", self.FORM_DATA, self.reqUrl)
 
 class BluedartCourier():
-  def __init__(self, bill):
+  def __init__(self, shipment, bill):
     self.bill = bill
-    self.reqUrl = "http://www.bluedart.com/servlet/RoutingServlet"
+    self.shipment = shipment #Backtracking
 
   def GetStatus(self):
+    self.reqUrl = "http://www.bluedart.com/servlet/RoutingServlet"
     self.FORM_DATA = GetRawOption("COURIER_FORM_DATA", "Bluedart").format(docket=self.bill.docketNumber)
     req = urllib2.Request(self.reqUrl)
     req.add_header("Content-Type" , "application/x-www-form-urlencoded")
