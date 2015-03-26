@@ -26,7 +26,7 @@ class Courier():
         break
     else:
       print("We do not know how to track: {}. Will mark it as delivered".format(b.courierName))
-      self.courier = DummyCourier(b, shipment)
+      self.courier = DummyCourier(shipment, bill)
 
   @classmethod
   def KnowHowToTrack(cls, b):
