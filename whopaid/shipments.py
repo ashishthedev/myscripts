@@ -174,7 +174,7 @@ class SingleShipment():
     self._mail = ShipmentMail(self, bill)
     self._track = ShipmentTrack(self, bill)
     self._sms = ShipmentSms(self, bill)
-    self.SetDD(None)
+    self.SetEDD(None)
 
   def psWasShipmentMailEverSent(self):
     return self._mail.wasShipmentMailEverSent()
@@ -269,12 +269,12 @@ class SingleShipment():
   def estimatedDDIfPresent(self):
     return self.estimatedDeliveryDate if hasattr(self, 'estimatedDeliveryDate') else None
 
-  def SetDD(self, dd):
+  def SetEDD(self, dd):
     PrintInBox("setting DD for docket#{} to {}".format(self.bill.docketNumber, dd))
     self.estimatedDeliveryDate = dd
     self.save()
 
-  def GetDD(self):
+  def GetEDD(self):
     return self.estimatedDeliveryDate
 
   def save(self):

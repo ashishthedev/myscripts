@@ -12,7 +12,7 @@ class FedExCourier():
   def __init__(self, shipment, bill):
     self.bill = bill
     self.shipment = shipment
-    self.shipment.SetDD("")
+    self.shipment.SetEDD("")
 
   def GetStatus(self):
     self.FORM_DATA = ""
@@ -32,8 +32,8 @@ class FedExCourier():
     import json
     data = json.load(resp)
 
-    debugJson = True
     debugJson = False
+    debugJson = True
     if debugJson:
       #Set it to true to debug
       import pprint
@@ -46,50 +46,65 @@ class FedExCourier():
     if resCode.lower() == "dl":
       res = data["TrackPackagesResponse"]["packageList"][0]["keyStatus"]
       receiver = data["TrackPackagesResponse"]["packageList"][0]["receivedByNm"]
-      self.actualDeliveryDate = data["TrackPackagesResponse"]["packageList"][0]["displayActDeliveryDt"]
+      self.shipment.actualDeliveryDate = data["TrackPackagesResponse"]["packageList"][0]["displayActDeliveryDt"]
       return res + " Received by: {}".format(receiver)
     else:
-      if not self.shipment.GetDD():
+      if not self.shipment.GetEDD():
         dt = data["TrackPackagesResponse"]["packageList"][0]["displayEstDeliveryDt"]
         if dt:
-          self.shipment.SetDD(dt)
-      if self.shipment.GetDD():
-        print("estimatedDeliveryDate was already set to {}".format(self.shipment.GetDD()))
+          self.shipment.SetEDD(dt)
+      if self.shipment.GetEDD():
+        print("estimatedDeliveryDate was already set to {}".format(self.shipment.GetEDD()))
 
       return data["TrackPackagesResponse"]["packageList"][0]["keyStatus"] + " Estimated Delivery at: " + data["TrackPackagesResponse"]["packageList"][0]["displayEstDeliveryDateTime"]
     return None
 
+  def SendDeliveryDaysMsgToOwners(self):
+    if not self.shipment.GetEDD():
+      return
+    if not hasattr(self.shipment, 'actualDeliveryDate'):
+      return
+
+    estimatedDateObj = ParseDateFromString(self.shipment.GetEDD())
+    actualDelDateObj = ParseDateFromString(self.shipment.actualDeliveryDate)
+    smsNoList = [x[::-1] for x in GetOption("SMS_SECTION", "DelayedDeliveryReportSMSR").split(",") if x.strip()]
+    if actualDelDateObj == estimatedDateObj:
+      days = (estimatedDateObj - actualDelDateObj).days
+      smsContents = "FedEx early delivery : {days} days earlier for:\n{compName}\nEstimated: {estDate}\nAcutal:{actDate}\nDocket: {dn}".format(days=days,compName=self.bill.compName,estDate=DD_MMM_YYYY(estimatedDateObj),actDate=DD_MMM_YYYY(actualDelDateObj, dn=self.bill.docketNumber))
+
+    elif actualDelDateObj == estimatedDateObj:
+      days = (actualDelDateObj - estimatedDateObj).days
+      smsContents = "FedEx delivered on exact estimated date for:\n{compName}\nEstimated: {estDate}\nAcutal:{actDate}\nDocket: {dn}".format(days=days,compName=self.bill.compName,estDate=DD_MMM_YYYY(estimatedDateObj),actDate=DD_MMM_YYYY(actualDelDateObj, dn=self.bill.docketNumber))
+
+    else:
+      delay = (actualDelDateObj - estimatedDateObj).days
+      smsContents = "FedEx Late Delivery : {delayDays} days late for:\n{compName}\nEstimated: {estDate}\nAcutal:{actDate}\nDocket: {dn}".format(delayDays=delay, compName=self.bill.compName,estDate=DD_MMM_YYYY(estimatedDateObj),actDate=DD_MMM_YYYY(actualDelDateObj), dn=self.bill.docketNumber)
+
+      emailSubject = "FedEx Late Delivery: {}".format(self.bill.compName)
+      toMailList = [k[::-1] for k in GetOption("SMS_SECTION", "DelayedDeliveryReportMailIdsR").split(",") if k.strip()]
+      ccMailList = None
+      bccMailList = None
+      mailBody = smsContents
+      SendOfficialEmail(emailSubject,
+          None,
+          toMailList,
+          ccMailList,
+          bccMailList,
+          mailBody,
+          textType="html",
+          fromDisplayName = "FedEx Late Delivery")
+
+    debugMsg = True
+    if debugMsg:
+      PrintInBox(smsContents)
+
+    for x in smsNoList:
+      SendSms(x, smsContents)
+    return
+
+
   def StoreSnapshot(self):
-    if self.shipment.GetDD() and hasattr(self.shipment, 'actualDeliveryDate'):
-      estimatedDateObj = ParseDateFromString(self.shipment.GetDD())
-      actualDelDateObj = ParseDateFromString(self.shipment.actualDeliveryDate)
-      if actualDelDateObj > estimatedDateObj:
-        delay = (actualDelDateObj - estimatedDateObj).days
-        debugMsg = True
-        smsContents = "FedEx Delayed Delivery by {delayDays} days for {compName}\nEstimated: {estDate}\nAcutal:{actDate}\nDont forget to remove TODO".format(delayDays=delay, compName=self.bill.compName,estDate=DD_MMM_YYYY(estimatedDateObj),actDate=DD_MMM_YYYY(actualDelDateObj))
-        smsNoList = [x[::-1] for x in GetOption("SMS_SECTION", "DelayedDeliveryReportSMSR").split(",") if x.strip()]
-
-        for x in smsNoList:
-          SendSms(x, smsContents)
-
-        for x in [k[::-1] for k in GetOption("SMS_SECTION", "DelayedDeliveryReportMailIdsR").split(",") if k.strip()]:
-          emailSubject = "FedEx Late Delivery: {}".format(self.bill.compName)
-          toMailList = x
-          ccMailList = None
-          bccMailList = None
-          mailBody = smsContents
-          SendOfficialEmail(emailSubject,
-              None,
-              toMailList,
-              ccMailList,
-              bccMailList,
-              mailBody,
-              textType="html",
-              fromDisplayName = "FedEx Late Delivery")
-
-        if debugMsg:
-          PrintInBox(smsContents)
-
+    self.SendDeliveryDaysMsgToOwners()
     snapshotUrl = """https://www.fedex.com/apps/fedextrack/?tracknumbers={docket}&cntry_code=in""".format(docket=self.bill.docketNumber)
     StoreSnapshotWithPhantomScript(self.bill, "courier\\fedex_snapshot.js", self.FORM_DATA, snapshotUrl)
     return
