@@ -32,8 +32,8 @@ class FedExCourier():
     import json
     data = json.load(resp)
 
-    debugJson = False
     debugJson = True
+    debugJson = False
     if debugJson:
       #Set it to true to debug
       import pprint
@@ -53,8 +53,9 @@ class FedExCourier():
         dt = data["TrackPackagesResponse"]["packageList"][0]["displayEstDeliveryDt"]
         if dt:
           self.shipment.SetEDD(dt)
-      if self.shipment.GetEDD():
-        print("estimatedDeliveryDate was already set to {}".format(self.shipment.GetEDD()))
+          snapshotUrl = """https://www.fedex.com/apps/fedextrack/?tracknumbers={docket}&cntry_code=in""".format(docket=self.bill.docketNumber)
+          self.shipment.StoreEstimatedDDProofWithPhantomScript(self.bill, "courier\\fedex_snapshot.js", self.FORM_DATA, snapshotUrl)
+          PrintInBox("Stored the snapshot for EDD={edd} for docket: {dn} company: {cn}".format(edd=self.shipment.GetEDD(), dn=self.bill.docketNumber, cn=self.bill.compName))
 
       return data["TrackPackagesResponse"]["packageList"][0]["keyStatus"] + " Estimated Delivery at: " + data["TrackPackagesResponse"]["packageList"][0]["displayEstDeliveryDateTime"]
     return None
@@ -68,7 +69,7 @@ class FedExCourier():
     estimatedDateObj = ParseDateFromString(self.shipment.GetEDD())
     actualDelDateObj = ParseDateFromString(self.shipment.actualDeliveryDate)
     smsNoList = [x[::-1] for x in GetOption("SMS_SECTION", "DelayedDeliveryReportSMSR").split(",") if x.strip()]
-    if actualDelDateObj == estimatedDateObj:
+    if actualDelDateObj < estimatedDateObj:
       days = (estimatedDateObj - actualDelDateObj).days
       smsContents = "FedEx early delivery : {days} days earlier for:\n{compName}\nEstimated: {estDate}\nAcutal:{actDate}\nDocket: {dn}".format(days=days,compName=self.bill.compName,estDate=DD_MMM_YYYY(estimatedDateObj),actDate=DD_MMM_YYYY(actualDelDateObj, dn=self.bill.docketNumber))
 
@@ -104,7 +105,8 @@ class FedExCourier():
 
 
   def StoreSnapshot(self):
-    self.SendDeliveryDaysMsgToOwners()
+    if self.shipment.isDelivered:
+      self.SendDeliveryDaysMsgToOwners()
     snapshotUrl = """https://www.fedex.com/apps/fedextrack/?tracknumbers={docket}&cntry_code=in""".format(docket=self.bill.docketNumber)
     StoreSnapshotWithPhantomScript(self.bill, "courier\\fedex_snapshot.js", self.FORM_DATA, snapshotUrl)
     return

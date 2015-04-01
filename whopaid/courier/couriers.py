@@ -73,6 +73,9 @@ class DummyCourier():
   def StoreSnapshot(self):
     return None
 
+  def IsSnapshotSaved(self):
+    return True
+
 class TrackonCourier():
   def __init__(self, shipment, bill):
     self.bill = bill

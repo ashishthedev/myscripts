@@ -539,6 +539,8 @@ def ParseOptions():
     parser.add_argument("-mmas", "--mark-mail-as-sent", dest='markMailAsSentForDocket', type=str, default=None,
         help="Mark the mail as sent.")
 
+    parser.add_argument("-maias", "--mark-all-info-as-sent", dest='markAllInfoAsSentForAllDockets', action="store_true", default=False, help="Mark the mail as sent.")
+
     parser.add_argument("-sus", "--show-undelivered-small", dest='showUndeliveredSmall', action="store_true", default=False,
         help="If present, show undelivered parcels on screen")
 
@@ -729,6 +731,8 @@ def main(args):
   if args.markMailAsSentForDocket:
     _FormceMarkShipmentMailAsSent(args.markMailAsSentForDocket)
 
+  if args.markAllInfoAsSentForAllDockets:
+    _MarkAllDispatchInfoAsSent()
 
   if args.forceMarkDeliveredDocket:
     _ForceMarkDocketAsDelivered(args.forceMarkDeliveredDocket)
@@ -824,6 +828,13 @@ def TrackAllShipments(trackDays):
       pass
 
   return
+
+def _MarkAllDispatchInfoAsSent():
+  for s in  PersistentShipments().GetAllStoredShipments():
+    s.psMarkSmsAsSent()
+    s.psMarkMailAsSent()
+  return
+
 
 def DBDeletedDoWhatEverIsNecessary():
   """This will help when the db is accidently deleted. In that case, just mark all the information as already sent"""
