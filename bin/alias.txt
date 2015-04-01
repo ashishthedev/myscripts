@@ -107,6 +107,7 @@ analyze = pushd %XDATDOCSDIR%\\code\\misc\\PhoneBillAnalysis && AnalyzeBill.py $
 
 trs         = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --track $* && pushd %XDATDOCSDIR%\..\DocketPODs && start. && popd
 undelivered = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --show-undelivered-small && popd
+maias = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --mark-all-info-as-sent && popd
 resendsms   = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --show-undelivered-small && Shipments.py --resend-dispatch-sms $* && popd
 parcom      = pushd %XDATDOCSDIR%\code\whopaid && Shipments.py --show-undelivered-small && Shipments.py --complaint $* && popd
 watch       = pushd %XDATDOCSDIR%\code\misc && watchydl.py -s $* && popd
