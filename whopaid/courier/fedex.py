@@ -1,5 +1,5 @@
 from __future__ import unicode_literals
-from util_StoreSnapshot import StoreSnapshotWithPhantomScript
+from util_StoreSnapshot import StoreSnapshotWithPhantomScript, StoreEstimatedDDProofWithPhantomScript
 from Util.Config import GetOption
 from Util.Misc import ParseDateFromString, DD_MMM_YYYY, PrintInBox
 from Util.Sms import SendSms
@@ -54,7 +54,7 @@ class FedExCourier():
         if dt:
           self.shipment.SetEDD(dt)
           snapshotUrl = """https://www.fedex.com/apps/fedextrack/?tracknumbers={docket}&cntry_code=in""".format(docket=self.bill.docketNumber)
-          self.shipment.StoreEstimatedDDProofWithPhantomScript(self.bill, "courier\\fedex_snapshot.js", self.FORM_DATA, snapshotUrl)
+          StoreEstimatedDDProofWithPhantomScript(self.bill, "courier\\fedex_snapshot.js", self.FORM_DATA, snapshotUrl)
           PrintInBox("Stored the snapshot for EDD={edd} for docket: {dn} company: {cn}".format(edd=self.shipment.GetEDD(), dn=self.bill.docketNumber, cn=self.bill.compName))
 
       return data["TrackPackagesResponse"]["packageList"][0]["keyStatus"] + " Estimated Delivery at: " + data["TrackPackagesResponse"]["packageList"][0]["displayEstDeliveryDateTime"]

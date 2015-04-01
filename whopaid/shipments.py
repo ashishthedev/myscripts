@@ -85,7 +85,7 @@ class ShipmentTrack(object):
 
     return True
 
-  def Track(self):
+  def TrackAndSave(self):
     if self.isDelivered:
         return  # No need to do anything else
 
@@ -96,19 +96,17 @@ class ShipmentTrack(object):
       self.status = "Shipment in transit as per courier internet status but payment made by customer. Marking as delivered."
       self.isDelivered = True
       LIST_OF_SHIPMENTS_IN_THIS_SCAN.append(self)
-      self.shipment.save()
-      return
+    else:
+      try:
+        self.status = self.courier.GetStatus()
+      except urllib2.URLError:
+        raise ShipmentException("URL Error")
 
-    try:
-      self.status = self.courier.GetStatus()
-    except urllib2.URLError:
-      raise ShipmentException("URL Error")
-
-    if IsDeliveredAssessFromStatus(self.status):
-      self.courier.StoreSnapshot()
-      if self.IsSnapshotSaved():
-        self.isDelivered = True
-        LIST_OF_SHIPMENTS_IN_THIS_SCAN.append(self)
+      if IsDeliveredAssessFromStatus(self.status):
+        self.courier.StoreSnapshot()
+        if self.IsSnapshotSaved():
+          self.isDelivered = True
+          LIST_OF_SHIPMENTS_IN_THIS_SCAN.append(self)
 
     self.shipment.save()
 
@@ -226,8 +224,8 @@ class SingleShipment():
   def ShouldWeTrackThis(self):
     return self._track.ShouldWeTrackThis()
 
-  def Track(self):
-    return self._track.Track()
+  def TrackAndSave(self):
+    return self._track.TrackAndSave()
 
   @property
   def status(self):
@@ -592,16 +590,16 @@ def ParseOptions():
 
 def _FormceMarkShipmentSMSAsSent(docketNumber):
   for s in PersistentShipments().GetAllStoredShipments():
-    print(s.bill.docketNumber)
     if s.bill.docketNumber == docketNumber:
       s.psMarkSmsAsSent()
+      print("Marking SMS as sent for: " + s.bill.docketNumber)
   return
 
 def _FormceMarkShipmentMailAsSent(docketNumber):
   for s in PersistentShipments().GetAllStoredShipments():
-    print(s.bill.docketNumber)
     if s.bill.docketNumber == docketNumber:
       s.psMarkMailAsSent()
+      print("Marking mail as sent for: " + s.bill.docketNumber)
   return
 
 
@@ -726,7 +724,7 @@ def main(args):
     import sys; sys.exit(0)
 
   if args.markSMSAsSentForDocket:
-    _FormceMarkShipmentSMSAsSent(args.markMailAsSentForDocket)
+    _FormceMarkShipmentSMSAsSent(args.markSMSAsSentForDocket)
 
   if args.markMailAsSentForDocket:
     _FormceMarkShipmentMailAsSent(args.markMailAsSentForDocket)
@@ -813,7 +811,7 @@ def TrackAllShipments(trackDays):
     try:
       old_status = shipment._track.status
       print("{}\n{} of {}| {} days| {}".format("_"*70, i, len(trackableShipments), shipment.daysPassed, shipment))
-      new_status = shipment.Track()  #One shipment per bill
+      new_status = shipment.TrackAndSave()  #One shipment per bill
 
       if old_status != new_status:
         PrintInBox("New status: {}".format(new_status), outliner=">")
