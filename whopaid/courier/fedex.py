@@ -54,7 +54,7 @@ class FedExCourier():
         if dt:
           self.shipment.SetEDD(dt)
           snapshotUrl = """https://www.fedex.com/apps/fedextrack/?tracknumbers={docket}&cntry_code=in""".format(docket=self.bill.docketNumber)
-          StoreEDDProofWithPhantomScript(self.bill, "courier\\fedex_snapshot.js", self.FORM_DATA, snapshotUrl)
+          StoreEDDProofWithPhantomScript(self.bill, "courier\\fedex_snapshot.js", self.FORM_DATA, snapshotUrl, ParseDateFromString(self.shipment.GetEDD()))
           PrintInBox("Stored the snapshot for EDD={edd} for docket: {dn} company: {cn}".format(edd=self.shipment.GetEDD(), dn=self.bill.docketNumber, cn=self.bill.compName))
 
       return data["TrackPackagesResponse"]["packageList"][0]["keyStatus"] + " Estimated Delivery at: " + data["TrackPackagesResponse"]["packageList"][0]["displayEstDeliveryDateTime"]

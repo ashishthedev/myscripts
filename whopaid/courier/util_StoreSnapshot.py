@@ -35,8 +35,8 @@ def FullPathForEDDProofForBill(b, estimatedDateObj):
   fullPath = os.path.normpath(os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "EstimatedDeliveryDateRelPath"),fileName))
   return fullPath
 
-def StoreEDDProofWithPhantomScript(b, scriptPath, formData, reqUrl):
-  fullPath = FullPathForEDDProofForBill(b)
+def StoreEDDProofWithPhantomScript(b, scriptPath, formData, reqUrl, estimatedDateObj):
+  fullPath = FullPathForEDDProofForBill(b, estimatedDateObj)
   _StoreSnapshot(b, scriptPath, formData, reqUrl, fullPath)
   return
 
