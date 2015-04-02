@@ -30,7 +30,6 @@ import datetime
 import json
 import os
 import random
-import urllib2
 
 MAX_IN_TRANSIT_DAYS = 15
 MAX_DAYS_FOR_SENDING_NOTIFICATION = 4
@@ -68,12 +67,9 @@ class ShipmentTrack(object):
 
   def TakeNewSnapshot(self):
     #For whatever reason, take a new snapshot.
-    self.courier.StoreSnapshot()
+    self.courier.StoreDeliveryProof()
 
   def ShouldWeTrackThis(self):
-    #if self.shipment.daysPassed == 0:
-    #    return False
-
     if not self.bill.docketDate:
         return False
 
@@ -94,19 +90,13 @@ class ShipmentTrack(object):
     if undeliveredButPaid:
       PrintInBox("Going out of the way")
       self.status = "Shipment in transit as per courier internet status but payment made by customer. Marking as delivered."
-      self.isDelivered = True
-      LIST_OF_SHIPMENTS_IN_THIS_SCAN.append(self)
+      self.shipment.psMarkShipmentDelivered()
     else:
-      try:
-        self.status = self.courier.GetStatus()
-      except urllib2.URLError:
-        raise ShipmentException("URL Error")
-
+      self.status = self.courier.GetStatus()
       if IsDeliveredAssessFromStatus(self.status):
-        self.courier.StoreSnapshot()
+        self.courier.StoreDeliveryProof()
         if self.IsSnapshotSaved():
-          self.isDelivered = True
-          LIST_OF_SHIPMENTS_IN_THIS_SCAN.append(self)
+          self.shipment.psMarkShipmentDelivered()
 
     self.shipment.save()
 
@@ -216,6 +206,7 @@ class SingleShipment():
 
   def psMarkShipmentDelivered(self):
     self._track.isDelivered = True
+    LIST_OF_SHIPMENTS_IN_THIS_SCAN.append(self)
     self.save()
 
   def TakeNewSnapshot(self):

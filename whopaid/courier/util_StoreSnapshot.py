@@ -5,6 +5,16 @@ from Util.Misc import YYYY_MM_DD
 import os
 import subprocess
 
+def _EDDProofFileNameForBill(b, estimatedDateObj):
+  """All the information considered in filename is immutable"""
+  PREFERRED_FILEFORMAT = ".jpeg"
+  fileName = "{edd}_{docketNumber}_{compName}".format(edd=YYYY_MM_DD(estimatedDateObj),
+      compName=b.compName, docketNumber=b.docketNumber)
+  fileName.replace(" ", "_")
+  fileName = "".join([x for x in fileName if x.isalnum() or x in['_', '-']])
+  fileName = fileName + PREFERRED_FILEFORMAT
+  return fileName
+
 def FileNameForBill(b):
   """All the information considered in filename is immutable"""
   PREFERRED_FILEFORMAT = ".jpeg"
@@ -15,23 +25,23 @@ def FileNameForBill(b):
   fileName = fileName + PREFERRED_FILEFORMAT
   return fileName
 
-def FullPathForSnapshotOfBill(b):
+def FullPathForPODofBill(b):
   fileName = FileNameForBill(b)
   fullPath = os.path.normpath(os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "DocketSnapshotsRelPath"),fileName))
   return fullPath
 
-def FullPathForEstimatedDeliveryDateProofForBill(b):
-  fileName = FileNameForBill(b)
+def FullPathForEDDProofForBill(b, estimatedDateObj):
+  fileName = _EDDProofFileNameForBill(b)
   fullPath = os.path.normpath(os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "EstimatedDeliveryDateRelPath"),fileName))
   return fullPath
 
-def StoreEstimatedDDProofWithPhantomScript(b, scriptPath, formData, reqUrl):
-  fullPath = FullPathForEstimatedDeliveryDateProofForBill(b)
+def StoreEDDProofWithPhantomScript(b, scriptPath, formData, reqUrl):
+  fullPath = FullPathForEDDProofForBill(b)
   _StoreSnapshot(b, scriptPath, formData, reqUrl, fullPath)
   return
 
-def StoreSnapshotWithPhantomScript(b, scriptPath, formData, reqUrl):
-  fullPath = FullPathForSnapshotOfBill(b)
+def StoreDeliveryProofWithPhantomScript(b, scriptPath, formData, reqUrl):
+  fullPath = FullPathForPODofBill(b)
   _StoreSnapshot(b, scriptPath, formData, reqUrl, fullPath)
   return
 
@@ -57,8 +67,5 @@ def _StoreSnapshot(b, scriptPath, formData, reqUrl, fullPath):
   #from pprint import pprint; pprint(args)
   subprocess.check_call(args)
 
-  #We always detect from the path whether the snapshot is saved or not. Hence the following code is not required
-  #if not os.path.exists(fullPath):
-  #  raise Exception("Could not store the snapshot at location: {}".format(fullPath))
 
 

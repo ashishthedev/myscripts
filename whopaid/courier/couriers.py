@@ -6,7 +6,7 @@ from HTMLParser import HTMLParser
 import os
 import urllib2
 import socket
-from util_StoreSnapshot import FullPathForSnapshotOfBill, StoreSnapshotWithPhantomScript
+from util_StoreSnapshot import FullPathForPODofBill, StoreDeliveryProofWithPhantomScript
 
 
 TIMEOUT_IN_SECS=30
@@ -54,11 +54,27 @@ class Courier():
       print(str(e))
       return ""
 
-  def StoreSnapshot(self):
-    self.courier.StoreSnapshot()
+  def StoreDeliveryProof(self):
+    try:
+      self.courier.StoreDeliveryProof()
+    except urllib2.URLError as e:
+      if hasattr(e, 'reason'):
+        if isinstance(e.reason, socket.timeout):
+          print("Timeout occurred after: {} seconds".format(TIMEOUT_IN_SECS))
+        else:
+          print("We failed to reach the server.\nReason {}".format(e.reason))
+      elif hasattr(e, 'code'):
+        print("The server couldn't fulfil the request\nError code: {}".format(e.code))
+    except socket.timeout as e:
+      print("Timeout occurred after: {} seconds".format(TIMEOUT_IN_SECS))
+
+    except Exception as e:
+      print(str(e))
+      return ""
+
 
   def IsSnapshotSaved(self):
-    return True if os.path.exists(FullPathForSnapshotOfBill(self.courier.bill)) else False
+    return True if os.path.exists(FullPathForPODofBill(self.courier.bill)) else False
 
 
 
@@ -70,11 +86,13 @@ class DummyCourier():
   def GetStatus(self):
     return "Dummy Courier is delivered" #This status should have the word delivered
 
-  def StoreSnapshot(self):
+  def StoreDeliveryProof(self):
     return None
 
   def IsSnapshotSaved(self):
     return True
+
+
 
 class TrackonCourier():
   def __init__(self, shipment, bill):
@@ -119,8 +137,8 @@ class TrackonCourier():
     s.feed(html)
     return s.get_data()
 
-  def StoreSnapshot(self):
-    StoreSnapshotWithPhantomScript(self.bill, "courier\\trackon_snapshot.js", self.FORM_DATA, self.reqUrl)
+  def StoreDeliveryProof(self):
+    StoreDeliveryProofWithPhantomScript(self.bill, "courier\\trackon_snapshot.js", self.FORM_DATA, self.reqUrl)
 
 class ProfessionalCourier():
   def __init__(self, shipment, bill):
@@ -150,8 +168,8 @@ class ProfessionalCourier():
     else:
       raise Exception("Cannot parse ProfessionalCourier response for bill: {}".format(self.bill))
 
-  def StoreSnapshot(self):
-    StoreSnapshotWithPhantomScript(self.bill, "courier\\professional_snapshot.js", self.FORM_DATA, self.reqUrl)
+  def StoreDeliveryProof(self):
+    StoreDeliveryProofWithPhantomScript(self.bill, "courier\\professional_snapshot.js", self.FORM_DATA, self.reqUrl)
 
 class NitcoTransport():
   def __init__(self, shipment, bill):
@@ -181,8 +199,8 @@ class NitcoTransport():
     else:
       raise Exception("Exception: Cannot parse Nitco response for bill: {}".format(self.bill))
 
-  def StoreSnapshot(self):
-    StoreSnapshotWithPhantomScript(self.bill, "courier\\nitco.js", self.FORM_DATA, self.reqUrl)
+  def StoreDeliveryProof(self):
+    StoreDeliveryProofWithPhantomScript(self.bill, "courier\\nitco.js", self.FORM_DATA, self.reqUrl)
 
 class VRLLogistics():
   def __init__(self, shipment, bill):
@@ -210,8 +228,8 @@ class VRLLogistics():
     else:
       raise Exception("Exception: Cannot parse vrl response for : {}".format(self.bill))
 
-  def StoreSnapshot(self):
-    StoreSnapshotWithPhantomScript(self.bill, "courier\\vrl_snapshot.js", self.FORM_DATA, self.reqUrl)
+  def StoreDeliveryProof(self):
+    StoreDeliveryProofWithPhantomScript(self.bill, "courier\\vrl_snapshot.js", self.FORM_DATA, self.reqUrl)
 
 
 class LaljiMuljiTransport():
@@ -246,8 +264,8 @@ class LaljiMuljiTransport():
             status += x
     return status
 
-  def StoreSnapshot(self):
-    StoreSnapshotWithPhantomScript(self.bill, "courier\\laljimulji_snapshot.js", self.FORM_DATA, "http://lmtco.com/")
+  def StoreDeliveryProof(self):
+    StoreDeliveryProofWithPhantomScript(self.bill, "courier\\laljimulji_snapshot.js", self.FORM_DATA, "http://lmtco.com/")
 
 
 class FirstFlightCourier():
@@ -292,8 +310,8 @@ class FirstFlightCourier():
 
     raise Exception("Cannot parse firstflight response for bill: {}".format(self.bill))
 
-  def StoreSnapshot(self):
-    StoreSnapshotWithPhantomScript(self.bill, "courier\\firstflight_snapshot.js", self.FORM_DATA, self.reqUrl)
+  def StoreDeliveryProof(self):
+    StoreDeliveryProofWithPhantomScript(self.bill, "courier\\firstflight_snapshot.js", self.FORM_DATA, self.reqUrl)
 
 class BluedartCourier():
   def __init__(self, shipment, bill):
@@ -331,8 +349,8 @@ class BluedartCourier():
 
     raise Exception("Cannot parse bluedart response for bill: {}".format(self.bill))
 
-  def StoreSnapshot(self):
-    StoreSnapshotWithPhantomScript(self.bill, "courier\\bluedart_snapshot.js", self.FORM_DATA, self.reqUrl)
+  def StoreDeliveryProof(self):
+    StoreDeliveryProofWithPhantomScript(self.bill, "courier\\bluedart_snapshot.js", self.FORM_DATA, self.reqUrl)
 
 
 class OverniteCourier():
@@ -364,8 +382,8 @@ class OverniteCourier():
     else:
       raise Exception("Cannot parse overnite response for bill: {}".format(self.bill))
 
-  def StoreSnapshot(self):
-    StoreSnapshotWithPhantomScript(self.bill, "courier\\overnite_snapshot.js", self.FORM_DATA, self.reqUrl)
+  def StoreDeliveryProof(self):
+    StoreDeliveryProofWithPhantomScript(self.bill, "courier\\overnite_snapshot.js", self.FORM_DATA, self.reqUrl)
 
 from fedex import FedExCourier
 
