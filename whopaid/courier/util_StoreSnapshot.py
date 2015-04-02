@@ -31,7 +31,7 @@ def FullPathForPODofBill(b):
   return fullPath
 
 def FullPathForEDDProofForBill(b, estimatedDateObj):
-  fileName = _EDDProofFileNameForBill(b)
+  fileName = _EDDProofFileNameForBill(b, estimatedDateObj)
   fullPath = os.path.normpath(os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "EstimatedDeliveryDateRelPath"),fileName))
   return fullPath
 
