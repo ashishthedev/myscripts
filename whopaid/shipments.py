@@ -854,6 +854,14 @@ def GenerateShipmentJsonNodes(days):
   return
 
 
+def ChangeCompName(fr, to):
+  ps = PersistentShipments()
+  for s in ps.GetAllStoredShipments():
+    if s.bill.compName == fr:
+      s.bill.compName = to
+      s.save()
+  return
+
 if __name__ == '__main__':
   args = ParseOptions()
 

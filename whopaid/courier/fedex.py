@@ -61,9 +61,12 @@ class FedExCourier():
     return None
 
   def SendDeliveryDaysMsgToOwners(self):
+    print("About to send delivery msg to owners for docket: {}".format(self.bill.docketNumber))
     if not self.shipment.GetEDD():
+      print("No EDD present for {}".format(self.bill.docketNumber))
       return
     if not hasattr(self.shipment, 'actualDeliveryDate'):
+      print("No ADD present for {}".format(self.bill.docketNumber))
       return
 
     estimatedDateObj = ParseDateFromString(self.shipment.GetEDD())
@@ -72,14 +75,17 @@ class FedExCourier():
     if actualDelDateObj < estimatedDateObj:
       days = (estimatedDateObj - actualDelDateObj).days
       smsContents = "FedEx early delivery : {days} days earlier for:\n{compName}\nEstimated: {estDate}\nAcutal:{actDate}\nDocket: {dn}".format(days=days,compName=self.bill.compName,estDate=DD_MMM_YYYY(estimatedDateObj),actDate=DD_MMM_YYYY(actualDelDateObj), dn=self.bill.docketNumber)
+      print(smsContents)
 
     elif actualDelDateObj == estimatedDateObj:
       days = (actualDelDateObj - estimatedDateObj).days
       smsContents = "FedEx delivered on exact estimated date for:\n{compName}\nEstimated: {estDate}\nAcutal:{actDate}\nDocket: {dn}".format(days=days,compName=self.bill.compName,estDate=DD_MMM_YYYY(estimatedDateObj),actDate=DD_MMM_YYYY(actualDelDateObj), dn=self.bill.docketNumber)
+      print(smsContents)
 
     else:
       delay = (actualDelDateObj - estimatedDateObj).days
       smsContents = "FedEx Late Delivery : {delayDays} days late for:\n{compName}\nEstimated: {estDate}\nAcutal:{actDate}\nDocket: {dn}".format(delayDays=delay, compName=self.bill.compName,estDate=DD_MMM_YYYY(estimatedDateObj),actDate=DD_MMM_YYYY(actualDelDateObj), dn=self.bill.docketNumber)
+      print(smsContents)
 
       emailSubject = "FedEx Late Delivery: {}".format(self.bill.compName)
       toMailList = [k[::-1] for k in GetOption("SMS_SECTION", "DelayedDeliveryReportMailIdsR").split(",") if k.strip()]
