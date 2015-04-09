@@ -361,14 +361,13 @@ noremap <silent> <leader>sms :python InvokeSendSmsFromVim()<CR>
 "Use space in normal mode to search. Awesome!
 noremap <Space> /
 "Use control space to open another file in same dir. A explorer will be shown. Killer!
-noremap <c-Space> :Tex<CR>
 noremap <leader>t :Tex<CR>
 
 "Use '-' to switch between splited windows.
 noremap - <c-w>w <CR> <bar> :set winheight=998<CR>
 "Use '-' to switch between splited windows.
-noremap <S--> gT
-noremap - gt
+noremap <c-Space> gt
+noremap - gT
 
 
 :execute "noremap ,torc   :e b:\\Tools\\tor\\Data\\Tor\\torrc<CR>"

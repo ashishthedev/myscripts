@@ -74,6 +74,8 @@ class Courier():
 
 
   def IsSnapshotSaved(self):
+    if isinstance(self.courier, DummyCourier):
+      return True
     return True if os.path.exists(FullPathForPODofBill(self.courier.bill)) else False
 
 
