@@ -441,7 +441,7 @@ inoremap <C-L> <C-R>="__________________________________________________________
 set cursorline
 if has("gui_running")
     "set guifont=Source_Code_Pro:h11:cANSI "Install this font if not present from sourceforge
-    set guifont=Consolas:h14
+    set guifont=Consolas:h13
     set mousehide
     set columns=180
     set lines=100
@@ -637,12 +637,60 @@ autocmd BufEnter,BufRead,BufWritePost,BufWinEnter,BufReadPre,BufNewFile *.go cal
 function! GoSettings()
     setlocal noexpandtab
     setlocal nolist
-    setlocal listchars=tab:\|\ 
+    "setlocal listchars=tab:\|\ 
+    setlocal listchars=tab:>-,trail:-
     set textwidth=0
     set fileformat=unix
     "setlocal listchars=tab:--,trail:-,eol:<
     "setlocal listchars=tab:\|\ ,
+  nmap <F8> :TagbarToggle<CR>
+  "http://majutsushi.github.io/tagbar/
+
+    au FileType go nmap <Leader>gb <Plug>(go-doc-browser)
+  au FileType go nmap <Leader>gv <Plug>(go-doc-vertical)
+  au FileType go nmap <Leader>gd <Plug>(go-doc)
+  au FileType go nmap <Leader>i <Plug>(go-info)
+  au FileType go nmap <Leader>s <Plug>(go-implements)
+  au FileType go nmap <leader>r <Plug>(go-run)
+  au FileType go nmap <leader>b <Plug>(go-build)
+  au FileType go nmap <leader>est <Plug>(go-test)
+  au FileType go nmap <leader>c <Plug>(go-coverage)
+  au FileType go nmap <Leader>ds <Plug>(go-def-split)
+  au FileType go nmap <Leader>dv <Plug>(go-def-vertical)
+  au FileType go nmap <Leader>dt <Plug>(go-def-tab)
+  au FileType go nmap <Leader>e <Plug>(go-rename)
+  let g:go_highlight_functions = 1
+  let g:go_highlight_methods = 1
+  let g:go_highlight_structs = 1
+  let g:tagbar_type_go = {
+      \ 'ctagstype' : 'go',
+      \ 'kinds'     : [
+          \ 'p:package',
+          \ 'i:imports:1',
+          \ 'c:constants',
+          \ 'v:variables',
+          \ 't:types',
+          \ 'n:interfaces',
+          \ 'w:fields',
+          \ 'e:embedded',
+          \ 'm:methods',
+          \ 'r:constructor',
+          \ 'f:functions'
+      \ ],
+      \ 'sro' : '.',
+      \ 'kind2scope' : {
+          \ 't' : 'ctype',
+          \ 'n' : 'ntype'
+      \ },
+      \ 'scope2kind' : {
+          \ 'ctype' : 't',
+          \ 'ntype' : 'n'
+      \ },
+      \ 'ctagsbin'  : 'gotags',
+      \ 'ctagsargs' : '-sort -silent'
+  \ }
 endfunction
+
 
 autocmd BufRead,BufWritePost *.txt call DistractionFreeWriting()
 function! DistractionFreeWriting()

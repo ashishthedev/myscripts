@@ -14,7 +14,7 @@ set XDATDOCSDIR=%APPDIR%\SDATDocs
 set PHUNGSUKDIR="%APPDIR%"\phungsuk_jibabo\detect_change_app
 set RELATIVEPATH=code\bin\alias.txt
 set TCL_LIBRARY=b:\Python27\tcl\tcl8.5\
-set GOPATH=%APPDIR%\goscripts
+REM set GOPATH=%APPDIR%\goscripts
 
 doskey /MACROFILE="%XDATDOCSDIR%\%RELATIVEPATH%"
 set PYTHONDONTWRITEBYTECODE=1
