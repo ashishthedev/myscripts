@@ -72,21 +72,21 @@ class FedExCourier():
     estimatedDateObj = ParseDateFromString(self.shipment.GetEDD())
     actualDelDateObj = ParseDateFromString(self.shipment.actualDeliveryDate)
     smsNoList = [x[::-1] for x in GetOption("SMS_SECTION", "DelayedDeliveryReportSMSR").split(",") if x.strip()]
-    if actualDelDateObj < estimatedDateObj:
-      days = (estimatedDateObj - actualDelDateObj).days
-      smsContents = "FedEx early delivery : {days} days earlier for:\n{compName}\nEstimated: {estDate}\nAcutal:{actDate}\nDocket: {dn}".format(days=days,compName=self.bill.compName,estDate=DD_MMM_YYYY(estimatedDateObj),actDate=DD_MMM_YYYY(actualDelDateObj), dn=self.bill.docketNumber)
-      print(smsContents)
+    delay = (estimatedDateObj - actualDelDateObj).days
+    if delay < 0:
+      smsContents = "FedEx early delivery : {delay} days earlier for:\n{compName}\nEstimated: {estDate}\nAcutal:{actDate}\nDocket: {dn}".format(delay=-1*delay,compName=self.bill.compName,estDate=DD_MMM_YYYY(estimatedDateObj),actDate=DD_MMM_YYYY(actualDelDateObj), dn=self.bill.docketNumber)
 
-    elif actualDelDateObj == estimatedDateObj:
-      days = (actualDelDateObj - estimatedDateObj).days
-      smsContents = "FedEx delivered on exact estimated date for:\n{compName}\nEstimated: {estDate}\nAcutal:{actDate}\nDocket: {dn}".format(days=days,compName=self.bill.compName,estDate=DD_MMM_YYYY(estimatedDateObj),actDate=DD_MMM_YYYY(actualDelDateObj), dn=self.bill.docketNumber)
-      print(smsContents)
+    elif delay == 0:
+      smsContents = "FedEx delivered on exact estimated date for:\n{compName}\nEstimated: {estDate}\nAcutal:{actDate}\nDocket: {dn}".format(compName=self.bill.compName,estDate=DD_MMM_YYYY(estimatedDateObj),actDate=DD_MMM_YYYY(actualDelDateObj), dn=self.bill.docketNumber)
 
     else:
-      delay = (actualDelDateObj - estimatedDateObj).days
-      smsContents = "FedEx Late Delivery : {delayDays} days late for:\n{compName}\nEstimated: {estDate}\nAcutal:{actDate}\nDocket: {dn}".format(delayDays=delay, compName=self.bill.compName,estDate=DD_MMM_YYYY(estimatedDateObj),actDate=DD_MMM_YYYY(actualDelDateObj), dn=self.bill.docketNumber)
-      print(smsContents)
+      smsContents = "FedEx Late Delivery : {delay} days late for:\n{compName}\nEstimated: {estDate}\nAcutal:{actDate}\nDocket: {dn}".format(days=delay, compName=self.bill.compName,estDate=DD_MMM_YYYY(estimatedDateObj),actDate=DD_MMM_YYYY(actualDelDateObj), dn=self.bill.docketNumber)
 
+    for x in smsNoList:
+      SendSms(x, smsContents)
+      print("Sending sms to {}\n{}".format(x,smsContents))
+
+    if delay>0:
       emailSubject = "FedEx Late Delivery: {}".format(self.bill.compName)
       toMailList = [k[::-1] for k in GetOption("SMS_SECTION", "DelayedDeliveryReportMailIdsR").split(",") if k.strip()]
       ccMailList = None
@@ -101,18 +101,11 @@ class FedExCourier():
           textType="html",
           fromDisplayName = "FedEx Late Delivery")
 
-    debugMsg = True
-    if debugMsg:
-      PrintInBox(smsContents)
-
-    for x in smsNoList:
-      SendSms(x, smsContents)
     return
 
 
   def StoreDeliveryProof(self):
-    if self.shipment.isDelivered:
-      self.SendDeliveryDaysMsgToOwners()
+    self.SendDeliveryDaysMsgToOwners()
     snapshotUrl = """https://www.fedex.com/apps/fedextrack/?tracknumbers={docket}&cntry_code=in""".format(docket=self.bill.docketNumber)
     StoreDeliveryProofWithPhantomScript(self.bill, "courier\\fedex_snapshot.js", self.FORM_DATA, snapshotUrl)
     return
