@@ -7,18 +7,20 @@
 ###############################################################################
 
 from Util.Config import GetOption
+from Util.Colors import MyColors
+from Util.HTML import UnderLine, Bold, PastelOrangeText, TableHeaderRow, TableDataRow
 from Util.Decorators import timeThisFunction
 from Util.Exception import MyException
-from Util.Misc import ParseDateFromString, PrintInBox, OpenFileForViewing, MakeSureDirExists
+from Util.Misc import ParseDateFromString, PrintInBox, OpenFileForViewing, MakeSureDirExists, DD_MMM_YYYY
 from Util.PythonMail import SendMail
 
 from whopaid.customers_info import GetAllCustomersInfo
 from whopaid.sanity_checks import CheckConsistency
-from whopaid.util_formc import QuarterlyClubbedFORMC
 from whopaid.util_whopaid import GetAllCompaniesDict, SelectBillsAfterDate,\
         SelectBillsBeforeDate, GuessCompanyName, RemoveTrackingBills, RemoveGRBills
 
 
+from string import Template
 import argparse
 import datetime
 import os
@@ -63,13 +65,8 @@ def ParseArguments():
             "will be sent. This option will override email option.")
 
     p.add_argument("-sd", "--start-date", dest='sdate', metavar="Start-date",
-            required=False, default=None, type=str,
-            help="Starting Date for FORM-C requests.")
-
-    p.add_argument("-ed", "--end-date", dest='edate', metavar="End-date",
-            required=False, type=str, default=str(datetime.date.today()),
-            help="End Date for Form-C Requests. If ommitted Form-C till date "
-            "will be asked for")
+            required=True, default=None, type=str,
+            help="Starting Date for yearly statement requests.")
 
     args = p.parse_args()
     return args
@@ -77,16 +74,16 @@ def ParseArguments():
 
 @timeThisFunction
 def main():
-    args = ParseArguments()
-    print("Churning data...")
+  args = ParseArguments()
+  print("Churning data...")
 
-    chosenComp = GuessCompanyName(args.comp)
-    SendFORMCMailToCompany(chosenComp, args)
-    SendFORMCSMSToCompany(chosenComp, args)
-    CheckConsistency()
+  chosenComp = GuessCompanyName(args.comp)
+  SendYearlyStatementMailToCompany(chosenComp, args)
+  SendYearlyStatementSMSToCompany(chosenComp, args)
 
 
 def ShouldSendEmail(args):
+  PrintInBox("Remove this"); return False
   return False if args.isDemo else args.sendEmail
 
 def ShouldSendSMS(args):
@@ -94,11 +91,11 @@ def ShouldSendSMS(args):
 
 
 
-def SendFORMCSMSToCompany(compName, args):
+def SendYearlyStatementSMSToCompany(compName, args):
   if ShouldSendSMS(args):
     from whopaid.off_comm import SendOfficialSMSAndMarkCC
     SendOfficialSMSAndMarkCC(compName, """Dear Sir,
-Kindly issue the FORM-C. The details have been sent to your email address.
+This is to inform you that the accounts statement has been emailed to your account just now.
 Thanks.
 """)
   else:
@@ -106,77 +103,231 @@ Thanks.
   return
 
 
-def SendFORMCMailToCompany(compName, args):
-    billList = GetAllCompaniesDict().GetBillsListForThisCompany(compName)
-    if not billList:
-      raise MyException("\nM/s {} has no bills".format(compName))
+def SendYearlyStatementMailToCompany(compName, args):
+  sdate = ParseDateFromString(args.sdate)
+  if sdate.day != 1 or sdate.month != 4:
+    raise MyException("Starting date should of format 1AprYYYY. Currently it is {}".format(sdate))
 
-    #TODO: Remove args and take separate params
-    sdate = args.sdate or min([b.invoiceDate for b in billList if not b.formCReceivingDate])
-    edate = args.edate or max([b.invoiceDate for b in billList if not b.formCReceivingDate])
+  sdateObject = ParseDateFromString(sdate)  # Start Date Object
+  edateObject = sdateObject + datetime.timedelta(days=365)
+  edateObject = datetime.date(sdateObject.year+1, 3, 31)
 
-    sdateObject = ParseDateFromString(sdate)  # Start Date Object
-    edateObject = ParseDateFromString(edate)  # End Date Object
+  companyOfficialName = GetAllCustomersInfo().GetCompanyOfficialName(compName)
 
-    FORMCBillList = SelectBillsAfterDate(billList, sdateObject)
-    FORMCBillList = SelectBillsBeforeDate(FORMCBillList, edateObject)
-    FORMCBillList = RemoveTrackingBills(FORMCBillList)
-    FORMCBillList = RemoveGRBills(FORMCBillList)
+  if ShouldSendEmail(args):
+    mailBody = GenerateYearlyStatementMailContent(args, compName, sdateObject, edateObject)
+    print("Sending mail...")
+    #First prefrence to FormCEmails. If not present use payment emails.
+    toMailList = GetAllCustomersInfo().GetFormCEmailAsListForCustomer(compName) or GetAllCustomersInfo().GetPaymentReminderEmailAsListForCustomer(compName)
+    if not toMailList:
+      raise  Exception("\nNo mail feeded. Please insert a proper email in 'Cust' sheet of 'Bills.xlsx'")
+
+    print("Sending to: " + str(toMailList))
 
 
-    if not FORMCBillList:
-        raise MyException("\nM/s {} has no FORM-C due".format(compName))
+    section = "EMAIL_REMINDER_SECTION"
+    requestingCompanyName = GetOption("CONFIG_SECTION", 'CompName')
+    emailSubject = "Statement from {} to {} - M/s {} - from M/s {}".format(DD_MMM_YYYY(sdateObject), DD_MMM_YYYY(edateObject), companyOfficialName, requestingCompanyName)
+    SendMail(emailSubject=emailSubject,
+        zfilename=None,
+        SMTP_SERVER=GetOption(section, 'Server'),
+        SMTP_PORT=GetOption(section, 'Port'),
+        FROM_EMAIL=GetOption(section, 'FromEmailAddress'),
+        TO_EMAIL_LIST=toMailList,
+        CC_EMAIL_LIST=GetOption(section, 'CCEmailList').split(','),
+        BCC_EMAIL_LIST=GetOption(section, 'BCCEmailList').split(','),
+        MPASS=GetOption(section, 'Mpass'),
+        BODYTEXT=mailBody,
+        textType="html",
+        fromDisplayName = GetOption(section, "formCRequest")
+        )
+  else:
+    mailBody = GenerateYearlyStatementMailContent(args, compName, sdateObject, edateObject)
+    #Save to an html file
 
-    FORMCBillList = [b for b in FORMCBillList if not b.formCReceivingDate]
+    MakeSureDirExists(DEST_FOLDER)
+    filePath = os.path.join(DEST_FOLDER, companyOfficialName+DD_MMM_YYYY(sdateObject)) + ".html"
+    print("Saving statement of a/c to local file: " + filePath)
 
-    formC = QuarterlyClubbedFORMC(FORMCBillList)
-    companyOfficialName = GetAllCustomersInfo().GetCompanyOfficialName(compName)
-    if not companyOfficialName:
-        raise MyException("\nM/s {} doesnt have a displayable 'name'. Please feed it in the database".format(compName))
+    with open(filePath, "w") as f:
+      f.write(mailBody)
 
-    if ShouldSendEmail(args):
-        mailBody = formC.GenerateFORMCMailContent(args)
-        print("Sending mail...")
-        #First prefrence to FormCEmails. If not present use payment emails.
-        toMailList = GetAllCustomersInfo().GetFormCEmailAsListForCustomer(compName) or GetAllCustomersInfo().GetPaymentReminderEmailAsListForCustomer(compName)
-        if not toMailList:
-            raise  Exception("\nNo mail feeded. Please insert a proper email in 'Cust' sheet of 'Bills.xlsx'")
+    if args.open: OpenFileForViewing(filePath)
+  return
 
-        print("Sending to: " + str(toMailList))
+def GenerateYearlyStatementMailContent(args, compName, sdateObject, edateObject):
+  letterDate = datetime.date.today().strftime("%A, %d-%b-%Y")
 
-        section = "EMAIL_REMINDER_SECTION"
-        requestingCompanyName = GetOption("CONFIG_SECTION", 'CompName')
-        emailSubject = "FORM-C request - M/s {} - from M/s {}".format(companyOfficialName, requestingCompanyName)
-        SendMail(emailSubject=emailSubject,
-                zfilename=None,
-                SMTP_SERVER=GetOption(section, 'Server'),
-                SMTP_PORT=GetOption(section, 'Port'),
-                FROM_EMAIL=GetOption(section, 'FromEmailAddress'),
-                TO_EMAIL_LIST=toMailList,
-                CC_EMAIL_LIST=GetOption(section, 'CCEmailList').split(','),
-                BCC_EMAIL_LIST=GetOption(section, 'BCCEmailList').split(','),
-                MPASS=GetOption(section, 'Mpass'),
-                BODYTEXT=mailBody,
-                textType="html",
-                fromDisplayName = GetOption(section, "formCRequest")
-                )
-    else:
-        fileHTMLContent = formC.GenerateFORMCMailContent(args)
-        #Save to an html file
+  companyCity = GetAllCustomersInfo().GetCustomerCity(compName)
+  if not companyCity:
+    raise MyException("\nM/s {} doesnt have a displayable 'city'. Please feed it in the database".format(compName))
 
-        MakeSureDirExists(DEST_FOLDER)
-        filePath = os.path.join(DEST_FOLDER, companyOfficialName) + ".html"
-        print("Saving FORM-C to local file: " + filePath)
+  d = dict()
+  if args.letterHead:
+      d['topMargin'] = "8.0cm"
+  else:
+      d['topMargin'] = "0cm"
 
-        with open(filePath, "w") as f:
-            f.write(fileHTMLContent)
+  if args.kindAttentionPerson:
+      d['tOptPerson'] = UnderLine(Bold("<br>Kind attention: " + args.kindAttentionPerson + "<br>"))
+  else:
+      d['tOptPerson'] = ""
 
-        if args.open: OpenFileForViewing(filePath)
-    return
+  if args.additional_line:
+      d['tOptAdditionalLine'] = args.additional_line + "<br><br>" #<br><br> will add a new line.
+  else:
+      d['tOptAdditionalLine'] = ""
+
+  companyOfficialName = GetAllCustomersInfo().GetCompanyOfficialName(compName)
+  d['tTable'] = GetHTMLStatementTable(compName, sdateObject, edateObject)
+  d['tLetterDate'] = letterDate
+  d['tCompanyName'] = Bold("M/s " + companyOfficialName)
+  d['tCompanyCity'] = companyCity
+  d['tSignature'] = GetOption("ACCOUNTS_SECTION", "Signature")
+  requestingCompanyTinNo = GetOption("CONFIG_SECTION", "TinNo")
+  d['tBodySubject'] = PastelOrangeText(Bold(UnderLine("Subject: Statement of accounts from {} to {}".format(DD_MMM_YYYY(sdateObject), DD_MMM_YYYY(edateObject), requestingCompanyTinNo))))
+
+  htmlTemplate = Template(
+      """
+      <HTML>
+      <HEAD>
+      <style type="text/css">
+          BODY
+          {
+              margin-top: $topMargin
+          }
+      </style>
+      </HEAD>
+      <BODY>
+      $tLetterDate<br>
+      <br>
+      To,<br>
+      $tCompanyName,<br>
+      $tCompanyCity.<br>
+      <br>
+      $tBodySubject<br>
+      $tOptPerson
+      <br>
+      Dear Sir,<br>
+      <br>
+
+      $tOptAdditionalLine
+
+      Please find below for your kind reference the statement of accounts for aforementioned period.
+      <br>
+      <br>
+      <br>
+      $tTable
+      <br>
+      <br>
+      Please let us know if you have any queries.<br>
+      <br>
+      Thanks.
+      <hr>
+      $tSignature
+      </BODY>
+      </HTML>
+      """)
+  html = htmlTemplate.substitute(d)
+
+  return html
+
+def GetHTMLStatementTable(compName, sdateObject, edateObject):
+  #1. Fetch opening Balance
+  allCompaniesDict = GetAllCompaniesDict()
+  openingBalanceList = allCompaniesDict.GetOpeningBalanceListForCompany(compName)
+  if not openingBalanceList:
+    raise MyException("\nM/s {} has no opening balance".format(compName))
+
+  obe = None
+  for x in openingBalanceList:
+    if x.openingBalanceDate == sdateObject:
+      obe = x
+      obe.interestingDate = obe.openingBalanceDate
+      obe.particulars = "Opening Balance"
+      obe.interestingAmount = int(x.amount)
+      if obe.interestingAmount > 0:
+        obe.creditAmount = ""
+        obe.debitAmount = "&#8377; {}".format(obe.interestingAmount)
+      else:
+        obe.creditAmount = "&#8377; {}".format(-1*obe.interestingAmount)
+        obe.debitAmount = ""
+
+  if obe == None:
+    raise MyException("\nM/s {} has no opening balance for {}".format(compName, DD_MMM_YYYY(sdateObject)))
+
+  #2. Find Bills List
+  billList = allCompaniesDict.GetBillsListForThisCompany(compName)
+  if not billList:
+    raise MyException("\nM/s {} has no bills".format(compName))
+
+  billList = SelectBillsAfterDate(billList, sdateObject)
+  billList = SelectBillsBeforeDate(billList, edateObject)
+  billList = RemoveTrackingBills(billList)
+  billList = RemoveGRBills(billList)
+
+  for b in billList:
+    b.interestingDate = b.invoiceDate
+    b.particulars = "Invoice# {}".format(str(int(b.billNumber)))
+    b.interestingAmount = int(b.amount)
+    b.debitAmount = "&#8377; {}".format(b.interestingAmount)
+    b.creditAmount = ""
+
+  #3. Find Payments list
+  paymentList = allCompaniesDict.GetPaymentsListForThisCompany(compName)
+  paymentList = [p for p in paymentList if p.pmtDate >= sdateObject]
+  paymentList = [p for p in paymentList if p.pmtDate <= edateObject]
+
+  for p in paymentList:
+    p.interestingDate = p.pmtDate
+    p.particulars = "Ch# {}".format(p.chequeNumber)
+    p.interestingAmount = int(-1 * p.amount)
+    p.creditAmount = "&#8377; {}".format(int(p.amount))
+    p.debitAmount = ""
+
+  if not billList and not paymentList:
+    raise MyException("\nM/s {} has neither bill nor payment in said period".format(compName))
+
+  #4. Mash them up in a table.
+  allCustInfo = GetAllCustomersInfo()
+  companyOfficialName = allCustInfo.GetCompanyOfficialName(compName)
+  if not companyOfficialName:
+    raise MyException("\nM/s {} doesnt have a displayable 'name'. Please feed it in the database".format(compName))
+
+  totalList = []
+  totalList.append(obe)
+  totalList.extend(billList)
+  totalList.extend(paymentList)
+
+  totalList = sorted(totalList, key=lambda x:x.interestingDate)
+
+  tableRows = TableHeaderRow(
+      MyColors["BLACK"],
+      MyColors["SOLARIZED_GREY"],
+     "Date", "Particulars", "Debit", "Credit")
+
+  for x in totalList:
+    tableRows += TableDataRow(
+      MyColors["BLACK"],
+      MyColors["WHITE"],
+        DD_MMM_YYYY(x.interestingDate), x.particulars, x.debitAmount, x.creditAmount)
+
+  closingBalance = 0
+  for x in totalList:
+    closingBalance += x.interestingAmount
+  tableRows += "<tr><td colspan='3'>Closing Balance</td><b><td>&#8377; {}</td></b>".format(closingBalance)
+
+  PrintInBox("Add caption")
+  return """
+<TABLE border="1" cellpadding=5>
+{}
+</TABLE>
+  """.format(tableRows)
 
 
 if __name__ == '__main__':
-    try:
-        main()
-    except MyException as ex:
-        PrintInBox(str(ex))
+  CheckConsistency()
+  try:
+    main()
+  except MyException as ex:
+    PrintInBox(str(ex))

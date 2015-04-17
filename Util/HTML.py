@@ -94,3 +94,39 @@ def TableDataRow(fgClr, bgClr, *tds):
     for eachTableData in tds:
         res += td(FontClr(eachTableData, fgClr))
     return trWithThisBackground(res, bgClr)
+
+
+
+def MakeTableWithTableHeaderAndTableData(tableHeaderList, tableRowsDataList, finalRowAsString):
+  """Wraps a boilerplate HTML for table around given data"""
+  d = dict()
+  tableDataString = ""
+  for row in tableRowsDataList:
+    rowString = ""
+    for cell in row:
+      rowString += "<td>{}</td>".format(cell)
+    tableDataString += "<tr>" + rowString + "</tr>"
+
+  d['tTableData'] = tableDataString
+  d['tFinalRow'] = finalRowAsString
+  #Change all the multiple choices to a single final choice
+  d['headerBackgroundColor'] = MyColors["SOLARIZED_GREY"]
+  d['fontColor'] = MyColors["BLACK"]
+  tableHeaderString = ""
+  for x in tableHeaderList:
+      tableHeaderString += "<th>{}</th>".format(x)
+  d['tTableHeader'] = tableHeaderString
+  from string import Template
+  html = Template("""
+<TABLE border="1" cellpadding=5>
+<thead>
+<tr style="background-color:$headerBackgroundColor; color:$fontColor">
+$tTableHeader
+</tr>
+</thead>
+$tTableData
+$tFinalRow
+</TABLE>
+  """)
+  return html.substitute(d)
+

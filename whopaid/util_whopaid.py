@@ -40,6 +40,7 @@ class CompaniesDict(dict):#TODO: Name it as DB
         self[KIND.ADJUSTMENT] = dict()
         self[KIND.ORDER] = dict()
         self[KIND.PUNTED_ORDER] = dict()
+        self[KIND.OPENING_BALANCE] = dict()
 
 
     def _AddEntry(self, typ, r):
@@ -68,6 +69,9 @@ class CompaniesDict(dict):#TODO: Name it as DB
     def AddOrder(self, o):
         self._AddEntry(KIND.ORDER, o)
 
+    def AddOpeningBalance(self, o):
+        self._AddEntry(KIND.OPENING_BALANCE, o)
+
 
     @memoize
     def GetAllBillsOfAllCompaniesAsDict(self):
@@ -81,6 +85,9 @@ class CompaniesDict(dict):#TODO: Name it as DB
 
     def GetAllOrdersOfAllCompaniesAsDict(self):
         return self[KIND.ORDER]
+
+    def GetAllOpeningBalancesOfAllCompaniesAsDict(self):
+        return self[KIND.OPENING_BALANCE]
 
 
     def GetBillsListForThisCompany(self, compName):
@@ -96,6 +103,9 @@ class CompaniesDict(dict):#TODO: Name it as DB
     def GetOrdersListForCompany(self, compName):
         return self.GetAllOrdersOfAllCompaniesAsDict().get(compName, [])
 
+    def GetOpeningBalanceListForCompany(self, compName):
+        return self.GetAllOpeningBalancesOfAllCompaniesAsDict().get(compName, [])
+
 
 @memoize
 def GetAllCompaniesDict():
@@ -110,11 +120,12 @@ def GetAllCompaniesDict():
   return
 
 class KIND(object):
-  BILL         = 1
-  PAYMENT      = 2
-  ADJUSTMENT   = 3
-  ORDER        = 4
-  PUNTED_ORDER = 5
+  BILL            = 1
+  PAYMENT         = 2
+  ADJUSTMENT      = 3
+  ORDER           = 4
+  PUNTED_ORDER    = 5
+  OPENING_BALANCE = 6
 
 def _GuessKindFromValue(val):
   if val:
@@ -124,6 +135,7 @@ def _GuessKindFromValue(val):
     elif val == "adjustment": return KIND.ADJUSTMENT
     elif val == "order": return KIND.ORDER
     elif val == "punted": return KIND.PUNTED_ORDER
+    elif val == "openingbalance": return KIND.OPENING_BALANCE
   return None
 
 def GuessKindFromRow(row):
@@ -224,6 +236,8 @@ class _AllCompaniesDict(CompaniesDict):
         self.AddOrder(CreateSingleOrderRow(row))
       elif kind == KIND.PUNTED_ORDER:
         pass #DO NOT DO ANYTHING FOR PUNTED ORDERS
+      elif kind == KIND.OPENING_BALANCE:
+        self.AddOpeningBalance(CreateOpeningBalanceRow(row))
       else:
         firstCell = row[0]
         raise MyException("Error in row number: {} Kind of entry is invalid".format(firstCell.row))
@@ -290,6 +304,14 @@ class SingleOrderRow(SingleRow):
                 dt = DD_MM_YYYY(self.orderDate),
                 cn = self.compName,
                 md = self.materialDesc
+                )
+
+class SingleOpeningBalanceRow(SingleRow):
+    def __str__(self):
+        return "OPENING_BALANCE: {cn:}\n{dt}\n{amt} ".format(
+                dt  = DD_MM_YYYY(self.orderDate),
+                cn  = self.compName,
+                amt = self.amount
                 )
 
 
@@ -437,6 +459,26 @@ def CreateSingleOrderRow(row):
       r.orderDate = ParseDateFromString(val)
     elif col == SheetCols.InstrumentNumberCol:
       r.orderNumber = val or "--"
+  return r
+
+def CreateOpeningBalanceRow(row):
+  r = SingleOpeningBalanceRow()
+  for cell in row:
+    col = cell.column
+    val = GetCellValue(cell)
+
+    if col == SheetCols.CompanyFriendlyNameCol:
+      if not val: raise MyException("Row: {} seems empty. Please fix the database".format(cell.row))
+      r.compName = val
+    elif col == SheetCols.KindOfEntery:
+      if not val: raise MyException("Kind of entry in row: {} seems empty. Please fix the database".format(cell.row))
+      r.kindOfEntery = val
+    elif col == SheetCols.InstrumentDateCol:
+      if not val: raise MyException("Date in row: {} seems empty. Please fix the database".format(cell.row))
+      r.openingBalanceDate = ParseDateFromString(val)
+    elif col == SheetCols.InvoiceAmount:
+      if not val: raise MyException("Amount in row: {} seems empty. Please fix the database".format(cell.row))
+      r.amount = val
   return r
 
 def CreateSingleAdjustmentRow(row):

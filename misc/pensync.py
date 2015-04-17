@@ -48,10 +48,13 @@ def Replicate(sourcePath, destinationPath):
     print("x " + dest)
     os.remove(dest)
 
+  total = len(tobeCopied)
+  i=1;
   for x in tobeCopied:
     src = os.path.join(SOURCE_PATH, x)
     dest = os.path.join(DESTINATION_PATH, x)
-    print(x)
+    print("{} of {} {}".format(i, total, x))
+    i+=1
     parentDir = os.path.dirname(dest)
     if not os.path.exists(parentDir):
       os.makedirs(parentDir)
