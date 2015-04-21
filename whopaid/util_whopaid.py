@@ -477,7 +477,7 @@ def CreateOpeningBalanceRow(row):
       if not val: raise MyException("Date in row: {} seems empty. Please fix the database".format(cell.row))
       r.openingBalanceDate = ParseDateFromString(val)
     elif col == SheetCols.InvoiceAmount:
-      if not val: raise MyException("Amount in row: {} seems empty. Please fix the database".format(cell.row))
+      if val == None: raise MyException("Amount in row: {} seems empty. Please fix the database".format(cell.row))
       r.amount = val
   return r
 
