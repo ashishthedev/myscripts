@@ -25,7 +25,7 @@ import argparse
 import datetime
 import os
 
-DEST_FOLDER = "B:\\Desktop\\FCR"
+DEST_FOLDER = "B:\\Desktop\\Statements"
 
 def ParseArguments():
     p = argparse.ArgumentParser()
@@ -146,7 +146,7 @@ def SendYearlyStatementMailToCompany(compName, args):
     #Save to an html file
 
     MakeSureDirExists(DEST_FOLDER)
-    filePath = os.path.join(DEST_FOLDER, companyOfficialName+DD_MMM_YYYY(sdateObject)) + ".html"
+    filePath = os.path.join(DEST_FOLDER, companyOfficialName + "-Stmt-" + DD_MMM_YYYY(sdateObject)) + ".html"
     print("Saving statement of a/c to local file: " + filePath)
 
     with open(filePath, "w") as f:

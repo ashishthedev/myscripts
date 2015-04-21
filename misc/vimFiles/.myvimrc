@@ -246,6 +246,7 @@ abbr <a> <a href=""></a><ESC>5hi
 abbr <span> <span></span><ESC>6hi
 abbr psvm public static void main(String[] args){<CR>}<esc>O
 abbr ifm if __name__ == "__main__":<CR>
+abbr bsrow <div class="row"></div><ESC>5hi<CR><CR><Esc>k<Esc>ki
 
 
 "let g:SimpylFold_docstring_preview = 1
