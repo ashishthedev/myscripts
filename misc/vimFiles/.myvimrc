@@ -247,6 +247,7 @@ abbr <span> <span></span><ESC>6hi
 abbr psvm public static void main(String[] args){<CR>}<esc>O
 abbr ifm if __name__ == "__main__":<CR>
 abbr bsrow <div class="row"></div><ESC>5hi<CR><CR><Esc>k<Esc>ki
+abbr ienn if err!=nil{return err}
 
 
 "let g:SimpylFold_docstring_preview = 1
@@ -377,7 +378,6 @@ noremap - gT
 :execute "noremap ,blog   :e ".GetSDATDir()."\\FrequentFliers\\blogs.txt<CR>"
 :execute "noremap ,comp   :e ".GetSDATDir()."\\FrequentFliers\\compList.txt<CR>"
 :execute "noremap ,eret   :e ".GetSDATDir()."\\SalesTaxReturnFiles\\eReturnInfo.txt<CR>"
-:execute "noremap ,ereto   :e ".GetSDATDir()."\\SalesTaxReturnFiles\\eReturnInfo.txt<CR>"
 :execute "noremap ,act    :e ".GetSDATDir()."\\FrequentFliers\\actions.txt<CR>"
 :execute "noremap ,note   :e ".GetSDATDir()."\\FrequentFliers\\Notes.xml<CR>"
 :execute "noremap ,book   :e ".GetSDATDir()."\\FrequentFliers\\Notes.xml<CR>"

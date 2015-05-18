@@ -124,6 +124,7 @@ kmp            = start %XDATDOCSDIR%\"SDAT\KennametalAll\KennaMetalPayment"
 recent         = dir /s /b /a:-d /t:w /o:-d|less
 
 fip=@echo "Finding inside .py files" && findstr /i /s /n $* *.py
+fib=@echo "Finding inside .bat files" && findstr /i /s /n $* *.bat
 fit=@echo "Finding inside .txt files" && findstr /i /s /n $* *.txt
 fih=@echo "Finding inside .html files" && findstr /i /s /n $* *.html
 fia=@echo "Finding inside all files" && findstr /i /s /n $* *.*
@@ -270,3 +271,5 @@ mpg = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919971602777" 
 cat = type $* | more
 
 gadv=pushd "B:\GDrive\EPYM17\Operations Management\Adv Operations Management"
+z = %XDATDOCSDIR%\code\misc\SMTPDebugginsServer.py
+gseeder = pushd %XDATDOCSDIR%\..\seeder_GO_BS_NG_GAE

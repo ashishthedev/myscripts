@@ -92,14 +92,15 @@ def ShouldSendSMS(args):
 
 
 def SendYearlyStatementSMSToCompany(compName, args):
-  if ShouldSendSMS(args):
-    from whopaid.off_comm import SendOfficialSMSAndMarkCC
-    SendOfficialSMSAndMarkCC(compName, """Dear Sir,
-This is to inform you that the accounts statement has been emailed to your account just now.
+  if not ShouldSendSMS(args):
+    PrintInBox("Not sending SMS to company")
+    return
+
+  from whopaid.off_comm import SendOfficialSMSAndMarkCC
+  SendOfficialSMSAndMarkCC(compName, """Dear Sir,
+This is to inform you that the accounts statement has been emailed to your account just now. Please verify and let us know if you have any queries.
 Thanks.
 """)
-  else:
-    PrintInBox("Not sending SMS to company")
   return
 
 

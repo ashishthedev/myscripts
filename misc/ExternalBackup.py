@@ -28,13 +28,55 @@ def main():
     if raw_input("You want to delete everything in {} and start again? (y/n)".format(destination)).lower() == 'y':
       shutil.rmtree(destination)
 
-  for source, foldername in SOURCES:
-    finalDestination = os.path.join(destination, foldername)
-    PrintInBox("Copying {} \n to \n {}".format(source, finalDestination))
-    shutil.copytree(source, finalDestination, ignore=shutil.ignore_patterns(*IGNORE_LIST))
-  PrintInBox("Ignored these patterns while copying: {}".format(IGNORE_LIST))
+  newVersionCopy = False
+  if newVersionCopy:
+    Replicate(SOURCES, destination)
+  else:
+    for source, foldername in SOURCES:
+      finalDestination = os.path.join(destination, foldername)
+      PrintInBox("Copying {} \n to \n {}".format(source, finalDestination))
+      shutil.copytree(source, finalDestination, ignore=shutil.ignore_patterns(*IGNORE_LIST))
+    PrintInBox("Ignored these patterns while copying: {}".format(IGNORE_LIST))
   return
 
+def Replicate(sourcePath, destinationPath):
+  print("You have asked to replicate {} to {}".format(sourcePath, destinationPath))
+  return
+  sf = []
+  for (dirpath, dirnames, filenames) in os.walk(sourcePath):
+    for fn in filenames:
+      sf.append(os.path.join(dirpath, fn))
+
+  sourceSet = set([x[len(sourcePath) +len("\\"):] for x in sf])
+
+  df = []
+  for (dirpath, dirnames, filenames) in os.walk(destinationPath):
+    for fn in filenames:
+      df.append(os.path.join(dirpath, fn))
+
+  destSet = set([x[len(destinationPath):] for x in df])
+
+  tobeCopied =  sourceSet - destSet
+  tobeDeleted = destSet - sourceSet
+
+  for x in tobeDeleted:
+    dest = os.path.join(DESTINATION_PATH, x)
+    print("x " + dest)
+    os.remove(dest)
+
+  total = len(tobeCopied)
+  i=1;
+  for x in tobeCopied:
+    src = os.path.join(SOURCE_PATH, x)
+    dest = os.path.join(DESTINATION_PATH, x)
+    print("{} of {} {}".format(i, total, x))
+    i+=1
+    parentDir = os.path.dirname(dest)
+    if not os.path.exists(parentDir):
+      os.makedirs(parentDir)
+    shutil.copyfile(src, dest)
+
+  return
 if __name__ == '__main__':
   try:
     main()
