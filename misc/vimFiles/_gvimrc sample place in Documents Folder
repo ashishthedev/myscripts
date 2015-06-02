@@ -15,4 +15,4 @@ behave mswin
 :else
 :   return expand($APPDIR)
 :endfunction
-execute "source " GetAPPDIR()."\\MyScripts\\misc\\vimFiles\\.myvimrc"
+execute "source " GetAPPDIR()."\\SDATDocs\\code\\misc\\vimFiles\\.myvimrc"

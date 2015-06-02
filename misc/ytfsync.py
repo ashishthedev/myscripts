@@ -2,25 +2,43 @@
 ## Filename: ytfsync.py
 ## Date: 2015-Apr-23 Thu 07:15 AM
 ## Author: Ashish Anand
-## Intent: To replicate a predefined folder on pendrive withour fuss.
+## Intent: To Sync a predefined folder on pendrive withour fuss.
 ##############################################################################
 
 import os
 import shutil
 from Util.Misc import PrintInBox
-SOURCE_PATH = os.path.join("b:\\", "YoutubeVideosDownloaded")
-DESTINATION_PATH = os.path.join("D:\\", "YoutubeVideosDownloaded\\")
 
+from collections import namedtuple
+Entry = namedtuple("Entry", ["source", "destination"])
 def main():
-  ConfirmAndReplicate(SOURCE_PATH, DESTINATION_PATH)
+  sourceAndDestinations = [
+      Entry(os.path.join("b:\\", "YoutubeVideosDownloaded"), os.path.join("D:\\", "YoutubeVideosDownloaded\\")),
+      Entry(os.path.join("b:\\", "Tools"), os.path.join("D:\\", "Tools\\")),
+      Entry(os.path.join("b:\\", "iPhoneAkanshaImages"), os.path.join("D:\\", "iPhoneAkanshaImages\\")),
+      Entry(os.path.join("b:\\", "Photographs"), os.path.join("D:\\", "Photographs\\")),
+      Entry(os.path.join("b:\\", "Watch"), os.path.join("D:\\", "Watch\\")),
+      ntry(os.path.join("b:\\", "Songs"), os.path.join("D:\\", "Songs\\")),
+      Entry(os.path.join("b:\\", "Read"), os.path.join("D:\\", "Read\\")),
+      Entry(os.path.join("b:\\", "Pendrive"), os.path.join("D:\\", "Pendrive\\")),
+      ]
 
-def ConfirmAndReplicate(sourcePath, destinationPath):
-  if raw_input("Sync {}\nto {} (y/n)?".format(sourcePath, destinationPath)).lower() != 'y':
-    raise Exception("Please provide correct destination path")
+  ConfirmAndSyncFolders(sourceAndDestinations)
+  return
 
-  Replicate(SOURCE_PATH, DESTINATION_PATH)
 
-def Replicate(sourcePath, destinationPath):
+def ConfirmAndSyncFolders(sourceAndDestinations):
+  confirmedSourceAndDestinations = []
+  for entry in sourceAndDestinations:
+    if raw_input("Sync\n{} to\n{} (y/n)?".format(entry.source, entry.destination)).lower() == 'y':
+      confirmedSourceAndDestinations.append(entry)
+
+  for entry in confirmedSourceAndDestinations:
+    SyncFolders(entry.source, entry.destination)
+  return
+
+
+def SyncFolders(sourcePath, destinationPath):
   sf = []
   for (dirpath, dirnames, filenames) in os.walk(sourcePath):
     for fn in filenames:
@@ -47,7 +65,7 @@ def Replicate(sourcePath, destinationPath):
   total = len(tobeCopied)
   i=1;
   for x in tobeCopied:
-    src = os.path.join(SOURCE_PATH, x)
+    src = os.path.join(sourcePath, x)
     dest = os.path.join(destinationPath, x)
     print("{} of {} {}".format(i, total, x))
     i+=1

@@ -43,36 +43,35 @@ def ParseOptions():
     return parser.parse_args()
 
 
-def GenerateAddressSlipForThisCompany(compName, args):
-    allCustInfo = GetAllCustomersInfo()
-    companyOfficialName = allCustInfo.GetCompanyOfficialName(compName)
+ALL_CUST_INFO = GetAllCustomersInfo()
+
+def GenerateAddressSlipForThisCompany(compName, args, filePath, times):
+    companyOfficialName = ALL_CUST_INFO.GetCompanyOfficialName(compName)
     if not companyOfficialName:
       raise MyException("\nM/s {} doesnt have a displayable 'name'. Please feed it in the database".format(compName))
 
-    companyDeliveryAddress= allCustInfo.GetCustomerDeliveryAddress(compName)
+    companyDeliveryAddress= ALL_CUST_INFO.GetCustomerDeliveryAddress(compName)
     if not companyDeliveryAddress:
       raise MyException("\nM/s {} doesnt have a delivery address. Please feed it in the database".format(compName))
     companyDeliveryAddress = companyDeliveryAddress.strip()
 
-    companyDeliveryState= allCustInfo.GetDeliveryState(compName)
+    companyDeliveryState= ALL_CUST_INFO.GetDeliveryState(compName)
     if not companyDeliveryState:
       raise MyException("\nM/s {} doesnt have a delivery state. Please feed it in the database".format(compName))
 
-    companyDeliveryPhNo = allCustInfo.GetDeliveryPhoneNumber(compName)
+    companyDeliveryPhNo = ALL_CUST_INFO.GetDeliveryPhoneNumber(compName)
     if not companyDeliveryPhNo:
       raise MyException("\nM/s {} doesnt have a phone number. Please feed it in the database".format(compName))
 
-    companyPinCode = allCustInfo.GetDeliveryPinCode(compName)
+    companyPinCode = ALL_CUST_INFO.GetDeliveryPinCode(compName)
     if not companyPinCode:
       raise MyException("\nM/s {} doesnt have a pin code. Please feed it in the database".format(compName))
 
-    x = allCustInfo.GetMsOrNomsForCustomer(compName)
+    x = ALL_CUST_INFO.GetMsOrNomsForCustomer(compName)
     noms = True if x and x.lower().strip() == "noms" else False
 
-    preferredCourierForThisComp = allCustInfo.GetCustomerPreferredCourier(compName)
+    preferredCourierForThisComp = ALL_CUST_INFO.GetCustomerPreferredCourier(compName)
 
-    tempPath = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), "AddressSlips", companyOfficialName + ".html")
-    MakeSureDirExists(os.path.dirname(tempPath))
 
     commaBwCityAndState = "" if companyDeliveryAddress.endswith(",") else ","
     def constant_factory(value):
@@ -134,7 +133,7 @@ def GenerateAddressSlipForThisCompany(compName, args):
 
         addressSnippet += ourCompAddSnippet
 
-    for i in range(1, args.num):
+    for i in range(1, times):
         addressSnippet += "<br>" + singleAddressSnippet
 
     d['tAddressSnippet'] = addressSnippet
@@ -190,10 +189,10 @@ def GenerateAddressSlipForThisCompany(compName, args):
     </html>
     """).substitute(d)
 
-    with open(tempPath, "w") as f:
+    with open(filePath, "w") as f:
         f.write(html)
 
-    OpenFileForViewing(tempPath)
+    OpenFileForViewing(filePath)
     return
 
 
@@ -276,17 +275,23 @@ def main():
     print("{} envelopers left for {}".format(pe.HowManyLeftForThisCompany(chosenComp), chosenComp))
     return
 
-  t = args.num
-  GenerateAddressSlipForThisCompany(chosenComp, args)
+  companyOfficialName = ALL_CUST_INFO.GetCompanyOfficialName(chosenComp)
+  if not companyOfficialName:
+    raise MyException("\nM/s {} doesnt have a displayable 'name'. Please feed it in the database".format(chosenComp))
+
+  tempPathPage = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), "AddressSlips", companyOfficialName + "_multiple.html")
+  MakeSureDirExists(os.path.dirname(tempPathPage))
+
+  GenerateAddressSlipForThisCompany(chosenComp, args, tempPathPage, args.num)
 
 
   from time import sleep
   sleep(2) # This sleep is so that browser can render the generated file coz next html will be generated in same filename and will overwrite previous one.
 
-  args.num = t
 
-  args.num = 1
-  GenerateAddressSlipForThisCompany(chosenComp, args)
+  tempPathPage = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), "AddressSlips", companyOfficialName + "_single.html")
+  MakeSureDirExists(os.path.dirname(tempPathPage))
+  GenerateAddressSlipForThisCompany(chosenComp, args, tempPathPage, 1)
 
 
   pe.MarkPrinted(chosenComp, args.num, datetime.date.today())

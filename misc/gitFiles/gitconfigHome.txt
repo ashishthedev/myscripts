@@ -1,2 +1,2 @@
 [include]
-	path = c:\\users\\ichigo\\Dropbox\\SDATDocs\\myscripts\\misc\\gitFiles\\.gitconfig
+	path = b:\\Gdrive\\Appdir\\SDATDocs\\code\\misc\\gitFiles\\.gitconfig

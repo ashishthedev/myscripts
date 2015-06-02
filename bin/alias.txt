@@ -22,6 +22,7 @@
 
 
 
+hugo = b:\\tools\hugo\\hugo.exe $*
 
 
 
@@ -37,7 +38,7 @@ al=gvim %XDATDOCSDIR%\code\bin\alias.txt
 al=pushd %XDATDOCSDIR%\code\bin && gvim alias.txt && popd
 cfg=gvim %XDATDOCSDIR%\pycrm.cfg
 g=gvim $*
-s=b:\Tools\SublimeText\ST3Portable\subl.exe $*
+s = "c:\\Program Files\\sublime text 2\\sublime_text.exe" $*
 z=start /w %VIM_EXE_DIR%\gvim.exe $*
 ff=@echo "Finding for file name" && where /T /R . *$**
 ffe=@echo "Finding for file name" && where /T /R . $*
@@ -273,3 +274,6 @@ cat = type $* | more
 gadv=pushd "B:\GDrive\EPYM17\Operations Management\Adv Operations Management"
 z = %XDATDOCSDIR%\code\misc\SMTPDebugginsServer.py
 gseeder = pushd %XDATDOCSDIR%\..\seeder_GO_BS_NG_GAE
+mps = pushd %XDATDOCSDIR%\..\manpack\ && start_shell.bat && exit
+sews = pushd %XDATDOCSDIR%\..\sew\ && start_shell.bat && exit
+lts = pushd %XDATDOCSDIR%\..\leantricks\ && start_shell.bat && exit

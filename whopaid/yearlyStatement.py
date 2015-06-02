@@ -41,7 +41,7 @@ def ParseArguments():
             "supplied.")
 
     p.add_argument("-o", "--OpenFileForViewing", dest='open',
-            action="store_true", default=False, help="If present, file will"
+            action="store_true", default=True, help="If present, file will"
             " be opened")
 
     p.add_argument("-l", "--letterHead", dest='letterHead', action="store_true",
@@ -147,7 +147,10 @@ def SendYearlyStatementMailToCompany(compName, args):
     #Save to an html file
 
     MakeSureDirExists(DEST_FOLDER)
-    filePath = os.path.join(DEST_FOLDER, companyOfficialName + "-Stmt-" + DD_MMM_YYYY(sdateObject)) + ".html"
+    smallName = GetOption("CONFIG_SECTION", "SuperSmallName")
+    if not smallName:
+      raise Exception("Small name not present for company")
+    filePath = os.path.join(DEST_FOLDER, companyOfficialName + "-Stmt-" + DD_MMM_YYYY(sdateObject)) + "-" + smallName + ".html"
     print("Saving statement of a/c to local file: " + filePath)
 
     with open(filePath, "w") as f:

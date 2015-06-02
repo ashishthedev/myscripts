@@ -16,8 +16,9 @@ def NormalizePathsSeparatedBy(paths, separator):
 
   ret = separator.join(newL)
   print(paths)
-  print("==>")
+  print("New normalized paths ==>")
   print(ret)
+  print("_"*70)
   return ret
 
 def AddThisToGlobalPath(currentPath, path):
@@ -34,9 +35,9 @@ def Abspath(path):
 
 def SetAPPDIREnvVariable():
   binDir = os.getcwd()
-  appDir = Abspath(os.path.join(binDir, "..", ".."))
+  appDir = Abspath(os.path.join(binDir, "..", "..", ".."))
   if raw_input("APPDIR=={} (y/n)".format(appDir)) != 'y':
-    appDir = raw_input("Enter the appdirPath(Hint: parent of pycrm.cfg)")
+    appDir = raw_input("Enter the appdirPath(Hint: parent of parent of pycrm.cfg)")
   Setx("APPDIR", appDir)
   return appDir
 
@@ -49,14 +50,14 @@ def main ():
     currentPath = os.environ["PATH"]
     currentPath = AddThisToGlobalPath(currentPath, PYTHON_BASE_DIR)
     currentPath = AddThisToGlobalPath(currentPath, os.path.join(PYTHON_BASE_DIR, "Scripts"))
-    currentPath = AddThisToGlobalPath(currentPath, os.path.join(appDir, "code", "bin"))
+    currentPath = AddThisToGlobalPath(currentPath, os.path.join(appDir, "sdatdocs", "code", "bin"))
     homeDir = os.path.expanduser("~")
     shutil.copy(
-        os.path.join(appDir, "code", "misc", "gitFiles", "gitconfigHome.txt"),
+        os.path.join(appDir, "sdatDocs", "code", "misc", "gitFiles", "gitconfigHome.txt"),
         os.path.join(homeDir, ".gitconfig")
     )
     shutil.copy(
-        os.path.join(appDir, "code", "misc", "vimFiles", "_gvimrc sample place in Documents Folder"),
+        os.path.join(appDir, "sdatDocs", "code", "misc", "vimFiles", "_gvimrc sample place in Documents Folder"),
         os.path.join(homeDir, ".vimrc")
     )
 
