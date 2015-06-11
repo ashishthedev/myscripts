@@ -75,16 +75,18 @@ class FedExCourier():
     delay = (actualDelDateObj - estimatedDateObj).days
     from string import Template
     smsContentsTemplate = Template("""
-      FedEx $tDeliveryNature
-      Days Taken: $tDaysTaken
-      $tCompName
-      Estimated: $tEstDate
-      Acutal: $tActDate
-      Docket: $tDocketNumber
-    """)
+FedEx $tDeliveryNature
+$tDaysTaken days taken
+$tCompName
+Shipped on: $tShippingDate
+Estimated: $tEstDate
+Acutal: $tActDate
+Docket: $tDocketNumber
+""")
 
     d = dict()
     d["tCompName"] = self.bill.compName
+    d["tEstDate"] = DD_MMM_YYYY(self.bill.docketDate)
     d["tEstDate"] = DD_MMM_YYYY(estimatedDateObj)
     d["tActDate"] = DD_MMM_YYYY(actualDelDateObj)
     d["tDocketNumber"] = self.bill.docketNumber
