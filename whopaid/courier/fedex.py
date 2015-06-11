@@ -83,13 +83,12 @@ class FedExCourier():
       Docket: $tDocketNumber
     """)
 
-    docketDateObj = ParseDateFromString(self.bill.docketDate)
     d = dict()
     d["tCompName"] = self.bill.compName
-    d["$tEstDate"] = DD_MMM_YYYY(estimatedDateObj)
+    d["tEstDate"] = DD_MMM_YYYY(estimatedDateObj)
     d["tActDate"] = DD_MMM_YYYY(actualDelDateObj)
     d["tDocketNumber"] = self.bill.docketNumber
-    d["tDaysTaken"] = (actualDelDateObj - docketDateObj).days
+    d["tDaysTaken"] = (actualDelDateObj - self.bill.docketDate).days
 
     if delay < 0:
       d["tDeliveryNature"] = "early delivery by {} days".format(-1*delay)
