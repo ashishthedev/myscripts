@@ -73,14 +73,32 @@ class FedExCourier():
     actualDelDateObj = ParseDateFromString(self.shipment.actualDeliveryDate)
     smsNoList = [x[::-1] for x in GetOption("SMS_SECTION", "DelayedDeliveryReportSMSR").split(",") if x.strip()]
     delay = (actualDelDateObj - estimatedDateObj).days
+    from string import Template
+    smsContentsTemplate = Template("""
+      FedEx $tDeliveryNature
+      Days Taken: $tDaysTaken
+      $tCompName
+      Estimated: $tEstDate
+      Acutal: $tActDate
+      Docket: $tDocketNumber
+    """)
+
+    docketDateObj = ParseDateFromString(self.bill.docketDate)
+    d = dict()
+    d["tCompName"] = self.bill.compName
+    d["$tEstDate"] = DD_MMM_YYYY(estimatedDateObj)
+    d["tActDate"] = DD_MMM_YYYY(actualDelDateObj)
+    d["tDocketNumber"] = self.bill.docketNumber
+    d["tDaysTaken"] = (actualDelDateObj - docketDateObj).days
+
     if delay < 0:
-      smsContents = "FedEx early delivery : {delay} days earlier for:\n{compName}\nEstimated: {estDate}\nAcutal:{actDate}\nDocket: {dn}".format(delay=-1*delay,compName=self.bill.compName,estDate=DD_MMM_YYYY(estimatedDateObj),actDate=DD_MMM_YYYY(actualDelDateObj), dn=self.bill.docketNumber)
-
+      d["tDeliveryNature"] = "early delivery by {} days".format(-1*delay)
     elif delay == 0:
-      smsContents = "FedEx delivered on exact estimated date for:\n{compName}\nEstimated: {estDate}\nAcutal:{actDate}\nDocket: {dn}".format(compName=self.bill.compName,estDate=DD_MMM_YYYY(estimatedDateObj),actDate=DD_MMM_YYYY(actualDelDateObj), dn=self.bill.docketNumber)
-
+      d["tDeliveryNature"] = "delivered on exact mentioned date"
     else:
-      smsContents = "FedEx Late Delivery : {delay} days late for:\n{compName}\nEstimated: {estDate}\nAcutal:{actDate}\nDocket: {dn}".format(delay=delay, compName=self.bill.compName,estDate=DD_MMM_YYYY(estimatedDateObj),actDate=DD_MMM_YYYY(actualDelDateObj), dn=self.bill.docketNumber)
+      d["tDeliveryNature"] = "late delivery by {} days".format(delay)
+
+    smsContents = smsContentsTemplate.substitute(d)
 
     for x in smsNoList:
       SendSms(x, smsContents)

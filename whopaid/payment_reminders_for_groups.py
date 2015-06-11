@@ -22,7 +22,7 @@ from whopaid.customers_info import GetAllCustomersInfo
 from whopaid.off_comm import SendOfficialSMS, SendOfficialSMSToMD
 from whopaid.sanity_checks import CheckConsistency
 from whopaid.util_whopaid import GetAllCompaniesDict, SelectUnpaidBillsFrom, \
-        GuessCompanyGroupName, GetPayableBillsAndAdjustmentsForThisComp
+        GuessCompanyGroupName, GetPayableBillsAndAdjustmentsForThisComp, RemoveTrackingBills
 
 from collections import defaultdict
 from string import Template
@@ -248,6 +248,7 @@ def ShouldWeSendAutomaticEmailForGroup(grpName):
 
 def TotalDueForCompAsInt(compName):
   billsList = GetAllCompaniesDict().GetBillsListForThisCompany(compName)
+  billsList = RemoveTrackingBills(billsList)
   dba = sum([b.amount for b in SelectUnpaidBillsFrom(billsList)])
 
   unaccountedAdjustmentsList = GetAllCompaniesDict().GetUnAccountedAdjustmentsListForCompany(compName)

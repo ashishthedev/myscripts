@@ -364,6 +364,7 @@ noremap <silent> <leader>sms :python InvokeSendSmsFromVim()<CR>
 noremap <Space> /
 "Use control space to open another file in same dir. A explorer will be shown. Killer!
 noremap <leader>t :Tex<CR>
+noremap <leader>s :! "c:\Program Files\Sublime Text 2\sublime_text.exe" % <CR>
 
 "Use '-' to switch between splited windows.
 noremap - <c-w>w <CR> <bar> :set winheight=998<CR>
