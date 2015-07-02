@@ -620,19 +620,22 @@ def _CreateSingleBillRow(row):
   return b
 
 
+def AllCompanyGroupNames():
+  allCustomersInfo = GetAllCustomersInfo()
+  uniqueCompGrpNames = [allCustomersInfo.GetCompanyGroupName(eachComp) for eachComp in allCustomersInfo]
+  uniqueCompGrpNames = [u for u in uniqueCompGrpNames if u]
+  uniqueCompGrpNames = list(set(uniqueCompGrpNames))
+  return uniqueCompGrpNames
+
 def GuessCompanyGroupName(token):
   """Take a small string from user and try to guess the companyGroupName.
   Return None if it doesn't exist"""
-  allCustomersInfo = GetAllCustomersInfo()
-  uniqueCompGrpNames = [allCustomersInfo.GetCompanyGroupName(eachComp) for eachComp in allCustomersInfo]
 
   if not token:
     token = raw_input("Enter company name:")
 
   token.replace(' ', '')
-  uniqueCompGrpNames = [u for u in uniqueCompGrpNames if u]
-  uniqueCompGrpNames = list(set(uniqueCompGrpNames))
-  for eachGrp in uniqueCompGrpNames:
+  for eachGrp in AllCompanyGroupNames():
     if eachGrp.lower().replace(' ', '').find(token.lower()) != -1:
       if raw_input("You mean: {0}\n(y/n):".format(eachGrp)).lower() == 'y':
         return eachGrp

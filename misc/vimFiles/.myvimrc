@@ -338,7 +338,7 @@ def AddToYoutubeDownloadQueue(mode="beginning"):
         PrependCurrentVimBufferInFile(ytUrlsFileList)
     else:
         AppendCurrentVimBufferInFile(ytUrlsFileList)
-    vim.command(r"echoerr 'Url Added'")
+    vim.command(r"echo 'Url Added'")
     vim.command(r"e! " + ytUrlsFileList)  # Open the new file
     #restartYoutubeDownloads()
     return

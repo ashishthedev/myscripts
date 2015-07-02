@@ -86,7 +86,7 @@ Docket: $tDocketNumber
 
     d = dict()
     d["tCompName"] = self.bill.compName
-    d["tEstDate"] = DD_MMM_YYYY(self.bill.docketDate)
+    d["tShippingDate"] = DD_MMM_YYYY(self.bill.docketDate)
     d["tEstDate"] = DD_MMM_YYYY(estimatedDateObj)
     d["tActDate"] = DD_MMM_YYYY(actualDelDateObj)
     d["tDocketNumber"] = self.bill.docketNumber
