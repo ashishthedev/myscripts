@@ -18,6 +18,8 @@ import os
 import datetime
 ALLOWED_TAXATION_RATES = GetOption("CONFIG_SECTION", "ALLOWED_TAXATION_RATES").replace(";", ",").split(",")
 
+ALL_CUST_INFO = GetAllCustomersInfo()
+
 def GetWorkBookPath():
     return os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "WorkbookRelativePath"))
 
@@ -620,8 +622,17 @@ def _CreateSingleBillRow(row):
   return b
 
 
+def AllCompanyGroupNamesWhichHaveBeenBilledInPast():
+  allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
+  uniqueCompGrpNames = []
+  for eachCompName, _ in allBillsDict.iteritems():
+    uniqueCompGrpNames = [ALL_CUST_INFO.GetCompanyGroupName(eachComp) for eachComp, _ in allBillsDict.iteritems()]
+
+  uniqueCompGrpNames = list(set(uniqueCompGrpNames))
+  return uniqueCompGrpNames
+
 def AllCompanyGroupNames():
-  allCustomersInfo = GetAllCustomersInfo()
+  allCustomersInfo = ALL_CUST_INFO
   uniqueCompGrpNames = [allCustomersInfo.GetCompanyGroupName(eachComp) for eachComp in allCustomersInfo]
   uniqueCompGrpNames = [u for u in uniqueCompGrpNames if u]
   uniqueCompGrpNames = list(set(uniqueCompGrpNames))
@@ -678,11 +689,11 @@ def ShowPendingOrdersOnScreen():
   return
 
 def GetPayableBillsAndAdjustmentsForThisComp(compName):
-  allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
-  unpaidBillsList = SelectUnpaidBillsFrom(allBillsDict[compName])
+  unpaidBillsList = SelectUnpaidBillsFrom(GetAllCompaniesDict().GetBillsListForThisCompany(compName))
   unpaidBillsList = RemoveTrackingBills(unpaidBillsList)
   unpaidBillsList = RemoveGRBills(unpaidBillsList)
   unpaidBillsList.sort(key=lambda b: datex(b.invoiceDate))
+
   adjustmentBills = GetAllCompaniesDict().GetUnAccountedAdjustmentsListForCompany(compName)
   if adjustmentBills:
     if len(adjustmentBills) > 1:

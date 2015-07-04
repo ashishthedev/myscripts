@@ -152,15 +152,15 @@ class _AllCustomersInfo(dict):
               c = CreateSingleCustomerInfo(row)
               self[c.companyFriendlyName] = c
 
+    def GetListOfCompNamesInThisGroup(self, grpName):
+      res = []
+      for compName in self:
+        if self[compName].companyGroupName == grpName:
+          res.append(compName)
+      return res
+
     def GetListOfAllCompNames(self):
       return self.keys()
-
-    def GetListOfCompNamesForThisGrp(self, grpName):
-        res = []
-        for compName in self:
-            if self[compName].companyGroupName == grpName:
-                res.append(compName)
-        return res
 
     def GetTrustForCustomer(self, compName):
         return self[compName].trust

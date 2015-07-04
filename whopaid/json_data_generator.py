@@ -3,8 +3,9 @@ from Util.Config import GetOption
 from Util.Misc import DD_MM_YYYY, DD_MMM_YYYY
 
 from whopaid.customers_info import GetAllCustomersInfo
+from whopaid.customer_group_info import GetToCCBCCListforGroup, PrepareMailContentForThisGroup, HasPaymentReminderEmailsForGroup, TotalDueForGroupAsInt
 from whopaid.km_pending_orders import GetAllKMOrders, GetAllPendingOrders, GetAllReceivedOrders
-from whopaid.util_whopaid import GetAllCompaniesDict, datex, GetPayableBillsAndAdjustmentsForThisComp
+from whopaid.util_whopaid import GetAllCompaniesDict, datex, GetPayableBillsAndAdjustmentsForThisComp, AllCompanyGroupNamesWhichHaveBeenBilledInPast
 from whopaid.util_formc import QuarterlyClubbedFORMC
 
 from collections import defaultdict
@@ -14,6 +15,7 @@ import json
 import os
 
 ALL_COMPANIES_DICT = GetAllCompaniesDict()
+ALL_CUST_INFO = GetAllCustomersInfo()
 
 PMTAPPDIR = os.getenv("PMTAPPDIR")
 DUMPING_DIR = os.path.join(PMTAPPDIR, "static", "dbs")
@@ -116,22 +118,22 @@ data=
 }
 
 """
-def _DumpPaymentsDB():
-  allBillsDict = ALL_COMPANIES_DICT.GetAllBillsOfAllCompaniesAsDict()
 
-  if os.path.exists(PMT_JSON_FILE_NAME):
-    os.remove(PMT_JSON_FILE_NAME)
+def ProcessAndReturnSingleGroup(grpName):
+  singleGroup = dict()
+  #singleGroup["grpName"] = grpName
+  singleGroup["grpName"] = " {} | {}".format(grpName, SMALL_NAME)
+  singleGroup["companies"] = []
 
-  data = {}
-  allCustomers = []
 
-  for eachCompName, eachCompBills in allBillsDict.iteritems():
+  for eachCompName in ALL_CUST_INFO.GetListOfCompNamesInThisGroup(grpName):
     unpaidBillList, adjustmentList = GetPayableBillsAndAdjustmentsForThisComp(eachCompName)
 
-    oneCustomer = dict()
-    oneCustomer["name"] = " {} | {}".format(eachCompName, SMALL_NAME)
+    oneComp = dict()
+    #oneComp["name"] = " {} | {}".format(eachCompName, SMALL_NAME)
+    oneComp["name"] = eachCompName
 
-    oneCustomerBills = []
+    oneCompAdjAndBills = []
     unpaidBillList = sorted(unpaidBillList, key=lambda b: datex(b.invoiceDate))
     for b in unpaidBillList:
       oneBill = {
@@ -140,7 +142,7 @@ def _DumpPaymentsDB():
           "cd": str(b.daysOfCredit),
           "ba": str(int(b.amount))
           }
-      oneCustomerBills.append(oneBill)
+      oneCompAdjAndBills.append(oneBill)
 
     if adjustmentList:
       for a in adjustmentList:
@@ -150,15 +152,41 @@ def _DumpPaymentsDB():
             "cd": "0",
             "ba": str(int(a.amount))
             }
-        oneCustomerBills.append(oneAdjustment) #For all practical purposes, an adjustment is treated as a bill with bill#-1
+        oneCompAdjAndBills.append(oneAdjustment) #For all practical purposes, an adjustment is treated as a bill with bill#-1
 
-    oneCustomer["bills"] = oneCustomerBills
-    oneCustomer["trust"] = ALL_CUST_INFO.GetTrustForCustomer(eachCompName)
+    oneComp["bills"] = oneCompAdjAndBills
+    oneComp["trust"] = ALL_CUST_INFO.GetTrustForCustomer(eachCompName)
 
-    if len(oneCustomerBills) > 0:
-      allCustomers.append(oneCustomer)
+    if len(oneCompAdjAndBills) > 0:
+      singleGroup["companies"].append(oneComp)
 
-  data["customers"] = allCustomers
+  if len(singleGroup["companies"]) > 0:
+    if not HasPaymentReminderEmailsForGroup(grpName):
+      singleGroup["noEmailReason"] = "No emails present"
+    else:
+      args = type('args', (object,), {'first_line': "", 'first_line_bold': False, 'second_line': "", 'last_line': "", 'last_line_bold': False, 'kaPerson': "", 'doNotShowLetterDate': True, 'doNotShowCreditDays': False})
+      singleGroup["emailHTML"] = PrepareMailContentForThisGroup(grpName, args)
+      singleGroup["toMailList"], singleGroup["ccMailList"], singleGroup["bccMailList"] = GetToCCBCCListforGroup(grpName)
+      singleGroup["testToMailList"] = singleGroup["ccMailList"]
+      singleGroup["senderCompany"] = GetOption("CONFIG_SECTION", 'SmallName')
+      singleGroup["emailSubject"] = "Payment Request (Rs.{})".format(TotalDueForGroupAsInt(grpName))
+      singleGroup["testEmailSubject"] = "[Testing] Payment Request (Rs.{})".format(TotalDueForGroupAsInt(grpName))
+
+  return singleGroup
+
+def _DumpPaymentsDB():
+  if os.path.exists(PMT_JSON_FILE_NAME):
+    os.remove(PMT_JSON_FILE_NAME)
+
+  data = {}
+  allGroups = []
+
+  for grpName in AllCompanyGroupNamesWhichHaveBeenBilledInPast():
+    singleGroup = ProcessAndReturnSingleGroup(grpName)
+    if len(singleGroup["companies"]) > 0:
+      allGroups.append(singleGroup)
+
+  data["compGroups"] = allGroups
   allPayments = ALL_COMPANIES_DICT.GetAllPaymentsByAllCompaniesAsDict()
   recentPmtDate = max([p.pmtDate for comp, payments in allPayments.iteritems() for p in payments])
   compSmallName = GetOption("CONFIG_SECTION", "SmallName")
@@ -168,6 +196,7 @@ def _DumpPaymentsDB():
   with open(PMT_JSON_FILE_NAME, "w+") as f:
     json.dump(data, f, separators=(',',':'), indent=2)
   return
+
 
 def _DumpCustData():
   from customers_info import GenerateCustomerInfoJsonNodesFile
