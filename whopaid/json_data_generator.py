@@ -1,12 +1,12 @@
 
 from Util.Config import GetOption
-from Util.Misc import DD_MM_YYYY, DD_MMM_YYYY
+from Util.Misc import DD_MM_YYYY, DD_MMM_YYYY, MyException
 
 from whopaid.customers_info import GetAllCustomersInfo
-from whopaid.customer_group_info import GetToCCBCCListforGroup, PrepareMailContentForThisGroup, HasPaymentReminderEmailsForGroup, TotalDueForGroupAsInt
+from whopaid.customer_group_info import GetToCCBCCListforGroup, PrepareMailContentForThisGroup, HasPaymentReminderEmailsForGroup, TotalDueForGroupAsInt, HasPaymentReminderEmailsForCompany, HasFormCReminderEmailsForCompany
 from whopaid.km_pending_orders import GetAllKMOrders, GetAllPendingOrders, GetAllReceivedOrders
 from whopaid.util_whopaid import GetAllCompaniesDict, datex, GetPayableBillsAndAdjustmentsForThisComp, AllCompanyGroupNamesWhichHaveBeenBilledInPast
-from whopaid.util_formc import QuarterlyClubbedFORMC
+from whopaid.util_formc import QuarterlyClubbedFORMC, GetHTMLForFORMCforCompany, GetToCCBCCForFORMCforCompany
 
 from collections import defaultdict
 
@@ -244,6 +244,48 @@ def _DumpKMPendingOrdersDB():
     json.dump(data, f, separators=(',',':'), indent=2)
   return
 
+def _SingleBillDictWithBillNoDateAmount(bill):
+  singleBill = dict()
+  singleBill["billNumber"] = int(bill.billNumber)
+  singleBill["invoiceDateAsText"] = DD_MMM_YYYY(bill.invoiceDate)
+  singleBill["invoiceDateIsoFormat"] = bill.invoiceDate.isoformat()
+  singleBill["amount"] = str(int(bill.amount))
+  return singleBill
+
+def ProcessAndReturnSingleCompFormC(compName, billList):
+  #BIllList is not required. Refactor
+
+  superSmallName = GetOption("CONFIG_SECTION", "SuperSmallName")
+  key = "{} | {}".format(compName, superSmallName)
+  yd = QuarterlyClubbedFORMC(billList).GetYearDict()
+  """
+  year(dict)
+   |--quarter(dict)
+       |--bills(list)
+  """
+  for eachYear, quarters in yd.iteritems():
+    for eachQuarter, billList in quarters.iteritems():
+      quarters[eachQuarter]  = [_SingleBillDictWithBillNoDateAmount(bill) for bill in billList] #In place replacement of billList with smaller objcets containing only necessary data.
+
+  singleCompFormC = dict()
+  singleCompFormC["key"] = key
+  singleCompFormC["yd"] = yd
+  companyOfficialName = GetAllCustomersInfo().GetCompanyOfficialName(compName)
+  if not companyOfficialName:
+    raise MyException("\nM/s {} doesnt have a displayable 'name'. Please feed it in the database".format(compName))
+
+  if not HasPaymentReminderEmailsForCompany(compName) and not HasFormCReminderEmailsForCompany(compName):
+    singleCompFormC["noEmailReason"] = "No emails present"
+  else:
+
+    args = type('args', (object,), {'sdate':"", 'edate': "", 'letterHead': "", "kindAttentionPerson": "", "additional_line":"", "remarksColumn": False,  })
+    singleCompFormC["emailHTML"] = GetHTMLForFORMCforCompany(compName, args)
+    singleCompFormC["toMailList"], singleCompFormC["ccMailList"], singleCompFormC["bccMailList"] = GetToCCBCCForFORMCforCompany(compName)
+    singleCompFormC["senderCompany"] = GetOption("CONFIG_SECTION", 'SmallName')
+    singleCompFormC["emailSubject"] = "FORM-C request - M/s {} - from M/s {}".format(companyOfficialName, GetOption("CONFIG_SECTION", 'CompName'))
+
+  return singleCompFormC
+
 def _DumpShipmentStatusData():
   jsonFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), GetOption("CONFIG_SECTION", "ShipmentsJson"))
 
@@ -278,43 +320,16 @@ def _DumpFormCData():
   from copy import deepcopy
   formCReceivableDict = deepcopy(allBillsDict)
   for eachComp, billList in formCReceivableDict.items():
-    newList = [b for b in billList if not b.formCReceivingDate and b.billingCategory.lower() in ["central"]] #inplace removal of bills
-    if newList:
-      formCReceivableDict[eachComp] = [b for b in billList if not b.formCReceivingDate and b.billingCategory.lower() in ["central"]] #inplace removal of bills
-    else:
+    formCReceivableDict[eachComp] = [b for b in billList if not b.formCReceivingDate and b.billingCategory.lower() in ["central"]] #inplace removal of bills
+    if not formCReceivableDict[eachComp]:
       del formCReceivableDict[eachComp]
 
-
-  superSmallName = GetOption("CONFIG_SECTION", "SuperSmallName")
-
-  def BillNoDateAmountDict(bill):
-    singleBill = dict()
-    singleBill["billNumber"] = int(bill.billNumber)
-    singleBill["invoiceDateAsText"] = DD_MMM_YYYY(bill.invoiceDate)
-    singleBill["invoiceDateIsoFormat"] = bill.invoiceDate.isoformat()
-    singleBill["amount"] = str(int(bill.amount))
-    return singleBill
-
-  data = dict()
   allCompsFormC = list()
   for eachComp, billList in formCReceivableDict.iteritems():
-    key = "{} | {}".format(eachComp, superSmallName)
-    yd = QuarterlyClubbedFORMC(billList).GetYearDict()
-    """
-    year(dict)
-     |--quarter(dict)
-         |--bills(list)
-    """
-    for eachYear, quarters in yd.iteritems():
-      for eachQuarter, billList in quarters.iteritems():
-        quarters[eachQuarter]  = [BillNoDateAmountDict(bill) for bill in billList] #In place replacement of billList with smaller objcets containing only necessary data.
-    singleCompFormC = {
-        "key":key,
-        "yd":yd,
-        }
-
+    singleCompFormC = ProcessAndReturnSingleCompFormC(eachComp, billList)
     allCompsFormC.append(singleCompFormC)
 
+  data = dict()
   data["allCompsFormC"] = allCompsFormC
   compSmallName = GetOption("CONFIG_SECTION", "SmallName")
   data ["showVerbatimOnTop"] = "{} : {}".format(compSmallName, DD_MM_YYYY(lastFormCEnteredOnDate))

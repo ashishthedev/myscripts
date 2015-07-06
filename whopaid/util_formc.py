@@ -12,8 +12,10 @@ from Util.Config import GetOption
 from Util.HTML import UnderLine, Bold, PastelOrangeText
 from Util.Colors import MyColors
 from Util.Exception import MyException
+from Util.Misc import ParseDateFromString, CheckRequiredAttribsAndThrowExcIfNotPresent
 
 from whopaid.customers_info import GetAllCustomersInfo
+from whopaid.util_whopaid import GetAllCompaniesDict, SelectBillsBeforeDate, RemoveTrackingBills, RemoveGRBills, SelectBillsAfterDate
 
 from string import Template
 from collections import defaultdict
@@ -284,3 +286,40 @@ Sample output of this script
 </html>
 
 """
+
+
+def GetHTMLForFORMCforCompany(compName, args):
+  CheckRequiredAttribsAndThrowExcIfNotPresent(args, ["sdate", "edate", "letterHead", "kindAttentionPerson", "additional_line", "remarksColumn" ])
+  billList = GetAllCompaniesDict().GetBillsListForThisCompany(compName)
+  if not billList:
+    raise MyException("\nM/s {} has no bills".format(compName))
+
+  #TODO: Remove args and take separate params
+  sdate = args.sdate  or min([b.invoiceDate for b in billList if not b.formCReceivingDate])
+  edate = args.edate or max([b.invoiceDate for b in billList if not b.formCReceivingDate])
+
+  sdateObject = ParseDateFromString(sdate)  # Start Date Object
+  edateObject = ParseDateFromString(edate)  # End Date Object
+
+  FORMCBillList = SelectBillsAfterDate(billList, sdateObject)
+  FORMCBillList = SelectBillsBeforeDate(FORMCBillList, edateObject)
+  FORMCBillList = RemoveTrackingBills(FORMCBillList)
+  FORMCBillList = RemoveGRBills(FORMCBillList)
+
+
+  if not FORMCBillList:
+      raise MyException("\nM/s {} has no FORM-C due".format(compName))
+
+  FORMCBillList = [b for b in FORMCBillList if not b.formCReceivingDate]
+
+  formC = QuarterlyClubbedFORMC(FORMCBillList)
+
+  return formC.GenerateFORMCMailContent(args)
+
+def GetToCCBCCForFORMCforCompany(compName):
+    toMailList = GetAllCustomersInfo().GetFormCEmailAsListForCustomer(compName) or GetAllCustomersInfo().GetPaymentReminderEmailAsListForCustomer(compName)
+    if not toMailList:
+      raise  Exception("\nNo mail feeded for {}. Please insert a proper email in 'Cust' sheet of 'Bills.xlsx'".format(compName))
+    section = "EMAIL_REMINDER_SECTION"
+    return toMailList, GetOption(section, 'CCEmailList').split(','), GetOption(section, 'BCCEmailList').split(',')
+

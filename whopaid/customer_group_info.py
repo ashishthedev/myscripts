@@ -25,6 +25,9 @@ from whopaid.customers_info import GetAllCustomersInfo
 ALL_CUST_INFO = GetAllCustomersInfo()
 ALL_BILLS_DICT = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
 
+def HasFormCReminderEmailsForCompany(compName):
+    return ALL_CUST_INFO.GetFormCEmailAsListForCustomer(compName) != None
+
 def HasPaymentReminderEmailsForCompany(compName):
     return ALL_CUST_INFO.GetPaymentReminderEmailAsListForCustomer(compName) != None
 

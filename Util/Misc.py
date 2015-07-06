@@ -52,6 +52,12 @@ class tempCopy(object):
     return
 
 
+def CheckRequiredAttribsAndThrowExcIfNotPresent(obj, attribs):
+  for a in attribs:
+    if not hasattr(obj, a):
+      raise Exception("`{}` does not have declared required attribute `{}`.".format(obj.__name__, a))
+  return None
+
 class cd(object):
   """Context manager for changing the current working directory"""
   def __init__(self, newPath):

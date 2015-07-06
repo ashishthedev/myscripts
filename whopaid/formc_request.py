@@ -11,14 +11,13 @@
 from Util.Config import GetOption
 from Util.Decorators import timeThisFunction
 from Util.Exception import MyException
-from Util.Misc import ParseDateFromString, PrintInBox, OpenFileForViewing, MakeSureDirExists
+from Util.Misc import PrintInBox, OpenFileForViewing, MakeSureDirExists
 from Util.PythonMail import SendMail
 
 from whopaid.customers_info import GetAllCustomersInfo
 from whopaid.sanity_checks import CheckConsistency
-from whopaid.util_formc import QuarterlyClubbedFORMC
-from whopaid.util_whopaid import GetAllCompaniesDict, SelectBillsAfterDate,\
-        SelectBillsBeforeDate, GuessCompanyName, RemoveTrackingBills, RemoveGRBills
+from whopaid.util_whopaid import GuessCompanyName, GetHTMLForFORMCforCompany
+from whopaid.util_formc import GetToCCBCCForFORMCforCompany
 
 
 import argparse
@@ -108,73 +107,48 @@ Thanks.
   return
 
 
+
 def SendFORMCMailToCompany(compName, args):
-    billList = GetAllCompaniesDict().GetBillsListForThisCompany(compName)
-    if not billList:
-      raise MyException("\nM/s {} has no bills".format(compName))
-
-    #TODO: Remove args and take separate params
-    sdate = args.sdate or min([b.invoiceDate for b in billList if not b.formCReceivingDate])
-    edate = args.edate or max([b.invoiceDate for b in billList if not b.formCReceivingDate])
-
-    sdateObject = ParseDateFromString(sdate)  # Start Date Object
-    edateObject = ParseDateFromString(edate)  # End Date Object
-
-    FORMCBillList = SelectBillsAfterDate(billList, sdateObject)
-    FORMCBillList = SelectBillsBeforeDate(FORMCBillList, edateObject)
-    FORMCBillList = RemoveTrackingBills(FORMCBillList)
-    FORMCBillList = RemoveGRBills(FORMCBillList)
-
-
-    if not FORMCBillList:
-        raise MyException("\nM/s {} has no FORM-C due".format(compName))
-
-    FORMCBillList = [b for b in FORMCBillList if not b.formCReceivingDate]
-
-    formC = QuarterlyClubbedFORMC(FORMCBillList)
+  if ShouldSendEmail(args):
+    mailBody = GetHTMLForFORMCforCompany(compName, args)
+    print("Sending mail...")
+    #First prefrence to FormCEmails. If not present use payment emails.
     companyOfficialName = GetAllCustomersInfo().GetCompanyOfficialName(compName)
     if not companyOfficialName:
-        raise MyException("\nM/s {} doesnt have a displayable 'name'. Please feed it in the database".format(compName))
+      raise MyException("\nM/s {} doesnt have a displayable 'name'. Please feed it in the database".format(compName))
 
-    if ShouldSendEmail(args):
-        mailBody = formC.GenerateFORMCMailContent(args)
-        print("Sending mail...")
-        #First prefrence to FormCEmails. If not present use payment emails.
-        toMailList = GetAllCustomersInfo().GetFormCEmailAsListForCustomer(compName) or GetAllCustomersInfo().GetPaymentReminderEmailAsListForCustomer(compName)
-        if not toMailList:
-            raise  Exception("\nNo mail feeded. Please insert a proper email in 'Cust' sheet of 'Bills.xlsx'")
+    toMailList, ccMailList, bccMailList = GetToCCBCCForFORMCforCompany(compName)
+    print("Sending to: " + str(toMailList))
 
-        print("Sending to: " + str(toMailList))
+    section = "EMAIL_REMINDER_SECTION"
+    requestingCompanyName = GetOption("CONFIG_SECTION", 'CompName')
+    emailSubject = "FORM-C request - M/s {} - from M/s {}".format(companyOfficialName, requestingCompanyName)
+    SendMail(emailSubject=emailSubject,
+        zfilename=None,
+        SMTP_SERVER=GetOption(section, 'Server'),
+        SMTP_PORT=GetOption(section, 'Port'),
+        FROM_EMAIL=GetOption(section, 'FromEmailAddress'),
+        TO_EMAIL_LIST=toMailList,
+        CC_EMAIL_LIST=ccMailList,
+        BCC_EMAIL_LIST=bccMailList,
+        MPASS=GetOption(section, 'Mpass'),
+        BODYTEXT=mailBody,
+        textType="html",
+        fromDisplayName = GetOption(section, "formCRequest")
+        )
+  else:
+    fileHTMLContent = GetHTMLForFORMCforCompany(compName, args)
+    #Save to an html file
+    MakeSureDirExists(DEST_FOLDER)
+    filePath = os.path.join(DEST_FOLDER, companyOfficialName) + ".html"
+    print("Saving FORM-C to local file: " + filePath)
 
-        section = "EMAIL_REMINDER_SECTION"
-        requestingCompanyName = GetOption("CONFIG_SECTION", 'CompName')
-        emailSubject = "FORM-C request - M/s {} - from M/s {}".format(companyOfficialName, requestingCompanyName)
-        SendMail(emailSubject=emailSubject,
-                zfilename=None,
-                SMTP_SERVER=GetOption(section, 'Server'),
-                SMTP_PORT=GetOption(section, 'Port'),
-                FROM_EMAIL=GetOption(section, 'FromEmailAddress'),
-                TO_EMAIL_LIST=toMailList,
-                CC_EMAIL_LIST=GetOption(section, 'CCEmailList').split(','),
-                BCC_EMAIL_LIST=GetOption(section, 'BCCEmailList').split(','),
-                MPASS=GetOption(section, 'Mpass'),
-                BODYTEXT=mailBody,
-                textType="html",
-                fromDisplayName = GetOption(section, "formCRequest")
-                )
-    else:
-        fileHTMLContent = formC.GenerateFORMCMailContent(args)
-        #Save to an html file
+    with open(filePath, "w") as f:
+      f.write(fileHTMLContent)
 
-        MakeSureDirExists(DEST_FOLDER)
-        filePath = os.path.join(DEST_FOLDER, companyOfficialName) + ".html"
-        print("Saving FORM-C to local file: " + filePath)
-
-        with open(filePath, "w") as f:
-            f.write(fileHTMLContent)
-
-        if args.open: OpenFileForViewing(filePath)
-    return
+    if args.open:
+      OpenFileForViewing(filePath)
+  return
 
 
 if __name__ == '__main__':
