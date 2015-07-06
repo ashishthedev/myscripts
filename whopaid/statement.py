@@ -13,8 +13,7 @@ from Util.Misc import PrintInBox, DD_MMM_YYYY, ConsoleTable
 
 from whopaid.customers_info import GetAllCustomersInfo
 from whopaid.sanity_checks import CheckConsistency
-from whopaid.util_whopaid import GetAllCompaniesDict, GuessCompanyGroupName
-from whopaid.payment_reminders_for_groups import GetPayableBillsAndAdjustmentsForThisComp
+from whopaid.util_whopaid import GetAllCompaniesDict, GuessCompanyGroupName, GetPayableBillsAndAdjustmentsForThisComp
 
 import argparse
 
@@ -62,7 +61,7 @@ def GetMinusOneBills(billList):
 
 
 def ShowStatementOnTerminal(grpName):
-  compsInGrp = ALL_CUST_INFO.GetListOfCompNamesForThisGrp(grpName)
+  compsInGrp = ALL_CUST_INFO.GetListOfCompNamesInThisGroup(grpName)
   for compName in compsInGrp:
     if not compName in ALL_BILLS_DICT:
       #print("{compName} has no issued bills till date. Ignoring it.".format(compName=compName))

@@ -108,7 +108,7 @@ def AskQuestionsFromUserAndSendMail(args):
 
   if not args.kaPerson:
     #If no person was specified at command line then pick one from the database.
-    for eachComp in ALL_CUST_INFO.GetListOfCompNamesForThisGrp(grpName):
+    for eachComp in ALL_CUST_INFO.GetListOfCompNamesInThisGroup(grpName):
       personFromDB = ALL_CUST_INFO.GetCustomerKindAttentionPerson(eachComp)
       if personFromDB and 'y' == raw_input("Mention kind attn: {} (y/n)?".format(personFromDB)).lower():
         args.kaPerson = personFromDB
@@ -119,7 +119,7 @@ def AskQuestionsFromUserAndSendMail(args):
 
   if args.sendsms:
     #TODO: Take sms out of mail block and use same chosen company may be throgh singleton
-    compsInGrp = ALL_CUST_INFO.GetListOfCompNamesForThisGrp(grpName)
+    compsInGrp = ALL_CUST_INFO.GetListOfCompNamesInThisGroup(grpName)
     firstCompInGrp = compsInGrp[0]
     totalDue = TotalDueForGroupAsInt(grpName)
     if args.sendsmstoMD:
@@ -178,7 +178,7 @@ def ShouldWeSendAutomaticEmailForGroup(grpName):
     if show:
       print("{:<55}| {}".format(grpName, reason))
 
-  compsInGrp = ALL_CUST_INFO.GetListOfCompNamesForThisGrp(grpName)
+  compsInGrp = ALL_CUST_INFO.GetListOfCompNamesInThisGroup(grpName)
   firstCompInGrp = compsInGrp[0]
   unpaidBillsList = []
   paymentsList = []
@@ -244,7 +244,7 @@ def ShouldWeSendAutomaticEmailForGroup(grpName):
 
 
 def SendReminderToGrp(grpName, args):
-  compsInGrp = ALL_CUST_INFO.GetListOfCompNamesForThisGrp(grpName)
+  compsInGrp = ALL_CUST_INFO.GetListOfCompNamesInThisGroup(grpName)
   import pprint
   PrintInBox("Preparing mails for following companies:")
   pprint.pprint(compsInGrp)
