@@ -11,7 +11,7 @@ source $VIMRUNTIME/mswin.vim
 behave mswin
 :function! GetAPPDIR()
 :if expand($APPDIR)==""
-:   return "c:\\users\\Ichigo\\Dropbox\\SDATDocs"
+:   return "b:\\GDrive\\AppDir"
 :else
 :   return expand($APPDIR)
 :endfunction

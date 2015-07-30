@@ -95,6 +95,9 @@ def ParseOptions():
       default=False, action="store_true", help="Only list names, do not "
       "send. To be used with automatic reminders")
 
+  parser.add_argument("-nlt", "--no-letter-date", dest="doNotShowLetterDate", default=False,
+      action="store_true", help="If present, letter date will not be shown")
+
   parser.add_argument("-ncd", "--no-credit-days", dest="doNotShowCreditDays", default=False,
       action="store_true", help="If present, credit days will not be shown against bills")
 

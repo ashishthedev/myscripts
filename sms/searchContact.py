@@ -1,10 +1,9 @@
 from Util.Misc import PrintInBox
-import subprocess
-import os
 from Util.Config import GetAppDir, GetOption
 from Util.Contacts import AllContacts
 
 import argparse
+import os
 
 def ParseOptions():
     parser = argparse.ArgumentParser()

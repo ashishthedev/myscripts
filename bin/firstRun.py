@@ -39,6 +39,7 @@ def SetAPPDIREnvVariable():
   if raw_input("APPDIR=={} (y/n)".format(appDir)) != 'y':
     appDir = raw_input("Enter the appdirPath(Hint: parent of parent of pycrm.cfg)")
   Setx("APPDIR", appDir)
+  #GOPATH=b:\GDrive\Appdir\mygopath\
   return appDir
 
 def main ():

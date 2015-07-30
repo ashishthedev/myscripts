@@ -8,11 +8,17 @@ BILL_PDF_FILE_PATH = "B:\\desktop\\m.pdf"
 from Util.SonyPhoneBook import ParseVCardFile
 from Util.PythonZip import ExtractFileIntoTempDirFromZippedFile
 from Util.Latest import LatestFilePathUnderThisDirectory
-from Util.Config import GetAppDir
 from Util.Misc import DD_MM_YYYY, ParseDateFromString
+from Util.Contacts import AllContacts
+from Util.Config import GetAppDir, GetOption
 import os
 import pyPdf
 
+
+
+_AK_CONTACT_FILE = "akcon.csv"
+_AK_CSV =  os.path.abspath(os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "ContactsRelativePath"), os.pardir, _AK_CONTACT_FILE))
+akContacts = AllContacts(_AK_CSV)
 
 _CONTACT_FILE = "contacts.vcf"
 _JOHNBACKUPDIR = os.path.join(GetAppDir(), "..\\Personal\\Phone\\Nano Phone Naite backup")
@@ -21,85 +27,90 @@ CONTACT_LIST = ParseVCardFile(
             LatestFilePathUnderThisDirectory(_JOHNBACKUPDIR), _CONTACT_FILE))
 
 class CallRecord(object):
-    def __init__(self, number, date, time, duration, amount, personName):
-        self.number = number
-        self.date = ParseDateFromString(date)
-        self.time = time
-        self.duration = duration
-        self.amount = amount
-        self.personName = personName
-        self.isMessage = True if (duration == None and number != None) else False
-        self.isMobileInternet = True if (duration == None and time == None) else False
-        self.isCall = not self.isMessage
+  def __init__(self, number, date, time, duration, amount, personName, rcType):
+    self.number = number
+    self.date = ParseDateFromString(date)
+    self.time = time
+    self.duration = duration
+    self.amount = amount
+    self.personName = personName
+    self.isMessage = True if (duration == None and number != None) else False
+    self.isMobileInternet = True if (duration == None and time == None) else False
+    self.isCall = not self.isMessage
+    self.rcType = rcType
 
-    def __str__(self):
-        if self.personName:
-            identification = self.personName
-        else:
-            identification = str(self.number) + "<<<<<<<<<<<<<<<<<<<<"
+  def __str__(self):
+    if self.personName:
+      identification = self.personName
+    else:
+      identification = str(self.number) + "<<<<<<<<<<<<<<<<<<<<"
 
-        if self.isMessage:
-            duration = "SMS"
-        elif self.isMobileInternet:
-            duration = "MOBILE_INTERNET"
-        else:
-            duration = self.duration
+    if self.isMessage:
+      duration = "SMS"
+    elif self.isMobileInternet:
+      duration = "MOBILE_INTERNET"
+    else:
+      duration = self.duration
 
-        return "{:<15} {:<10} {:<10} {:<10}".format(
-                DD_MM_YYYY(self.date),
-                self.time,
-                duration,
-                identification,
-                )
+    return "{:<15} {:<10} {:<10} {:<10}".format(
+        DD_MM_YYYY(self.date),
+        self.time,
+        duration,
+        identification,
+        )
 
 def CreateRecordFromThisString(recordString):
-    if recordString[2] != "-" or recordString[6] != "-":
-      #Bare minimum criteria for even attempting to create a record
-      #raise Exception("Trying to feed an invalid record")
-      print("Cannot understand : {}".format(recordString))
+  if recordString[2] != "-" or recordString[6] != "-":
+    #Bare minimum criteria for even attempting to create a record
+    #raise Exception("Trying to feed an invalid record")
+    print("Cannot understand : {}".format(recordString))
+    return None
+
+  rcType = TryToDeduceTypeOfRecord(recordString)
+
+  if RECORD_TYPE.CALL == rcType:
+      date = recordString[CALL_SEMANTICS.DATE_FROM:CALL_SEMANTICS.DATE_TO]
+      time = recordString[CALL_SEMANTICS.TIME_FROM : CALL_SEMANTICS.TIME_TO]
+      number = recordString[CALL_SEMANTICS.NUMBER_FROM : CALL_SEMANTICS.NUMBER_TO]
+      duration = recordString[CALL_SEMANTICS.DURATION_FROM: CALL_SEMANTICS.DURATION_TO]
+      amount = recordString[CALL_SEMANTICS.AMOUNT_FROM: CALL_SEMANTICS.AMOUNT_TO]
+      personName = FindName(number)
+      rcType = rcType
+      return CallRecord(number, date, time, duration, amount, personName, rcType)
+
+  elif RECORD_TYPE.MSG == rcType:
+      date = recordString[MSG_SEMANTICS.DATE_FROM:MSG_SEMANTICS.DATE_TO]
+      time = recordString[MSG_SEMANTICS.TIME_FROM : MSG_SEMANTICS.TIME_TO]
+      number = recordString[MSG_SEMANTICS.NUMBER_FROM : MSG_SEMANTICS.NUMBER_TO]
+      duration = None
+      amount = recordString[MSG_SEMANTICS.AMOUNT_FROM: MSG_SEMANTICS.AMOUNT_TO]
+      personName = FindName(number)
+      rcType = rcType
+      return CallRecord(number, date, time, duration, amount, personName, rcType)
+
+  elif RECORD_TYPE.ROAMING == rcType:
+      date = recordString[ROAMING_SEMANTICS.DATE_FROM:ROAMING_SEMANTICS.DATE_TO]
+      time = recordString[ROAMING_SEMANTICS.TIME_FROM : ROAMING_SEMANTICS.TIME_TO]
+      number = recordString[ROAMING_SEMANTICS.NUMBER_FROM : ROAMING_SEMANTICS.NUMBER_TO]
+      duration = recordString[ROAMING_SEMANTICS.DURATION_FROM : ROAMING_SEMANTICS.DURATION_TO]
+      amount = recordString[ROAMING_SEMANTICS.AMOUNT_FROM: ROAMING_SEMANTICS.AMOUNT_TO]
+      personName = FindName(number)
+      rcType = rcType
+      return CallRecord(number, date, time, duration, amount, personName, rcType)
+
+  elif RECORD_TYPE.MOBILE_INTERNET == rcType:
+      date = recordString[  MOBILE_INTERNET_SEMANTICS.DATE_FROM:MOBILE_INTERNET_SEMANTICS.DATE_TO]
+      time = None
+      number = None
+      duration = None
+      amount = recordString[MOBILE_INTERNET_SEMANTICS.AMOUNT_FROM: MOBILE_INTERNET_SEMANTICS.AMOUNT_TO]
+      personName = None
+      rcType = rcType
+      return CallRecord(number, date, time, duration, amount, personName, rcType)
+
+  else:
+      print("Cannot understand: Len: {} | {}".format(len(recordString), recordString))
       return None
-
-    rcType = TryToDeduceTypeOfRecord(recordString)
-
-    if RECORD_TYPE.CALL == rcType:
-        date = recordString[CALL_SEMANTICS.DATE_FROM:CALL_SEMANTICS.DATE_TO]
-        time = recordString[CALL_SEMANTICS.TIME_FROM : CALL_SEMANTICS.TIME_TO]
-        number = recordString[CALL_SEMANTICS.NUMBER_FROM : CALL_SEMANTICS.NUMBER_TO]
-        duration = recordString[CALL_SEMANTICS.DURATION_FROM: CALL_SEMANTICS.DURATION_TO]
-        amount = recordString[CALL_SEMANTICS.AMOUNT_FROM: CALL_SEMANTICS.AMOUNT_TO]
-        personName = FindName(number)
-        return CallRecord(number, date, time, duration, amount, personName)
-
-    elif RECORD_TYPE.MSG == rcType:
-        date = recordString[MSG_SEMANTICS.DATE_FROM:MSG_SEMANTICS.DATE_TO]
-        time = recordString[MSG_SEMANTICS.TIME_FROM : MSG_SEMANTICS.TIME_TO]
-        number = recordString[MSG_SEMANTICS.NUMBER_FROM : MSG_SEMANTICS.NUMBER_TO]
-        duration = None
-        amount = recordString[MSG_SEMANTICS.AMOUNT_FROM: MSG_SEMANTICS.AMOUNT_TO]
-        personName = FindName(number)
-        return CallRecord(number, date, time, duration, amount, personName)
-
-    elif RECORD_TYPE.ROAMING == rcType:
-        date = recordString[ROAMING_SEMANTICS.DATE_FROM:ROAMING_SEMANTICS.DATE_TO]
-        time = recordString[ROAMING_SEMANTICS.TIME_FROM : ROAMING_SEMANTICS.TIME_TO]
-        number = recordString[ROAMING_SEMANTICS.NUMBER_FROM : ROAMING_SEMANTICS.NUMBER_TO]
-        duration = recordString[ROAMING_SEMANTICS.DURATION_FROM : ROAMING_SEMANTICS.DURATION_TO]
-        amount = recordString[ROAMING_SEMANTICS.AMOUNT_FROM: ROAMING_SEMANTICS.AMOUNT_TO]
-        personName = FindName(number)
-        return CallRecord(number, date, time, duration, amount, personName)
-
-    elif RECORD_TYPE.MOBILE_INTERNET == rcType:
-        date = recordString[  MOBILE_INTERNET_SEMANTICS.DATE_FROM:MOBILE_INTERNET_SEMANTICS.DATE_TO]
-        time = None
-        number = None
-        duration = None
-        amount = recordString[MOBILE_INTERNET_SEMANTICS.AMOUNT_FROM: MOBILE_INTERNET_SEMANTICS.AMOUNT_TO]
-        personName = None
-        return CallRecord(number, date, time, duration, amount, personName)
-
-    else:
-        print("Cannot understand: Len: {} | {}".format(len(recordString), recordString))
-        return None
 
 class CALL_SEMANTICS:
     """
@@ -174,38 +185,39 @@ def process_text_and_get_list_of_records(text):
 
 
 def FindName(number):
-  for c in CONTACT_LIST:
-    if c.strippedNo == number:
-      return c.name
+  print("Finding name for {}".format(number))
+  relatedContacts = akContacts.FindRelatedContacts(number)
+  if relatedContacts:
+    return " ".join([c.Name() for c in relatedContacts])
   return None
 
 
 def TryToDeduceTypeOfRecord(recordString):
-    zones = ["east", "west", "north", "south"]
-    #The ordering of following if else blocks is important
-    if recordString.find("mobile internet usage") != -1:
-        return RECORD_TYPE.MOBILE_INTERNET
-    if recordString.find(".com") != -1:
-        return RECORD_TYPE.GPRS
-    elif len([z for z in zones if recordString.find(z) != -1]) >0: #IF any zone is present
-        return RECORD_TYPE.ROAMING
-    elif recordString.count(":") == 2: #Only 2 colons in time stamps
-        return RECORD_TYPE.MSG
-    elif recordString.count(":") == 3: #Only 3 colons in time stamp and durations
-        return RECORD_TYPE.CALL
-    else:
-        return RECORD_TYPE.DONT_KNOW
-    return
+  zones = ["east", "west", "north", "south"]
+  #The ordering of following if else blocks is important
+  if recordString.find("mobile internet usage") != -1:
+    return RECORD_TYPE.MOBILE_INTERNET
+  if recordString.find(".com") != -1:
+    return RECORD_TYPE.GPRS
+  elif len([z for z in zones if recordString.find(z) != -1]) >0: #IF any zone is present
+    return RECORD_TYPE.ROAMING
+  elif recordString.count(":") == 2: #Only 2 colons in time stamps
+    return RECORD_TYPE.MSG
+  elif recordString.count(":") == 3: #Only 3 colons in time stamp and durations
+    return RECORD_TYPE.CALL
+  else:
+    return RECORD_TYPE.DONT_KNOW
+  return
 
 
 class RECORD_TYPE:
-    DONT_KNOW = -1
-    TEXT = 1
-    CALL = 2
-    MSG = 3
-    ROAMING = 4
-    GPRS = 5
-    MOBILE_INTERNET = 6
+  DONT_KNOW = -1
+  TEXT = 1
+  CALL = 2
+  MSG = 3
+  ROAMING = 4
+  GPRS = 5
+  MOBILE_INTERNET = 6
 
 
 def DebugPDFSemantics(text):
@@ -256,8 +268,25 @@ def main():
   listOfRecords = [l for l in listOfRecords if l]
   listOfRecords = sorted(listOfRecords, key = lambda r: (r.date, r.time))
 
+
   for r in listOfRecords:
     print(r)
+
+
+  print("_"*70)
+  print("Late in night: ")
+  print("_"*70)
+  listOfRecords = sorted([l for l in listOfRecords if l.isCall], key = lambda r: (r.time), reverse=True)
+  for r in listOfRecords:
+    print(r)
+
+  print("_"*70)
+  print("Most talked to: ")
+  print("_"*70)
+  listOfRecords = sorted([l for l in listOfRecords if l.isCall], key = lambda r: (r.duration), reverse=True)
+  for r in listOfRecords:
+    print(r)
+
 
 if __name__ == '__main__':
     main()

@@ -105,20 +105,21 @@ Docket: $tDocketNumber
       SendSms(x, smsContents)
       print("Sending sms to {}\n{}".format(x,smsContents))
 
-    if delay > 0:
-      emailSubject = "FedEx Late Delivery: {}".format(self.bill.compName)
-      toMailList = [k[::-1] for k in GetOption("SMS_SECTION", "DelayedDeliveryReportMailIdsR").split(",") if k.strip()]
-      ccMailList = None
-      bccMailList = None
-      mailBody = smsContents
-      SendOfficialEmail(emailSubject,
-          None,
-          toMailList,
-          ccMailList,
-          bccMailList,
-          mailBody,
-          textType="html",
-          fromDisplayName = "FedEx Late Delivery")
+    if False:
+      if delay > 0:
+        emailSubject = "FedEx Late Delivery: {}".format(self.bill.compName)
+        toMailList = [k[::-1] for k in GetOption("SMS_SECTION", "DelayedDeliveryReportMailIdsR").split(",") if k.strip()]
+        ccMailList = None
+        bccMailList = None
+        mailBody = smsContents
+        SendOfficialEmail(emailSubject,
+            None,
+            toMailList,
+            ccMailList,
+            bccMailList,
+            mailBody,
+            textType="html",
+            fromDisplayName = "FedEx Late Delivery")
 
     return
 
