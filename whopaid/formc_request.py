@@ -109,13 +109,13 @@ Thanks.
 
 
 def SendFORMCMailToCompany(compName, args):
+  companyOfficialName = GetAllCustomersInfo().GetCompanyOfficialName(compName)
+  if not companyOfficialName:
+    raise MyException("\nM/s {} doesnt have a displayable 'name'. Please feed it in the database".format(compName))
+
   if ShouldSendEmail(args):
     mailBody = GetHTMLForFORMCforCompany(compName, args)
     print("Sending mail...")
-    #First prefrence to FormCEmails. If not present use payment emails.
-    companyOfficialName = GetAllCustomersInfo().GetCompanyOfficialName(compName)
-    if not companyOfficialName:
-      raise MyException("\nM/s {} doesnt have a displayable 'name'. Please feed it in the database".format(compName))
 
     toMailList, ccMailList, bccMailList = GetToCCBCCForFORMCforCompany(compName)
     print("Sending to: " + str(toMailList))
