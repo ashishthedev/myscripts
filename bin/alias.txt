@@ -257,6 +257,7 @@ gpom = git push origin master $*
 gcam = git commit -am $*
 gmms = git merge --squash $*
 gbmd = git branch -D $*
+gcmb = git checkout -b $*
 es = exercism submit $*
 ef = exercism fetch
 gft = go fmt && go test

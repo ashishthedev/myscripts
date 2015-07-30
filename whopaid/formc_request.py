@@ -16,8 +16,8 @@ from Util.PythonMail import SendMail
 
 from whopaid.customers_info import GetAllCustomersInfo
 from whopaid.sanity_checks import CheckConsistency
-from whopaid.util_whopaid import GuessCompanyName, GetHTMLForFORMCforCompany
-from whopaid.util_formc import GetToCCBCCForFORMCforCompany
+from whopaid.util_whopaid import GuessCompanyName
+from whopaid.util_formc import GetToCCBCCForFORMCforCompany, GetHTMLForFORMCforCompany
 
 
 import argparse
