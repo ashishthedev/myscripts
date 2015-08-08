@@ -31,6 +31,8 @@ gitamend = git commit --amend --no-edit
 re=pushd %XDATDOCSDIR%\code\bin && doskey /Macrofile=alias.txt && popd
 ..=cd..
 ...=cd..\..
+....=cd..\..\..
+.....=cd..\..\..\..
 
 idle = %XDATDOCSDIR%\code\bin\idle.lnk
 mv=move $*
@@ -271,6 +273,7 @@ mp = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919810181182" -
 mg = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919971602777" -sc $* && popd
 ma = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919971008001" -sc $* && popd
 mpg = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919971602777" -sc $* && SmsFromCommandLine.py -n "+919810181182" -sc $* && popd
+mpa = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919971008001" -sc $* && SmsFromCommandLine.py -n "+919810181182" -sc $* && popd
 cat = type $* | more
 
 gadv=pushd "B:\GDrive\EPYM17\Operations Management\Adv Operations Management"
@@ -284,4 +287,8 @@ demos = pushd %XDATDOCSDIR%\..\atddemos\ && start_shell.bat && exit
 ;= Virtual Envs
 vensp = virtualenv --no-site-packages $*
 workontest = pushd %XDATDOCSDIR%\..\ve_django_test\ && scripts\activate && color 87 && prompt [test]$P$_$$
-wodga = pushd b:\\desktop\\ve\\dga .. do it later
+
+wodbs = pushd %XDATDOCSDIR%\..\django_bkstore_ve\bin && start_shell.bat && exit
+wobp = pushd b:\desktop\ve\django_blog && scripts\activate.bat
+
+wocld = pushd %APPDIR%\cliamaticDemo_ve && scripts\activate.bat && color 8A && prompt[CLIMATIC_DEMO_VE]$P$_$$

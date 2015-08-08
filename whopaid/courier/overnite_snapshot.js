@@ -6,6 +6,7 @@ var page = require('webpage').create(),
     system = require('system'),
     fs = require('fs');
 
+page.viewportSize = { width: 1024, height: 768 };
 page.customHeaders = {
     "Host": "www.overnitenet.com",
     "Content-Type" : "application/x-www-form-urlencoded",

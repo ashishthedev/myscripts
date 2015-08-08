@@ -18,7 +18,7 @@ def main():
       Entry(os.path.join("b:\\", "iPhoneAkanshaImages"), os.path.join("D:\\", "iPhoneAkanshaImages\\")),
       Entry(os.path.join("b:\\", "Photographs"), os.path.join("D:\\", "Photographs\\")),
       Entry(os.path.join("b:\\", "Watch"), os.path.join("D:\\", "Watch\\")),
-      ntry(os.path.join("b:\\", "Songs"), os.path.join("D:\\", "Songs\\")),
+      Entry(os.path.join("b:\\", "Songs"), os.path.join("D:\\", "Songs\\")),
       Entry(os.path.join("b:\\", "Read"), os.path.join("D:\\", "Read\\")),
       Entry(os.path.join("b:\\", "Pendrive"), os.path.join("D:\\", "Pendrive\\")),
       ]

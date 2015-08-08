@@ -37,10 +37,11 @@ class TestShipment():
 
 def main():
     bill = CreateATestBill()
-    bill.courierName = "FedEx"
-    bill.docketNumber = "805859930564"
+    bill.courierName = "Overnite"
+    bill.docketNumber = "8052909421"
+    #8051692143
     with TestShipment(bill) as ts:
-      ts.SetEDD("26/03/2015")
+      #ts.SetEDD("26/03/2015")
       ts.TrackAndSave()
       print("Status of test shipment: {}".format(ts.status))
       print("IS Delivered:{}".format(ts.isDelivered))

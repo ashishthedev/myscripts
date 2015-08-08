@@ -231,9 +231,9 @@ class _PersistentBillBookSms(Persistent):
       bills = [b for b in bills if b.billingCategory.lower() == category.lower()]
       bills = sorted(bills, key = lambda b: b.billNumber)
       BILL_BOOK_SIZE = 50
-      BUFFER = 5
+      BUFFER = 10
       for b in bills:
-        if int(b.billNumber) % BILL_BOOK_SIZE != (BILL_BOOK_SIZE - BUFFER): continue#Send the sms when 5 bills are remaining
+        if int(b.billNumber) % BILL_BOOK_SIZE != (BILL_BOOK_SIZE - BUFFER): continue#Send the sms when 10 bills are remaining
         if self._wasSMSSentForBill(b): continue
         firstBillInNextBillBook = int(b.billNumber) + BUFFER + 1
         if firstBillInNextBillBook in [x.billNumber for x in bills]: continue #A bill in new bill book has been issued. Ignore and move on in life.

@@ -628,15 +628,16 @@ def _RemoveDocketFromIndex(docketNumbers):
       print("Could not find the docket {}".format(d))
   return
 
-def _NewSnapshotForDocket(docketNumber):
-  print("About to take a new snapshot for docket: {}".format(docketNumber))
-  for s in PersistentShipments().GetAllStoredShipments():
-    if s.bill.docketNumber == docketNumber:
-      print("Taking snapshot for docket {}".format(docketNumber))
-      s.TakeNewSnapshot()
-      break
-  else:
-    print("Could not find the docket {}".format(docketNumber))
+def _NewSnapshotForDocket(docketNumbers):
+  for docketNumber in docketNumbers:
+    print("About to take a new snapshot for docket: {}".format(docketNumber))
+    for s in PersistentShipments().GetAllStoredShipments():
+      if str(s.bill.docketNumber) == str(docketNumber):
+        print("Taking snapshot for docket {}".format(docketNumber))
+        s.TakeNewSnapshot()
+        break
+    else:
+      print("Could not find the docket {}".format(docketNumber))
   return
 
 def ShowUndeliveredSmalOnScreen():

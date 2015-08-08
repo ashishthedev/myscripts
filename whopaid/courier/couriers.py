@@ -361,7 +361,7 @@ class OverniteCourier():
     self.shipment = shipment
 
   def GetStatus(self):
-    self.reqUrl = "http://www.overnitenet.com/WebTrack.aspx"
+    self.reqUrl = "http://www.overnitenet.com/Default.aspx"
     self.FORM_DATA = GetRawOption("COURIER_FORM_DATA", "Overnite").format(docket=self.bill.docketNumber)
     req = urllib2.Request(self.reqUrl)
     req.add_header("Host" , "www.overnitenet.com")
@@ -377,10 +377,14 @@ class OverniteCourier():
     return res
 
   def _get_status_from_overnite_html_resp(self, html):
-    resultsId = "ctl00_CntPlaceHolderDetails_GridViewOuter_ctl02_lblStatus"
+    resultsId = "Status :"
+    statusLineSeen = False
     for eachLine in html.split("\n"):
-      if eachLine.find(resultsId) != -1:
+      if statusLineSeen:
+        #Return the line which appears after: "Status :"
         return StripHTMLTags(eachLine.strip())
+      if eachLine.find(resultsId) != -1:
+        statusLineSeen = True
     else:
       raise Exception("Cannot parse overnite response for bill: {}".format(self.bill))
 
