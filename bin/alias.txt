@@ -291,4 +291,4 @@ workontest = pushd %XDATDOCSDIR%\..\ve_django_test\ && scripts\activate && color
 wodbs = pushd %XDATDOCSDIR%\..\django_bkstore_ve\bin && start_shell.bat && exit
 wobp = pushd b:\desktop\ve\django_blog && scripts\activate.bat
 
-wocld = pushd %APPDIR%\cliamaticDemo_ve && scripts\activate.bat && color 8A && prompt[CLIMATIC_DEMO_VE]$P$_$$
+wocld = pushd %APPDIR%\climaticDemo_ve\app\bin && start_shell.bat
