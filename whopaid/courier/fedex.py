@@ -66,6 +66,9 @@ class FedExCourier():
       print("No EDD present for {}".format(self.bill.docketNumber))
       return
     if not hasattr(self.shipment, 'actualDeliveryDate'):
+      print("No ADD attribute present for {}".format(self.bill.docketNumber))
+      return
+    if not self.shipment.actualDeliveryDate:
       print("No ADD present for {}".format(self.bill.docketNumber))
       return
 

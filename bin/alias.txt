@@ -292,3 +292,5 @@ wodbs = pushd %XDATDOCSDIR%\..\django_bkstore_ve\bin && start_shell.bat && exit
 wobp = pushd b:\desktop\ve\django_blog && scripts\activate.bat
 
 wocld = pushd %APPDIR%\climaticDemo_ve\app\bin && start_shell.bat
+wocwa = pushd %APPDIR%\climatic_webapp_ve\app\bin && start_shell.bat
+woaw = pushd %APPDIR%\adaptwater_ve\app\bin && start_shell.bat

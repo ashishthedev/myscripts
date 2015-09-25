@@ -40,6 +40,7 @@ class AndriodSMSGateway(object):
         #We dont know how to check connection. May be ping?
         try:
             url = "http://{server}:{port}".format(server=self.SERVER, port=self.PORT)
+            print(url)
             resp = urllib2.urlopen(url, timeout=self.TIMEOUT)
             responseCode = resp.getcode()
             return responseCode == 200
@@ -140,4 +141,5 @@ def StripHTMLTags(html):
 if __name__ == "__main__":
   TEST_NUMBER = "4430890569"[::-1]
   if SMSOBJECT.CanSendSmsAsOfNow():
-    SMSOBJECT.SendSms(TEST_NUMBER, "Hi this is from program")
+    pass
+    #SMSOBJECT.SendSms(TEST_NUMBER, "Hi this is from program")

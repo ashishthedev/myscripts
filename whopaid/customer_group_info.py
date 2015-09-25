@@ -189,8 +189,9 @@ def _GetHTMLTableBlockForThisComp(compName, doNotShowCreditDays=False):
   allowedDaysOfCredit = int(ALL_CUST_INFO.GetCreditLimitForCustomer(compName))
 
   if not unpaidBillsList:
-    raise MyException("This function should not be called on empty lists"
-        " for it has to generate the mail content.")
+
+    raise MyException("There is no unpaid bill list for {}. This function should not be called on empty lists"
+        " for it has to generate the mail content.".format(compName))
 
   for eachBill in unpaidBillsList:
     assert eachBill.isUnpaid is True,\

@@ -320,6 +320,18 @@ class PersistentShipments(Persistent):
     allShipments = self.GetAllStoredShipments()
     return [s for s in allShipments if s.isUndelivered()]
 
+  def PurgeRedundantAwaitedShipments(self):
+    us = self.GetAllUndeliveredShipments()
+    awss = [s for s in us if s.bill.docketNumber.lower().startswith("awaited")]
+    allShipments = [s for s in self.GetAllStoredShipments() if s.daysPassed <= 30]
+    for aws in awss:
+      for s in allShipments:
+        if s.bill.compName == aws.bill.compName and s.bill.billNumber == aws.bill.billNumber and s.bill.invoiceDate == aws.bill.invoiceDate:
+          aws._removeFromDB()
+          break
+
+
+
 def SendMaterialDispatchSms(bill):
   optionalAmount = ""
   if IncludeAmountForBillInDispatchInfo(bill) and bill.amount != 0:
@@ -569,6 +581,9 @@ def ParseOptions():
     parser.add_argument("--track", dest="trackAllUndeliveredCouriers", action="store_true",
         default=False, help="Track all undelivered couriers")
 
+    parser.add_argument("-hrows", "--hideReportofAwaitedShipments", dest="hideReportofAwaitedShipments", action="store_true",
+        default=False, help="Track all undelivered couriers")
+
     parser.add_argument("-fdi", "--fanout-dispatch-info", dest="FanoutDispatchInfo", action="store_true",
         default=True, help="Fanout Dispatch Info to all companies through email and sms")
 
@@ -639,6 +654,13 @@ def _NewSnapshotForDocket(docketNumbers):
     else:
       print("Could not find the docket {}".format(docketNumber))
   return
+
+def ShowAwaitedShipmentsOnScreen():
+  us = PersistentShipments().GetAllUndeliveredShipments()
+  shipments = [s for s in us if s.bill.docketNumber.lower().startswith("awaited")]
+  PrintInBox("Following are awaited shipments:")
+  for i, s in enumerate(sorted(shipments, key=lambda s: s.bill.docketDate), start=1):
+    print("{}.{:<50} | {:<15} | {}".format(i, s.bill.compName, DD_MMM_YYYY(s.bill.docketDate), s.bill.docketNumber))
 
 def ShowUndeliveredSmalOnScreen():
   shipments = PersistentShipments().GetAllUndeliveredShipments()
@@ -754,6 +776,9 @@ def main(args):
   if args.sendAutomaricHeartBeat:
     SendAutomaticHeartBeat()
 
+  if not args.hideReportofAwaitedShipments:
+    ShowAwaitedShipmentsOnScreen()
+
 
 def FanOutDispatchInfoToAllComapnies(args):
   ps = PersistentShipments()
@@ -768,6 +793,7 @@ def FanOutDispatchInfoToAllComapnies(args):
   shipments = [s for s in shipments if s.daysPassed < max(MAX_DAYS_FOR_SENDING_NOTIFICATION, args.notifyDays)]
   shipments.sort(key=lambda s: s.bill.docketDate, reverse=True)
 
+  cmds = []
   for shipment in shipments:
     try:
       if args.sendMailToAllCompanies and \
@@ -775,19 +801,25 @@ def FanOutDispatchInfoToAllComapnies(args):
           shipment.bill.billingCategory.lower() not in ["tracking"] and \
           shipment.isPaymentReminderEmailAddressAvailable():
         if 'y' == raw_input("{}\nSend mail for {} (y/n)?".format("_"*70, shipment)).lower():
-          shipment.psSendMailForThisShipment()
+          cmd = shipment.psSendMailForThisShipment
+          cmds.append(cmd)
         else:
           print("Not sending mail...")
       if args.sendDispatchSms and \
          not shipment.psWasShipmentSmsEverSent() and \
          shipment.isSMSNoAvailable():
         if 'y' == raw_input("{}\nSend sms for {} (y/n)?".format("_"*70, shipment)).lower():
-          shipment.psSendSmsForThisShipment()
+          cmd=shipment.psSendSmsForThisShipment
+          cmds.append(cmd)
         else:
           print("Not sending sms...")
     except ShipmentException as ex:
       print(ex)
       #eat the exception after printing. We have printed our custom exception, its good enough. Move onto the next shipment.
+
+  #To expedite the process. Otherwise the human sitting will have to wait long enough for all the inputs.
+  for cmd in cmds:
+    cmd()
   return
 
 def TrackAllShipments(trackDays):
@@ -871,5 +903,5 @@ if __name__ == '__main__':
     import sys; sys.exit(0)
 
   CheckConsistency()
-
+  PersistentShipments().PurgeRedundantAwaitedShipments()
   main(args)

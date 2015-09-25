@@ -102,6 +102,7 @@ def CheckDocketLength(allBillsDict):
   for (eachCompName, eachComp) in allBillsDict.iteritems():
     for eachBill in eachComp:
       if not eachBill.docketNumber: continue
+      if eachBill.docketNumber == "Awaited": continue
       for courierName, lengths in MAPPING.items():
         if eachBill.courierName.lower().startswith(courierName):
           if len(eachBill.docketNumber) not in lengths:

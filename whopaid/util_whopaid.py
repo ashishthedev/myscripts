@@ -358,13 +358,18 @@ class SingleBillRow(SingleRow):
         return
       if (datetime.date.today() - self.invoiceDate).days < 365:
         for taxRate in ALLOWED_TAXATION_RATES:
-          expectedTax = self.goodsValue*int(taxRate)/100
+          expectedTax = self.goodsValue*float(taxRate)/100
           if abs(expectedTax - self.tax) < 1:
             break
         else:
-          raise MyException("Calculated sales tax in bill#{} dt {} issued to {} is probably wrong. The expected taxation rates are: {}".format(self.billNumber, DD_MM_YYYY(self.invoiceDate), self.compName, ALLOWED_TAXATION_RATES))
+          zeroTaxationRateCompanies = ["elmr"]
+          for zeroTaxComp in zeroTaxationRateCompanies:
+            if self.compName.lower().startswith(zeroTaxComp):
+              break
+          else:
+            raise MyException("Calculated sales tax in bill#{} dt {} issued to {} is probably wrong. The expected taxation rates are: {}".format(self.billNumber, DD_MM_YYYY(self.invoiceDate), self.compName, ALLOWED_TAXATION_RATES))
+      return
 
-        pass
 
 
     @property
