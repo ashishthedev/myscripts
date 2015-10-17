@@ -24,8 +24,9 @@ def ParseArguments():
 if __name__ == "__main__":
   args = ParseArguments()
   if args.smsContents and args.phoneNumber:
-    if CanSendSmsAsOfNow():
-      SendSms(args.phoneNumber, args.smsContents)
-    else:
-      PrintInBox("For some reason, sms cannot be sent now", waitForEnterKey=True)
+    SendSms(args.phoneNumber, args.smsContents)
+    #if CanSendSmsAsOfNow():
+    #  SendSms(args.phoneNumber, args.smsContents)
+    #else:
+    #  PrintInBox("For some reason, sms cannot be sent now", waitForEnterKey=True)
 

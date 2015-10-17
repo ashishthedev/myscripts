@@ -65,6 +65,9 @@ class FedExCourier():
     if not self.shipment.GetEDD():
       print("No EDD present for {}".format(self.bill.docketNumber))
       return
+    if self.shipment.GetEDD() == "Pending":
+      print("EDD is marked as Pending for {}".format(self.bill.docketNumber))
+      return
     if not hasattr(self.shipment, 'actualDeliveryDate'):
       print("No ADD attribute present for {}".format(self.bill.docketNumber))
       return

@@ -658,9 +658,12 @@ def _NewSnapshotForDocket(docketNumbers):
 def ShowAwaitedShipmentsOnScreen():
   us = PersistentShipments().GetAllUndeliveredShipments()
   shipments = [s for s in us if s.bill.docketNumber.lower().startswith("awaited")]
-  PrintInBox("Following are awaited shipments:")
+  if len(shipments) <= 0:
+    return
+  PrintInBox("Need to get Waybill numbers for these shipments ASAP:")
   for i, s in enumerate(sorted(shipments, key=lambda s: s.bill.docketDate), start=1):
     print("{}.{:<50} | {:<15} | {}".format(i, s.bill.compName, DD_MMM_YYYY(s.bill.docketDate), s.bill.docketNumber))
+  return
 
 def ShowUndeliveredSmalOnScreen():
   shipments = PersistentShipments().GetAllUndeliveredShipments()

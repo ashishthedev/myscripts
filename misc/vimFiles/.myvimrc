@@ -171,7 +171,7 @@ filetype plugin indent on   "Enable loading indent file for filetype
 
 set foldlevel=99
 set foldnestmax=2
-set foldmethod=indent
+"set foldmethod=indent
 
 "http://sontek.net/blog/detail/turning-vim-into-a-modern-python-ide
 let g:pyflakes_use_quickfix = 1
@@ -416,6 +416,9 @@ noremap <F2> :%s/<C-R><C-W>/<C-R><C-W>/gc
 noremap <F3> g?iw
 
 inoremap <F4>  <C-R>=strftime("%Y-%b-%d %a %I:%M %p")<CR>
+inoremap jk <esc>
+inoremap <esc> <nop>
+"inoremap <c-s> <ESC>mzw`z<Esc>l
 
 noremap <silent> <F5> :silent :!%<CR>
 
@@ -615,6 +618,7 @@ function! OpenFilesInTabs(...)
 endfunction
 
 
+autocmd BufWritePre *.html  :normal mzgg=G`z
 autocmd BufEnter,BufRead,BufWritePost,BufWinEnter,BufReadPre,BufNewFile *.html  call HTMLSettings()
 function! HTMLSettings()
     setlocal expandtab
@@ -623,6 +627,7 @@ function! HTMLSettings()
     setlocal list
     setlocal listchars=tab:>-,trail:-
     setlocal spell
+    setlocal foldmethod=manual
 endfunction
 
 autocmd BufEnter,BufRead,BufWritePost,BufWinEnter,BufReadPre,BufNewFile *.py call PySettings()
@@ -633,6 +638,7 @@ function! PySettings()
     setlocal list
     setlocal listchars=tab:>-,trail:-
     setlocal nospell
+    setlocal foldmethod=indent
 endfunction
 
 autocmd BufEnter,BufRead,BufWritePost,BufWinEnter,BufReadPre,BufNewFile *.go call GoSettings()
