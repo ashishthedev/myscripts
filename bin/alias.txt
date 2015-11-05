@@ -281,7 +281,7 @@ z = %XDATDOCSDIR%\code\misc\SMTPDebugginsServer.py
 gseeder = pushd %XDATDOCSDIR%\..\seeder_GO_BS_NG_GAE
 mps = pushd %XDATDOCSDIR%\..\manpack\ && start_shell.bat && exit
 sews = pushd %XDATDOCSDIR%\..\sew\ && start_shell.bat && exit
-sdcrms = pushd %XDATDOCSDIR%\..\sdcrm\bin\ && start_shell.bat && exit
+sdcrms = pushd %XDATDOCSDIR%\..\sdatcrm\bin\ && start_shell.bat && exit
 lts = pushd %XDATDOCSDIR%\..\leantricks\ && start_shell.bat && exit
 demos = pushd %XDATDOCSDIR%\..\atddemos\ && start_shell.bat && exit
 

@@ -236,18 +236,14 @@ noremap <leader>= <ESC>mzgg=G'zzz
 " %{fugitive#statusline()}
 
 "Some awesome abbreviations I defined for myself
-abbr {{ {{ }}<ESC>hhi
-abbr {[{ {[{ }]}<ESC>hhhxi
-abbr {% {% %}<ESC>hhi
-abbr {# {# #}<ESC>hhi
+abbr {{ {{ }}<ESC>
+abbr {[{ {[{ }]}<ESC>
+abbr {% {% %}<ESC>
+abbr {# {# #}<ESC>
 "abbr <div> <div> </div><ESC>hhhhhhhi
-abbr <p> <p></p><ESC>hhhi
-abbr <a> <a href=""></a><ESC>5hi
-abbr <span> <span></span><ESC>6hi
-abbr psvm public static void main(String[] args){<CR>}<esc>O
-abbr ifm if __name__ == "__main__":<CR>
-abbr bsrow <div class="row"></div><ESC>5hi<CR><CR><Esc>k<Esc>ki
-abbr ienn if err!=nil{return err}
+abbr <p> <p></p><ESC>
+abbr <a> <a href=""></a><ESC>
+abbr <span> <span></span><ESC>
 
 
 "let g:SimpylFold_docstring_preview = 1
@@ -417,7 +413,7 @@ noremap <F3> g?iw
 
 inoremap <F4>  <C-R>=strftime("%Y-%b-%d %a %I:%M %p")<CR>
 inoremap jk <esc>
-inoremap <esc> <nop>
+"inoremap <esc> <nop>
 "inoremap <c-s> <ESC>mzw`z<Esc>l
 
 noremap <silent> <F5> :silent :!%<CR>
