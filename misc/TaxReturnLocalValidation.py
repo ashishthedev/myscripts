@@ -1,6 +1,6 @@
 import xml.dom.minidom, os, unittest
 from Util.Config import GetAppDir
-FOLDER_NAME             = "2015-08"
+FOLDER_NAME             = "2015-10"
 BASEPATH                = os.path.join(GetAppDir(), "SalesTaxReturnFiles", "2015-2016")
 ANNEXUREA               = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureA.xml")
 ANNEXUREA2              = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureA2.xml")
@@ -15,7 +15,7 @@ CST_TAX_PAID_FORM       = os.path.join(BASEPATH, FOLDER_NAME, "CST",   "XML", "F
 CST_TURNOVER_FORM       = os.path.join(BASEPATH, FOLDER_NAME, "CST",   "XML", "FormCSTTurnover.xml")
 CST_LOISS_FORM          = os.path.join(BASEPATH, FOLDER_NAME, "CST",   "XML", "FormCST_ListofInterstateSales.xml")
 
-PREVALING_VAT_RATE      ='14'  # in percent
+PREVALING_VAT_RATE      ='14.5'  # in percent
 PREVALING_CST_RATE      ='2'   # in percent
 PREVALING_EXPORT_RATE   ='0'   # in percent
 TOLERANCE_IN_RUPEES     = 1
@@ -293,10 +293,15 @@ class TestFunctions(unittest.TestCase):
       """
       Tests whether interstate sale mentioned in VAT_NON_VAT_Sheet is same as in CST Sale Details sheet.
       """
-      self.assertEqual(getAmountFromVatNonVatSheet('4', 'v', 's'), GetCentralSaleByRate(PREVALING_CST_RATE))
-      self.assertEqual(getAmountFromVatNonVatSheet('5', 'v', 's'),
-              GetCentralSaleByRate(PREVALING_VAT_RATE),
-              "Central sale without FORM-C is different in VAT_NON_VAT_Sheet and CSTTurnOver sheet.\nIf this is some previous years report then this might be a false negative as VAT rate might have been different at that time.")
+      x = getAmountFromVatNonVatSheet('4', 'v', 's')
+      y = GetCentralSaleByRate(PREVALING_CST_RATE)
+      self.assertEqual(x, y,
+              "{} != {}\nCentral sale against FORM-C is different in VAT_NON_VAT_Sheet and CSTTurnOver sheet.\nIf this is some previous years report then this might be a false negative as VAT rate might have been different at that time.".format(x, y))
+
+      x = getAmountFromVatNonVatSheet('5', 'v', 's')
+      y = GetCentralSaleByRate(PREVALING_VAT_RATE)
+      self.assertEqual(x, y,
+              "{} != {}\nCentral sale without FORM-C is different in VAT_NON_VAT_Sheet and CSTTurnOver sheet.\nIf this is some previous years report then this might be a false negative as VAT rate might have been different at that time.".format(x, y))
 
       cstAndVatAndExport = GetCentralSaleByRate(PREVALING_CST_RATE) + GetCentralSaleByRate(PREVALING_VAT_RATE) + GetCentralSaleByRate(PREVALING_EXPORT_RATE)
       l = [

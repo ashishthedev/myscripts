@@ -37,8 +37,8 @@ class TestShipment():
 
 def main():
     bill = CreateATestBill()
-    bill.courierName = "FedEx"
-    bill.docketNumber = "807763703502"
+    bill.courierName = "Overnite"
+    bill.docketNumber = "8044874073"
     #8051692143
     with TestShipment(bill) as ts:
       #ts.SetEDD("26/03/2015")

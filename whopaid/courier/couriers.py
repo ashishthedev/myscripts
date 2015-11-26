@@ -361,7 +361,7 @@ class OverniteCourier():
     self.shipment = shipment
 
   def GetStatus(self):
-    self.reqUrl = "http://www.overnitenet.com/Default.aspx"
+    self.reqUrl = "http://www.overnitenet.com/Web-Track.aspx"
     self.FORM_DATA = GetRawOption("COURIER_FORM_DATA", "Overnite").format(docket=self.bill.docketNumber)
     req = urllib2.Request(self.reqUrl)
     req.add_header("Host" , "www.overnitenet.com")

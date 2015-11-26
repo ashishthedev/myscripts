@@ -188,6 +188,9 @@ scontact = pushd %XDATDOCSDIR%\code\sms && searchContact.py $* && popd
 tkbk  = %XDATDOCSDIR%\code\Backup\InitiateEmailBackup.py
 chk   = %XDATDOCSDIR%\code\whopaid\sanity_checks.py
 
+;= Take external backup
+exbk = cd %XDATDOCSDIR%\code\misc && Externalbackup.py
+
 ;= rem Test Observer
 to   = %XDATDOCSDIR%\code\web\UberObserver.pyk
 kdd  = taskkill /F /IM DisplayDriver.exe
