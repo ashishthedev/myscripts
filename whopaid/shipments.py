@@ -681,6 +681,7 @@ def SendComplaintMessageForShipment(shipment):
   d["tDocketDate"] = DD_MMM_YYYY(bill.docketDate)
   d["tOfficialCompanyName"] = ALL_CUST_INFO.GetCompanyOfficialName(bill.compName)
   d["tDeliveryAddress"] = ALL_CUST_INFO.GetCustomerDeliveryAddress(bill.compName)
+  d["tDeliveryPinCode"] = ALL_CUST_INFO.GetDeliveryPinCode(bill.compName)
   d["tPhone"] = ALL_CUST_INFO.GetDeliveryPhoneNumber(bill.compName)
   if isinstance(d["tPhone"], float):
     d["tPhone"] = str(int(d["tPhone"])) #Removing .0 in the end if its an integer
@@ -690,7 +691,7 @@ def SendComplaintMessageForShipment(shipment):
 Date: $tDocketDate
 Docket: $tDocketNumber
 Name: $tOfficialCompanyName
-Add: $tDeliveryAddress
+Add: $tDeliveryAddress - $tDeliveryPinCode
 Ph: $tPhone
 Thanks.
 """)
