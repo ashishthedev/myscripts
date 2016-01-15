@@ -239,7 +239,10 @@ def DeleteFileIfExists(AbsolutePath):
   return
 
 def GetSizeOfFileInMB(path):
-  return os.path.getsize(path)/(1024*1024)
+  return GetSizeOfFileInBytes(path)/(1024*1024)
+
+def GetSizeOfFileInBytes(path):
+  return os.path.getsize(path)
 
 def MakeSureDirExists(path):
   if not os.path.exists(path):
