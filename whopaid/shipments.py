@@ -329,8 +329,14 @@ class PersistentShipments(Persistent):
         if s.bill.compName == aws.bill.compName and s.bill.billNumber == aws.bill.billNumber and s.bill.invoiceDate == aws.bill.invoiceDate:
           aws._removeFromDB()
           break
+    return self
 
-
+  def PurgeShipmentsOlderThan(self, days):
+    allShipments = self.GetAllStoredShipments()
+    for s in allShipments:
+      if s.daysPassed > days:
+        s._removeFromDB()
+    return
 
 def SendMaterialDispatchSms(bill):
   optionalAmount = ""
@@ -591,6 +597,9 @@ def ParseOptions():
         help="Set this for a demo run")
 
     parser.add_argument("--complaint", dest="complaintDocket", action="store_true", default=False, help="Will send a complaint to appropriate local courier agent")
+
+    parser.add_argument("--p60", dest="purgeOlderThan60Days", action="store_true", default=False, help="Purge shipmenents older than 60 days")
+
     return parser.parse_args()
 
 
@@ -654,6 +663,16 @@ def _NewSnapshotForDocket(docketNumbers):
     else:
       print("Could not find the docket {}".format(docketNumber))
   return
+
+def _PurgeShipmentsOlderThan60Days():
+  ps = PersistentShipments()
+  PrintInBox("Size before cleanup: {}MB".format(ps.sizeInMB))
+  ps.PurgeShipmentsOlderThan(60)
+  PrintInBox("Size after cleanup: {}MB".format(ps.sizeInMB))
+  ps.shrink()
+  PrintInBox("Size after shrinking: {}MB".format(ps.sizeInMB))
+  return
+
 
 def ShowAwaitedShipmentsOnScreen():
   us = PersistentShipments().GetAllUndeliveredShipments()
@@ -734,6 +753,10 @@ def main(args):
   if args.resendDispatchSms:
     docketNumbers = raw_input("Enter the docket numbers for which dispatch sms has to be resent: ")
     _ResendDispatchSMSForDocketNumbers(docketNumbers.split())
+    import sys; sys.exit(0)
+
+  if args.purgeOlderThan60Days:
+    _PurgeShipmentsOlderThan60Days()
     import sys; sys.exit(0)
 
   if args.complaintDocket:
@@ -907,5 +930,5 @@ if __name__ == '__main__':
     import sys; sys.exit(0)
 
   CheckConsistency()
-  PersistentShipments().PurgeRedundantAwaitedShipments()
+  PersistentShipments().PurgeRedundantAwaitedShipments().shrink()
   main(args)

@@ -21,12 +21,12 @@ PMTAPPDIR = os.getenv("PMTAPPDIR")
 DUMPING_DIR = os.path.join(PMTAPPDIR, "static", "dbs")
 SMALL_NAME = GetOption("CONFIG_SECTION", "SmallName")
 EXT = ".json"
-PMT_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "PMT_" + SMALL_NAME + EXT))
-ORDER_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "ORDER_" + SMALL_NAME + EXT))
-KMO_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "KMORDER_" + SMALL_NAME + EXT))
-FORMC_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "FORMC_" + SMALL_NAME + EXT))
-SHIPMENT_STATUS_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "SHIPSTATUS_" + SMALL_NAME + EXT))
-CUST_INFO_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "CUST_INFO" + SMALL_NAME + EXT))
+PMT_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "PMT" + "_" + SMALL_NAME + EXT))
+ORDER_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "ORDER" + "_" + SMALL_NAME + EXT))
+KMO_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "KMORDER" + "_" + SMALL_NAME + EXT))
+FORMC_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "FORMC" + "_" + SMALL_NAME + EXT))
+SHIPMENT_STATUS_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "SHIPSTATUS" + "_" + SMALL_NAME + EXT))
+CUST_INFO_JSON_FILE_NAME = os.path.abspath(os.path.join(DUMPING_DIR, "CUST_INFO" + "_" + SMALL_NAME + EXT))
 """
 OrderDB:
 data =

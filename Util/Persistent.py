@@ -1,5 +1,6 @@
 from contextlib import closing
 from Util.Config import GetOption
+from Util.Misc import GetSizeOfFileInMB
 import shelve
 import os
 
@@ -60,3 +61,26 @@ p.allKeys
     for k in self.allKeys:
       print("{:<30}:{:<30}".format(k, self[k]))
 
+  @property
+  def sizeInMB(self):
+    return GetSizeOfFileInMB(self.shelfFileName)
+
+  def shrink(self):
+    newFile = self.shelfFileName + ".old"
+    if os.path.exists(newFile):
+      os.remove(newFile)
+
+    import shutil
+    shutil.copy(self.shelfFileName, newFile)
+    os.remove(self.shelfFileName)
+
+    with closing(shelve.open(self.shelfFileName)) as sh:
+      pass #Just create it
+
+    with closing(shelve.open(newFile)) as nf:
+      with closing(shelve.open(self.shelfFileName)) as sh:
+        for k in nf.keys():
+          sh[k] = nf[k]
+
+    os.remove(newFile)
+    return
