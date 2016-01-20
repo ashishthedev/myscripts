@@ -142,7 +142,7 @@ pyprof = %XDATDOCSDIR%\code\bin\pyprofile.py "$*"
 slip1 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n1 $* && popd
 slip14 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n14 $* && popd
 slip2 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n2 $* && popd
-slip3 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n3 $* && popd
+slip8 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n8 $* && popd
 slip4 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n4 $* && popd
 slip5 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n5 $* && popd
 slip6 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n6 $* && popd
@@ -168,7 +168,7 @@ rprs  = pushd %XDATDOCSDIR%\code\whopaid && road_permit_request.py --sms $* && p
 rprd  = pushd %XDATDOCSDIR%\code\whopaid && road_permit_request.py --mail --sms --demo $* && popd
 scsms = gvim %XDATDOCSDIR%\Bills\repeatingSMS.json
 dis   = pushd %XDATDOCSDIR%\code\whopaid && shipments.py --mail --dispatch-sms-all $* && Shipments.py --track -ssmsg -sah && pushd %XDATDOCSDIR%\..\DocketPODs && start. && popd && popd 
-dis10 = pushd %XDATDOCSDIR%\code\whopaid && shipments.py --mail --dispatch-sms-all --notify-days=10 $* && popd
+dis10 = pushd %XDATDOCSDIR%\code\whopaid && shipments.py --mail --dispatch-sms-all --notify-days=10 --track-days=10 $* && popd
 disd  = pushd %XDATDOCSDIR%\code\whopaid && shipments.py --mail --dispatch-sms-all --demo $* && popd
 rgb   = %XDATDOCSDIR%\code\misc\rgb2hex.py $*
 info  = gvim %XDATDOCSDIR%\FrequentFliers\Info.txt
