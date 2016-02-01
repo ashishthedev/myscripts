@@ -40,7 +40,7 @@ class CustomerInfoCol:
     TrustCol                  = "U"
     IncludeDaysCol            = "V"
     CreditLimitCol            = "W"
-    SendAutomaticMails        = "X"
+    FormNameCol               = "X"
     MinDaysGapCol             = "Y"
     IncludeBillAmountInEmails = "Z"
     CompanyCodeCol            = "AA"
@@ -94,8 +94,8 @@ def CreateSingleCustomerInfo(row):
             c.includeDays = val
         elif col == CustomerInfoCol.CreditLimitCol:
             c.creditLimit = val
-        elif col == CustomerInfoCol.SendAutomaticMails:
-            c.includeInAutomaticMails = val
+        elif col == CustomerInfoCol.FormNameCol:
+            c.formName = val
         elif col == CustomerInfoCol.CompanyCodeCol:
             c.companyCode = val
         elif col == CustomerInfoCol.MinDaysGapCol:
@@ -133,7 +133,7 @@ class SingleCompanyInfo():
     singleComp["trust"] = self.trust
     singleComp["includeDays"] = self.includeDays
     singleComp["creditLimit"] = self.creditLimit
-    singleComp["includeInAutomaticMails"] = self.includeInAutomaticMails
+    singleComp["formName"] = self.formName
     singleComp["minDaysGapBetweenAutomaticMails"] = self.minDaysGapBetweenAutomaticMails
     singleComp["includeBillAmountinEmails"] = self.includeBillAmountinEmails
     singleComp["companyGroupName"] = self.companyGroupName
@@ -151,6 +151,16 @@ class _AllCustomersInfo(dict):
             includeLastRow=False):
               c = CreateSingleCustomerInfo(row)
               self[c.companyFriendlyName] = c
+
+    def CanSendSMS(self, compName):
+      if self.GetSmsDispatchNumber(compName):
+        return True
+      return False
+
+    def CanSendEmail(self, compName):
+      if self.GetFormCEmailAsListForCustomer(compName):
+        return True
+      return False
 
     def GetListOfCompNamesInThisGroup(self, grpName):
       res = []
@@ -223,9 +233,8 @@ class _AllCustomersInfo(dict):
         val = self[compName].includeBillAmountinEmails
         return val.lower() in ["yes", "y"]
 
-    def IncludeCustInAutomaticMails(self, compName):
-        val = self[compName].includeInAutomaticMails
-        return val.lower() in ["yes", "y"]
+    def GetFormName(self, compName):
+        return self[compName].formName
 
     def GetMinDaysGapBetweenMails(self, compName):
         return self[compName].minDaysGapBetweenAutomaticMails

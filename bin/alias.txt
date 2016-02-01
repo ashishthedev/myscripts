@@ -160,6 +160,7 @@ fcr   = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py -o $* && popd
 fcrl  = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py -o --letterHead --desktopOnly $* && popd
 fcrd  = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py -o --demo $* && popd
 fcres  = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py --email --sms $* && popd
+fcresalltlq = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py --email --sms -all -tlq $* && popd
 fcre  = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py --email $* && popd
 fcrs  = pushd %XDATDOCSDIR%\code\whopaid && formc_request.py --sms $* && popd
 rpr   = pushd %XDATDOCSDIR%\code\whopaid && road_permit_request.py --mail --sms $* && popd
