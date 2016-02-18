@@ -231,10 +231,10 @@ Sales Tax Notice Attached</td>
 
             $tOptAdditionalLine
 
-            This is to inform you that we need the following $tFormName <b>immediately</b> as per the recent Sales Tax Notice.<br>
+            This is to inform you that we have received the notice from Sales Tax and we need the following $tFormName <b>immediately</b>.<br>
             $tAttachementContent
             <br>
-            We request you to kindly  issue the same immediately.<br>
+            We request you to kindly issue the same immediately.<br>
             <br>
             <br>
             $tTable
@@ -372,11 +372,4 @@ def GetHTMLForFORMCforCompany(compName, args, specialContentRegardingNotice=Fals
   formC = QuarterlyClubbedFORMC(FORMCBillList)
 
   return formC.GenerateFORMCMailContent(args, specialContentRegardingNotice)
-
-def GetToCCBCCForFORMCforCompany(compName):
-    toMailList = GetAllCustomersInfo().GetFormCEmailAsListForCustomer(compName) or GetAllCustomersInfo().GetPaymentReminderEmailAsListForCustomer(compName)
-    if not toMailList:
-      raise  Exception("\nNo mail feeded for {}. Please insert a proper email in 'Cust' sheet of 'Bills.xlsx'".format(compName))
-    section = "EMAIL_REMINDER_SECTION"
-    return toMailList, GetOption(section, 'CCEmailList').split(','), GetOption(section, 'BCCEmailList').split(',')
 

@@ -158,7 +158,7 @@ class _AllCustomersInfo(dict):
       return False
 
     def CanSendEmail(self, compName):
-      if self.GetFormCEmailAsListForCustomer(compName):
+      if GetToCCBCCForFORMCforCompany(compName)[0]:
         return True
       return False
 
@@ -261,6 +261,14 @@ def GenerateCustomerInfoJsonNodesFile():
     import json
     json.dump(jsonData, j, indent=2)
   return
+
+def GetToCCBCCForFORMCforCompany(compName):
+    toMailList = GetAllCustomersInfo().GetFormCEmailAsListForCustomer(compName) or GetAllCustomersInfo().GetPaymentReminderEmailAsListForCustomer(compName)
+    if not toMailList:
+      print("\nNo mail feeded for {}. Please insert a proper email in 'Cust' sheet of 'Bills.xlsx'".format(compName))
+      #raise  Exception("\nNo mail feeded for {}. Please insert a proper email in 'Cust' sheet of 'Bills.xlsx'".format(compName))
+    section = "EMAIL_REMINDER_SECTION"
+    return toMailList, GetOption(section, 'CCEmailList').split(','), GetOption(section, 'BCCEmailList').split(',')
 
 
 def GetAllCustomersInfo():

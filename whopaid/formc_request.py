@@ -14,10 +14,10 @@ from Util.Exception import MyException
 from Util.Misc import PrintInBox, OpenFileForViewing, MakeSureDirExists, DD_MMM_YYYY
 from Util.PythonMail import SendMail
 
-from whopaid.customers_info import GetAllCustomersInfo
+from whopaid.customers_info import GetAllCustomersInfo, GetToCCBCCForFORMCforCompany
 from whopaid.sanity_checks import CheckConsistency
 from whopaid.util_whopaid import GuessCompanyName, GetAllCompaniesDict
-from whopaid.util_formc import GetToCCBCCForFORMCforCompany, GetHTMLForFORMCforCompany
+from whopaid.util_formc import GetHTMLForFORMCforCompany
 
 
 import argparse
@@ -80,8 +80,12 @@ def ParseArguments():
             required=False, type=str, default=str(datetime.date.today()),
             help="End Date for Form-C Requests. If ommitted Form-C till date "
             "will be asked for")
-    p.add_argument("-start", "--start-from", dest="startFrom", type=int, 
+    p.add_argument("-start", "--start-from", dest="startFromNumber", type=int, 
         default = 0, help="If you want to start execution after a number,"
+        " give that number here. THat number will be included.")
+
+    p.add_argument("-endAt", "--end-at", dest="endAtNumber", type=int, 
+        default = None, help="If you want to start execution after a number,"
         " give that number here. THat number will be included.")
 
     args = p.parse_args()
@@ -98,15 +102,21 @@ def SendFormcRequestToAllCompanies(args):
   allBills = [b for b in allBills if b.billingCategory.lower() in ["central"] and not b.formCReceivingDate]
   uniqueCompNames = set(b.compName for b in allBills)
   for i, uniqueComp in enumerate(uniqueCompNames):
-    if uniqueComp.lower() != "test": continue
-    if i < args.startFrom-1: continue
+    if uniqueComp.lower() == "test":
+      continue
+    if i < args.startFromNumber:
+      print("{} Not sending as per instructions startFromNumber={} Comp:{}".format(i, args.startFromNumber, uniqueComp))
+      continue
+    if args.endAtNumber and i > args.endAtNumber:
+      print("{} Not sending as per instructions endAtNumber={} Comp:{}".format(i, args.endAtNumber, uniqueComp))
+      continue
     print i, "Sending mail and SMS to {}".format(uniqueComp)
     SendFORMCMailToCompany(uniqueComp, args, specialContentRegardingNotice=True)
     SendFORMCSMSToCompany(uniqueComp, args, specialContentRegardingNotice=True)
 
     #if args.isDemo and i >= 1: return #Just do the demo on 2 comps show 2 companies
 
-def GetLastDateOfPreviousQuarter():
+def GetLastDateOfPreviousQuarterAsDateObj():
   today = datetime.date.today()
   month = today.month
   year = today.year
@@ -141,10 +151,8 @@ def main():
     print("Churning data...")
 
     if args.tillLastQuarter:
-      args.edate = GetLastDateOfPreviousQuarter()
+      args.edate = GetLastDateOfPreviousQuarterAsDateObj()
       print("End Date is now automatically set to: {}".format(args.edate))
-      print(DD_MMM_YYYY(GetLastDateOfPreviousQuarter()))
-      return
 
     if args.allCompanies:
       #args.isDemo = True
@@ -167,9 +175,9 @@ def ShouldSendSMS(args):
 
 def SendFORMCSMSToCompany(compName, args, specialContentRegardingNotice=False):
 
-  #if not ALL_CUST_INFO.CanSendSMS(compName):
-  #  PrintInBox("No SMS number available for {}".format(compName), waitForEnterKey=True)
-  #  return
+  if not ALL_CUST_INFO.CanSendSMS(compName):
+    PrintInBox("No SMS number available for {}".format(compName), waitForEnterKey=True)
+    return
 
   if not ShouldSendSMS(args):
     PrintInBox("Not sending SMS to company")
@@ -178,9 +186,9 @@ def SendFORMCSMSToCompany(compName, args, specialContentRegardingNotice=False):
   from whopaid.off_comm import SendOfficialSMSAndMarkCC
   if specialContentRegardingNotice:
     content = """Dear Sir,
-We have received Sales Tax Notice for immediate submission of FORM-C upto {}. You are requested to kindly provide the due FORM-C immediately. The details have been sent to your usual email address.
+We have received a Sales Tax Notice for immediate submission of FORM-C upto {}. You are requested to kindly provide the same. The details have been sent to your usual email address.
 Thanks.
-""".format(DD_MMM_YYYY(GetLastDateOfPreviousQuarter()))
+""".format(DD_MMM_YYYY(GetLastDateOfPreviousQuarterAsDateObj()))
   else:
     content = """Dear Sir,
 Kindly issue the FORM-C. The details have been sent to your email address.
@@ -192,9 +200,10 @@ Thanks.
 
 
 def SendFORMCMailToCompany(compName, args, specialContentRegardingNotice=False):
- # if not ALL_CUST_INFO.CanSendEmail(compName):
- #   PrintInBox("No email available for {}".format(compName), waitForEnterKey=True)
- #   return
+  print(GetToCCBCCForFORMCforCompany(compName))
+  if not ALL_CUST_INFO.CanSendEmail(compName):
+    PrintInBox("No email available for {}".format(compName), waitForEnterKey=True)
+    return
 
   companyOfficialName = GetAllCustomersInfo().GetCompanyOfficialName(compName)
   if not companyOfficialName:

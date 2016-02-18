@@ -717,15 +717,21 @@ Thanks.
 
   smsContents = smsTemplate.substitute(d)
   from Util.Sms import SendSms
-  smsNo = GetOption("COURIER_COMPLAINT_R", bill.courierName)[::-1]
-  smsNoList = smsNo.replace(",", ";").split(";")
-  PrintInBox(str(smsNoList), waitForEnterKey=True)
-  smsNoList = [x.strip() for x in smsNoList if str.isdigit(x.strip())]
+  #smsNo = GetOption("COURIER_COMPLAINT_R", bill.courierName)[::-1]
+  smsNumbersBunch = GetOption("COURIER_COMPLAINT", bill.courierName)
+  smsNoList = smsNumbersBunch.split("\n")
+  smsNoAndNameList = []
+  for x in smsNoList:
+    if not x: continue
+    y = x.replace(",", ";").split(";")
+    smsNoAndNameList.append((y[0], y[1]))
+  PrintInBox(str(smsNoAndNameList), waitForEnterKey=True)
+  smsNoAndNameList = [(x.strip(), y) for (x, y) in smsNoAndNameList]
 
 
   PrintInBox(smsContents)
-  print("Will send complaint to {}".format(smsNo))
-  for x in smsNoList:
+  print("Will send complaint to {}".format(smsNoAndNameList))
+  for x in smsNoAndNameList:
     if raw_input("Send to {} (y/n)".format(x)).lower() == "y":
       SendSms(x, smsContents)
     else:
