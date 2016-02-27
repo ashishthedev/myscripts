@@ -2,11 +2,11 @@
 from Util.Config import GetOption
 from Util.Misc import DD_MM_YYYY, DD_MMM_YYYY, MyException
 
-from whopaid.customers_info import GetAllCustomersInfo
+from whopaid.customers_info import GetAllCustomersInfo, GetToCCBCCForFORMCforCompany
 from whopaid.customer_group_info import GetToCCBCCListforGroup, PrepareMailContentForThisGroup, HasPaymentReminderEmailsForGroup, TotalDueForGroupAsInt, HasPaymentReminderEmailsForCompany, HasFormCReminderEmailsForCompany
 from whopaid.km_pending_orders import GetAllKMOrders, GetAllPendingOrders, GetAllReceivedOrders
 from whopaid.util_whopaid import GetAllCompaniesDict, datex, GetPayableBillsAndAdjustmentsForThisComp, AllCompanyGroupNamesWhichHaveBeenBilledInPast
-from whopaid.util_formc import QuarterlyClubbedFORMC, GetHTMLForFORMCforCompany, GetToCCBCCForFORMCforCompany
+from whopaid.util_formc import QuarterlyClubbedFORMC, GetHTMLForFORMCforCompany
 
 from collections import defaultdict
 

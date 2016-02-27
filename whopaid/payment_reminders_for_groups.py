@@ -206,10 +206,6 @@ def ShouldWeSendAutomaticEmailForGroup(grpName):
     ShowReason("Due amount is less than: {}".format(MINIMUM_AMOUNT_DUE))
     return False
 
-  #Check if we dont want the customer to be included in automatic mails
-  #if not ALL_CUST_INFO.IncludeCustInAutomaticMails(firstCompInGrp):
-  #  return False
-
   #Email present
   if not ALL_CUST_INFO.GetPaymentReminderEmailAsListForCustomer(firstCompInGrp):
     ShowReason("No email present")

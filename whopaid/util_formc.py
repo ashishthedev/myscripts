@@ -153,7 +153,7 @@ class QuarterlyClubbedFORMC(object):
 
         return allTablesHTML
 
-    def GenerateFORMCMailContent(self, args):
+    def GenerateFORMCMailContent(self, args, specialContentRegardingNotice=False):
 
         letterDate = datetime.date.today().strftime("%A, %d-%b-%Y")
         compName = self._GetCompName()
@@ -182,16 +182,30 @@ class QuarterlyClubbedFORMC(object):
         else:
             d['tOptAdditionalLine'] = ""
 
+        d['tAttachementContent'] = """<br>
+      <table border="0" cellspacing="0" cellpadding="0" width="auto" bgcolor="#ececec">
+<tbody>
+<tr>
+<td style="font-weight:bold;color:#3f3f3f;padding-left:24px; padding-right:24px" height="44" valign="center">
+Sales Tax Notice Attached</td>
+</tr>
+</tbody>
+</table>
+"""
+
+
         d['tTable'] = self.SpitTableHTML(args)
         d['tLetterDate'] = letterDate
         d['tCompanyName'] = Bold("M/s " + companyOfficialName)
         d['tCompanyCity'] = companyCity
         d['tSignature'] = GetOption("EMAIL_REMINDER_SECTION", "Signature")
+        formName = GetAllCustomersInfo().GetFormName(compName)
+        d['tFormName'] = formName
         requestingCompanyName = GetOption("CONFIG_SECTION", 'CompName')
         requestingCompanyTinNo = GetOption("CONFIG_SECTION", "TinNo")
-        d['tBodySubject'] = PastelOrangeText(Bold(UnderLine("Subject: FORM-C required by M/s {}<br>TIN# {}".format(requestingCompanyName, requestingCompanyTinNo))))
+        d['tBodySubject'] = PastelOrangeText(Bold(UnderLine("Subject: {formName} required by M/s {}<br>TIN# {}".format(requestingCompanyName, requestingCompanyTinNo, formName=formName))))
 
-        htmlTemplate = Template(
+        noticeHTMLForFormC = Template(
             """
             <HTML>
             <HEAD>
@@ -214,11 +228,49 @@ class QuarterlyClubbedFORMC(object):
             <br>
             Dear Sir,<br>
             <br>
-            Greetings!<br>
 
             $tOptAdditionalLine
 
-            Please find below for your kind reference the list of pending bills for which FORM-C is yet to be issued.<br>
+            This is to inform you that we have received the notice from Sales Tax and we need the following $tFormName <b>immediately</b>.<br>
+            $tAttachementContent
+            <br>
+            We request you to kindly issue the same immediately.<br>
+            <br>
+            <br>
+            $tTable
+            <hr>
+            $tSignature
+            </BODY>
+            </HTML>
+            """)
+
+        normalHtmlTemplate = Template(
+            """
+            <HTML>
+            <HEAD>
+            <style type="text/css">
+                BODY
+                {
+                    margin-top: $topMargin
+                }
+            </style>
+            </HEAD>
+            <BODY>
+            $tLetterDate<br>
+            <br>
+            To,<br>
+            $tCompanyName,<br>
+            $tCompanyCity.<br>
+            <br>
+            $tBodySubject<br>
+            $tOptPerson
+            <br>
+            Dear Sir,<br>
+            <br>
+
+            $tOptAdditionalLine
+
+            Please find below for your kind reference the list of pending bills for which $tFormName is yet to be issued.<br>
             <br>
             We request you to take immediate steps to issue the same and oblige.<br>
             <br>
@@ -231,7 +283,11 @@ class QuarterlyClubbedFORMC(object):
             </BODY>
             </HTML>
             """)
-        html = htmlTemplate.substitute(d)
+        if specialContentRegardingNotice:
+          html = noticeHTMLForFormC.substitute(d)
+        else:
+          html = normalHtmlTemplate.substitute(d)
+
 
         return html
 
@@ -288,7 +344,7 @@ Sample output of this script
 """
 
 
-def GetHTMLForFORMCforCompany(compName, args):
+def GetHTMLForFORMCforCompany(compName, args, specialContentRegardingNotice=False):
   CheckRequiredAttribsAndThrowExcIfNotPresent(args, ["sdate", "edate", "letterHead", "kindAttentionPerson", "additional_line", "remarksColumn" ])
   billList = GetAllCompaniesDict().GetBillsListForThisCompany(compName)
   if not billList:
@@ -308,18 +364,12 @@ def GetHTMLForFORMCforCompany(compName, args):
 
 
   if not FORMCBillList:
-      raise MyException("\nM/s {} has no FORM-C due".format(compName))
+      formName = GetAllCustomersInfo().GetFormName(compName)
+      raise MyException("\nM/s {} has no {formName} due".format(compName, formName=formName))
 
   FORMCBillList = [b for b in FORMCBillList if not b.formCReceivingDate]
 
   formC = QuarterlyClubbedFORMC(FORMCBillList)
 
-  return formC.GenerateFORMCMailContent(args)
-
-def GetToCCBCCForFORMCforCompany(compName):
-    toMailList = GetAllCustomersInfo().GetFormCEmailAsListForCustomer(compName) or GetAllCustomersInfo().GetPaymentReminderEmailAsListForCustomer(compName)
-    if not toMailList:
-      raise  Exception("\nNo mail feeded for {}. Please insert a proper email in 'Cust' sheet of 'Bills.xlsx'".format(compName))
-    section = "EMAIL_REMINDER_SECTION"
-    return toMailList, GetOption(section, 'CCEmailList').split(','), GetOption(section, 'BCCEmailList').split(',')
+  return formC.GenerateFORMCMailContent(args, specialContentRegardingNotice)
 
