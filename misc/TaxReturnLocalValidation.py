@@ -1,6 +1,6 @@
 import xml.dom.minidom, os, unittest
 from Util.Config import GetAppDir
-FOLDER_NAME             = "2016-01"
+FOLDER_NAME             = "2016-02"
 BASEPATH                = os.path.join(GetAppDir(), "SalesTaxReturnFiles", "2015-2016")
 ANNEXUREA               = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureA.xml")
 ANNEXUREA2              = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureA2.xml")
@@ -30,6 +30,7 @@ def GetAllNodesByNameFromFile(filePath, tagName):
     """
     This helper function will return all the elements in a file with a specific tag.
     """
+    print("Trying to fetch {tagName} from {filePath}".format(**locals()))
     dom = xml.dom.minidom.parse(filePath)
     elements = dom.getElementsByTagName(tagName)
     assert (len(elements)> 0), "<" + tagName + "> does not exist in " + filePath

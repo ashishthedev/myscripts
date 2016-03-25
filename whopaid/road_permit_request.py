@@ -101,10 +101,10 @@ def main():
         SendRoadPermitRequest(chosenComp, allBillsDict, args)
       if args.sms and not args.isDemo:
         SendOfficialSMSAndMarkCC(chosenComp, """Dear Sir,
-Please issue the road permit.
+Please issue the road permit for invoice#{billNumber}.
 Shipments details have been emailed to your registered email address.
 Thanks.
-""")
+""".format(billNumber=args.billNumber))
     else:
       print("Company containing {} does not exist. Try shorter string")
       exit(1)
