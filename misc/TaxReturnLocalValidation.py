@@ -1,6 +1,6 @@
 import xml.dom.minidom, os, unittest
 from Util.Config import GetAppDir
-FOLDER_NAME             = "2016-02"
+FOLDER_NAME             = "2016-03"
 BASEPATH                = os.path.join(GetAppDir(), "SalesTaxReturnFiles", "2015-2016")
 ANNEXUREA               = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureA.xml")
 ANNEXUREA2              = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureA2.xml")
@@ -227,6 +227,9 @@ class TestFunctions(unittest.TestCase):
       """
       VNV_FormCPurchase = getAmountFromVatNonVatSheet('7a', 'os', 'p')
       totalPurchaseAgstFORMC = SumFloat(ANNEXUREC, "Tot_Inv")
+      purchaseAgainstFORMC_CSTMainForm = getFloatValueFromXmlFile(CST_MAIN_FORM, "vat_inter_state_purchase")
+
+      self.assertEqual(purchaseAgainstFORMC_CSTMainForm, VNV_FormCPurchase, "Purchase against FORM-C is different in CSTMain form({}) and VNV sheet({}) in Form24".format(purchaseAgainstFORMC_CSTMainForm, VNV_FormCPurchase))
 
       TOLERANCE_IN_RUPEES=1
       isDifferenceTolerable = (abs(VNV_FormCPurchase - totalPurchaseAgstFORMC)<TOLERANCE_IN_RUPEES)
