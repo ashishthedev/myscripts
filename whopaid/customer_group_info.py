@@ -240,7 +240,7 @@ def _GetHTMLTableBlockForThisComp(compName, doNotShowCreditDays=False):
 
   totalDue = TotalDueForCompAsInt(compName)
   if totalDueLiterally != totalDue:
-    raise Exception ("totalDueLiterally:{} != totalDue:{}, these should be equal".format(totalDueLiterally, totalDue))
+    raise Exception ("For {} totalDueLiterally:{} != totalDue:{}, these should be equal".format(compName, totalDueLiterally, totalDue))
   tableFinalRowArgs = [Bold("Total"), "", PastelOrangeText(Big(Bold("Rs." + str(totalDue))))]
 
   if includeCreditDays:

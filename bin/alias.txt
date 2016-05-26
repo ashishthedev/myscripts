@@ -277,6 +277,7 @@ callfedex = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+91753098
 callff = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919999515573" -sc "Please come." && popd
 callon2 = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919458275627" -sc "Please come." && popd
 callon = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919927817117" -sc "Please come." && SmsFromCommandLine.py -n "+919811258574" -sc "Please send someone today." && popd
+nchs = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919810181182" -sc "No Casing Here." && SmsFromCommandLine.py -n "+919971602777" -sc "No Casing Here." && popd
 mp = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919810181182" -sc $* && popd
 mg = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919971602777" -sc $* && popd
 mkh = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919873433224" -sc $* && popd
@@ -305,4 +306,5 @@ wocld = pushd %APPDIR%\climaticDemo_ve\app\bin && start_shell.bat
 wocwa = pushd %APPDIR%\climatic_webapp_ve\app\bin && start_shell.bat
 woaw = pushd %APPDIR%\adaptwater_ve\app\bin && start_shell.bat
 
-clrs = pushd %XDATDOCSDIR%\..\climaterealty\bin\ && start_shell.bat && exit
+clrs = pushd %XDATDOCSDIR%\..\climaterealty\app\bin\ && start_shell.bat && exit
+clrts = pushd %XDATDOCSDIR%\..\climaterealty\testapp\bin\ && start_shell.bat && exit

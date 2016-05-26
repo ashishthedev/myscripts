@@ -930,6 +930,8 @@ def ChangeCompName(fr, to):
   return
 
 if __name__ == '__main__':
+  from Util.UtilGAE import FixSysPath
+  FixSysPath()
   args = ParseOptions()
 
   if args.removeTrackingForDockets:
