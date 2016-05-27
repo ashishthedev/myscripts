@@ -392,8 +392,10 @@ class OverniteCourier():
     StoreDeliveryProofWithPhantomScript(self.bill, "courier\\overnite_snapshot.js", self.FORM_DATA, self.reqUrl)
 
 from fedex import FedExCourier
+from dtdc import DTDCCourier
 
 MAPPING = {
+    "dtdc" : DTDCCourier,
     "fedex" : FedExCourier,
     "overn": OverniteCourier,
     "trac" : TrackonCourier,
