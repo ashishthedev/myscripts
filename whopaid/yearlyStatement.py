@@ -253,9 +253,11 @@ def GetHTMLStatementTable(compName, sdateObject, edateObject):
       if obe.interestingAmount > 0:
         obe.creditAmount = ""
         obe.debitAmount = "&#8377; {}".format(obe.interestingAmount)
+        print(obe.interestingAmount)
       else:
         obe.creditAmount = "&#8377; {}".format(-1*obe.interestingAmount)
         obe.debitAmount = ""
+        print(obe.interestingAmount)
 
   if obe == None:
     raise MyException("\nM/s {} has no opening balance for {}".format(compName, DD_MMM_YYYY(sdateObject)))
@@ -276,6 +278,7 @@ def GetHTMLStatementTable(compName, sdateObject, edateObject):
     b.interestingAmount = int(b.amount)
     b.debitAmount = "&#8377; {}".format(b.interestingAmount)
     b.creditAmount = ""
+    print(obe.interestingAmount)
 
   #3. Find Payments list
   paymentList = allCompaniesDict.GetPaymentsListForThisCompany(compName)
@@ -288,6 +291,7 @@ def GetHTMLStatementTable(compName, sdateObject, edateObject):
     p.interestingAmount = int(-1 * p.amount)
     p.creditAmount = "&#8377; {}".format(int(p.amount))
     p.debitAmount = ""
+    print(obe.interestingAmount)
 
   if not billList and not paymentList:
     raise MyException("\nM/s {} has neither bill nor payment in said period".format(compName))
@@ -319,6 +323,7 @@ def GetHTMLStatementTable(compName, sdateObject, edateObject):
   closingBalance = 0
   for x in totalList:
     closingBalance += x.interestingAmount
+    print(x.interestingAmount)
   tableRows += "<tr><td colspan='3'>Closing Balance</td><b><td>&#8377; {}</td></b>".format(closingBalance)
 
   PrintInBox("Add caption")

@@ -85,18 +85,25 @@ class ShipmentTrack(object):
     if self.isDelivered:
         return  # No need to do anything else
 
-    freshlyCalculatedPaidBillUids = [bill.uid_string for bill in ALL_BILLS_IN_LAST_N_DAYS if bill.isPaid]
-    undeliveredButPaid = not self.isDelivered and (self.bill.uid_string in freshlyCalculatedPaidBillUids)
-    if undeliveredButPaid:
-      PrintInBox("Going out of the way")
-      self.status = "Shipment in transit as per courier internet status but payment made by customer. Marking as delivered."
-      self.shipment.psMarkShipmentDelivered()
-    else:
-      self.status = self.courier.GetStatus()
-      if IsDeliveredAssessFromStatus(self.status):
-        self.courier.StoreDeliveryProof()
-        if self.IsSnapshotSaved():
-          self.shipment.psMarkShipmentDelivered()
+    #freshlyCalculatedPaidBillUids = [bill.uid_string for bill in ALL_BILLS_IN_LAST_N_DAYS if bill.isPaid]
+    #undeliveredButPaid = not self.isDelivered and (self.bill.uid_string in freshlyCalculatedPaidBillUids)
+    #if undeliveredButPaid:
+    #  PrintInBox("Going out of the way")
+    #  self.status = "Shipment in transit as per courier internet status but payment made by customer. Marking as delivered."
+    #  self.shipment.psMarkShipmentDelivered()
+    #else:
+    #  self.status = self.courier.GetStatus()
+    #  if IsDeliveredAssessFromStatus(self.status):
+    #    self.courier.StoreDeliveryProof()
+    #    if self.IsSnapshotSaved():
+    #      self.shipment.psMarkShipmentDelivered()
+
+    self.status = self.courier.GetStatus()
+    if IsDeliveredAssessFromStatus(self.status):
+      self.courier.StoreDeliveryProof()
+      if self.IsSnapshotSaved():
+        self.shipment.psMarkShipmentDelivered()
+
 
     self.shipment.save()
 

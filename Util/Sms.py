@@ -53,8 +53,18 @@ class AndriodSMSGateway(object):
         """ Send SMS using SMS GATEWAY installed on Andriod """
         import urllib
         params = urllib.urlencode({'phone': toThisNumber, 'text': smsContents, 'password': ''})
-        url = "http://{server}:{port}/sendsms?{params}".format(server=self.SERVER, port=self.PORT, params=params)
-        f = urllib.urlopen(url)
+        #Read IP and port at the time of sending so that in case of retries they are reread from the files and any immediate updates are reflected.
+        def smsUrl(server, port, params):
+          return "http://{server}:{port}/sendsms?{params}".format(server=server, port=port, params=params)
+
+        try:
+          f = urllib.urlopen(smsUrl(GetOption("SMS_SECTION", "SELF_IP"), GetOption("SMS_SECTION", "SELF_PORT"),  params))
+        except Exception:
+          try:
+            f = urllib.urlopen(smsUrl(GetOption("SMS_SECTION", "SELF_IP2"), GetOption("SMS_SECTION", "SELF_PORT2"),  params))
+          except Exception:
+            raise
+
         print(StripHTMLTags(f.read()))
         return
 

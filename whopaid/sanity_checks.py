@@ -98,6 +98,7 @@ def CheckDocketLength(allBillsDict):
       "accura": [7],
       "profes": [10],
       "fedex": [12],
+      "dtdc": [9],
       }
   for (eachCompName, eachComp) in allBillsDict.iteritems():
     for eachBill in eachComp:
