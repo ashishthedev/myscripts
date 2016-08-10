@@ -1,6 +1,6 @@
 import xml.dom.minidom, os, unittest
 from Util.Config import GetAppDir
-FOLDER_NAME             = "2016-04"
+FOLDER_NAME             = "2016-05"
 BASEPATH                = os.path.join(GetAppDir(), "SalesTaxReturnFiles", "2016-2017")
 ANNEXUREA               = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureA.xml")
 ANNEXUREA2              = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureA2.xml")
@@ -99,6 +99,12 @@ def TestSameness(testCaseInstance, fileName_ValueToLookFor_Dict):
           print("These are not equal:\n{}".format(pprint.pformat(values)))
         testCaseInstance.assertEqual(values[0][0], x)
 
+UPSALE_IN_VNV_FILE = getAmountFromVatNonVatSheet('1', 'v', 's')
+CENTRAL_SALE_NORMAL = getAmountFromVatNonVatSheet('4', 'v', 's')
+CENTRAL_SALE_FULL_TAX = getAmountFromVatNonVatSheet('5', 'v', 's')
+EXPORT_SALE = getAmountFromVatNonVatSheet('6', 'v', 's')
+GROSS_TURN_OVER = getFloatValueFromXmlFile(CST_MAIN_FORM, "gross_turn_over"),
+
 
 class TestFunctions(unittest.TestCase):
 
@@ -179,9 +185,10 @@ class TestFunctions(unittest.TestCase):
 
       totalTaxableGoodsSoldinAnnexB = SumFloat(ANNEXUREB, "TaxGood")
 
-      self.assertEqual(totalTaxableGoodsSoldinAnnexB, getAmountFromVatNonVatSheet('1', 'v', 's'), "UP Sale in Annexure B is different from UP Sale in Form24 VAT_NON_VAT sheet")
+
+      self.assertEqual(totalTaxableGoodsSoldinAnnexB, UPSALE_IN_VNV_FILE, "UP Sale in Annexure B is different from UP Sale in Form24 VAT_NON_VAT sheet")
       self.assertEqual(totalTaxableGoodsSoldinAnnexB, getFloatValueFromXmlFile(UPVAT_TAX_DETAIL_SALE, "SaleAmount"), "UP Sale in Annexure B is different from UP Sale in Form24 Sale sheet.")
-      self.assertEqual(getAmountFromVatNonVatSheet('1', 'v', 's'), getFloatValueFromXmlFile(UPVAT_TAX_DETAIL_SALE, "SaleAmount"), "UPSale in VAT_NON_VAT sheet is different from UP Sale in Annexure B")
+      self.assertEqual(UPSALE_IN_VNV_FILE, getFloatValueFromXmlFile(UPVAT_TAX_DETAIL_SALE, "SaleAmount"), "UPSale in VAT_NON_VAT sheet is different from UP Sale in Annexure B")
       return
 
   def test_UPVAT_Same_MainForm_TaxPaidBankForm(self):
@@ -226,10 +233,21 @@ class TestFunctions(unittest.TestCase):
       Tests whether sum of purchase mentioned in Annexure C matches the value mentioned in VAT_NON_VAT sheet
       """
       VNV_FormCPurchase = getAmountFromVatNonVatSheet('7a', 'os', 'p')
+      VNV_ExUPPurchase = getAmountFromVatNonVatSheet('4', 'v', 'p')
       totalPurchaseAgstFORMC = SumFloat(ANNEXUREC, "Tot_Inv")
       purchaseAgainstFORMC_CSTMainForm = getFloatValueFromXmlFile(CST_MAIN_FORM, "vat_inter_state_purchase")
 
-      self.assertEqual(purchaseAgainstFORMC_CSTMainForm, VNV_FormCPurchase, "Purchase against FORM-C is different in CSTMain form({}) and VNV sheet({}) in Form24".format(purchaseAgainstFORMC_CSTMainForm, VNV_FormCPurchase))
+      self.assertEqual(
+          purchaseAgainstFORMC_CSTMainForm, 
+          VNV_FormCPurchase,
+          "Purchase against FORM-C is different in CSTMain form({}) and VNV sheet({}) in Form24".format(purchaseAgainstFORMC_CSTMainForm, VNV_FormCPurchase)
+          )
+
+      self.assertEqual(
+          VNV_ExUPPurchase,
+          VNV_FormCPurchase,
+          "Purchase against FORM-C {VNV_FormCPurchase} is different from exup purchase {VNV_ExUPPurchase} in vatnotvat sheet in Form24".format(**locals())
+          )
 
       TOLERANCE_IN_RUPEES=1
       isDifferenceTolerable = (abs(VNV_FormCPurchase - totalPurchaseAgstFORMC)<TOLERANCE_IN_RUPEES)
@@ -297,17 +315,18 @@ class TestFunctions(unittest.TestCase):
       """
       Tests whether interstate sale mentioned in VAT_NON_VAT_Sheet is same as in CST Sale Details sheet.
       """
-      x = getAmountFromVatNonVatSheet('4', 'v', 's')
+      central_sale_normal = getAmountFromVatNonVatSheet('4', 'v', 's')
       y = GetCentralSaleByRate(PREVALING_CST_RATE)
-      self.assertEqual(x, y,
-              "{} != {}\nCentral sale against FORM-C is different in VAT_NON_VAT_Sheet and CSTTurnOver sheet.\nIf this is some previous years report then this might be a false negative as VAT rate might have been different at that time.".format(x, y))
+      self.assertEqual(central_sale_normal, y,
+              "{} != {}\nCentral sale against FORM-C is different in VAT_NON_VAT_Sheet and CSTTurnOver sheet.\nIf this is some previous years report then this might be a false negative as VAT rate might have been different at that time.".format(central_sale_normal, y))
 
-      x = getAmountFromVatNonVatSheet('5', 'v', 's')
+      central_sale_full_tax = getAmountFromVatNonVatSheet('5', 'v', 's')
       y = GetCentralSaleByRate(PREVALING_VAT_RATE)
-      self.assertEqual(x, y,
-              "{} != {}\nCentral sale without FORM-C is different in VAT_NON_VAT_Sheet and CSTTurnOver sheet.\nIf this is some previous years report then this might be a false negative as VAT rate might have been different at that time.".format(x, y))
+      self.assertEqual(central_sale_full_tax, y,
+              "{} != {}\nCentral sale without FORM-C is different in VAT_NON_VAT_Sheet and CSTTurnOver sheet.\nIf this is some previous years report then this might be a false negative as VAT rate might have been different at that time.".format(central_sale_full_tax, y))
 
-      cstAndVatAndExport = GetCentralSaleByRate(PREVALING_CST_RATE) + GetCentralSaleByRate(PREVALING_VAT_RATE) + GetCentralSaleByRate(PREVALING_EXPORT_RATE)
+      export_sale = getAmountFromVatNonVatSheet('6', 'v', 's')
+      cstAndVatAndExport = GetCentralSaleByRate(PREVALING_CST_RATE) + GetCentralSaleByRate(PREVALING_VAT_RATE) + export_sale
       l = [
           cstAndVatAndExport,
           getFloatValueFromXmlFile(CST_MAIN_FORM, "giss"),
@@ -316,9 +335,22 @@ class TestFunctions(unittest.TestCase):
           ]
       for x in l:
         if x != l[0]:
-          print("This values are different: {}".format(l))
+          print("These values are different: {}".format(l))
 
       return
+
+  def test_check_gross_turnover(self):
+      """
+      Tests whether gross turnover mentioned in FORM1 is correct or not.
+      """
+      expected_gross_turnover = UPSALE_IN_VNV_FILE + CENTRAL_SALE_NORMAL + CENTRAL_SALE_FULL_TAX + EXPORT_SALE
+      gross_turn_over = GROSS_TURN_OVER
+      self.assertEqual(gross_turn_over,
+          expected_gross_turnover,
+          "Gross Turn over in FORM-1 is not correct: {gross_turn_over} != {expected_gross_turnover}".format(**locals())
+      )
+      return
+
 
 if __name__=="__main__":
 

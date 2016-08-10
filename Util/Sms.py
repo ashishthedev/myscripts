@@ -57,13 +57,28 @@ class AndriodSMSGateway(object):
         def smsUrl(server, port, params):
           return "http://{server}:{port}/sendsms?{params}".format(server=server, port=port, params=params)
 
-        try:
-          f = urllib.urlopen(smsUrl(GetOption("SMS_SECTION", "SELF_IP"), GetOption("SMS_SECTION", "SELF_PORT"),  params))
-        except Exception:
+        ip_labels = ["SELF_IP", "SELF_IP2", "SELF_IP3", "SELF_IP4"]
+        sms_urls = [smsUrl(GetOption("SMS_SECTION", x), GetOption("SMS_SECTION", "SELF_PORT"),  params) for x in ip_labels]
+        for url in sms_urls:
           try:
-            f = urllib.urlopen(smsUrl(GetOption("SMS_SECTION", "SELF_IP2"), GetOption("SMS_SECTION", "SELF_PORT2"),  params))
+            import urllib2
+            f = urllib2.urlopen(url, timeout=3)
+            break
+          except Exception as ex:
+            continue
+        else:
+          raise ex
+
+
+
+        if False:
+          try:
+            f = urllib.urlopen(smsUrl(GetOption("SMS_SECTION", "SELF_IP"), GetOption("SMS_SECTION", "SELF_PORT"),  params))
           except Exception:
-            raise
+            try:
+              f = urllib.urlopen(smsUrl(GetOption("SMS_SECTION", "SELF_IP2"), GetOption("SMS_SECTION", "SELF_PORT2"),  params))
+            except Exception:
+              raise
 
         print(StripHTMLTags(f.read()))
         return

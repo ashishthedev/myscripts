@@ -131,6 +131,7 @@ fib=@echo "Finding inside .bat files" && findstr /i /s /n $* *.bat
 fit=@echo "Finding inside .txt files" && findstr /i /s /n $* *.txt
 fih=@echo "Finding inside .html files" && findstr /i /s /n $* *.html
 fia=@echo "Finding inside all files" && findstr /i /s /n $* *.*
+fix=@echo "Finding inside all files" && findstr /i /s /n $* *.xml
 fij=@echo "Finding inside js files" && findstr /i /s /n $* *.js
 fic=@echo "Finding inside code files" && findstr /i /s /n $* *.py *.html *.js *.css *.go
 fig=@echo "Finding inside go files" && findstr /i /s /n $* *.go
@@ -308,3 +309,4 @@ woaw = pushd %APPDIR%\adaptwater_ve\app\bin && start_shell.bat
 
 clrs = pushd %XDATDOCSDIR%\..\climaterealty\app\bin\ && start_shell.bat && exit
 clrts = pushd %XDATDOCSDIR%\..\climaterealty\testapp\bin\ && start_shell.bat && exit
+myahk = %XDATDOCSDIR%\FrequentFliers\MyAutoHotKeys.ahk

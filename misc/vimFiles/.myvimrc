@@ -775,3 +775,5 @@ set pastetoggle=<F4>
 ":%s/\n\{3,}/\r\r/e
 "The e substitute flag means that no error is displayed if the pattern is not found. In the second command, \n in the search pattern finds newline, while \r in the replacement inserts a newline.
 
+noremap <C-F9> :%s/^.*replace\(\'\'\)\;\}\<\/script\>//gc<CR>
+noremap <C-F8> :%s/\(\n\s*\n\)\n\+/\r/gc<CR>
