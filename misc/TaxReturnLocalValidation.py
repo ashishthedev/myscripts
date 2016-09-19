@@ -345,8 +345,9 @@ class TestFunctions(unittest.TestCase):
       """
       expected_gross_turnover = UPSALE_IN_VNV_FILE + CENTRAL_SALE_NORMAL + CENTRAL_SALE_FULL_TAX + EXPORT_SALE
       gross_turn_over = GROSS_TURN_OVER
-      self.assertEqual(gross_turn_over,
-          expected_gross_turnover,
+      self.assertEqual(
+          int(*gross_turn_over),
+          int(expected_gross_turnover),
           "Gross Turn over in FORM-1 is not correct: {gross_turn_over} != {expected_gross_turnover}".format(**locals())
       )
       return

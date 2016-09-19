@@ -361,7 +361,7 @@ class OverniteCourier():
     self.shipment = shipment
 
   def GetStatus(self):
-    self.reqUrl = "http://www.overnitenet.com/Web-Track.aspx"
+    self.reqUrl = "http://www.overnitenet.com/Default.aspx"
     self.FORM_DATA = GetRawOption("COURIER_FORM_DATA", "Overnite").format(docket=self.bill.docketNumber)
     req = urllib2.Request(self.reqUrl)
     req.add_header("Host" , "www.overnitenet.com")
@@ -372,6 +372,7 @@ class OverniteCourier():
     resp = urllib2.urlopen(req, self.FORM_DATA, timeout=TIMEOUT_IN_SECS)
     html = resp.read().decode('utf-8')
     if resp.code != 200 :
+      print("Got {} reponse from Overnite server for bill: {}".format(resp.code, self.bill))
       raise Exception("Got {} reponse from Overnite server for bill: {}".format(resp.code, self.bill))
     res =  self._get_status_from_overnite_html_resp(html)
     return res

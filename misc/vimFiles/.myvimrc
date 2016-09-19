@@ -58,8 +58,8 @@ set lazyredraw "Dont redraw when executing macros
 set nu
 set undolevels=5000
 set expandtab
-set tabstop=2
-set shiftwidth=2
+set tabstop=4
+set shiftwidth=4
 set guicursor=a:blinkwait001-blinkoff50-blinkon350
 set visualbell
 set fileformat=unix
@@ -629,8 +629,8 @@ endfunction
 autocmd BufEnter,BufRead,BufWritePost,BufWinEnter,BufReadPre,BufNewFile *.py call PySettings()
 function! PySettings()
     setlocal expandtab
-    setlocal tabstop=2
-    setlocal shiftwidth=2
+    setlocal tabstop=4
+    setlocal shiftwidth=4
     setlocal list
     setlocal listchars=tab:>-,trail:-
     setlocal nospell
