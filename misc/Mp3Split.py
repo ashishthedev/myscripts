@@ -2,10 +2,10 @@ import subprocess
 import os
 from os.path import normpath
 
-SOURCE_FILENAME = normpath("C:\Users\Ichigo\Desktop\O\TAPE007\\TRACK001.MP3")
-START_TIME="43.14"
-RESULTING_FILE_NAME="Hum sub milke aiye data tere darbar"
-END_TIME="46.43"
+SOURCE_FILENAME = normpath("b:\\Desktop\\O\\Various.mp3")
+START_TIME="41.50"
+RESULTING_FILE_NAME="Hum sab milkar"
+END_TIME="45.19"
 
 DESTINATION_DIR = normpath("b:\\desktop\\SplitSongs")
 EXE_PATH= normpath("b:\Tools\Mp3SplitterCommandLine\mp3splt.exe")
@@ -14,7 +14,7 @@ def main():
         os.makedirs(DESTINATION_DIR)
 
     if not os.path.exists(SOURCE_FILENAME):
-        raise Exception("{} doesnot exist. Please correct the path in {}".format(SOURCE_FILENAME, __fil__))
+        raise Exception("{} doesnot exist. Please correct the path in {}".format(SOURCE_FILENAME, __file__))
 
     if os.path.exists(os.path.join(DESTINATION_DIR, RESULTING_FILE_NAME+".mp3")):
         if raw_input("{} already exist. Overwrite(y/n)?".format(RESULTING_FILE_NAME)) != "y":

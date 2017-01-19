@@ -27,23 +27,24 @@ class CustomerInfoCol:
     PaymentReminderSmsNoCol   = "H"
     FORMCSMSNoCol             = "I"
     MDNumbers                 = "J"
-    MsorNoMSCol               = "K"
-    CompanyOfficialNameCol    = "L"
-    CourierAddressCol         = "M"
-    DeliveryStateCol          = "N"
-    DeliveryPinCodeCol        = "O"
-    PreferredCourierCol       = "P"
-    CityCol                   = "Q"
-    EmailForPayment           = "R"
-    KindAttentionCol          = "S"
-    EmailForFormC             = "T"
-    TrustCol                  = "U"
-    IncludeDaysCol            = "V"
-    CreditLimitCol            = "W"
-    FormNameCol               = "X"
-    MinDaysGapCol             = "Y"
-    IncludeBillAmountInEmails = "Z"
-    CompanyCodeCol            = "AA"
+    CasingSizeCol             = "K"
+    MsorNoMSCol               = "L"
+    CompanyOfficialNameCol    = "M"
+    CourierAddressCol         = "N"
+    DeliveryStateCol          = "O"
+    DeliveryPinCodeCol        = "P"
+    PreferredCourierCol       = "Q"
+    CityCol                   = "R"
+    EmailForPayment           = "S"
+    KindAttentionCol          = "T"
+    EmailForFormC             = "U"
+    TrustCol                  = "V"
+    IncludeDaysCol            = "W"
+    CreditLimitCol            = "X"
+    FormNameCol               = "Y"
+    MinDaysGapCol             = "Z"
+    IncludeBillAmountInEmails = "AA"
+    CompanyCodeCol            = "AB"
 
 
 def CreateSingleCustomerInfo(row):
@@ -61,7 +62,7 @@ def CreateSingleCustomerInfo(row):
         elif col == CustomerInfoCol.PhoneNumberCol:
             c.phoneNumber = val
         elif col == CustomerInfoCol.DeliveryPinCodeCol:
-            c.deliveryPinCode = val
+            c.deliveryPinCode = str(int(val)) if val else ""
         elif col == CustomerInfoCol.DeliveryStateCol:
             c.deliveryState = val
         elif col == CustomerInfoCol.SmsDispatchNumberCol:
@@ -98,6 +99,8 @@ def CreateSingleCustomerInfo(row):
             c.formName = val
         elif col == CustomerInfoCol.CompanyCodeCol:
             c.companyCode = val
+        elif col == CustomerInfoCol.CasingSizeCol:
+            c.casingSize = val
         elif col == CustomerInfoCol.MinDaysGapCol:
             c.minDaysGapBetweenAutomaticMails = val
         elif col == CustomerInfoCol.IncludeBillAmountInEmails:
@@ -122,6 +125,7 @@ class SingleCompanyInfo():
     singleComp["paymentSMSNo"] = self.paymentSMSNo
     singleComp["MDNumbers"] = self.MDNumbers
     singleComp["deliveryPhNo"] = self.deliveryPhNo
+    singleComp["casingSize"] = self.casingSize
     singleComp["msOrNoms"] = self.msOrNoms
     singleComp["companyOfficialName"] = self.companyOfficialName
     singleComp["courierAddress"] = self.courierAddress
@@ -201,6 +205,9 @@ class _AllCustomersInfo(dict):
 
     def GetDeliveryPhoneNumber(self, compName):
         return self[compName].deliveryPhNo
+
+    def GetCasingSize(self, compName):
+        return self[compName].casingSize
 
     def GetMsOrNomsForCustomer(self, compName):
         return self[compName].msOrNoms

@@ -1,6 +1,6 @@
 import xml.dom.minidom, os, unittest
 from Util.Config import GetAppDir
-FOLDER_NAME             = "2016-05"
+FOLDER_NAME             = "2016-12"
 BASEPATH                = os.path.join(GetAppDir(), "SalesTaxReturnFiles", "2016-2017")
 ANNEXUREA               = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureA.xml")
 ANNEXUREA2              = os.path.join(BASEPATH, FOLDER_NAME, "UPVAT", "XML", "Form24AnnexureA2.xml")

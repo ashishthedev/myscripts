@@ -80,7 +80,9 @@ class AndriodSMSGateway(object):
             except Exception:
               raise
 
-        print(StripHTMLTags(f.read()))
+        htmlText = f.read()
+        print(htmlText)
+        print(StripHTMLTags(htmlText))
         return
 
 class SonyEricssonPhone():

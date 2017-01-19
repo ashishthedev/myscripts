@@ -360,7 +360,7 @@ def SendMaterialDispatchSms(bill):
   d["tAmount"] = optionalAmount
 
   smsTemplate = Template("""Bill# $tBillNo
-Waybill#: $tDocketNumber
+Docket#: $tDocketNumber
 Date: $tDocketDate
 Through: $tThrough
 Material: $tMaterialDescription

@@ -1,6 +1,6 @@
 ::For Easy accessibility of professional website
 IF "%1". EQU "".  (
-start /w "C:\Users\Ichigo\AppData\Local\Google\Chrome\Application\chrome.exe" "http://www.tpcindia.com"
+start /w "C:\Users\Ichigo\AppData\Local\Google\Chrome\Application\chrome.exe" "http://dtdc.com"
 ) ELSE (
-start /w "C:\Users\Ichigo\AppData\Local\Google\Chrome\Application\chrome.exe" "http://www.tpcindia.com/Tracking2014.aspx?id=%1&type=0&service=0"
+start /w "C:\Users\Ichigo\AppData\Local\Google\Chrome\Application\chrome.exe" "http://dtdc.com/tracking/%1"
 )

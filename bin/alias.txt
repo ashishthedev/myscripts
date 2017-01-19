@@ -271,6 +271,7 @@ es = exercism submit $*
 ef = exercism fetch
 gft = go fmt && go test
 
+useCredentials = git config credential.helper store
 boi = @echo "711320100100377"
 mpv = b:\tools\mpv\mpv.exe $*
 ve = virtualenv --distribute $*
@@ -279,6 +280,7 @@ callff = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+91999951557
 callon2 = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919458275627" -sc "Please come." && popd
 callon = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919927817117" -sc "Please come." && SmsFromCommandLine.py -n "+919811258574" -sc "Please send someone today." && popd
 nchs = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919810181182" -sc "No Casing Here." && SmsFromCommandLine.py -n "+919971602777" -sc "No Casing Here." && popd
+callakash = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+918586970394" -sc $* && popd
 mp = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919810181182" -sc $* && popd
 mg = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919971602777" -sc $* && popd
 mkh = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919873433224" -sc $* && popd
