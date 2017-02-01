@@ -22,15 +22,17 @@ UNAME = GetOption("GMAIL_ATT_SIZE", "UNAME")
 UPASS = GetOption("GMAIL_ATT_SIZE", "UPASS")
 
 
+MAX_MB_SIZE = 10
 def main():
     print("Connecting ... " + UNAME)
     gmail = Gmail(UNAME, UPASS)
-    for i in range(50, 1, -1):
+    for i in range(MAX_MB_SIZE, 1, -1):
         print("Looking for {} mb".format(i))
         gmail.search.clear()
 
         searchRes = gmail.search.after(SINCE_DATE).hasAttachement().sizeGreateThan(i).execute()
-        for each in searchRes.messages:
+        for x, each in enumerate(searchRes.messages):
+            print(x, "{}MB".format(i))
             each.addLabel(".{}MB".format(i))
 
     gmail.logout()

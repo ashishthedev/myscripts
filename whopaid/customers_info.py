@@ -27,7 +27,7 @@ class CustomerInfoCol:
     PaymentReminderSmsNoCol   = "H"
     FORMCSMSNoCol             = "I"
     MDNumbers                 = "J"
-    CasingSizeCol             = "K"
+    SpecificationCol             = "K"
     MsorNoMSCol               = "L"
     CompanyOfficialNameCol    = "M"
     CourierAddressCol         = "N"
@@ -99,8 +99,8 @@ def CreateSingleCustomerInfo(row):
             c.formName = val
         elif col == CustomerInfoCol.CompanyCodeCol:
             c.companyCode = val
-        elif col == CustomerInfoCol.CasingSizeCol:
-            c.casingSize = val
+        elif col == CustomerInfoCol.SpecificationCol:
+            c.specification = val
         elif col == CustomerInfoCol.MinDaysGapCol:
             c.minDaysGapBetweenAutomaticMails = val
         elif col == CustomerInfoCol.IncludeBillAmountInEmails:
@@ -125,7 +125,7 @@ class SingleCompanyInfo():
     singleComp["paymentSMSNo"] = self.paymentSMSNo
     singleComp["MDNumbers"] = self.MDNumbers
     singleComp["deliveryPhNo"] = self.deliveryPhNo
-    singleComp["casingSize"] = self.casingSize
+    singleComp["specification"] = self.specification
     singleComp["msOrNoms"] = self.msOrNoms
     singleComp["companyOfficialName"] = self.companyOfficialName
     singleComp["courierAddress"] = self.courierAddress
@@ -206,8 +206,8 @@ class _AllCustomersInfo(dict):
     def GetDeliveryPhoneNumber(self, compName):
         return self[compName].deliveryPhNo
 
-    def GetCasingSize(self, compName):
-        return self[compName].casingSize
+    def GetSpecification(self, compName):
+        return self[compName].specification
 
     def GetMsOrNomsForCustomer(self, compName):
         return self[compName].msOrNoms
