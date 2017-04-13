@@ -345,10 +345,31 @@ class PersistentShipments(Persistent):
         s._removeFromDB()
     return
 
+def GetPlainTrackingUrl(docketNumber, courier):
+    courierMap = {
+            "fedex": "http://trackcourier.io/track-and-trace/fedex-courier/{docketNumber}",
+            "overnite": "http://trackcourier.io/track-and-trace/overnite-courier/{docketNumber}",
+            "dtdc": "http://trackcourier.io/track-and-trace/dtdc-courier/{docketNumber}",
+            "professional": "http://trackcourier.io/track-and-trace/professional-courier/{docketNumber}",
+            #"accurate": "http://trackcourier.io/track-and-trace/accurate-courier/{docketNumber}",
+            }
+    for x in courierMap:
+        if courier.lower().startswith(x):
+            return courierMap[x].format(docketNumber=docketNumber)
+    return ""
+
+def GetSMSLineForTrackingUrl(docketNumber, courier):
+    url = GetPlainTrackingUrl(docketNumber, courier)
+    if url:
+        return "Tracking url: " + url
+    return ""
+
 def SendMaterialDispatchSms(bill):
   optionalAmount = ""
   if IncludeAmountForBillInDispatchInfo(bill) and bill.amount != 0:
     optionalAmount = "Amount: Rs." + str(int(bill.amount)) + "/-"
+
+  optionalSMSTrackingUrl = GetSMSLineForTrackingUrl(bill.docketNumber, bill.courierName)
 
   d = dict()
 
@@ -358,6 +379,7 @@ def SendMaterialDispatchSms(bill):
   d["tThrough"] = bill.courierName
   d["tMaterialDescription"] = bill.materialDesc
   d["tAmount"] = optionalAmount
+  d["tTrackingUrl"] = optionalSMSTrackingUrl
 
   smsTemplate = Template("""Bill# $tBillNo
 Docket#: $tDocketNumber
@@ -365,6 +387,7 @@ Date: $tDocketDate
 Through: $tThrough
 Material: $tMaterialDescription
 $tAmount
+$tTrackingUrl
 Thanks.
 """)
   smsContents = smsTemplate.substitute(d)
@@ -497,6 +520,20 @@ def PrepareShipmentEmailForThisBill(bill, ctxt):
   d['tTableRows'] = tableRows
   d['tBodySubject'] = PastelOrangeText(Bold(UnderLine(ctxt.emailSubject)))
   d['tSignature'] = GetOption("EMAIL_REMINDER_SECTION", "Signature")
+  trackingUrl = GetPlainTrackingUrl(bill.docketNumber, bill.courierName)
+
+  if trackingUrl:
+      d['tTrackingUrl'] = """
+        <table border="0" cellspacing="0" cellpadding="0" width="auto" bgcolor="#FEFEFE">
+        <tbody>
+        <tr>
+        <td style="font-weight:bold;color:#3f3f3f;padding-left:24px; padding-right:24px" height="44" valign="center">{content}</td>
+        </tr>
+        </tbody>
+        </table>
+        """.format(content= '<a style="color:#DD472F" href="{trackingUrl}">{trackingUrl}</a>'.format(trackingUrl=trackingUrl))
+  else:
+      d['tTrackingUrl'] = ""
 
   templateMailBody = Template("""
 <html>
@@ -522,6 +559,8 @@ def PrepareShipmentEmailForThisBill(bill, ctxt):
     $tTableRows
     </table>
     </p>
+    <br>
+    $tTrackingUrl
     <br>
     $tLastLine
     <hr>
