@@ -287,6 +287,13 @@ mg = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919971602777" -
 mkh = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919873433224" -sc $* && popd
 ma = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919971008001" -sc $* && popd
 mpg = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919971602777" -sc $* && SmsFromCommandLine.py -n "+919810181182" -sc $* && popd
+mta = pushd %XDATDOCSDIR%\code\whopaid && telegram_message.py --anands --message $*
+mtm = pushd %XDATDOCSDIR%\code\whopaid && telegram_message.py --ashish --message $*
+
+
+anandschatid= -159201567
+
+mytelid = echo "81750744"
 mpa = pushd %XDATDOCSDIR%\code\misc && SmsFromCommandLine.py -n "+919971008001" -sc $* && SmsFromCommandLine.py -n "+919810181182" -sc $* && popd
 cat = type $* | more
 

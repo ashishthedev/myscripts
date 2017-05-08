@@ -57,7 +57,7 @@ class AndriodSMSGateway(object):
         def smsUrl(server, port, params):
           return "http://{server}:{port}/sendsms?{params}".format(server=server, port=port, params=params)
 
-        ip_labels = ["SELF_IP", "SELF_IP2", "SELF_IP3", "SELF_IP4"]
+        ip_labels = ["SELF_IP", "SELF_IP2", "SELF_IP3", "SELF_IP4", "SELF_IP5"]
         sms_urls = [smsUrl(GetOption("SMS_SECTION", x), GetOption("SMS_SECTION", "SELF_PORT"),  params) for x in ip_labels]
         for url in sms_urls:
           try:
