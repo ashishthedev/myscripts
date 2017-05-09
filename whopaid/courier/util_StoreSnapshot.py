@@ -47,7 +47,7 @@ def StoreDeliveryProofWithPhantomScript(b, scriptPath, formData, reqUrl):
 
 def _StoreSnapshot(b, scriptPath, formData, reqUrl, fullPath):
   #TODO: Remove hardcoding of path
-  PHANTOM = "B:\\Tools\\PhantomJS\\phantomjs-1.9.8-windows\\phantomjs.exe"
+  PHANTOM = "e:\\Tools\\PhantomJS\\phantomjs-1.9.8-windows\\phantomjs.exe"
 
   if os.path.exists(fullPath):
     i = fullPath.rfind(".")
