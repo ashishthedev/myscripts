@@ -24,7 +24,7 @@
 
 hugo = b:\\tools\hugo\\hugo.exe $*
 
-
+ll = dir
 
 gitclean = git gc --aggressive --prune
 gitamend = git commit --amend --no-edit

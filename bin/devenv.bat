@@ -18,7 +18,7 @@ REM set GOPATH=%APPDIR%\goscripts
 
 doskey /MACROFILE="%XDATDOCSDIR%\%RELATIVEPATH%"
 set PYTHONDONTWRITEBYTECODE=1
-set PYTHONPATH=c:\Progra~1\Google\google_appengine\google\;%XDATDOCSDIR%\code\;
+set PYTHONPATH=e:\gaeSDK\;%XDATDOCSDIR%\code\;
 
 pushd %XDATDOCSDIR%\code\whopaid
 
