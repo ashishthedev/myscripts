@@ -1,7 +1,7 @@
 import sys
 import os
 
-gae_sdk_path = os.path.join(os.environ["ProgramFiles"], "Google", "google_appengine")
+gae_sdk_path = os.path.join("e:\\", "gaeSDK")
 def FixSysPath():
     if gae_sdk_path not in sys.path:
         sys.path.insert(0, gae_sdk_path)
