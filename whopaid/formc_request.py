@@ -24,7 +24,7 @@ import argparse
 import datetime
 import os
 
-DEST_FOLDER = "B:\\Desktop\\FCR"
+DEST_FOLDER = "e:\\FCR"
 ALL_CUST_INFO = GetAllCustomersInfo()
 ALL_BILLS_DICT = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
 

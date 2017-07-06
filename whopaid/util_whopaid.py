@@ -279,10 +279,10 @@ class Company(list):
       if b.billingCategory.lower() not in ["jobwork", "tracking", "gr"]:
         uniqueCategory.add(b.billingCategory.lower())
 
-    if len(uniqueCategory) > 1:
+    if len(uniqueCategory) > len(["central/up", "gst"]):
       for u in uniqueCategory:
         print(u)
-      raise MyException("Bills are issued in more than two category for company: " + str(self.compName))
+      raise MyException("Bills are issued in more than two category for company:{} - {} ".format(self.compName, uniqueCategory))
 
 
 class SingleRow(object):
@@ -348,9 +348,11 @@ class SingleBillRow(SingleRow):
             return False
 
     def CheckCalculation(self):
+      taxLevied = floatx(self.tax) + floatx(self.cgstAmount) + floatx(self.sgstAmount) + floatx(self.igstAmount)
       if intx(self.goodsValue) != 0:
-        if(intx(self.amount) != (intx(self.goodsValue) + intx(self.tax) + intx(self.courier))):
-          raise MyException("Calculation error in " + str(self.billingCategory) + " bill# " + str(self.billNumber))
+        if(floatx(self.amount) != (floatx(self.goodsValue) + taxLevied + floatx(self.courier))):
+          import pprint
+          raise MyException("Calculation error in {} bill#{} - data{}".format(self.billingCategory, self.billNumber, pprint.pformat(vars(self))))
       #If the bill has been issued in last one year, check its taxation rate also
       if self.billingCategory.lower() in set(["tracking", "export", "jobwork", "gr"]):
         return
@@ -359,7 +361,7 @@ class SingleBillRow(SingleRow):
       if (datetime.date.today() - self.invoiceDate).days < 365:
         for taxRate in ALLOWED_TAXATION_RATES:
           expectedTax = self.goodsValue*float(taxRate)/100
-          if abs(expectedTax - self.tax) < 1:
+          if abs(expectedTax - taxLevied) < 1:
             break
         else:
           zeroTaxationRateCompanies = ["elmr"]
@@ -367,7 +369,7 @@ class SingleBillRow(SingleRow):
             if self.compName.lower().startswith(zeroTaxComp):
               break
           else:
-            raise MyException("Calculated sales tax in bill#{} dt {} issued to {} is probably wrong. The expected taxation rates are: {}".format(self.billNumber, DD_MM_YYYY(self.invoiceDate), self.compName, ALLOWED_TAXATION_RATES))
+              raise MyException("Calculated sales tax in bill#{} dt {} issued to {} is probably wrong. Expected tax:{}. taxLevied: {}. The expected taxation rates are: {}".format(self.billNumber, DD_MM_YYYY(self.invoiceDate), self.compName, expectedTax , taxLevied, ALLOWED_TAXATION_RATES))
       return
 
 
@@ -438,14 +440,17 @@ class SheetCols:
     GoodsValue             = "I"
     Tax                    = "J"
     Courier                = "K"
-    InvoiceAmount          = "L"
-    DocketNumber           = "M"
-    DocketDate             = "N"
-    CourierName            = "O"
-    PaymentReceivingDate   = "P"
-    PaymentStatus          = "Q"
-    PaymentAccountedFor    = "R"
-    FormCReceivingDate     = "S"
+    CGSTCol                = "L"
+    SGSTCol                = "M"
+    IGSTCol                = "N"
+    InvoiceAmount          = "O"
+    DocketNumber           = "P"
+    DocketDate             = "Q"
+    CourierName            = "R"
+    PaymentReceivingDate   = "S"
+    PaymentStatus          = "T"
+    PaymentAccountedFor    = "U"
+    FormCReceivingDate     = "V"
 
 def CreateSingleOrderRow(row):
   r = SingleOrderRow()
@@ -559,9 +564,15 @@ def _CreateSingleBillRow(row):
     val = GetCellValue(cell)
 
     b.rowNumber = cell.row
-    if col == SheetCols.InvoiceAmount:
+    if col == SheetCols.SGSTCol:
+      b.sgstAmount = floatx(val)
+    elif col == SheetCols.CGSTCol:
+      b.cgstAmount = floatx(val)
+    elif col == SheetCols.IGSTCol:
+      b.igstAmount = floatx(val)
+    elif col == SheetCols.InvoiceAmount:
       if val==None: raise MyException("No amount mentioned in row: {} and col: {}".format(cell.row, col))
-      b.amount = int(val)
+      b.amount = float(val)
     elif col == SheetCols.InstrumentNumberCol:
       if not val: raise MyException("No PO mentioned in row: {} and col: {}".format(cell.row, col))
       b.poNumber = val

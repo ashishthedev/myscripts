@@ -47,7 +47,7 @@ def CalculateProjectedSaleForThisYear():
   t = datetime.date.today()
   previousMonthLastDate = t - datetime.timedelta(days=t.day+1)
   bills = SelectBillsBeforeDate(bills, previousMonthLastDate)
-  projectedSaleForThisYear = sum([b.goodsValue for b in bills if b.billingCategory.lower() in ["up", "central", "export"]])
+  projectedSaleForThisYear = sum([b.goodsValue for b in bills if b.billingCategory.lower() in ["up", "central", "export", "gst"]])
   daysPassedInThisYear = (previousMonthLastDate - firstApril).days
   projectedSaleForThisYear = (projectedSaleForThisYear/daysPassedInThisYear)*365
   return projectedSaleForThisYear
@@ -226,7 +226,7 @@ class _PersistentBillBookSms(Persistent):
 
 
   def sendSmsIfRequired(self):
-    for category in ["central", "up"]:
+    for category in ["central", "up", "gst"]:
       bills = [b for b in GetAllBillsInLastNDays(30)]
       bills = [b for b in bills if b.billingCategory.lower() == category.lower()]
       bills = sorted(bills, key = lambda b: b.billNumber)

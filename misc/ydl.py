@@ -11,7 +11,7 @@ import os
 from datetime import datetime
 
 MAX_RETIRES = 10
-BASEPATH = "b:\\YoutubeVideosDownloaded"
+BASEPATH = "e:\\YoutubeVideosDownloaded"
 _LOGFILE = os.path.join(BASEPATH, "YoutubeDLLog.txt")
 _YTURLLIST = os.path.join(BASEPATH, "YoutubeURLsQueue.txt")
 
