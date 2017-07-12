@@ -83,7 +83,7 @@ def ShowStatementOnTerminal(grpName):
     billNumbers.append("TOTAL")
     invoiceDates.append("")
     daysOfCredit.append("")
-    amounts.append(str(sum(int(x) for x in amounts)))
+    amounts.append(str(sum(float(x) for x in amounts)))
 
     print("")
     Column = ConsoleTable.Column

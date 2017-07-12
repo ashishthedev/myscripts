@@ -169,6 +169,8 @@ rpr   = pushd %XDATDOCSDIR%\code\whopaid && road_permit_request.py --mail --sms 
 rprm  = pushd %XDATDOCSDIR%\code\whopaid && road_permit_request.py --mail $* && popd
 rprs  = pushd %XDATDOCSDIR%\code\whopaid && road_permit_request.py --sms $* && popd
 rprd  = pushd %XDATDOCSDIR%\code\whopaid && road_permit_request.py --mail --sms --demo $* && popd
+epr   = pushd %XDATDOCSDIR%\code\whopaid && ebill_permit_request.py --mail --sms $* && popd
+eprd  = pushd %XDATDOCSDIR%\code\whopaid && ebill_permit_request.py --mail --sms --demo $* && popd
 scsms = gvim %XDATDOCSDIR%\Bills\repeatingSMS.json
 dis   = pushd %XDATDOCSDIR%\code\whopaid && shipments.py --mail --dispatch-sms-all $* && Shipments.py --track -ssmsg -sah && pushd %XDATDOCSDIR%\..\DocketPODs && start. && popd && popd 
 dis10 = pushd %XDATDOCSDIR%\code\whopaid && shipments.py --mail --dispatch-sms-all --notify-days=10 --track-days=10 $* && popd

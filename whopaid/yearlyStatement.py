@@ -25,7 +25,7 @@ import argparse
 import datetime
 import os
 
-DEST_FOLDER = "B:\\Desktop\\Statements"
+DEST_FOLDER = "E:\\Statements"
 
 def ParseArguments():
     p = argparse.ArgumentParser()
