@@ -28,6 +28,7 @@ class QuarterlyClubbedFORMC(object):
         super(QuarterlyClubbedFORMC, self).__init__()
         self.billList = billList
         assert len(set(b.compName for b in billList)) == 1, "More than one company is there in the bill List. {}".format([b.compName for b in billList])
+        self.billList = [b for b in billList if b.invoiceDate < datetime.date(2017, 07, 01)]
 
     def _GetCompName(self):
         return self.billList[0].compName
