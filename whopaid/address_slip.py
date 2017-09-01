@@ -29,6 +29,8 @@ def ParseOptions():
         default=False, help="If present, will show how many envelopes are left")
     parser.add_argument("-hml", "--how--many-left", dest='howManyLeft', action="store_true",
         default=False, help="If present, will show how many envelopes are left")
+    parser.add_argument("-con", "--console", dest='consoleOnly', action="store_true", default=False,
+            help="Print on console only.")
     parser.add_argument("-c", "--comp", dest='comp', type=str, default=None,
             help="Company name or part of it.")
     parser.add_argument("-n", dest='num', type=int, default=2,
@@ -192,12 +194,24 @@ def GenerateAddressSlipForThisCompany(compName, args, filePath, times):
     with open(filePath, "w") as f:
         f.write(html)
 
+    if args.consoleOnly:
+
+        print(Template("""
+        $tCompanyOfficialName
+        $tCompanyDeliveryAddress $tDeliveryState - PIN - $tcompanyPinCode
+        Ph# $tcompanyDeliveryPhNo
+        $tOptionalParams
+        """).substitute(d))
+        return
+
+
     OpenFileForViewing(filePath)
     return
 
 
 
-ALL_BILLS_DICT = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict() #For speed imporovement, made a class member
+#ALL_BILLS_DICT = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict() #For speed imporovement, made a class member
+ALL_BILLS_DICT = []
 class PersistentEnvelopes(Persistent):
   def __init__(self):
     super(self.__class__, self).__init__(self.__class__.__name__)
@@ -227,12 +241,14 @@ class PersistentEnvelopes(Persistent):
     return numOfEnv - len(billList)
 
   def PrintAllInfo(self):
+    return #TODO Not using all_bills_dict
     l = sorted(self.allKeys[:], key=lambda compName: self.HowManyLeftForThisCompany(compName), reverse=True)
     for compName in l:
       print("{} envelopes for {}".format(self.HowManyLeftForThisCompany(compName), compName))
     return
 
   def PredictFuturePrints(self):
+    return #TODO Not using all_bills_dict
     compNames = [c for c in self if self.HowManyLeftForThisCompany(c) <=1 ]
     if compNames:
       PrintInBox("Please print the envelopes for following companies:")
@@ -285,13 +301,13 @@ def main():
   GenerateAddressSlipForThisCompany(chosenComp, args, tempPathPage, args.num)
 
 
-  from time import sleep
-  sleep(2) # This sleep is so that browser can render the generated file coz next html will be generated in same filename and will overwrite previous one.
+  #from time import sleep
+  #sleep(2) # This sleep is so that browser can render the generated file coz next html will be generated in same filename and will overwrite previous one.
 
 
-  tempPathPage = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), "AddressSlips", companyOfficialName + "_single.html")
-  MakeSureDirExists(os.path.dirname(tempPathPage))
-  GenerateAddressSlipForThisCompany(chosenComp, args, tempPathPage, 1)
+  #tempPathPage = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), "AddressSlips", companyOfficialName + "_single.html")
+  #MakeSureDirExists(os.path.dirname(tempPathPage))
+  #GenerateAddressSlipForThisCompany(chosenComp, args, tempPathPage, 1)
 
 
   pe.MarkPrinted(chosenComp, args.num, datetime.date.today())

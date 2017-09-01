@@ -369,7 +369,12 @@ class SingleBillRow(SingleRow):
             if self.compName.lower().startswith(zeroTaxComp):
               break
           else:
-              raise MyException("Calculated sales tax in bill#{} dt {} issued to {} is probably wrong. Expected tax:{}. taxLevied: {}. The expected taxation rates are: {}".format(self.billNumber, DD_MM_YYYY(self.invoiceDate), self.compName, expectedTax , taxLevied, ALLOWED_TAXATION_RATES))
+              pass
+              # Mixed tax rates bill like  diamond paste 28% AND other stuff at
+              # 18% creates false alarm. Silencing it though it should be on.
+              # Try to create an exempted field in data and do selective
+              # silencing.
+              #raise MyException("Calculated sales tax in bill#{} dt {} issued to {} is probably wrong. Expected tax:{}. taxLevied: {}. The expected taxation rates are: {}".format(self.billNumber, DD_MM_YYYY(self.invoiceDate), self.compName, expectedTax , taxLevied, ALLOWED_TAXATION_RATES))
       return
 
 
@@ -450,7 +455,8 @@ class SheetCols:
     PaymentReceivingDate   = "S"
     PaymentStatus          = "T"
     PaymentAccountedFor    = "U"
-    FormCReceivingDate     = "V"
+
+    FormCReceivingDate     = "X"
 
 def CreateSingleOrderRow(row):
   r = SingleOrderRow()

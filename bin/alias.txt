@@ -54,7 +54,8 @@ cd=pushd $*
 
 egs = start /w "%USERPROFILE%\AppData\Local\Google\Chrome\Application\chrome.exe" "https://www.google.com/#q=$*"
 
-gds=pushd b:\desktop
+fbill=@echo "Finding GST bill for" && @echo "%XDATDOCSDIR%\bills\gstbills" && where /T /R "%XDATDOCSDIR%\bills\gstbills" *$**
+gds=pushd c:\\Users\\ichigopc\\Desktop
 gtest = pushd b:\desktop && pushd test
 gms=pushd %XDATDOCSDIR%\code
 gbin=pushd %XDATDOCSDIR%\code\bin
@@ -140,6 +141,7 @@ esice=pushd %XDATDOCSDIR%\ESIC && start.
 q=exit
 pyprof = %XDATDOCSDIR%\code\bin\pyprofile.py "$*"
 
+caddr = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n1 --console -c $* && popd
 slip1 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n1 $* && popd
 slip14 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n14 $* && popd
 slip2 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n2 $* && popd

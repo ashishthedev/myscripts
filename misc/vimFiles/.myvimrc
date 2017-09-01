@@ -80,6 +80,8 @@ autocmd BufWinEnter *.* silent loadview
 "To get rid of *.~ and *.swp litter
 set backupdir=%temp%
 set directory=%temp%
+set backupdir=C:\\temp
+set directory=C:\\temp
 
 " When vimrc is edited, reload it
 autocmd bufwritepost .myvimrc source <sfile> "When this file changes resource it
