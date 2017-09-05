@@ -350,6 +350,7 @@ def GetPlainTrackingUrl(docketNumber, courier):
             "fedex": "https://www.fedex.com/apps/fedextrack/?tracknumbers={docketNumber}&cntry_code=in",
             "fedexObsolete": "http://trackcourier.io/track-and-trace/fedex-courier/{docketNumber}",
             "overnite": "http://trackcourier.io/track-and-trace/overnite-courier/{docketNumber}",
+            "trackon": "http://trackcourier.io/track-and-trace/trackon-courier/{docketNumber}",
             "dtdc": "http://trackcourier.io/track-and-trace/dtdc-courier/{docketNumber}",
             "professional": "http://trackcourier.io/track-and-trace/professional-courier/{docketNumber}",
             #"accurate": "http://trackcourier.io/track-and-trace/accurate-courier/{docketNumber}",
@@ -528,11 +529,12 @@ def PrepareShipmentEmailForThisBill(bill, ctxt):
         <table border="0" cellspacing="0" cellpadding="0" width="auto" bgcolor="#FEFEFE">
         <tbody>
         <tr>
-        <td style="font-weight:bold;color:#3f3f3f;padding-left:24px; padding-right:24px" height="44" valign="center">{content}</td>
+        <td><img="http://trackcourier.io/static/img/icon.png" width="44" height="44"></td>
+        <td style="font-weight:bold;color:#3f3f3f;padding-left:4px; padding-right:24px" height="44" valign="center">{content}</td>
         </tr>
         </tbody>
         </table>
-        """.format(content= '<a style="color:#DD472F" href="{trackingUrl}">{trackingUrl}</a>'.format(trackingUrl=trackingUrl))
+        """.format(content= '<a style="color:#DD472F" href="{trackingUrl}">Track courier here</a>'.format(trackingUrl=trackingUrl))
   else:
       d['tTrackingUrl'] = ""
 
