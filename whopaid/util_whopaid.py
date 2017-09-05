@@ -350,8 +350,13 @@ class SingleBillRow(SingleRow):
     def CheckCalculation(self):
       taxLevied = floatx(self.tax) + floatx(self.cgstAmount) + floatx(self.sgstAmount) + floatx(self.igstAmount)
       if intx(self.goodsValue) != 0:
-        if(floatx(self.amount) != (floatx(self.goodsValue) + taxLevied + floatx(self.courier))):
+        if(abs(floatx(self.amount) - (floatx(self.goodsValue) + taxLevied + floatx(self.courier))) > .01):
           import pprint
+          print("self.amount ={}".format(self.amount))
+          print("self.goodsValue ={}".format(self.goodsValue))
+          print("taxLevied ={}".format(taxLevied))
+          print("self.courier ={}".format(self.courier))
+
           raise MyException("Calculation error in {} bill#{} - data{}".format(self.billingCategory, self.billNumber, pprint.pformat(vars(self))))
       #If the bill has been issued in last one year, check its taxation rate also
       if self.billingCategory.lower() in set(["tracking", "export", "jobwork", "gr"]):
