@@ -183,6 +183,9 @@ class _AllCustomersInfo(dict):
     def GetCreditLimitForCustomer(self, compName):
         return self[compName].creditLimit
 
+    def GetCompanyBillingAddress(self, compName):
+        return self[compName].billingAddress
+
     def GetCompanyOfficialName(self, compName):
         return self[compName].companyOfficialName
 
