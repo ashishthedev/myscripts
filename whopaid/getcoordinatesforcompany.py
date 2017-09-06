@@ -58,6 +58,7 @@ def GenerateCoordinatesForThisCompany(compName):
     COMMA = ", "
     addresses = [
             companyOfficialName,
+            companyOfficialName + COMMA + companyBillingAddress,
             companyOfficialName + COMMA + companyDeliveryState,
             companyOfficialName + COMMA + companyDeliveryAddress + COMMA + companyDeliveryState + COMMA + companyPinCode,
             companyOfficialName + COMMA + companyBillingAddress + COMMA + companyDeliveryState,
