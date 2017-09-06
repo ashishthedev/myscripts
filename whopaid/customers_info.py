@@ -46,6 +46,8 @@ class CustomerInfoCol:
     MinDaysGapCol             = "AA"
     IncludeBillAmountInEmails = "AB"
     CompanyCodeCol            = "AC"
+    LatitudeCol               = "AH"
+    LongitudeCol              = "AI"
 
 
 def CreateSingleCustomerInfo(row):
@@ -108,6 +110,10 @@ def CreateSingleCustomerInfo(row):
             c.includeBillAmountinEmails = val
         elif col == CustomerInfoCol.CompanyGroupCol:
             c.companyGroupName = val
+        elif col == CustomerInfoCol.LongitudeCol:
+            c.lng = val
+        elif col == CustomerInfoCol.LatitudeCol:
+            c.lat = val
     return c
 
 
@@ -142,6 +148,8 @@ class SingleCompanyInfo():
     singleComp["minDaysGapBetweenAutomaticMails"] = self.minDaysGapBetweenAutomaticMails
     singleComp["includeBillAmountinEmails"] = self.includeBillAmountinEmails
     singleComp["companyGroupName"] = self.companyGroupName
+    singleComp["lat"] = self.lat
+    singleComp["lng"] = self.lng
     return singleComp
 
 
@@ -239,6 +247,12 @@ class _AllCustomersInfo(dict):
 
     def GetIncludeDaysOrNot(self, compName):
         return self[compName].includeDays
+
+    def GetCompanyLatitude(self, compName):
+        return self[compName].lat
+
+    def GetCompanyLongitude(self, compName):
+        return self[compName].lng
 
     def IncludeBillAmountInEmails(self, compName):
         val = self[compName].includeBillAmountinEmails

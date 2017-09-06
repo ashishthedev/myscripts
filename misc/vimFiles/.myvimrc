@@ -186,6 +186,7 @@ ino <C-A> <C-O>yiW<End>=<C-R>=<C-R>0<CR>
 au FileType python set omnifunc=pythoncomplete#Complete
 let g:SuperTabDefaultCompleteType = "context"
 set completeopt=menu,longest,preview
+imap <tab> <C-x><C-p>
 
 let g:go_disable_autoinstall = 0
 

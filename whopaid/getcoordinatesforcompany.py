@@ -6,20 +6,16 @@
 ##              Openpyxl for Python 3 must be installed
 ###############################################################################
 
-from Util.Config import GetOption
 from Util.Exception import MyException
-from Util.Misc import PrintInBox, OpenFileForViewing, MakeSureDirExists, DD_MM_YYYY
-from Util.Persistent import Persistent
+from Util.Misc import PrintInBox
 from urllib import urlencode
 from urllib2 import urlopen
 import json
 from pprint import pprint
 
 
-from whopaid.util_whopaid import GuessCompanyName, GetAllCompaniesDict, SelectBillsAfterDate
+from whopaid.util_whopaid import GuessCompanyName
 from whopaid.customers_info import GetAllCustomersInfo
-from whopaid.sanity_checks import CheckConsistency
-
 
 import argparse
 
@@ -44,6 +40,12 @@ def GenerateCoordinatesForThisCompany(compName):
       raise MyException("\nM/s {} doesnt have a billing address. Please feed it in the database".format(compName))
     companyBillingAddress = companyBillingAddress.strip()
 
+
+    companyDeliveryAddress= ALL_CUST_INFO.GetCustomerDeliveryAddress(compName)
+    if not companyDeliveryAddress:
+      raise MyException("\nM/s {} doesnt have a delivery address. Please feed it in the database".format(compName))
+    companyDeliveryAddress = companyDeliveryAddress.strip()
+
     companyDeliveryState = ALL_CUST_INFO.GetDeliveryState(compName)
     if not companyDeliveryState:
       raise MyException("\nM/s {} doesnt have a devliery state. Please feed it in the database".format(compName))
@@ -54,9 +56,15 @@ def GenerateCoordinatesForThisCompany(compName):
 
     d = dict()
     COMMA = ", "
-    addresses = [companyOfficialName + COMMA + companyDeliveryState,
+    addresses = [
+            companyOfficialName,
+            companyOfficialName + COMMA + companyDeliveryState,
+            companyOfficialName + COMMA + companyDeliveryAddress + COMMA + companyDeliveryState + COMMA + companyPinCode,
             companyOfficialName + COMMA + companyBillingAddress + COMMA + companyDeliveryState,
             companyOfficialName + COMMA + companyBillingAddress + COMMA + companyDeliveryState + COMMA + companyPinCode,
+            companyBillingAddress + COMMA + companyDeliveryState,
+            companyDeliveryAddress + COMMA + companyDeliveryState + COMMA + companyPinCode,
+            companyDeliveryState + COMMA + companyPinCode,
             ]
     for a in addresses:
         d["address"] = a
@@ -65,15 +73,13 @@ def GenerateCoordinatesForThisCompany(compName):
             resp = json.load(urlopen(apiUrl))
 
             location = resp["results"][0]["geometry"]["location"]
+            print()
             pprint({a: (location["lat"], location["lng"])})
         except Exception as ex:
+            print()
+            pprint((a, ex))
             pprint(resp)
-            pprint(ex)
     return
-
-
-
-
 
 
 def main():

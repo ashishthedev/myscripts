@@ -272,6 +272,9 @@ class Company(list):
     for b in self:
       b.CheckCalculation()
 
+  def CheckCoordinatesPresent(self):
+      return ALL_CUST_INFO.GetCompanyLatitude(self.compName) and ALL_CUST_INFO.GetCompanyLongitude(self.compName)
+
   def CheckEachBillsBillingCategory(self):
     uniqueCategory = set()
     #Create a unique set

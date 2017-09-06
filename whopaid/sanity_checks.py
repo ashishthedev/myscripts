@@ -18,6 +18,7 @@ from whopaid.customers_info import GetAllCustomersInfo
 from whopaid.json_data_generator import AskUberObserverToUploadJsons
 from whopaid.mark_bills_as_paid import ReportBillWhichShouldBeMarkAsPaid
 from whopaid.util_whopaid import GetAllCompaniesDict, SelectBillsAfterDate, ShrinkWorkingArea, GetWorkBookPath
+from whopaid.getcoordinatesforcompany import GenerateCoordinatesForThisCompany
 
 from collections import defaultdict
 import os
@@ -58,7 +59,7 @@ class PersistentInfoForConsistencyCheck(Persistent):
 def CheckConsistency():
   pcc = PersistentInfoForConsistencyCheck()
 
-  if not pcc.isCheckRequired(): return #We successfully ran no need to check again.
+  #if not pcc.isCheckRequired(): return #We successfully ran no need to check again.
 
   functionList = [
       CheckCustomerExistenceInDB,
@@ -68,6 +69,7 @@ def CheckConsistency():
       CheckCancelledAmount,
       CheckIfAnyBillsShouldBeMarkedAsPaid,
       CheckDocketLength,
+      CheckCoordinatesPresentForBillsAfterJuly17,
       ]
 
   allBillsDict = GetAllCompaniesDict().GetAllBillsOfAllCompaniesAsDict()
@@ -87,6 +89,28 @@ def CheckCancelledAmount(allBillsDict):
       for eachBill in eachComp:
         if eachBill.amount != 0:
           raise MyException("Bill#{} dated {} is cancelled but has amount {}. It should be 0".format(eachBill.billNumber, str(eachBill.invoiceDate), eachBill.amount))
+
+
+def CheckCoordinatesPresentForBillsAfterJuly17(allBillsDict):
+  print("inside CheckCoordinatesPresentForBillsAfterJuly17")
+  startDateObject = ParseDateFromString("1jul17")
+  for (eachCompName, eachComp) in allBillsDict.iteritems():
+      newBillPresent = False
+      for eachBill in eachComp:
+        if eachBill.invoiceDate < startDateObject : continue
+
+        if eachBill.billingCategory.lower() not in ["gst"]: continue #Only interested in gst bills for the time being
+        newBillPresent = True
+        break
+      if newBillPresent:
+          if not eachComp.CheckCoordinatesPresent():
+              print("\n\n\n")
+              print("_"*70)
+              GenerateCoordinatesForThisCompany(eachCompName);
+              print("_"*70)
+              raw_input()
+              #raise MyException("Coordinates not present for M/s {}".format(eachCompName))
+  return
 
 
 def CheckDocketLength(allBillsDict):

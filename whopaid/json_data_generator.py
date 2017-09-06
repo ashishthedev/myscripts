@@ -67,7 +67,6 @@ data =
 ]
 """
 
-ALL_CUST_INFO = GetAllCustomersInfo()
 def _DumpOrdersDB():
   allOrdersDict = ALL_COMPANIES_DICT.GetAllOrdersOfAllCompaniesAsDict()
 
@@ -270,7 +269,7 @@ def ProcessAndReturnSingleCompFormC(compName, billList):
   singleCompFormC = dict()
   singleCompFormC["key"] = key
   singleCompFormC["yd"] = yd
-  companyOfficialName = GetAllCustomersInfo().GetCompanyOfficialName(compName)
+  companyOfficialName = ALL_CUST_INFO.GetCompanyOfficialName(compName)
   if not companyOfficialName:
     raise MyException("\nM/s {} doesnt have a displayable 'name'. Please feed it in the database".format(compName))
 
@@ -362,10 +361,27 @@ def AskUberObserverToUploadJsons():
   subprocess.check_call(cmd)
   return
 
+def ShowCoordinates():
+
+  allBillsDict = ALL_COMPANIES_DICT.GetAllBillsOfAllCompaniesAsDict()
+  uniqueCompNames = set([eachComp for eachComp in allBillsDict.keys()])
+
+  for eachComp in uniqueCompNames:
+      lat = ALL_CUST_INFO.GetCompanyLatitude(eachComp)
+      lng = ALL_CUST_INFO.GetCompanyLongitude(eachComp)
+      if lat and lng:
+          print("{},{}".format(lat, lng))
+
+  return
+
 
 def ParseOptions():
   import argparse
   parser = argparse.ArgumentParser()
+
+  parser.add_argument("-coords", "--generate-coordinates",
+      dest='generateCoordinates', action="store_true",
+      default=False, help="If present, coordinates will be generated.")
 
   parser.add_argument("-gj", "--generate-json",
       dest='generateJson', action="store_true",
@@ -375,5 +391,7 @@ def ParseOptions():
 
 if __name__ == "__main__":
   args = ParseOptions()
+  if args.generateCoordinates:
+    ShowCoordinates()
   if args.generateJson:
     _DumpJSONDB()
