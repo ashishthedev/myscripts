@@ -361,16 +361,29 @@ def AskUberObserverToUploadJsons():
   subprocess.check_call(cmd)
   return
 
+latlngformat = """\{"lat":{}, "lng":{}\}"""
 def ShowCoordinates():
 
   allBillsDict = ALL_COMPANIES_DICT.GetAllBillsOfAllCompaniesAsDict()
   uniqueCompNames = set([eachComp for eachComp in allBillsDict.keys()])
 
-  for eachComp in uniqueCompNames:
-      lat = ALL_CUST_INFO.GetCompanyLatitude(eachComp)
-      lng = ALL_CUST_INFO.GetCompanyLongitude(eachComp)
-      if lat and lng:
-          print("{},{}".format(lat, lng))
+
+  coordinatesJsonFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), "coordinates.json")
+  with open(coordinatesJsonFileName, 'w') as f:
+      f.write("""[""")
+      numOfCoordinates = 0
+      for i, eachComp in enumerate(uniqueCompNames):
+          lat = ALL_CUST_INFO.GetCompanyLatitude(eachComp)
+          lng = ALL_CUST_INFO.GetCompanyLongitude(eachComp)
+          if lat and lng:
+              numOfCoordinates += 1
+              if i == len(uniqueCompNames)-1:
+                  f.write("""{"lat": """ + lat + """, "lng": """ + lng + """}""")
+              else:
+                  f.write("""{"lat": """ + lat + """, "lng": """ + lng + """},""")
+
+      f.write("""]""")
+  print("Coordinates json file with {} coordinates is available at: {}".format(numOfCoordinates, coordinatesJsonFileName))
 
   return
 

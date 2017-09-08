@@ -7,7 +7,7 @@ REM D:\Windows\system32\cmd.exe /k E:\Dev\WorkSpace\setenv.bat
 
 
 REM Environment variables should not have quotes. The final path should have.
-set WEBDIR=%APPDIR%\website
+set WEBDIR=%APPDIR%\sdatwebsite
 set LEANDIR=%APPDIR%\leantricks
 set PMTAPPDIR=%APPDIR%\pmtsdat
 set XDATDOCSDIR=%APPDIR%\SDATDocs

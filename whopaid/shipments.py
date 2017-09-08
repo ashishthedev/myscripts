@@ -524,12 +524,14 @@ def PrepareShipmentEmailForThisBill(bill, ctxt):
   d['tSignature'] = GetOption("EMAIL_REMINDER_SECTION", "Signature")
   trackingUrl = GetPlainTrackingUrl(bill.docketNumber, bill.courierName)
 
+        #<td><img src="https://drive.google.com/file/d/0B-P-z1FSiaWAWkFvUzl6eVFWdGs/view?usp=sharing" alt="Track Courier Logo" title="Track Courier Logo" style="display:block" width="44" height="44"/></td>
+        #<td><img src="http://trackcourier.io/static/img/icon.png" alt="Track Courier Logo" title="Track Courier Logo" style="display:block" width="44" height="44"/></td>
   if trackingUrl:
       d['tTrackingUrl'] = """
         <table border="0" cellspacing="0" cellpadding="0" width="auto" bgcolor="#FEFEFE">
         <tbody>
         <tr>
-        <td><img="http://trackcourier.io/static/img/icon.png" width="44" height="44"></td>
+        <td><img src="http://trackcourier.io/static/img/icon.png" style="display:block" width="44" height="44"/></td>
         <td style="font-weight:bold;color:#3f3f3f;padding-left:4px; padding-right:24px" height="44" valign="center">{content}</td>
         </tr>
         </tbody>
