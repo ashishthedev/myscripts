@@ -141,7 +141,10 @@ esice=pushd %XDATDOCSDIR%\ESIC && start.
 q=exit
 pyprof = %XDATDOCSDIR%\code\bin\pyprofile.py "$*"
 
-showcoords = pushd %XDATDOCSDIR%\code\whopaid && json_data_generator.py -coords && popd
+genandpullcoords = pushd %XDATDOCSDIR%\code\whopaid && json_data_generator.py -coords && popd && pushd %WEBDIR% && copy /Y e:\\sdattemp\\coordinates.json %WEBDIR%\static\json\ && echo "New file is present at %WEBDIR%\static\json\coordinates.json" && notepad %WEBDIR%\static\json\coordinates.json
+
+gencoords = pushd %XDATDOCSDIR%\code\whopaid && json_data_generator.py -coords && type e:\\SDATTemp\\coordinates.json && popd
+
 addof = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n1 --console -c $* && popd
 slip1 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n1 $* && popd
 slip14 = pushd %XDATDOCSDIR%\code\whopaid && address_slip.py -n14 $* && popd

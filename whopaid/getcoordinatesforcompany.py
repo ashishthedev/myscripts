@@ -71,6 +71,7 @@ def GenerateCoordinatesForThisCompany(compName):
         d["address"] = a
         apiUrl = "https://maps.googleapis.com/maps/api/geocode/json?" + urlencode(d)
         try:
+            import time; time.sleep(1)
             resp = json.load(urlopen(apiUrl))
 
             location = resp["results"][0]["geometry"]["location"]

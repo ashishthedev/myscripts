@@ -370,7 +370,7 @@ def ShowCoordinates():
 
   coordinatesJsonFileName = os.path.join(GetOption("CONFIG_SECTION", "TempPath"), "coordinates.json")
   with open(coordinatesJsonFileName, 'w') as f:
-      f.write("""[""")
+      f.write("""{"coords":[""")
       numOfCoordinates = 0
       for i, eachComp in enumerate(uniqueCompNames):
           lat = ALL_CUST_INFO.GetCompanyLatitude(eachComp)
@@ -382,7 +382,10 @@ def ShowCoordinates():
               else:
                   f.write("""{"lat": """ + lat + """, "lng": """ + lng + """},""")
 
-      f.write("""]""")
+      f.write("""],""")
+      f.write("""
+              "n":{}""".format(numOfCoordinates))
+      f.write("""}""")
   print("Coordinates json file with {} coordinates is available at: {}".format(numOfCoordinates, coordinatesJsonFileName))
 
   return

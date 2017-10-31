@@ -316,7 +316,7 @@ def main():
 
 if __name__ == '__main__':
   try:
-    CheckConsistency()
+    #CheckConsistency()
     main()
   except MyException as ex:
     PrintInBox(str(ex))
