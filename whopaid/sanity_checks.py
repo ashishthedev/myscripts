@@ -120,7 +120,7 @@ def CheckDocketLength(allBillsDict):
       "vrl": [9, 10],
       "nitco": [11, 7],
       "accura": [7, 8],
-      "profes": [10],
+      "profes": [10, 12],
       "fedex": [12],
       "dtdc": [9],
       }
