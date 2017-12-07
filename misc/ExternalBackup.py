@@ -11,17 +11,19 @@ import shutil
 from collections import namedtuple
 from Util.Misc import PrintInBox
 
+DESTINATION_DRIVE = "G:\\"
+SOURCE_DRIVE = "e:\\"
 Entry = namedtuple("Entry", ["source", "destination"])
 def OneBigLocationsBackup():
   sourceAndDestinations = [
-      Entry(os.path.join("b:\\", "YoutubeVideosDownloaded"), os.path.join("D:\\", "YoutubeVideosDownloaded\\")),
-      Entry(os.path.join("b:\\", "Tools"), os.path.join("D:\\", "Tools\\")),
-      Entry(os.path.join("b:\\", "iPhoneAkanshaImages"), os.path.join("D:\\", "iPhoneAkanshaImages\\")),
-      Entry(os.path.join("b:\\", "Photographs"), os.path.join("D:\\", "Photographs\\")),
-      Entry(os.path.join("b:\\", "Watch"), os.path.join("D:\\", "Watch\\")),
-      Entry(os.path.join("b:\\", "Songs"), os.path.join("D:\\", "Songs\\")),
-      Entry(os.path.join("b:\\", "Read"), os.path.join("D:\\", "Read\\")),
-      Entry(os.path.join("b:\\", "Pendrive"), os.path.join("D:\\", "Pendrive\\")),
+      Entry(os.path.join(SOURCE_DRIVE, "YoutubeVideosDownloaded"), os.path.join(DESTINATION_DRIVE, "YoutubeVideosDownloaded\\")),
+      Entry(os.path.join(SOURCE_DRIVE, "Tools"), os.path.join(DESTINATION_DRIVE, "Tools\\")),
+      Entry(os.path.join(SOURCE_DRIVE, "iPhoneAkanshaImages"), os.path.join(DESTINATION_DRIVE, "iPhoneAkanshaImages\\")),
+      Entry(os.path.join(SOURCE_DRIVE, "Photographs"), os.path.join(DESTINATION_DRIVE, "Photographs\\")),
+      Entry(os.path.join(SOURCE_DRIVE, "Watch"), os.path.join(DESTINATION_DRIVE, "Watch\\")),
+      Entry(os.path.join(SOURCE_DRIVE, "Songs"), os.path.join(DESTINATION_DRIVE, "Songs\\")),
+      Entry(os.path.join(SOURCE_DRIVE, "Read"), os.path.join(DESTINATION_DRIVE, "Read\\")),
+      Entry(os.path.join(SOURCE_DRIVE, "Pendrive"), os.path.join(DESTINATION_DRIVE, "Pendrive\\")),
       ]
 
   ConfirmAndSyncFolders(sourceAndDestinations)
@@ -80,19 +82,19 @@ def SyncFolders(sourcePath, destinationPath):
 def TwoTakeCompleteBackupExceptCertainBigLocations():
 
   SOURCES = [
-      ("b:\\", "Bdrive"),
+      (SOURCE_DRIVE, os.path.join("Gdrive", "Appdir")),
       ]
   IGNORE_LIST = ["YoutubeVideosDownloaded", "Tools", "iPhoneAkanshaImages", "Photographs", "Tools", "Songs", "Read", "Pendrive"]
-  DESTINATION_DRIVE="D:\\"
   destination = os.path.join(DESTINATION_DRIVE, datetime.datetime.now().strftime("%Y-%b-%d"))
 
   if os.path.exists(destination):
     shutil.rmtree(destination)
 
   for source, foldername in SOURCES:
+    sourceJoined = os.path.join(source, foldername)
     finalDestination = os.path.join(destination, foldername)
-    PrintInBox("Copying {} \n to \n {}".format(source, finalDestination))
-    shutil.copytree(source, finalDestination, ignore=shutil.ignore_patterns(*IGNORE_LIST))
+    PrintInBox("Copying {} \n to \n {}".format(sourceJoined, finalDestination))
+    shutil.copytree(sourceJoined, finalDestination, ignore=shutil.ignore_patterns(*IGNORE_LIST))
 
   PrintInBox("Ignored these patterns while copying: {}".format(IGNORE_LIST))
   return
