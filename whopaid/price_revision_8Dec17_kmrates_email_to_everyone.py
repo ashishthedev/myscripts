@@ -95,7 +95,7 @@ def SendRequiredEmailToGrp(grpName, args):
 
   if goAhead:
     print("Preparing mail for group M/s {}".format(grpName))
-    emailSubject = "New Rates WEF 8Dec2017"
+    emailSubject = "New Rates WEF 8-Dec-2017"
     if args.isDemo:
       toMailList = GetOption("EMAIL_REMINDER_SECTION", "TestMailList").replace(';', ',').split(',')
       ccMailList = None
@@ -208,9 +208,11 @@ def AskQuestionsFromUserAndSendMail(args):
     #TODO: Take sms out of mail block and use same chosen company may be throgh singleton
     compsInGrp = ALL_CUST_INFO.GetListOfCompNamesInThisGroup(grpName)
     firstCompInGrp = compsInGrp[0]
+    compName = GetOption("CONFIG_SECTION", "CompName")
     SendOfficialSMS(firstCompInGrp, """Dear Sir,
-Kennametal has revised their prices. Your are requested to kindly check your email for further information.
-Thanks""")
+Kennametal has revised prices of the pellets. Your are requested to kindly check your email for further information.
+Thanks,
+{}.""".format(compName))
   return
 
 def ShouldWeSendAutomaticEmailForGroup(grpName):
