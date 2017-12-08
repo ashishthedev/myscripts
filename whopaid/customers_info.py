@@ -8,6 +8,7 @@
 from Util.Misc import GetPickledObject
 from Util.Config import GetOption, GetAppDir
 from Util.ExcelReader import GetRows, GetCellValue
+from Util.Exception import MyException
 
 import os
 
@@ -48,6 +49,7 @@ class CustomerInfoCol:
     CompanyCodeCol            = "AC"
     LatitudeCol               = "AH"
     LongitudeCol              = "AI"
+    Rates7Dec17Col                  = "AJ"
 
 
 def CreateSingleCustomerInfo(row):
@@ -114,6 +116,8 @@ def CreateSingleCustomerInfo(row):
             c.lng = val
         elif col == CustomerInfoCol.LatitudeCol:
             c.lat = val
+        elif col == CustomerInfoCol.Rates7Dec17Col:
+            c.rateString7Dec17 = val
     return c
 
 
@@ -150,6 +154,7 @@ class SingleCompanyInfo():
     singleComp["companyGroupName"] = self.companyGroupName
     singleComp["lat"] = self.lat
     singleComp["lng"] = self.lng
+    singleComp["rateString7Dec17"] = self.rateString7Dec17
     return singleComp
 
 
@@ -254,6 +259,9 @@ class _AllCustomersInfo(dict):
     def GetCompanyLongitude(self, compName):
         return self[compName].lng
 
+    def GetCompanyRateMap7Dec17(self, compName):
+        return GetItemRateMapFromRateString(self[compName], self[compName].rateString7Dec17)
+
     def IncludeBillAmountInEmails(self, compName):
         val = self[compName].includeBillAmountinEmails
         return val.lower() in ["yes", "y"]
@@ -301,6 +309,29 @@ def GetAllCustomersInfo():
     def _CreateAllCustomersInfoObject(custDBwbPath):
         return _AllCustomersInfo(custDBwbPath)
     return GetPickledObject(custDBwbPath, createrFunction=_CreateAllCustomersInfoObject)
+
+def GetItemRateMapFromRateString(compName, rateString):
+    PRICE_SEPARATOR = ":"
+    ITEM_SEPARATOR = ";"
+    irMap = dict()
+    if not rateString:
+        return irMap
+    itemRatePairs = rateString.split(ITEM_SEPARATOR)
+    for irPair in itemRatePairs:
+        if not irPair.strip(): continue
+        if irPair.count(PRICE_SEPARATOR) != 1:
+            raise MyException("{}: '{}' should have just one '{}'.".format(compName, irPair, PRICE_SEPARATOR))
+        i, r = irPair.split(PRICE_SEPARATOR)
+        i = i.strip()
+        r = r.strip()
+        if i in irMap:
+            raise MyException("{}: Rates for {} is defined multiple times. It should be defined only once".format(compName, i))
+        if not i:
+            raise MyException("{}: There is no item defined before {}".format(compName, PRICE_SEPARATOR))
+        if not r:
+            raise MyException("{}: There is no rate defined after {}".format(compName, PRICE_SEPARATOR))
+        irMap[i] = r
+    return irMap
 
 def main():
   GenerateCustomerInfoJsonNodesFile()

@@ -63,6 +63,7 @@ def CheckConsistency():
 
   functionList = [
       CheckCustomerExistenceInDB,
+      CheckRateForAllCustomers,
       ReportMissingOrDuplicateBillsSince,
       CheckBillingCategory,
       CheckBillsCalculation,
@@ -184,6 +185,11 @@ def ReportMissingOrDuplicateBillsSince(allBillsDict):
         if listOfBillsInOneYear.count(billNumber) > 1:
           raise MyException("Bill Number: %s is entered twice in category %s in year starting from 1-Apr-%s" % (str(billNumber), eachCategory, eachYear))
 
+  return
+
+def CheckRateForAllCustomers(allBillsDict):
+  for (eachCompName, eachComp) in allBillsDict.iteritems():
+    eachComp.CheckRateSanity()
   return
 
 def CheckCustomerExistenceInDB(allBillsDict):

@@ -11,7 +11,8 @@
 
 from Util.Exception import MyException
 from Util.Config import GetOption
-from Util.HTML import UnderLine, Bold, PastelOrangeText
+from Util.Colors import MyColors
+from Util.HTML import UnderLine, Bold, Big, PastelOrangeText, TableHeaderRow, TableDataRow
 
 from whopaid.util_whopaid import GetAllCompaniesDict
 from collections import defaultdict
@@ -81,6 +82,7 @@ def ParseOptions():
 
 def SendRequiredEmailToGrp(grpName, args):
   compsInGrp = ALL_CUST_INFO.GetListOfCompNamesInThisGroup(grpName)
+  firstCompInGrp = compsInGrp[0]
   import pprint
   PrintInBox("Preparing mails for following companies:")
   pprint.pprint(compsInGrp)
@@ -93,7 +95,7 @@ def SendRequiredEmailToGrp(grpName, args):
 
   if goAhead:
     print("Preparing mail for group M/s {}".format(grpName))
-    emailSubject = "Kennametal Price Revision WED 1Dec2017"
+    emailSubject = "New Rates WEF 8Dec2017"
     if args.isDemo:
       toMailList = GetOption("EMAIL_REMINDER_SECTION", "TestMailList").replace(';', ',').split(',')
       ccMailList = None
@@ -105,7 +107,35 @@ def SendRequiredEmailToGrp(grpName, args):
 
   letterDate = datetime.date.today().strftime("%A, %d-%b-%Y") + "<br>"
   d['tLetterDate'] = letterDate
-  d['tBodySubject'] = "Subject: " + PastelOrangeText(Bold(UnderLine("Price Revision Initimation From Kennametal India Limited(WIDIA)")))
+  d['tBodySubject'] = "Subject: " + PastelOrangeText(Bold(UnderLine("New Rates WEF 8-Dec-2017")))
+  d['tSignature'] = GetOption("EMAIL_REMINDER_SECTION", "Signature")
+
+  tableHeadersArgs = ["Pellet Size", "Die Rates"]
+  tableRows = TableHeaderRow(
+      MyColors["GOOGLE_NEW_INBOX_FOREGROUND"],
+      MyColors["GOOGLE_NEW_INBOX_BASE"],
+      *tableHeadersArgs)
+
+  irMap = ALL_CUST_INFO.GetCompanyRateMap7Dec17(firstCompInGrp)
+  if not irMap:
+      raise MyException("No rate map defined for company: {}".format(firstCompInGrp))
+  pprint.pprint(irMap)
+  if raw_input("Proceed(y/n)?: ").lower() != 'y':
+      raise MyException("Halted ...")
+  for i, r in sorted(irMap.items()):
+
+      tableRows += TableDataRow(
+          MyColors["BLACK"],
+          MyColors["WHITE"],
+          i,
+          "&#8377;" + irMap[i])
+
+
+  d = defaultdict(constant_factory(""))
+
+  d['tLetterDate'] = datetime.date.today().strftime("%A, %d-%b-%Y") + "<br>"
+  d['tTableRows'] = tableRows
+  d['tCaption'] = Big(Bold("WEF 8-Dec-2017"))
   d['tSignature'] = GetOption("EMAIL_REMINDER_SECTION", "Signature")
 
   templateMailBody = Template("""
@@ -116,12 +146,23 @@ def SendRequiredEmailToGrp(grpName, args):
       <p>
       $tLetterDate
       <br>
-      $tBodySubject<br>
+      Dear Sir,
       <br>
-      Dear Sir,<br>
       <br>
-      This is to inform you that Kennmetal India Lmited has revised their prices WEF 1-Dec-2017. Please find attached the official confirmation regarding the same.
+     This is to inform you that Kennametal India Limited (WIDIA) has increased the prices of the pellets by net 10% WEF 1-Dec-2017. Please find Kennametal's new rate list attached with this email. We are also forced to revise our prices.
       <br>
+      <br>
+
+      Please find our new rates below for TC Dies:
+      <br>
+
+      <table border=1 cellpadding=5>
+      <caption>
+      $tCaption
+      </caption>
+      $tTableRows
+      </table>
+
       <br>
       Thanks.
       </p><br>
@@ -136,7 +177,7 @@ def SendRequiredEmailToGrp(grpName, args):
 
   section = "EMAIL_REMINDER_SECTION"
   SendMail(emailSubject,
-      "E:\GDrive\Appdir\SDATDocs\SDAT\KennametalAll\NewPriceListKennametal1-Dec-2017\Price Revision Communication Letter - 2017.pdf",
+      "E:\GDrive\Appdir\SDATDocs\SDAT\KennametalAll\NewPriceListKennametal1-Dec-2017\Kennametal Price List WEF 01-DEC-2017.pdf",
       GetOption(section, 'Server'),
       GetOption(section, 'Port'),
       GetOption(section, 'FromEmailAddress'),
@@ -218,7 +259,6 @@ def main():
 
 if __name__ == '__main__':
   try:
-    custDBwbPath = os.path.join(GetAppDir(), GetOption("CONFIG_SECTION", "CustDBRelativePath"))
     CheckConsistency()
     main()
   except MyException as ex:

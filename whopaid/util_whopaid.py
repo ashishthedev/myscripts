@@ -244,6 +244,8 @@ class _AllCompaniesDict(CompaniesDict):
         firstCell = row[0]
         raise MyException("Error in row number: {} Kind of entry is invalid".format(firstCell.row))
 
+
+
 class Company(list):
   """
   For us, the company is same as the list of all bills. If any further info is required, it needs some overhauling.
@@ -267,6 +269,11 @@ class Company(list):
         res +=  " has no bills"
 
       return res
+
+
+  def CheckRateSanity(self):
+    ALL_CUST_INFO.GetCompanyRateMap7Dec17(self.compName) #If GetItemRateMapFromRateString returns, everything went well.
+    return
 
   def CheckEachBillsCalculation(self):
     for b in self:
