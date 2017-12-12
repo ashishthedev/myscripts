@@ -18,6 +18,73 @@ GNOKII_PATH = os.path.join(GetAppDirPath(), "code", "misc", "gnokii", "gnokii.ex
 if not os.path.exists(GNOKII_PATH):
     raise Exception("{} does not exist".format(GNOKII_PATH))
 
+class AndriodSMSGatewayYellowIcon(object):
+    SERVER = GetOption("SMS_SECTION", "SELF_IP")
+    PORT = GetOption("SMS_SECTION", "SELF_PORT_YELLOW")
+    TIMEOUT = 10 #seconds
+    PING_TIMEOUT = .1
+    def __init__(self):
+        self.name = "New Andriod SMS Gateway"
+
+    def PrefetchResources(self):
+        """ A very short duration timeout. And will always return True.
+        Intent is to prefetch the resources."""
+        try:
+            url = "http://{server}:{port}".format(server=self.SERVER, port=self.PORT)
+            urllib2.urlopen(url, timeout=self.PING_TIMEOUT)
+        except urllib2.URLError:
+            #DO not do anything here. The idea is to prefetch the resources and leave abruptly so that few seconds later when the resources are required for actual sending, they are already loaded.
+            pass
+
+    def CanSendSmsAsOfNow(self):
+        #We dont know how to check connection. May be ping?
+        try:
+            url = "http://{server}:{port}".format(server=self.SERVER, port=self.PORT)
+            print(url)
+            resp = urllib2.urlopen(url, timeout=self.TIMEOUT)
+            responseCode = resp.getcode()
+            return responseCode == 200
+        except urllib2.URLError as ex:
+            print(ex.reason)
+
+        return False
+
+    def SendSms(self, toThisNumber, smsContents):
+        """ Send SMS using SMS GATEWAY installed on Andriod """
+        import urllib
+        params = urllib.urlencode({'number': toThisNumber, 'text': smsContents})
+        #Read IP and port at the time of sending so that in case of retries they are reread from the files and any immediate updates are reflected.
+        def smsUrl(server, port, params):
+          return "http://{server}:{port}/?{params}".format(server=server, port=port, params=params)
+
+        ip_labels = ["SELF_IP", "SELF_IP2", "SELF_IP3", "SELF_IP4", "SELF_IP5"]
+        sms_urls = [smsUrl(GetOption("SMS_SECTION", x), self.PORT,  params) for x in ip_labels]
+        for url in sms_urls:
+          try:
+            import urllib2
+            print("Url:" + url)
+            f = urllib2.urlopen(url, timeout=3)
+            print("Success")
+            break
+          except Exception as ex:
+            print("Continuing and trying new url")
+            continue
+        else:
+          raise ex
+
+
+
+        if False:
+          try:
+            f = urllib.urlopen(smsUrl(GetOption("SMS_SECTION", "SELF_IP"), self.PORT,  params))
+          except Exception:
+            raise
+
+        htmlText = f.read()
+        print(htmlText)
+        print(StripHTMLTags(htmlText))
+        return
+
 class AndriodSMSGateway(object):
     SERVER = GetOption("SMS_SECTION", "SELF_IP")
     PORT = GetOption("SMS_SECTION", "SELF_PORT")
@@ -58,7 +125,7 @@ class AndriodSMSGateway(object):
           return "http://{server}:{port}/sendsms?{params}".format(server=server, port=port, params=params)
 
         ip_labels = ["SELF_IP", "SELF_IP2", "SELF_IP3", "SELF_IP4", "SELF_IP5"]
-        sms_urls = [smsUrl(GetOption("SMS_SECTION", x), GetOption("SMS_SECTION", "SELF_PORT"),  params) for x in ip_labels]
+        sms_urls = [smsUrl(GetOption("SMS_SECTION", x), self.PORT,  params) for x in ip_labels]
         for url in sms_urls:
           try:
             import urllib2
@@ -68,17 +135,6 @@ class AndriodSMSGateway(object):
             continue
         else:
           raise ex
-
-
-
-        if False:
-          try:
-            f = urllib.urlopen(smsUrl(GetOption("SMS_SECTION", "SELF_IP"), GetOption("SMS_SECTION", "SELF_PORT"),  params))
-          except Exception:
-            try:
-              f = urllib.urlopen(smsUrl(GetOption("SMS_SECTION", "SELF_IP2"), GetOption("SMS_SECTION", "SELF_PORT2"),  params))
-            except Exception:
-              raise
 
         htmlText = f.read()
         print(htmlText)
@@ -135,7 +191,8 @@ class SonyEricssonPhone():
 
 
 #Global object which tells which Gateway will be used to send SMS.
-SMSOBJECT = AndriodSMSGateway()
+SMSOBJECT = AndriodSMSGatewayYellowIcon()
+#SMSOBJECT = AndriodSMSGateway()
 #SMSOBJECT = SonyEricssonPhone()
 
 @RetryNTimes(5)
@@ -166,7 +223,18 @@ def StripHTMLTags(html):
   return s.get_data()
 
 if __name__ == "__main__":
-  TEST_NUMBER = "4430890569"[::-1]
+  TEST_NUMBER = "2008001799"[::-1]
   if SMSOBJECT.CanSendSmsAsOfNow():
     pass
-    #SMSOBJECT.SendSms(TEST_NUMBER, "Hi this is from program")
+  #SMSOBJECT.SendSms(TEST_NUMBER, "Hi this is from program")
+  #SMSOBJECT.SendSms(TEST_NUMBER, "Hi")
+  SMSOBJECT.SendSms(TEST_NUMBER, """
+  Hi
+  This is a slightly long sms,
+  "This line is in quotes".
+  <angle breakets>",
+  aslkdjflskajdf
+  asdfslkdjflaksjdflksajdflkjasdfasdfklasjdflkajsdflkjaslkdfjlaksjdflkasjdflkjaslkfjlaksjf
+  alkjdflkajsdf
+  &and last line
+  """)
