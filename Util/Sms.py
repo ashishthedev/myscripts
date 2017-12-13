@@ -57,33 +57,28 @@ class AndriodSMSGatewayYellowIcon(object):
         def smsUrl(server, port, params):
           return "http://{server}:{port}/?{params}".format(server=server, port=port, params=params)
 
-        ip_labels = ["SELF_IP", "SELF_IP2", "SELF_IP3", "SELF_IP4", "SELF_IP5"]
-        sms_urls = [smsUrl(GetOption("SMS_SECTION", x), self.PORT,  params) for x in ip_labels]
+        sms_urls = [smsUrl(ip, self.PORT,  params) for ip in GetPotentialIPs()]
         for url in sms_urls:
           try:
             import urllib2
-            print("Url:" + url)
+            #print("Url:" + url)
             f = urllib2.urlopen(url, timeout=3)
             print("Success")
             break
           except Exception as ex:
-            print("Continuing and trying new url")
+            #print("Continuing and trying new url")
             continue
         else:
           raise ex
 
-
-
-        if False:
-          try:
-            f = urllib.urlopen(smsUrl(GetOption("SMS_SECTION", "SELF_IP"), self.PORT,  params))
-          except Exception:
-            raise
-
-        htmlText = f.read()
-        print(htmlText)
-        print(StripHTMLTags(htmlText))
+        #htmlText = f.read()
+        #print(htmlText)
+        #print(StripHTMLTags(htmlText))
         return
+
+def GetPotentialIPs():
+    return [x.strip() for x in GetOption("SMS_SECTION", "SELF_IPS").replace(";", ",").split(",") if x.strip()]
+
 
 class AndriodSMSGateway(object):
     SERVER = GetOption("SMS_SECTION", "SELF_IP")
@@ -124,8 +119,7 @@ class AndriodSMSGateway(object):
         def smsUrl(server, port, params):
           return "http://{server}:{port}/sendsms?{params}".format(server=server, port=port, params=params)
 
-        ip_labels = ["SELF_IP", "SELF_IP2", "SELF_IP3", "SELF_IP4", "SELF_IP5"]
-        sms_urls = [smsUrl(GetOption("SMS_SECTION", x), self.PORT,  params) for x in ip_labels]
+        sms_urls = [smsUrl(ip, self.PORT,  params) for ip in GetPotentialIPs()]
         for url in sms_urls:
           try:
             import urllib2
