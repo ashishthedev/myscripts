@@ -33,7 +33,7 @@ def main():
     xl = pd.ExcelFile(filename)
     b2bsheet = xl.parse('b2b')
     
-    STARTING_ROW = 3
+    STARTING_ROW = 2
     OFFSET = 11
     compareColumns = [
         (GSTIN_COL,          GSTIN_COL + OFFSET,          "GSTIN"), 
@@ -51,6 +51,11 @@ def main():
 
 
     diff = 0
+    sentinel_value = "GSTIN/UIN of Recipient"
+
+    for i, r in enumerate(b2bsheet.values):
+    	if r[0] == sentinel_value:
+    		STARTING_ROW = i+1
 
     for r in b2bsheet.values[STARTING_ROW:]:
 
@@ -75,23 +80,27 @@ def main():
 
             if str(sv) != str(dv):
                 diff += 1; print("{}. Difference in inv#{} {} : {} != {}".format(diff, r[1], intent, sv, dv, s, d)); 
-    invoiceValue_b2b = 0
-    for r in b2bsheet.values[STARTING_ROW:]:
-        invoiceValue_b2b += r[INVOICEVALUE_COL]
+
 
     #HSN SHEET
     HSN_INVOICE_VALUE_COL = 4
-    invoiceValue_hsn = 0
+    HSN_TAXABLE_VALUE_COL = 5
+
     hsnsheet = xl.parse('hsn')
-    for r in hsnsheet.values[STARTING_ROW:]:
-    	invoiceValue_hsn += r[HSN_INVOICE_VALUE_COL]
+    
+    invoiceValue_b2b = sum([r[INVOICEVALUE_COL] for r in b2bsheet.values[STARTING_ROW:]])
+    invoiceValue_hsn = sum([r[HSN_INVOICE_VALUE_COL] for r in hsnsheet.values[STARTING_ROW:]])
 
     if invoiceValue_b2b != invoiceValue_hsn:
-        diff += 1; print("{}. Difference in b2b invoice value total={} and HSN sheet's invoice value total: {} ".format(diff, invoiceValue_b2b, invoiceValue_hsn)); 
-    else:
-    	print("invoiceValue_b2b = invoiceValue_hsn = {}".format(invoiceValue_hsn))
+        diff += 1; print("{}. Difference in b2b invoice value total and HSN sheet's invoice value total: {} != {} Difference: {} ".format(diff, invoiceValue_b2b, invoiceValue_hsn, invoiceValue_b2b-invoiceValue_hsn))
+    
 
-    	
+    taxableValue_b2b = sum([r[TAXABLE_VALUE_COL] for r in b2bsheet.values[STARTING_ROW:]])
+    taxableValue_hsn = sum([r[HSN_TAXABLE_VALUE_COL] for r in hsnsheet.values[STARTING_ROW:]])
+    
+    if taxableValue_b2b != taxableValue_hsn:
+        diff += 1; print("{}. Difference in taxableValue_b2b and taxableValue_hsn: {} != {}. Difference: {}".format(diff, taxableValue_b2b, taxableValue_hsn, taxableValue_hsn-taxableValue_b2b))
+        	
     if not diff:
         print("Perfect")
 

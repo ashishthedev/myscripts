@@ -1,0 +1,4 @@
+Go to the return directory
+THere is a validategstr1.bat file
+Supply it with the filename you want to inspect.
+Copy paste the validategstr1.bat file in all the directories where you want to inspect the returns.

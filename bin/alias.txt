@@ -329,3 +329,4 @@ woaw = pushd %APPDIR%\adaptwater_ve\app\bin && start_shell.bat
 clrs = pushd %XDATDOCSDIR%\..\climaterealty\app\bin\ && start_shell.bat && exit
 clrts = pushd %XDATDOCSDIR%\..\climaterealty\testapp\bin\ && start_shell.bat && exit
 myahk = %XDATDOCSDIR%\FrequentFliers\MyAutoHotKeys.ahk
+
