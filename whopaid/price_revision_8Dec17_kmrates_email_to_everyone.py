@@ -34,7 +34,7 @@ from whopaid.util_whopaid import GuessCompanyGroupName
 
 import argparse
 import random
-import os
+WEF_DATE = "11-JAN-2018"
 
 class KMPriceRevisionEmailPersistentDates(Persistent):
   def __init__(self):
@@ -95,7 +95,7 @@ def SendRequiredEmailToGrp(grpName, args):
 
   if goAhead:
     print("Preparing mail for group M/s {}".format(grpName))
-    emailSubject = "New Rates WEF 26-Dec-2017"
+    emailSubject = "New Rates WEF {}".format(WEF_DATE)
     if args.isDemo:
       toMailList = GetOption("EMAIL_REMINDER_SECTION", "TestMailList").replace(';', ',').split(',')
       ccMailList = None
@@ -107,7 +107,7 @@ def SendRequiredEmailToGrp(grpName, args):
 
   letterDate = datetime.date.today().strftime("%A, %d-%b-%Y") + "<br>"
   d['tLetterDate'] = letterDate
-  d['tBodySubject'] = "Subject: " + PastelOrangeText(Bold(UnderLine("New Rates WEF 26-Dec-2017")))
+  d['tBodySubject'] = "Subject: " + PastelOrangeText(Bold(UnderLine("New Rates WEF {}".format(WEF_DATE))))
   d['tSignature'] = GetOption("EMAIL_REMINDER_SECTION", "Signature")
 
   tableHeadersArgs = ["Pellet Size", "Die Rates"]
@@ -135,7 +135,7 @@ def SendRequiredEmailToGrp(grpName, args):
 
   d['tLetterDate'] = datetime.date.today().strftime("%A, %d-%b-%Y") + "<br>"
   d['tTableRows'] = tableRows
-  d['tCaption'] = Big(Bold("WEF 26-Dec-2017"))
+  d['tCaption'] = Big(Bold("WEF {}".format(WEF_DATE)))
   d['tSignature'] = GetOption("EMAIL_REMINDER_SECTION", "Signature")
 
   templateMailBody = Template("""

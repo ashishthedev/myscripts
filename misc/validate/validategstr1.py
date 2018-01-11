@@ -1,4 +1,5 @@
 import pandas as pd
+import math
 
 GSTIN_COL = 0
 INVOICENUMBER_COL = 1
@@ -91,7 +92,8 @@ def main():
     invoiceValue_b2b = sum([r[INVOICEVALUE_COL] for r in b2bsheet.values[STARTING_ROW:]])
     invoiceValue_hsn = sum([r[HSN_INVOICE_VALUE_COL] for r in hsnsheet.values[STARTING_ROW:]])
 
-    if invoiceValue_b2b != invoiceValue_hsn:
+    FLOAT_ERROR_THRESHOLD = .000001
+    if math.fabs(invoiceValue_b2b - invoiceValue_hsn) > FLOAT_ERROR_THRESHOLD:
         diff += 1; print("{}. Difference in b2b invoice value total and HSN sheet's invoice value total: {} != {} Difference: {} ".format(diff, invoiceValue_b2b, invoiceValue_hsn, invoiceValue_b2b-invoiceValue_hsn))
     
 
