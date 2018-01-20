@@ -64,10 +64,16 @@ ALL_CUST_INFO = GetAllCustomersInfo()
 
 def ParseOptions():
   parser = argparse.ArgumentParser()
+
   parser.add_argument("--allCompanies", dest='allCompanies', action="store_true",
       default=False, help="Send payment reminder to all eligible companies.")
+
+  parser.add_argument("--wef", dest='wef', type=str, required=True,
+      help="WEF Date")
+
   parser.add_argument("-c", "--comp", dest='comp', type=str, default=None,
       help="Company name or part of it.")
+
   parser.add_argument("-d", "--demo", dest='isDemo', action="store_true",
       default=False, help="If present, emails will only be sent to cc"
       " email and no mail will be sent to customer.")
@@ -250,6 +256,9 @@ def SendEmailToAllCompanies(args):
 def main():
 
   args = ParseOptions()
+
+  global WEF_DATE
+  WEF_DATE = args.wef
 
   if args.allCompanies:
     SendEmailToAllCompanies(args)
