@@ -348,11 +348,11 @@ class PersistentShipments(Persistent):
 def GetPlainTrackingUrl(docketNumber, courier):
     courierMap = {
             "fedex": "https://www.fedex.com/apps/fedextrack/?tracknumbers={docketNumber}&cntry_code=in",
-            "fedexObsolete": "http://trackcourier.io/track-and-trace/fedex-courier/{docketNumber}",
-            "overnite": "http://trackcourier.io/track-and-trace/overnite-courier/{docketNumber}",
-            "trackon": "http://trackcourier.io/track-and-trace/trackon-courier/{docketNumber}",
-            "dtdc": "http://trackcourier.io/track-and-trace/dtdc-courier/{docketNumber}",
-            "professional": "http://trackcourier.io/track-and-trace/professional-courier/{docketNumber}",
+            "fedexObsolete": "https://trackcourier.io/track-and-trace/fedex-courier/{docketNumber}",
+            "overnite": "https://trackcourier.io/track-and-trace/overnite-courier/{docketNumber}",
+            "trackon": "https://trackcourier.io/track-and-trace/trackon-courier/{docketNumber}",
+            "dtdc": "https://trackcourier.io/track-and-trace/dtdc-courier/{docketNumber}",
+            "professional": "https://trackcourier.io/track-and-trace/professional-courier/{docketNumber}",
             #"accurate": "http://trackcourier.io/track-and-trace/accurate-courier/{docketNumber}",
             }
     for x in courierMap:
