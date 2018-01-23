@@ -354,6 +354,7 @@ def GetPlainTrackingUrl(docketNumber, courier):
             "dtdc": "https://trackcourier.io/track-and-trace/dtdc-courier/{docketNumber}",
             "professional": "https://trackcourier.io/track-and-trace/professional-courier/{docketNumber}",
             "accurate": "https://trackcourier.io/track-and-trace/accurate-freight-carrier/{docketNumber}",
+            "nitco": "https://trackcourier.io/track-and-trace/nitco-roadways/{docketNumber}",
             #"accurate": "http://trackcourier.io/track-and-trace/accurate-courier/{docketNumber}",
             }
     for x in courierMap:
