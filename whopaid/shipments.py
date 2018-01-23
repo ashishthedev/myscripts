@@ -34,6 +34,7 @@ import random
 MAX_IN_TRANSIT_DAYS = 15
 MAX_DAYS_FOR_SENDING_NOTIFICATION = 4
 IS_DEMO = True
+REMOVE_UNDELIVERED_SHIPMENTS_AFTER_DAYS = 4*30
 
 LIST_OF_SHIPMENTS_IN_THIS_SCAN = list()
 NO_OF_DAYS = int(GetOption("CONFIG_SECTION", "ShowShipmentStatusForNDays"))
@@ -993,4 +994,5 @@ if __name__ == '__main__':
 
   CheckConsistency()
   PersistentShipments().PurgeRedundantAwaitedShipments().shrink()
+  PersistentShipments().PurgeShipmentsOlderThan(120)
   main(args)
