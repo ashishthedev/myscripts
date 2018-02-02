@@ -256,7 +256,7 @@ class SingleShipment():
   @property
   def trackUrl(self):
     #if self.bill.courierName.lower().startswith("fedex"): return "https://www.fedex.com/apps/fedextrack/?tracknumbers={docket}&cntry_code=in".format(docket=self.bill.docketNumber)
-    return GetPlainTrackingUrl(self.docketNumber, self.courier)
+    return GetPlainTrackingUrl(self.bill.docketNumber, self.bill.courierName)
 
 
   @property
