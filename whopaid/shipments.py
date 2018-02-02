@@ -249,10 +249,15 @@ class SingleShipment():
         str(self.status)])
 
   @property
-  def trackUrl(self):
-    if self.bill.courierName.lower().startswith("fedex"):
-      return "https://www.fedex.com/apps/fedextrack/?tracknumbers={docket}&cntry_code=in".format(docket=self.bill.docketNumber)
+  def fedExUrl(self):
+    if self.bill.courierName.lower().startswith("fedex"): return "https://www.fedex.com/apps/fedextrack/?tracknumbers={docket}&cntry_code=in".format(docket=self.bill.docketNumber)
     return None
+
+  @property
+  def trackUrl(self):
+    #if self.bill.courierName.lower().startswith("fedex"): return "https://www.fedex.com/apps/fedextrack/?tracknumbers={docket}&cntry_code=in".format(docket=self.bill.docketNumber)
+    return GetPlainTrackingUrl(self.docketNumber, self.courier)
+
 
   @property
   def daysPassed(self):
@@ -306,6 +311,7 @@ class SingleShipment():
     singleShipment["isDelivered"] = s.isDelivered
     singleShipment["daysPassed"] = s.daysPassed
     singleShipment["trackUrl"] = s.trackUrl
+    singleShipment["fedExUrl"] = s.fedExUrl
     singleShipment["estimatedDeliveryDate"] = s.estimatedDDIfPresent
     singleShipment["actualDeliveryDate"] = s.actualDDIfPresent
     singleShipment["uid_string"] = b.uid_string#TODO: Check if really required in json
