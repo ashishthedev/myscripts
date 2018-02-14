@@ -38,18 +38,19 @@ class CustomerInfoCol:
     PreferredCourierCol       = "R"
     CityCol                   = "S"
     EmailForPayment           = "T"
-    KindAttentionCol          = "U"
-    EmailForFormC             = "V"
-    TrustCol                  = "W"
-    IncludeDaysCol            = "X"
-    CreditLimitCol            = "Y"
-    FormNameCol               = "Z"
-    MinDaysGapCol             = "AA"
-    IncludeBillAmountInEmails = "AB"
-    CompanyCodeCol            = "AC"
-    LatitudeCol               = "AH"
-    LongitudeCol              = "AI"
-    Rates7Dec17Col                  = "AJ"
+    EmailForDispatch          = "U"
+    KindAttentionCol          = "V"
+    EmailForFormC             = "W"
+    TrustCol                  = "X"
+    IncludeDaysCol            = "Y"
+    CreditLimitCol            = "Z"
+    FormNameCol               = "AA"
+    MinDaysGapCol             = "AB"
+    IncludeBillAmountInEmails = "AC"
+    CompanyCodeCol            = "AD"
+    LatitudeCol               = "AI"
+    LongitudeCol              = "AJ"
+    Rates7Dec17Col            = "AK"
 
 
 def CreateSingleCustomerInfo(row):
@@ -90,6 +91,8 @@ def CreateSingleCustomerInfo(row):
             c.city = val
         elif col == CustomerInfoCol.EmailForPayment:
             c.emailForPayment = val.replace("\n","") if val else val
+        elif col == CustomerInfoCol.EmailForDispatch:
+            c.emailForDispatch = val.replace("\n","") if val else val
         elif col == CustomerInfoCol.EmailForFormC:
             c.emailForFormC = val.replace("\n", "") if val else val
         elif col == CustomerInfoCol.KindAttentionCol:
@@ -143,6 +146,7 @@ class SingleCompanyInfo():
     singleComp["preferredCourier"] = self.preferredCourier
     singleComp["city"] = self.city
     singleComp["emailForPayment"] = self.emailForPayment
+    singleComp["emailForDispatch"] = self.emailForDispatch
     singleComp["emailForFormC"] = self.emailForFormC
     singleComp["kindAttentionPerson"] = self.kindAttentionPerson
     singleComp["trust"] = self.trust
@@ -243,6 +247,9 @@ class _AllCustomersInfo(dict):
 
     def GetPaymentReminderEmailsForCustomer(self, compName):
         return self[compName].emailForPayment
+
+    def GetDispatchEmailsForCustomer(self, compName):
+        return self[compName].emailForDispatch
 
     def GetFormCEmailsForCustomer(self, compName):
         return self[compName].emailForFormC

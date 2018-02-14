@@ -430,7 +430,7 @@ def SendMaterialDispatchMail(bill, ctxt):
 
   print("Churning more data...")
 
-  toMailStr = ALL_CUST_INFO.GetPaymentReminderEmailsForCustomer(bill.compName)
+  toMailStr = ALL_CUST_INFO.GetDispatchEmailsForCustomer(bill.compName) or ALL_CUST_INFO.GetPaymentReminderEmailsForCustomer(bill.compName) #First preference to specific dispatch emails present in customer db. If not present, assume anyone getting payment reminders should also be notified of dispatches.
   if not ctxt.kaPerson:
     #If no person was specified at command line then pick one from the database.
     personFromDB = ALL_CUST_INFO.GetCustomerKindAttentionPerson(bill.compName)
@@ -481,6 +481,7 @@ def PrepareShipmentEmailForThisBill(bill, ctxt):
   Given a company, this function will prepare an email for shipment details.
   """
 
+  trackingUrl = GetPlainTrackingUrl(bill.docketNumber, bill.courierName)
   letterDate = DD_MM_YYYY(datetime.date.today())
   officalCompName = ALL_CUST_INFO.GetCompanyOfficialName(bill.compName)
   if not officalCompName:
@@ -490,8 +491,10 @@ def PrepareShipmentEmailForThisBill(bill, ctxt):
   if not companyCity:
     raise ShipmentException("\nM/s {} doesnt have a displayable 'city'. Please feed it in the database".format(bill.compName))
 
+  docketNumberWithLink = """<a style="color:#DD472F" href="{trackingUrl}">{docketNumber}</a>""".format(trackingUrl=trackingUrl, docketNumber=bill.docketNumber)
   tableHeadersArgs = ["Bill#", "Dispatched Through", "Tracking Number", "Shipping Date", "Material Description"]
-  tableDataRowArgs = [ str(int(bill.billNumber)), str(bill.courierName), str(bill.docketNumber), DD_MM_YYYY(bill.docketDate), bill.materialDesc]
+
+  tableDataRowArgs = [ str(int(bill.billNumber)), str(bill.courierName), str(docketNumberWithLink), DD_MM_YYYY(bill.docketDate), bill.materialDesc]
 
   if IncludeAmountForBillInDispatchInfo(bill):
     tableHeadersArgs.append("Bill Amount")
@@ -530,7 +533,6 @@ def PrepareShipmentEmailForThisBill(bill, ctxt):
   d['tTableRows'] = tableRows
   d['tBodySubject'] = PastelOrangeText(Bold(UnderLine(ctxt.emailSubject)))
   d['tSignature'] = GetOption("EMAIL_REMINDER_SECTION", "Signature")
-  trackingUrl = GetPlainTrackingUrl(bill.docketNumber, bill.courierName)
 
         #<td><img src="https://drive.google.com/file/d/0B-P-z1FSiaWAWkFvUzl6eVFWdGs/view?usp=sharing" alt="Track Courier Logo" title="Track Courier Logo" style="display:block" width="44" height="44"/></td>
         #<td><img src="http://trackcourier.io/static/img/icon.png" alt="Track Courier Logo" title="Track Courier Logo" style="display:block" width="44" height="44"/></td>
