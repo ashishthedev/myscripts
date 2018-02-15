@@ -362,6 +362,7 @@ def GetPlainTrackingUrl(docketNumber, courier):
             "professional": "https://trackcourier.io/track-and-trace/professional-courier/{docketNumber}",
             "accurate": "https://trackcourier.io/track-and-trace/accurate-freight-carrier/{docketNumber}",
             "nitco": "https://trackcourier.io/track-and-trace/nitco-roadways/{docketNumber}",
+            "first fl": "https://trackcourier.io/track-and-trace/first-flight-courier/{docketNumber}",
             }
     for x in courierMap:
         if courier.lower().startswith(x):
